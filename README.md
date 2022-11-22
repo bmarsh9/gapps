@@ -48,6 +48,9 @@ The default email/password is `admin@example.com:admin`
 Next, create a project and select the framework (SOC2). Based on the selected criteria, controls and policies will be automatically added to your project. You can also go to the Controls and Policies page and add them to your project.
 
 ### Roadmap
+
+[Take a look at the project](https://github.com/users/bmarsh9/projects/1)
+
 - [ ] Add additional frameworks such as NIST CSF, CMMC and CIS CSC
 - [ ] Add procedures for SOC2
 - [ ] Add evidence collection windows for SOC2
