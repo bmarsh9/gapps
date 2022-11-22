@@ -50,3 +50,4 @@ The default email/password is `admin@example.com:admin`
 - [ ] Add reminders for control/evidence collection
 - [ ] Add tagging support
 - [ ] Improve policies and documentation
+- [ ] Release endpoint agent to automate collection
