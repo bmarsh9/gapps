@@ -1,0 +1,175 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block header_title%}Projects<p class="text-sm text-gray-500 font-medium">Projects contain your policies and controls</p>{%endblock%}
+{%block header_actions%}<button class="btn btn-sm modal-button">New</button>{%endblock%}
+
+{%block content%}
+
+<div class="grid grid-cols-6 gap-4 mt-2">
+  <div class="col-span-6">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Projects</h2>
+        <table class="table table-vcenter table-bordered" id="project-table" style="width:100%">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th class="w-1">Controls</th>
+              <th class="w-1">Policies</th>
+              <th class="w-1">Complete</th>
+              <th class="w-1">Implemented</th>
+              <th class="w-1">Evidence</th>
+              <th class="w-1">Manage</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for project in projects%}
+            {%set complete=project.progress("complete")%}
+            {%set implemented=project.progress("implemented")%}
+            {%set evidence=project.progress("with_evidence")%}
+            <tr>
+              <td class="text-sm font-medium text-gray-500">{{project.name}}</td>
+              <td class="text-sm font-medium text-gray-500">{{project.controls.count()}}</td>
+              <td class="text-sm font-medium text-gray-500">{{project.policies.count()}}</td>
+              <td>
+                <div class="flex flex-col">
+                  <b class="text-xs font-medium text-gray-500">{{complete}}</b><progress class="progress w-28" value="{{complete}}" max="100"></progress>                
+                </div>
+              </td>
+              <td>
+                <div class="flex flex-col">
+                  <b class="text-xs font-medium text-gray-500">{{implemented}}</b><progress class="progress w-28" value="{{implemented}}" max="100"></progress>                
+                </div>
+              </td>
+              <td>
+                <div class="flex flex-col">
+                  <b class="text-xs font-medium text-gray-500">{{evidence}}</b><progress class="progress w-28" value="{{evidence}}" max="100"></progress>                
+                </div>
+              </td>
+              <td class="">
+                <a class="btn btn-xs" href="{{url_for("main.view_project",id=project.id)}}">Edit</a>
+              </td> 
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="project-modal" class="modal-toggle" />
+<label for="project-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">New Project</h3>
+	<div class="py-4 sm:mt-0">
+	  <div class="md:grid md:grid-cols-1 md:gap-6">
+		<div class="mt-5 md:col-span-2 md:mt-0">
+			<div class="overflow-hidden sm:rounded-md">
+			  <div class="bg-white px-4 py-5 sm:p-6">
+				<div class="grid grid-cols-6 gap-6">
+				  <div class="col-span-6 sm:col-span-3">
+					<label for="name" class="block text-sm font-medium text-gray-700">Project Name</label>
+					<input type="text" name="name" id="name" placeholder="Give your project a name" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+				  </div>
+				  <div class="col-span-6 sm:col-span-3">
+					<label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+					<input type="text" name="description" id="description" placeholder="Short description of the project" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+				  </div>
+				  <div class="col-span-6 sm:col-span-6">
+					<label class="block text-sm font-medium text-gray-700 mb-2">Select Framework (you can always add additional controls later)</label>
+                                        <select id="select-framework" class="select select-bordered w-full max-w-xs">
+                                          <option value="n/a" selected>Select framework</option>
+                                          {%for framework in frameworks%}
+                                          <option value="{{framework.name}}">{{framework.name|upper}}</option>
+                                          {%endfor%}
+                                          <option value="empty">Empty project</option>
+                                        </select>
+                                  </div>
+				  <div id="form-content" class="col-span-6 sm:col-span-6"></div>
+				</div>
+			  </div>
+			  <div class="px-4 py-3 text-right sm:px-6">
+				<button class="create-project inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+			  </div>
+			</div>
+		</div>
+	  </div>
+	</div>
+  </label>
+</label>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+    $(document).on('click', '.modal-button', function() {
+      document.getElementById('project-modal').checked = true;
+    });
+    $("#project-table").DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+
+    $(document).on('change', '#select-framework', function() {
+      var divHolder = $("#form-content")
+      divHolder.html("")
+      var framework = $("#select-framework").val();
+      if (framework === "soc2") {
+        divHolder.append(`<div class="col-span-6 sm:col-span-6"><label for="label" class="block text-sm font-medium text-gray-700">Included Criteria Categories</label><p class="text-xs text-gray-500 font-medium mb-3">Security (Common criteria) is required for all SOC 2 projects. Have a question about selection?<a href="{{config.DOC_LINK}}" class="text-primary">Click here</a></p><div class="flex flex-col"><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Security</span><input id="criteria-1" type="checkbox" class="toggle toggle-primary" checked disabled/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Availability</span><input id="criteria-2" type="checkbox" class="toggle toggle-accent"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Confidentiality</span><input id="criteria-3" type="checkbox" class="toggle toggle-accent"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Integrity</span><input id="criteria-4" type="checkbox" class="toggle toggle-accent"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Privacy</span><input id="criteria-5" type="checkbox" class="toggle toggle-accent"/></label></div></div></div>`)
+      }
+    });
+    $(document).on('click', '.create-project', function() {
+      var framework = $("#select-framework").val();
+      var name = $("#name").val();
+      if (name == null || name.length === 0){
+        createToast("error","Please provide a name")
+        return
+      }
+      if (framework === "n/a") {
+        createToast("error","Please select a framework")
+        return
+      }
+      if (framework === "soc2") {
+        var data = {
+          "name":$("#name").val(),
+          "description":$("#description").val(),
+          "framework":framework,
+          "criteria-1":$("#criteria-1").is(':checked'),
+          "criteria-2":$("#criteria-2").is(':checked'),
+          "criteria-3":$("#criteria-3").is(':checked'),
+          "criteria-4":$("#criteria-4").is(':checked'),
+          "criteria-5":$("#criteria-5").is(':checked'),
+        };
+      } else {
+        var data = {
+          "name":$("#name").val(),
+          "description":$("#description").val(),
+          "framework":framework
+        }
+      }
+      $.ajax({
+        type: "POST",
+        url: "/api/v1/projects",
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          createToast("info", "Created project")
+          document.getElementById('project-modal').checked = false;
+          setTimeout(function() {location.reload();}, 500);
+          return(data)
+        },
+        error: function(errMsg) {
+          createToast("error",errMsg["responseJSON"]["message"])
+          return(errMsg);
+        }
+      })
+    });
+  });
+</script>
+{%endblock%}

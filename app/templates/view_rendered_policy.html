@@ -1,0 +1,142 @@
+<html lang="en"><head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Powerful, extensible, and feature-packed frontend toolkit. Build and customize with Sass, utilize prebuilt grid system and components, and bring projects to life with powerful JavaScript plugins.">
+<meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+<meta name="generator" content="Hugo 0.104.2">
+
+<meta name="docsearch:language" content="en">
+<meta name="docsearch:version" content="5.2">
+
+<title>{{policy.name}}</title>
+
+<link href="https://getbootstrap.com/docs/5.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+<link href="https://getbootstrap.com/docs/5.2/assets/css/docs.css" rel="stylesheet">
+
+<style>
+header.navbar.navbar-expand-lg.navbar-dark.bd-navbar.sticky-top {
+    background: #1f2937;
+}
+</style>
+<meta name="theme-color" content="#712cf9">
+
+  <body>
+    <header class="navbar navbar-expand-lg navbar-dark bd-navbar sticky-top">
+  <nav class="container-xxl bd-gutter flex-wrap flex-lg-nowrap" aria-label="Main navigation">
+      <div class="d-lg-none" style="width: 1.5rem;"></div>
+
+    <a class="navbar-brand p-0 me-0 me-lg-2" href="/" aria-label="{{tenant.name}}">
+      {%if tenant.logo_ref%}<img src="{{tenant.logo_ref}}" width="40" height="32" alt="{{tenant.name}}" class="d-block my-1">{%endif%}
+    </a>
+
+    <div class="d-flex">
+      
+
+      <button class="navbar-toggler d-flex d-lg-none order-3 p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-label="Toggle navigation">
+        <svg class="bi" aria-hidden="true"><use xlink:href="#three-dots"></use></svg>
+      </button>
+    </div>
+
+    <div class="offcanvas-lg offcanvas-end flex-grow-1" tabindex="-1" id="bdNavbar" aria-labelledby="bdNavbarOffcanvasLabel" data-bs-scroll="true">
+      <div class="offcanvas-header px-4 pb-0">
+        <h5 class="offcanvas-title text-white" id="bdNavbarOffcanvasLabel">{{tenant.name}}</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#bdNavbar"></button>
+      </div>
+
+      <div class="offcanvas-body p-4 pt-0 p-lg-0">
+        <hr class="d-lg-none text-white-50">
+        <ul class="navbar-nav flex-row flex-wrap bd-navbar-nav">
+          <li class="nav-item col-6 col-lg-auto">
+            <a class="nav-link py-2 px-0 px-lg-2" href="/">Home</a>
+          </li>
+          
+          
+          
+          
+        </ul>
+
+        <hr class="d-lg-none text-white-50">
+
+        <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
+          
+          <li class="nav-item col-6 col-lg-auto">
+            <a class="nav-link py-2 px-0 px-lg-2 mt-2" href="" target="_blank" rel="noopener">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="navbar-nav-svg" viewBox="0 0 512 416.32" role="img"><title>Twitter</title><path fill="currentColor" d="M160.83 416.32c193.2 0 298.92-160.22 298.92-298.92 0-4.51 0-9-.2-13.52A214 214 0 0 0 512 49.38a212.93 212.93 0 0 1-60.44 16.6 105.7 105.7 0 0 0 46.3-58.19 209 209 0 0 1-66.79 25.37 105.09 105.09 0 0 0-181.73 71.91 116.12 116.12 0 0 0 2.66 24c-87.28-4.3-164.73-46.3-216.56-109.82A105.48 105.48 0 0 0 68 159.6a106.27 106.27 0 0 1-47.53-13.11v1.43a105.28 105.28 0 0 0 84.21 103.06 105.67 105.67 0 0 1-47.33 1.84 105.06 105.06 0 0 0 98.14 72.94A210.72 210.72 0 0 1 25 370.84a202.17 202.17 0 0 1-25-1.43 298.85 298.85 0 0 0 160.83 46.92"></path></svg>
+              <small class="d-lg-none ms-2">Twitter</small>
+            </a>
+          </li>
+          
+          <li class="nav-item py-1 col-12 col-lg-auto">
+            <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
+            <hr class="d-lg-none text-white-50">
+          </li>
+          
+
+<li class="nav-item dropdown">
+  <button type="button" class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
+    <span class="d-lg-none" aria-hidden="true">{{tenant.name}}</span><span class="visually-hidden">{{tenant.name}}&nbsp;</span> v{{policy.version}} <span class="visually-hidden">(switch to other versions)</span>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><h6 class="dropdown-header">Previous releases</h6></li>
+    <li><a class="dropdown-item" href="">vc</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="">All versions</a></li>
+  </ul>
+</li>
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+
+    
+  <main>
+    <div class="bd-masthead mb-3" id="content">
+  <div class="container-xxl bd-gutter">
+    <div class="col-md-8 mx-auto text-center">
+      {%if tenant.logo_ref%}
+      <img src="{{tenant.logo_ref}}" width="200" height="165" alt="{{tenant.name}}" class="d-block mx-auto mb-3">
+      {%endif%}
+      <h2 class="display-5 mb-3 {%if not tenant.logo_ref%}mt-5{%endif%} fw-semibold lh-sm">{{policy.name}}</h2>
+      {%if policy.description%}
+      <p class="lead mb-4">
+        {{policy.description}}
+      </p>
+      {%endif%}
+      
+      <p class="text-muted mb-0">
+        Currently <strong class="d-sm-inline-block p-2 me-2 mb-2 mb-lg-0 rounded-3 masthead-notice">v{{policy.version}}</strong>
+        <span class="px-1">·</span>
+        <a href="" class="link-secondary">Download</a>
+        <span class="px-1">·</span>
+        <a href="" class="link-secondary">Changes</a>
+      </p>
+      
+
+    </div>
+  </div>
+</div>
+
+    <div class="container-xxl bd-gutter masthead-followup vh-100">
+        <section class="col-12 mb-5 pb-5 ql-editor">
+        {{content|safe}}
+        </section>
+
+</div>
+
+  </main>
+
+  
+
+
+    <script src="https://getbootstrap.com/docs/5.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+
+
+
+    
+    
+  
+
+</body></html>

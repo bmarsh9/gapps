@@ -1,0 +1,157 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True,query=True,apex=True) }}
+{% endblock %}
+
+{%block header%}{%endblock%}
+{%block header_title%}Home{%endblock%}
+
+{%block content%}
+<div class="grid grid-rows-1 grid-flow-col gap-4">
+  <div class="card bg-base-100">
+    <div class="card-body">
+      <h2 class="card-title">Welcome to {{config.APP_NAME}}</h2>
+      <div class="grid grid-cols-6">
+        <div class="col-span-3">
+          <p class="text-sm font-medium text-gray-500">{{config.APP_NAME}} is a tool to assist you with SOC2 - Type 2 readiness and the attestation process. <a class="text-primary" href="{{config.DOC_LINK}}">Please check here</a> for more information and/or questions</p>
+        </div>
+        <div class="col-span-3 text-end gap-x-2">
+          <a href="{{url_for("main.projects")}}" class="btn btn-sm btn-primary">Projects</a>
+          <a href="{{url_for("main.settings")}}" class="btn btn-sm">Settings</a>
+          {%if config.DOC_LINK%}<a href="{{config.DOC_LINK}}" class="btn btn-sm">Docs</a>{%endif%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="grid grid-cols-8 gap-4 mt-5">
+  <div class="col-span-5">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title">Summary of Projects</h2>
+        <div id="chart"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-3">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title">Summary of Tenant</h2>
+        <div id="chart2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+  $.ajax({
+    type: "GET",
+    url: "/api/v1/charts/tenant-summary",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+        var series = [
+          {
+            "name":"Summary",
+            "data":data.data
+          }
+        ];
+        var options = {
+          series:series,
+          chart: {
+            type: 'radar',
+            height: 350
+          },
+          xaxis: {
+            categories: data.categories,
+          },
+        };
+        var chart = new ApexCharts(document.querySelector("#chart2"), options);
+        chart.render();
+    
+        return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+  $.ajax({
+    type: "GET",
+    url: "/api/v1/charts/project-summaries",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+        var series = [
+          {
+            "name":"Controls",
+            "data":data.controls
+          },
+          {
+            "name":"Policies",
+            "data":data.policies
+          },
+          {
+            "name":"Complete",
+            "data":data.complete
+          },
+          {
+            "name":"Missing Evidence",
+            "data":data.missing_evidence
+          },
+          {
+            "name":"Not Implemented",
+            "data":data.not_implemented
+          }
+        ];
+        var options = {
+          series:series,
+          chart: {
+            type: 'bar',
+            height: 350
+          },
+          plotOptions: {
+            bar: {
+              horizontal: false,
+              columnWidth: '55%',
+              endingShape: 'rounded'
+            },
+          },
+          dataLabels: {
+            enabled: false
+          },
+          stroke: {
+            show: true,
+            width: 2,
+            colors: ['transparent']
+          },
+          xaxis: {
+            categories: data.categories,
+          },
+          yaxis: {
+            title: {
+              text: 'Amount'
+            }
+          },
+          fill: {
+            opacity: 1
+          }
+        };
+        var chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+    
+        return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+  });
+</script>
+{%endblock%}

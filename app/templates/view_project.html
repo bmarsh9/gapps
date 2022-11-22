@@ -1,0 +1,164 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block header%}
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-3 gap-4">
+            <div class="col-span-2">
+              <h1 class="text-2xl tracking-tight font-bold text-gray-900 {%block hide_title_on_mobile%}{%endblock%}">
+                <div class="breadcrumbs p-0">
+                  <ul>
+                    <li><a href="{{url_for("main.projects")}}">Projects</a></li>
+                    <li class="text-primary">{{project.name}}</li>
+                  </ul>
+                </div>
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div class="tabs max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 gap-x-4">
+          <a href="" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-primary tab-active">Project Summary</a> 
+          <a href="{{url_for("main.view_policies_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Policies</a>
+          <a href="{{url_for("main.view_controls_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Controls</a> 
+          <a href="{{url_for("main.view_settings_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Settings</a>
+        </div>
+    </header>
+{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-6 gap-4 mt-2">
+    <div class="col-span-6">
+        <div class="grid grid-cols-8 gap-4 mt-2">
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">Completion Status</h2>
+                            <div>
+                                <a id="completion-status" href="{{url_for("main.view_controls_in_project",id=project.id)}}"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">Completed Controls</h2>
+                            <div>
+                                <a id="completed" href="{{url_for("main.view_controls_in_project",id=project.id)}}"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">Total Controls</h2>
+                            <div>
+                                <a id="total-controls" href="{{url_for("main.view_controls_in_project",id=project.id)}}"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-2">
+                <div class="card bg-base-100">
+                    <div class="card-body pr-20">
+                        <div class="card-title justify-between">
+                            <h2 class="card-title">Total Policies</h2>
+                            <div>
+                                <a id="total-policies" href="{{url_for("main.view_policies_in_project",id=project.id)}}"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-8">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Summary</h2>
+                        <div class="grid grid-cols-4 gap-4">
+                            <div><label class="text-sm font-medium text-gray-500">Name</label>
+                                <p class="text-sm">{{project.id}}-{{project.name}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Description</label>
+                                <p class="text-sm">{{project.description}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Owner</label>
+                                <p class="text-sm">{{project.user.email}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">UUID</label>
+                                <p class="text-sm">{{project.uuid}}</p></div>
+                            <div><label class="text-sm font-medium text-gray-500">Date Added</label>
+                                <p class="text-sm">{{project.date_added}}</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-4">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Implementation Progress</h2>
+                        <div id="implementation-progress" class="mx-auto">{{project.progress("implemented")}}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-4">
+                <div class="card bg-base-100">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Evidence Progress</h2>
+                        <div id="evidence-progress" class="mx-auto">{{project.progress("with_evidence")}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<input type="checkbox" id="data-modal" class="modal-toggle" />
+<label for="data-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3  id="data-modal-title" class="text-lg font-bold"></h3>
+    <pre><code id="data-modal-body" class="card-body text-white bg-slate-500 rounded mt-4 whitespace-pre-line"></code></pre>
+  </label>
+</label>
+
+
+    </div>
+  </label>
+</label>
+{%endblock%}
+
+{%block extrajs%}
+
+<script>
+  $(document).ready(function() {
+  $.ajax({
+    type: "GET",
+    url: "/api/v1/projects/{{project.id}}",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+        $("#completion-status").html(`${data["completion_progress"]}%`);
+        $("#completed").html(`${data["completed"]}%`);
+        $("#total-controls").html(data["total_controls"]);
+        $("#total-policies").html(data["total_policies"]);
+        $("#implementation-progress").html(`<div class="radial-progress text-primary" style="--value:${data["implemented_progress"]};">${data["implemented_progress"]}%</div>`);
+        $("#evidence-progress").html(`<div class="radial-progress text-primary" style="--value:${data["evidence_progress"]};">${data["evidence_progress"]}%</div>`);
+        return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+  });
+</script>
+{%endblock%}

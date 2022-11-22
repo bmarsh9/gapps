@@ -1,0 +1,41 @@
+{% macro descriptiveList(title, subtitle, data) -%}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6">
+    <h3 class="text-lg leading-6 font-medium text-gray-900">{{title}}</h3>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">{{subtitle}}</p>
+  </div>
+  <div class="border-t border-gray-200">
+    <dl>
+      {%for record in data%}
+      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium text-gray-500">{{record[0]}}</dt>
+        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{record[1]}}</dd>
+      </div>
+      {%endfor%}
+    </dl>
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro card(title, body) -%}
+<div class="card bg-base-100">
+  <div class="card-body">
+    <h2 class="card-title">{{title}}</h2>
+    <p>{{body}}</p>
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro cardWithSubtitle(title, subtitle, body) -%}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6">
+    <h3 class="text-lg leading-6 font-medium text-gray-900">{{title}}</h3>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">{{subtitle}}</p>
+  </div>
+  <div class="border-t border-gray-200">
+    <div class="bg-gray-50 px-4 py-5 sm:grid sm:px-6">
+    {{body}}
+    </div>
+  </div>
+</div>
+{%- endmacro %}

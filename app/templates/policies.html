@@ -1,0 +1,196 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block header_title%}Policies<p class="text-sm text-gray-500 font-medium">Policies can be added to your projects and associated with controls</p>{%endblock%}
+{%block header_actions%}<button class="btn btn-sm modal-button">New</button>{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-6 gap-4 mt-2">
+            <div class="col-span-6">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title mb-2">Policies</h2>
+        <p class="text-sm text-gray-500 font-medium mb-4">These policies are included in your SOC2 project. Be sure to update the status and implementation effort. <a href="" class="text-primary">Need help?</a></p>
+        <table class="table table-vcenter table-bordered" id="policies-table" style="width:100%">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th class="w-1">Associated Controls</th>
+              <th class="w-1">More</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for policy in policies%}
+            <tr data-policy-id={{policy.id}}>
+              <td class="text-sm font-medium text-gray-500">{{policy.name}}</td>
+              <td class="text-sm font-medium text-gray-500">{{policy.controls()|length}}</td>
+              <td class="text-center">
+<div class="dropdown dropdown-top dropdown-end">
+  <label tabindex="0" class="btn btn btn-sm border border-white btn-outline"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label>
+  <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+    <li><a href="{{url_for("main.view_policy",id=policy.id)}}" class="view">View</a></li>
+    <li><a data-name="{{policy.name}}" data-id="{{policy.id}}" class="add-to-project">Add to project</a></li>
+    <li><a data-id="{{policy.id}}" class="delete-policy">Delete</a></li>
+  </ul>
+</div>
+              </td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+</div>
+
+<input type="checkbox" id="add-to-project-modal" class="modal-toggle" />
+<label for="add-to-project-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 id="add-to-project-modal-title" class="text-lg font-bold"></h3>
+    <div id="add-to-project-modal-body" class="card-body">
+      <p id="modal-p" class="mb-2"></p>
+      <label class="block text-sm font-medium text-gray-700">Select Project</label>
+      <select id="selected-project" class="select select-bordered w-full max-w-xs">
+        {%for project in projects%}
+        <option value={{project.id}}>{{project.name}}</option>
+        {%endfor%}
+      </select>
+    </div>
+    <div class="px-4 py-3 text-right sm:px-6">
+      <button class="btn-save-policy-to-project inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+    </div>
+  </label>
+</label>
+
+<input type="checkbox" id="view-modal" class="modal-toggle" />
+<label for="view-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 id="view-modal-title" class="text-lg font-bold"></h3>
+    <div id="view-modal-body" class="card-body">
+<div class="overflow-hidden bg-white border shadow sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6">
+    <h3 class="text-lg font-medium leading-6 text-gray-900">Policy Details</h3>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">View detailed information about the policy</p>
+  </div>
+  <div class="border-t border-gray-200">
+    <dl id="div-holder"><dl>
+  </div>
+</div>
+
+    </div>
+  </label>
+</label>
+
+<input type="checkbox" id="policy-modal" class="modal-toggle" />
+<label for="policy-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">New Policy</h3>
+        <div class="py-4 sm:mt-0">
+          <div class="md:grid md:grid-cols-1 md:gap-6">
+                <div class="mt-5 md:col-span-2 md:mt-0">
+                        <div class="overflow-hidden shadow sm:rounded-md">
+                          <div class="bg-white px-4 py-5 sm:p-6">
+                                <div class="grid grid-cols-6 gap-6">
+                                  <div class="col-span-3 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Name</label>
+                                        <input placeholder="Enter the name of the policy" type="text" name="name" id="name" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                  </div>
+                                  <div class="col-span-3 sm:col-span-3">
+                                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                                        <input type="text" name="description" id="description" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                  </div>
+                                </div>
+                          </div>
+                          <div class="px-4 py-3 text-right sm:px-6">
+                                <button type="submit" class="create-policy inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+                          </div>
+                        </div>
+                </div>
+          </div>
+        </div>
+  </label>
+</label>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+    $(document).on('click', '.delete-policy', function() {
+       var policyId = $(this).data('id')
+       $.ajax({
+         type: "DELETE",
+         url: `/api/v1/policies/${policyId}`,
+         contentType: "application/json; charset=utf-8",
+         dataType: "json",
+         success: function(data){
+             createToast("success","Deleted policy")
+             setTimeout(function() {location.reload();}, 500);
+             return(data)
+         },
+         error: function(errMsg) {
+             return(errMsg);
+         }
+       })
+    });
+    $(document).on('click', '.modal-button', function() {
+      document.getElementById('policy-modal').checked = true;
+    });
+     $(document).on('click', '.create-policy', function() {
+       var data = {
+           "name":$("#name").val(),
+           "description":$("#description").val()
+       };
+       $.ajax({
+         type: "POST",
+         url: `/api/v1/policies`,
+         data: JSON.stringify(data),
+         contentType: "application/json; charset=utf-8",
+         dataType: "json",
+         success: function(data){
+             createToast("success","Added policy")
+             document.getElementById('policy-modal').checked = false;
+             setTimeout(function() {location.reload();}, 500)
+             return(data)
+         },
+         error: function(errMsg) {
+             return(errMsg);
+         }
+       })
+     });
+     $(document).on('click', '.btn-save-policy-to-project', function() {
+       var policyId = $(this).data('id')
+       var selectedProjectId = $("#selected-project").val()
+       $.ajax({
+         type: "PUT",
+         url: `/api/v1/policies/${policyId}/projects/${selectedProjectId}`,
+         contentType: "application/json; charset=utf-8",
+         dataType: "json",
+         success: function(data){
+             createToast("success","Added policy to the project")
+             document.getElementById('add-to-project-modal').checked = false;
+             return(data)
+         },
+         error: function(errMsg) {
+             return(errMsg);
+         }
+       })
+     });
+
+     $(document).on('click', '.add-to-project', function() {
+       document.getElementById('add-to-project-modal').checked = true;
+       var policyId = $(this).data('id')
+       var policyName = $(this).data('name')
+       $(".btn-save-policy-to-project").data("id",policyId)
+       $("#add-to-project-modal-title").html(`Which project would you like to add this policy to?`)
+       $("#modal-p").html(`${policyName}`)
+     });
+     var table = $("#policies-table").DataTable({"pageLength":50});
+  });
+</script>
+{%endblock%}

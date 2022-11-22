@@ -1,0 +1,336 @@
+{% extends "layouts/basic.html" %}
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(datatables=True,query=True,select2=True) }}
+{% endblock %}
+{%block header%}
+<header class="bg-white shadow">
+  <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-3 gap-4">
+      <div class="col-span-2">
+        <h1 class="text-2xl tracking-tight font-bold text-gray-900 {%block hide_title_on_mobile%}{%endblock%}">
+          <div class="breadcrumbs p-0">
+            <ul>
+              <li><a href="{{url_for("main.projects")}}">Projects</a></li>
+              <li><a href="{{url_for("main.view_project",id=project.id)}}">{{project.name}}</a></li>
+              <li><a href="{{url_for("main.view_controls_in_project",id=project.id)}}">Controls</a></li>
+              <li class="text-primary">{{control.ref_code}}</li>
+            </ul>
+          </div>
+        </h1>
+      </div>
+    </div>
+  </div>
+  <div class="tabs max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 gap-x-4">
+    <a href="{{url_for("main.view_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Project Summary</a>
+    <a href="{{url_for("main.view_policies_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Policies</a>
+    <a href="{{url_for("main.view_controls_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-primary tab-active">Controls</a>
+    <a href="{{url_for("main.view_settings_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Settings</a>
+  </div>
+</header>
+{%endblock%}
+{%block content%}
+{%set status=control.status()%}
+<div class="flex justify-between">
+  <div class="badge text-xs badge{%if status =="complete"%}-accent{%elif status =="not applicable"%}-primary{%elif status =="in progress"%}-warning{%endif%} uppercase text-white font-medium">{{status}}</div>
+  <div class="dropdown dropdown-bottom dropdown-end">
+    <label tabindex="0" class="btn btn-sm btn-ghost mb-1">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 010 3m0-3a1.5 1.5 0 000 3m0 9.75V10.5" /></svg>
+    </label>
+    <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+      <li><a class="btn-na">Mark as Not Applicable</a></li>
+      <li><a>Reset data</a></li>
+    </ul>
+  </div>
+</div>
+<div class="col-span-6">
+  <div class="card bg-base-100 px-4 py-5 sm:px-6">
+    <div class="grid grid-cols-6 gap-x-4">
+      <div class="sm:col-span-4">
+        <div class="m-auto text-lg leading-6 font-medium text-gray-900">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-primary w-6 h-6 float-left mr-2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+          </svg>
+          {{control.name}}
+        </div>
+        <div class="m-auto mt-4">
+          <div class="sm:col-span-4">
+            <div class="collapse border sm:rounded-lg collapse-plus">
+              <input type="checkbox" />
+              <div class="collapse-title text-md font-medium text-gray-500 border-b">
+                Show additional information
+              </div>
+              <div class="collapse-content">
+                <dl>
+                  <div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 sm:col-span-2">Description</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-4">{{control.description}}</dd>
+                  </div>
+                </dl>
+                <dl>
+                  <div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 sm:col-span-2">Framework (based on)</dt>
+                    <dd class="mt-1 text-sm text-white sm:mt-0 sm:col-span-4 badge">{{control.parent_object().framework.name}}</dd>
+                  </div>
+                </dl>
+                <dl>
+                  <div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 sm:col-span-2">Category</dt>
+                    <dd class="mt-1 text-sm text-white sm:mt-0 sm:col-span-4 badge">{{control.category}}</dd>
+                  </div>
+                </dl>
+                <dl>
+                  <div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 sm:col-span-2">Subcategory</dt>
+                    <dd class="mt-1 text-sm text-white sm:mt-0 sm:col-span-4 badge">{{control.subcategory}}</dd>
+                  </div>
+                </dl>
+                <dl>
+                  <div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 sm:col-span-2">Difficulty to Implement</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-4">
+                      <div class="rating">
+                        <input type="radio" name="rating-4" class="mask mask-star-2 bg-red-500" {%if control.dti == "easy"%}checked{%endif%}/>
+                        <input type="radio" name="rating-4" class="mask mask-star-2 bg-red-500" {%if control.dti == "moderate"%}checked{%endif%}/>
+                        <input type="radio" name="rating-4" class="mask mask-star-2 bg-red-500" {%if control.dti == "hard"%}checked{%endif%}/>
+                      </div>
+                    </dd>
+                  </div>
+                </dl>
+                <dl>
+                  <div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500 sm:col-span-2">Difficulty to Collect</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-4">
+                      <div class="rating">
+                        <input type="radio" name="rating-5" class="mask mask-star-2 bg-red-500" {%if control.dtc == "easy"%}checked{%endif%}/>
+                        <input type="radio" name="rating-5" class="mask mask-star-2 bg-red-500" {%if control.dtc == "moderate"%}checked{%endif%}/>
+                        <input type="radio" name="rating-5" class="mask mask-star-2 bg-red-500" {%if control.dtc == "hard"%}checked{%endif%}/>
+                      </div>
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sm:col-span-2 m-auto gap-x-4 flex flex-row">
+        {%set complete_progress = control.progress("implemented")%}
+        {%set evidence_progress = control.progress("with_evidence")%}
+        {%if complete_progress < 40%}
+        {%set complete_progress_color="error"%}
+        {%elif complete_progress < 60%}
+        {%set complete_progress_color="warning"%}
+        {%elif complete_progress < 80%}
+        {%set complete_progress_color="accent"%}
+        {%else%}
+        {%set complete_progress_color="success"%}
+        {%endif%}
+        {%if evidence_progress < 40%}
+        {%set evidence_progress_color="error"%}
+        {%elif evidence_progress < 60%}
+        {%set evidence_progress_color="warning"%}
+        {%elif evidence_progress < 80%}
+        {%set evidence_progress_color="accent"%}
+        {%else%}
+        {%set evidence_progress_color="success"%}
+        {%endif%}
+        <div class="m-auto text-center">
+          <div class="radial-progress text-{{complete_progress_color}}" style="--size:8rem; --value:{{complete_progress}};">{{complete_progress}}%</div>
+          <h2 class="text-gray-500 text-sm font-medium mt-1">Implemented</h2>
+        </div>
+        <div class="m-auto text-center">
+          <div class="radial-progress text-{{evidence_progress_color}}" style="--size:8rem; --value:{{evidence_progress}};">{{evidence_progress}}%</div>
+          <h2 class="text-gray-500 text-sm font-medium mt-1">Evidence</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="col-span-6 mt-4">
+  <div class="card bg-base-100">
+    <div class="px-4 py-5 sm:px-6">
+      <div class="text-lg leading-6 font-medium text-gray-900">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-primary w-6 h-6 float-left mr-2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" />
+        </svg>
+        Focus Areas for {{control.ref_code}}
+      </div>
+      <button class="float-right btn btn-xs toggle-fa hover:bg-primary hover:border-primary">Toggle</button>
+      <p class="mt-1 text-sm text-gray-500">Focus areas break the control down into specific tasks or actions items. Complete all focus areas to satisfy the <b>{{control.ref_code}}</b> control</p>
+    </div>
+    <div class="border-t border-gray-200">
+      <div class="bg-gray-50 px-4 py-5 sm:grid sm:px-6">
+        {%for focus in focus_areas%}
+        <div class="grid grid-cols-10 mb-2">
+          <div class="col-span-1 flex m-auto">
+            {%if not focus.is_applicable()%}
+            <div class="tooltip z-50" data-tip="Not applicable (complete)">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-warning w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+              </svg>
+            </div>
+            {%else%}
+            {%if not focus.is_complete()%}
+            <div class="tooltip tooltip-right z-50" data-tip="Not Implemented">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-slate-400 w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+              </svg>
+            </div>
+            {%else%}
+            <div class="tooltip tooltip-right z-50" data-tip="Implemented">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-accent w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+              </svg>
+            </div>
+            {%endif%}
+            {%if not focus.has_evidence()%}
+            <div class="tooltip z-30" data-tip="No evidence">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-slate-400 w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+              </svg>
+            </div>
+            {%else%}
+            <div class="tooltip z-30" data-tip="Evidence collected">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-accent w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+              </svg>
+            </div>
+            {%endif%}
+            {%endif%}
+          </div>
+          <div class="col-span-9">
+            <div class="collapse border border-base-300 bg-base-100 rounded-box collapse-plus">
+              <input type="checkbox" />
+              <div class="collapse-title text-gray-500 text-sm font-medium">
+                <div class="flex flex-row">
+                  <h3 class="ml-1">{{focus.name}}</h3>
+                </div>
+              </div>
+              <div class="collapse-content bg-slate-200">
+                <div class="overflow-hidden bg-white shadow sm:rounded-lg mt-4">
+                  <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">{{focus.id}} - Focus Area Details</h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">View detailed information about the focus area</p>
+                  </div>
+                  <div class="border-t border-gray-200">
+                    <dl>
+                      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Status</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-5 sm:mt-0">
+                          <select data-name="status" class="select select-bordered w-full max-w-xs input-{{focus.id}}-status">
+                          <option {%if focus.status == "not implemented"%}selected{%endif%} value="not implemented">Not implemented</option>
+                          <option {%if focus.status == "not applicable"%}selected{%endif%} value="not applicable">Not applicable</option>
+                          <option {%if focus.status == "implemented"%}selected{%endif%} value="implemented">Implemented</option>
+                          </select>
+                        </dd>
+                      </div>
+                    </dl>
+                    <dl>
+                      <div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Ref Code</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-5 sm:mt-0">{{focus.ref_code}}</dd>
+                      </div>
+                    </dl>
+                    <dl>
+                      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Description</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-5 sm:mt-0">{{focus.description or focus.name}}</dd>
+                      </div>
+                    </dl>
+                    <dl>
+                      <div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Mitigation</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-5 sm:mt-0">{{focus.mitigation}}</dd>
+                      </div>
+                    </dl>
+                    <dl>
+                      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Evidence</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-5 sm:mt-0"><textarea data-name="evidence" class="textarea textarea-bordered w-full input-{{focus.id}}-evidence" placeholder="Add evidence directly or a link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here. If you mark it as Not Applicable, you can explain why here.">{%if focus.evidence%}{{focus.evidence}}{%endif%}</textarea></dd>
+                      </div>
+                    </dl>
+                    <dl>
+                      <div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Internal Notes</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-5 sm:mt-0"><textarea data-name="notes" class="textarea textarea-bordered w-full input-{{focus.id}}-notes" placeholder="Document any notes here. Users with the Audit role will not be able to view these notes">{%if focus.notes%}{{focus.notes}}{%endif%}</textarea></dd>
+                      </div>
+                    </dl>
+                    <dl>
+                      <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Auditor Feedback</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:col-span-5 sm:mt-0"><textarea data-name="feedback" class="textarea textarea-bordered w-full input-{{focus.id}}-feedback" placeholder="Feedback from the auditor can be placed here">{%if focus.feedback%}{{focus.feedback}}{%endif%}</textarea></dd>
+                      </div>
+                    </dl>
+                  </div>
+                  <button data-id={{focus.id}} class="save-fa float-right btn btn-md hover:bg-primary hover:border-primary m-4 w-20">Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {%endfor%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{%endblock%}
+{%block extrajs%}
+<script>
+  $(document).on('click', '.btn-na', function() {
+    $.ajax({
+      type: "PUT",
+      url: "/api/v1/controls/{{control.id}}/applicability",
+      data: JSON.stringify({"applicable":false}),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+          createToast("success","Control has been set as Not Applicable")
+          return(data)
+      },
+      error: function(errMsg) {
+          return(errMsg);
+      }
+    })  
+  });
+  $(document).on('click', '.save-fa', function() {
+    var faId = $(this).data('id')
+    var status = $(`.input-${faId}-status`).val()
+    var evidence = $(`.input-${faId}-evidence`).val()
+    var notes = $(`.input-${faId}-notes`).val()
+    var feedback = $(`.input-${faId}-feedback`).val()
+    var data = {
+      "status":status,
+      "evidence":evidence,
+      "notes":notes,
+      "feedback":feedback,
+    };
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/controls/{{control.id}}/focus-areas/${faId}`,
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+          createToast("success","Updated the focus area")
+          return(data)
+      },
+      error: function(errMsg) {
+          return(errMsg);
+      }
+    })
+    createToast("warning", "Please refresh the page to view changes")
+  });
+  
+  $(document).on('click', '.toggle-fa', function() {
+    if ($(".collapse").hasClass("collapse-open")) {
+      $(".collapse").removeClass("collapse-open")
+    } else {
+      $(".collapse").addClass("collapse-open")
+    }
+  });
+</script>
+{%endblock%}

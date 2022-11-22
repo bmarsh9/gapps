@@ -1,0 +1,20 @@
+{% extends "layouts/empty.html" %}
+{%block body%}
+<div class="min-h-full flex items-center justify-center pt-48 px-4">
+  <div class="w-full space-y-8">
+<div>
+  <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
+    <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl sm:tracking-tight">
+      <span class="block">{{title or "Something we wrong"}}</span>
+      <span class="block text-indigo-600">{{description}}</span>
+    </h2>
+    <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+      <div class="inline-flex rounded-md shadow">
+        <a href="{{url_for("main.home")}}" class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"> Home </a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+{%endblock%}

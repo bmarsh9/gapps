@@ -1,0 +1,391 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True,select2=True) }}
+{% endblock %}
+
+{%block header_title%}Controls<p class="text-sm text-gray-500 font-medium">Controls can be added to your projects</p>{%endblock%}
+{%block header_actions%}<a href="{{url_for("main.controls_dashboard")}}" class="btn btn-sm btn-primary">Dashboard</a><button class="btn btn-sm modal-button">New Control</button>{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-6 gap-4 mt-2">
+            <div class="col-span-6">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title mb-2">Controls</h2>
+        <p class="text-sm text-gray-500 font-medium mb-4">These controls are included in your SOC2 project. Be sure to update the status and implementation effort. <a href="" class="text-primary">Need help?</a></p>
+        <table class="table table-vcenter table-bordered" id="controls-table" style="width:100%">
+          <thead>
+            <tr>
+              <th class="w-1">Reference</th>
+              <th class="w-1">Framework</th>
+              <th class="w-1">Category</th>
+              <th>Name</th>
+              <th class="w-1">More</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for control in controls%}
+            <tr data-control-id={{control.id}}>
+              <td class="text-sm font-medium text-gray-500">{{control.ref_code}}</td>
+              <td class="text-sm font-medium text-gray-500">{{control.framework.name}}</td>
+              <td class="text-sm font-medium text-gray-500"><span class="badge badge-sm bg-slate-500 border-slate-500 hover:bg-accent hover:border-accent">{{control.category}}</span></td>
+              <td class="text-sm font-medium text-gray-500"><div class="tooltip" data-tip="Double click to see more"><div class="truncate w-96">{{control.name}}</div></div></td>
+              <td class="text-center">
+<div class="dropdown dropdown-top dropdown-end">
+  <label tabindex="0" class="btn btn btn-sm border border-white btn-outline"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label>
+  <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+    <li><a href="{{url_for("main.view_control",id=control.id)}}" class="view">View</a></li>
+    <li><a data-name="{{control.name}}" data-id="{{control.id}}" class="add-to-project">Add to project</a></li>
+    <li><a data-id="{{control.id}}" class="delete-control">Delete</a></li>
+  </ul>
+</div>
+              </td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+</div>
+
+<input type="checkbox" id="add-to-project-modal" class="modal-toggle" />
+<label for="add-to-project-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-7xl" for="">
+    <h3 id="add-to-project-modal-title" class="text-lg font-bold"></h3>
+    <div id="add-to-project-modal-body" class="card-body">
+      <p id="modal-p" class="mb-2"></p>
+      <label class="block text-sm font-medium text-gray-700">Select Project</label>
+      <select id="selected-project" class="select select-bordered w-full max-w-xs">
+        {%for project in projects%}
+        <option value={{project.id}}>{{project.name}}</option>
+        {%endfor%}
+      </select>
+    </div>
+    <div class="px-4 py-3 text-right sm:px-6">
+      <button class="btn-save-control-to-project inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+    </div>
+  </label>
+</label>
+
+<input type="checkbox" id="view-modal" class="modal-toggle" />
+<label for="view-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 id="view-modal-title" class="text-lg font-bold"></h3>
+    <div id="view-modal-body" class="card-body">
+<div class="overflow-hidden bg-white border shadow sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6">
+    <h3 class="text-lg font-medium leading-6 text-gray-900">Control Details</h3>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">View detailed information about the control</p>
+  </div>
+  <div class="border-t border-gray-200">
+    <dl id="div-holder"><dl>
+  </div>
+</div>
+
+    </div>
+  </label>
+</label>
+
+<input type="checkbox" id="control-modal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box relative w-11/12 max-w-5xl">
+    <label for="control-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <h3 class="text-lg font-bold">New Control</h3>
+        <div class="py-4 sm:mt-0">
+                <p class="text-sm font-medium text-gray-500">Create a new control which can be added to your projects. Focus areas are child tasks of the control. For example, if you create a control with two (2) focus areas, you would complete the focus areas and the top level control would be satisfied. Focus areas are not mandatory to use, but are highly encouraged to break down a control.</p>
+                <div class="card-body">
+          <div class="md:grid md:grid-cols-1 md:gap-6">
+                <div class="mt-5 md:col-span-2 md:mt-0">
+                        <div class="overflow-hidden border sm:rounded-md mb-2">
+                          <div class="bg-white px-4 py-5 sm:p-6">
+                                <div class="grid grid-cols-6 gap-6">
+                                  <div class="col-span-2 sm:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700">Name</label>
+                                        <input placeholder="Enter the name of the control" type="text" id="name" class="mt-2 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                  </div>
+                                  <div class="col-span-2 sm:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700">Reference code</label>
+                                        <input placeholder="Enter the reference code" type="text" id="ref_code" class="mt-2 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                  </div>
+                                  <div class="col-span-2 sm:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Select Framework (or create new one)</label>
+                                        <select class="select select-bordered w-full max-w-xs framework-select" id="framework">
+                                          {%for framework in frameworks%}
+                                          <option value="{{framework.name}}">{{framework.name}}</option>
+                                          {%endfor%}
+                                        </select>
+                                  </div>
+                                  <div class="col-span-2 sm:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700">System Level</label>
+                                        <select class="select select-bordered w-full max-w-xs mt-2" id="system_level">
+                                          <option value="no" selected>False</option>
+                                          <option value="yes">True</option>
+                                        </select>
+                                  </div>
+                                  <div class="col-span-2 sm:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700">Category</label>
+                                        <input placeholder="Enter the category" type="text" id="category" class="mt-2 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                  </div>
+                                  <div class="col-span-2 sm:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700">Subcategory</label>
+                                        <input placeholder="Enter the subcategory" type="text" id="subcategory" class="mt-2 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                  </div>
+                                  <div class="col-span-3 sm:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                                        <textarea data-name="description" id="description" class="textarea textarea-bordered w-full mt-2"></textarea>
+                                  </div>
+                                  <div class="col-span-3 sm:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700">Implementation Difficulty</label>
+                                        <select class="select select-bordered w-full max-w-xs mt-2" id="dti">
+                                          <option value="easy" selected>Easy</option>
+                                          <option value="moderate">Moderate</option>
+                                          <option value="hard">Hard</option>
+                                        </select>
+                                  </div>
+                                  <div class="col-span-3 sm:col-span-2">
+                                        <label class="block text-sm font-medium text-gray-700">Collection Difficulty</label>
+                                        <select class="select select-bordered w-full max-w-xs mt-2" id="dtc">
+                                          <option value="easy" selected>Easy</option>
+                                          <option value="moderate">Moderate</option>
+                                          <option value="hard">Hard</option>
+                                        </select>
+                                  </div>
+                                </div>
+                          </div>
+                        </div>
+                </div>
+          </div>
+                    <table id="myTable" class="table order-list">
+                        <thead class="thead-white">
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Mitigation</th>
+                                <th scope="col w-1">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="area-1" class="item">
+                                <td>
+                                    <input type="text" name="name_0" class="form-control w-full input-md border name rounded-md" required="true" placeholder="Focus area name"/>
+                                </td>
+                                <td>
+                                    <textarea rows="1" class="textarea textarea-bordered description"></textarea>
+                                </td>
+                                <td>
+                                    <textarea rows="1" class="textarea textarea-bordered mitigation"></textarea>
+                                </td>
+                                <!--<td><a class="deleteRow btn-sm"></a></td>-->
+                                <td><input type="button" class="ibtnDel btn btn-sm btn-outline btn-error" value="Delete"></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5" class="text-left">
+                                    <input type="button" class="btn btn-md bg-green-500 border-green-500 btn-block" id="addrow" value="Add Focus Area" />
+                                </td>
+                            </tr>
+                            <tr>
+                            </tr>
+
+                        </tfoot>
+                    </table>
+                    <div class="text-right">
+                      <button class="btn btn-md bg-indigo-500 border-indigo-500 save-control w-20">Save</button>
+                    </div>
+                  </div>
+
+        </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+
+$(".framework-select").select2({
+  tags: true
+});
+    $(document).on('click', '.delete-control', function() {
+       var controlId = $(this).data('id')
+       $.ajax({
+         type: "DELETE",
+         url: `/api/v1/controls/${controlId}`,
+         contentType: "application/json; charset=utf-8",
+         dataType: "json",
+         success: function(data){
+             createToast("success","Deleted control")
+             setTimeout(function() {location.reload();}, 500);
+             return(data)
+         },
+         error: function(errMsg) {
+             return(errMsg);
+         }
+       })
+    });
+    $(document).on('click', '.save-control', function() {
+        
+        var validation = true;
+        var data = {
+          "framework":$("#framework").val(),
+          "controls": [{
+            "name":$("#name").val(),
+            "ref_code":$("#ref_code").val(),
+            "description":$("#description").val(),
+            "system_level":($("#system_level").val() === "yes") ? true : false,
+            "category":$("#category").val(),
+            "subcategory":$("#subcategory").val(),
+            "dti":$("#dti").val(),
+            "dtc":$("#dtc").val(),
+            "focus_areas":[]
+          }],
+        }
+        if (data["framework"] == null || data["framework"].length === 0){
+          createToast("error", `Framework is required`)
+          return;
+        }
+        for (var control in data["controls"]) {
+          var obj = data["controls"][control]
+          Object.keys(obj).forEach(function(key) {
+            var value = obj[key];
+            if (key !== "focus_areas") {
+              if (value == null || value.length === 0){
+                createToast("error", `${key} is required`)
+                validation = false
+              };
+            };
+          });
+        }
+        if (validation === false) {
+          return;
+        }
+        //if (name == null || name.length === 0){
+        $("#myTable tr.item").each(function() {
+          var id = $(this).attr("id");
+          var name = $(this).find("input.name").val();
+          if (name == null || name.length === 0) {
+            console.log("empty focus areas")
+          } else {
+            data["controls"][0]["focus_areas"].push({"name":$(this).find("input.name").val(),
+              "description":$(this).find("textarea.description").val(),
+              "mitigation":$(this).find("textarea.mitigation").val()
+            });
+          }
+        });
+        $.ajax({
+          type: "POST",
+          url: "/api/v1/controls",
+          data: JSON.stringify(data),
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          success: function(data){
+            createToast("success","Created control")
+            document.getElementById('control-modal').checked = false;
+            setTimeout(function() {location.reload();}, 500);
+            return(data)
+          },
+          error: function(errMsg) {
+            return(errMsg);
+          }
+        })
+    });
+        var counter = 2;
+        $("#addrow").on("click", function () {
+
+            if (counter >= 10) {
+              console.log("Reached row limit")
+              return ""
+            };
+            var newRow = $(`<tr id="area-${counter}" class="item">`);
+            var cols = "";
+
+            cols += '<td><input type="text" class="form-control w-full input-md border name rounded-md" required="true" placeholder="Focus area name"></td>';
+            cols += '<td><textarea rows="1" class="textarea textarea-bordered description"></textarea></td>';
+            cols += '<td><textarea rows="1" class="textarea textarea-bordered mitigation"></textarea></td>';
+
+            cols += '<td><input type="button" class="ibtnDel btn btn-sm btn-outline btn-error" value="Delete"></td>';
+            newRow.append(cols);
+            $("table.order-list").append(newRow);
+            counter++;
+        });
+
+        $("table.order-list").on("click", ".ibtnDel", function (event) {
+            $(this).closest("tr").remove();       
+            counter -= 1
+        });
+
+
+    $(document).on('click', '.modal-button', function() {
+      document.getElementById('control-modal').checked = true;
+    });
+     $(document).on('click', '.btn-save-control-to-project', function() {
+       var controlId = $(this).data('id')
+       var selectedProjectId = $("#selected-project").val()
+       $.ajax({
+         type: "PUT",
+         url: `/api/v1/controls/${controlId}/projects/${selectedProjectId}`,
+         contentType: "application/json; charset=utf-8",
+         dataType: "json",
+         success: function(data){
+             createToast("success","Added control to the project")
+             document.getElementById('add-to-project-modal').checked = false;
+             return(data)
+         },
+         error: function(errMsg) {
+             return(errMsg);
+         }
+       })
+     });
+
+     $(document).on('click', '.add-to-project', function() {
+       document.getElementById('add-to-project-modal').checked = true;
+       var controlId = $(this).data('id')
+       var controlName = $(this).data('name')
+       $(".btn-save-control-to-project").data("id",controlId)
+       $("#add-to-project-modal-title").html(`Which project would you like to add this control to?`)
+       $("#modal-p").html(`${controlName}`)
+     });
+     var table = $("#controls-table").DataTable({"pageLength":50});
+     function formatTableRow(key, value, bg) {
+       return `<div class="bg-${bg}-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium text-gray-500">${key}</dt><dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">${value}</dd></div>`
+     };
+     table.on('dblclick', 'tbody tr', function() {
+                          var controlId = $(this).data('control-id')
+                          var rowData = table.row(this).data();
+                          document.getElementById("view-modal").checked = true;
+                          // make ajax call
+                          $.ajax({
+                            type: "GET",
+                            url: `/api/v1/controls/${controlId}`,
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function(data){
+                              console.log(data)
+                              var divHolder = $("#div-holder")
+                              divHolder.html("");
+                              divHolder.append(formatTableRow("Name",data["name"],"gray"));
+                              divHolder.append(formatTableRow("Framework",data["framework"],"white"));
+                              divHolder.append(formatTableRow("UUID",data["uuid"],"gray"));
+                              divHolder.append(formatTableRow("Focus Areas",data["focus_area_count"],"white"));
+                              divHolder.append(formatTableRow("Description",data["description"],"gray"));
+                              divHolder.append(formatTableRow("Reference Code",data["ref_code"],"white"));
+                              divHolder.append(formatTableRow("System Level",data["system_level"],"gray"));
+                              divHolder.append(formatTableRow("Category",data["category"],"white"));
+                              divHolder.append(formatTableRow("Subcategory",data["subcategory"],"gray"));
+                              divHolder.append(formatTableRow("Difficulty to Implement",data["dti"],"white"));
+                              divHolder.append(formatTableRow("Difficulty to Collect",data["dtc"],"gray"));
+                            },
+                            error: function(errMsg) {
+                              return(errMsg);
+                            }
+                          })
+     });
+  });
+</script>
+{%endblock%}

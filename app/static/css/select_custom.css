@@ -1,0 +1,17 @@
+.chosen-choices {
+    height: 3rem;
+    border-width: 1px;
+    border-color: hsl(var(--bc)/var(--tw-border-opacity));
+    --tw-border-opacity: 0;
+    --tw-bg-opacity: 1;
+    background-color: hsl(var(--b1)/var(--tw-bg-opacity));
+    border-radius: var(--rounded-btn,.5rem);
+    flex-shrink: 1;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: .875rem;
+    line-height: 2;
+    transition-property: color,background-color,border-color,-webkit-text-decoration-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-text-decoration-color,-webkit-backdrop-filter;
+    transition-duration: .2s;
+    transition-timing-function: cubic-bezier(.4,0,.2,1);
+}

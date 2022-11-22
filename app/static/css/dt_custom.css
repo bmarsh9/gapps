@@ -1,0 +1,110 @@
+a.paginate_button {
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+a.paginate_button.current {
+    height: 2rem !important;
+    min-height: 2rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    font-size: .875rem !important;
+    cursor: pointer !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    border-color: #0000 !important;
+    border-color: hsl(var(--n)/var(--tw-border-opacity)) !important;
+    text-align: center !important;
+    border-radius: var(--rounded-btn,.5rem) !important;
+    height: 2rem !important;
+    min-height: 2rem !important;
+    text-transform: uppercase !important;
+    text-transform: var(--btn-text-case,uppercase) !important;
+    border-width: var(--border-btn,1px) !important;
+    animation: button-pop var(--animation-btn,.25s)ease-out !important;
+    --tw-border-opacity: 1 !important;
+    --tw-bg-opacity: 1 !important;
+    background-color: hsl(var(--n)/var(--tw-bg-opacity)) !important;
+    --tw-text-opacity: 1 !important;
+    color: white !important;
+    flex-wrap: wrap !important;
+    flex-shrink: 0 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    font-size: .875rem !important;
+    font-weight: 600 !important;
+    line-height: 1em !important;
+    -webkit-text-decoration-line: none !important;
+    text-decoration-line: none !important;
+    transition-property: color,background-color,border-color,-webkit-text-decoration-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-text-decoration-color,-webkit-backdrop-filter !important;
+    transition-duration: .2s !important;
+    transition-timing-function: cubic-bezier(.4,0,.2,1) !important;
+    display: inline-flex !important;
+}
+
+.dataTables_empty {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: #787878;
+}
+
+.dataTables_paginate {
+  display: inline-block;
+  float: right;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: #787878;
+}
+.paginate_button.previous {
+  margin-right:5px;
+}
+.paginate_button.next {
+  margin-left:5px;
+}
+
+.dataTables_info {
+  display: inline-block;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: #787878;
+}
+
+.dataTables_length {
+  display: inline-block;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+  color: #787878;
+  font-weight: 500;
+}
+.dataTables_filter {
+  display: inline-block;
+  float: right;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  color: #787878;
+  font-weight: 500;
+}
+
+.dataTables_filter > label > input {
+    height: 2rem !important;
+    padding-left: 0.75rem !important;
+    padding-right: 0.75rem !important;
+    font-size: .875rem !important;
+    line-height: 2rem !important;
+    --tw-border-opacity: .2;
+    border: 1px solid #e1e1e1 !important;
+    background-color: hsl(var(--b1)/var(--tw-bg-opacity)) !important;
+    border-radius: var(--rounded-btn,.5rem) !important;
+    flex-shrink: 1 !important;
+    transition-property: color,background-color,border-color,-webkit-text-decoration-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-text-decoration-color,-webkit-backdrop-filter !important;
+    transition-duration: .2s !important;
+    transition-timing-function: cubic-bezier(.4,0,.2,1) !important;
+}

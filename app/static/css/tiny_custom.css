@@ -1,0 +1,12 @@
+.variable {
+    cursor: default;
+    background-color: #570df8;
+    color: #FFF;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: bold;
+    font-style: normal;
+    font-size: 11px;
+    display: inline-block;
+    line-height: 12px;
+}

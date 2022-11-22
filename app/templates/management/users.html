@@ -1,0 +1,54 @@
+{% extends "layouts/basic.html" %}
+
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block header_title%}User Management{%endblock%}
+{%block header_actions%}<a href="{{url_for("main.add_user")}}" class="btn btn-sm">Invite User</a>{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-6 gap-4 mt-5">
+  <div class="col-span-6">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Users</h2>
+              <table class="table table-vcenter table-bordered" id="example" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th class="w-1">Manage</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {%for user in users%}
+                  <tr>
+                    <td class="text-sm font-medium text-gray-500">{{user.id}}</td>
+                    <td class="text-sm font-medium text-gray-500">{{user.first_name}} {{user.last_name}}</td>
+                    <td class="text-sm font-medium text-gray-500">{{user.email}}</td>
+                    <td>{%for role in user.pretty_roles()%}{%if role == "admin"%}<span class="badge bg-yellow-lt mr-1">{{role}}</span>{%else%}<span class="badge bg-blue-lt mr-1">{{role}}</span>{%endif%}{%endfor%}</td>
+                    <td class="text-center">
+                      <a class="btn btn-xs" href="{{url_for("main.user_profile",id=user.id)}}">Edit</a>
+                    </td>
+                  </tr>
+                  {%endfor%}
+                </tbody>
+              </table>
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+    $('#example').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+  } );
+</script>
+{% endblock %}

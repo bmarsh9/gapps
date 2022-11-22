@@ -1,0 +1,42 @@
+{% macro filehelper(datatables=False,apex=False,datepicker=False,toasts=False,spinner=False,select=False,select2=False,query=False,editor=False) -%}
+  {% if spinner %}
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/loadingio/ldLoader@v1.0.0/dist/ldld.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/loadingio/ldLoader@v1.0.0/dist/ldld.min.css">
+  {%endif%}
+  {% if datatables %}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dt_custom.css') }}"/>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.12.1/datatables.min.js"></script>
+  {% endif %}
+  {% if apex %}
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  {% endif %}
+  {% if datepicker %}
+      <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  {% endif %}
+  {% if toasts %}
+    <script src="{{url_for('static',filename='js/toasts.js')}}"></script>
+  {% endif %}
+  {% if select %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.7.0/chosen.min.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/select_custom.css') }}"/>
+  {% endif %}
+  {% if select2 %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" integrity="sha512-nMNlpuaDPrqlEls3IX/Q56H36qvBASwb3ipuo3MxeWbsQB1881ox0cRv7UPTgBlriqoynt35KjEwgGUeUXIPnw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js" integrity="sha512-2ImtlRlf2VVmiGZsjm9bEyhjGW4dU7B6TNwh/hx/iSByxNENtj3WVE6o/9Lj4TJeVXPi4bnOIMXFIJJAeufa0A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  {% endif %}
+
+  {% if query %}
+    <script src="https://cdn.jsdelivr.net/npm/jQuery-QueryBuilder/dist/js/query-builder.standalone.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jQuery-QueryBuilder/dist/css/query-builder.default.min.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/jquery_custom.css') }}"/>
+    <script src="{{ url_for('static', filename='js/datatables_query.js') }}"></script>
+  {% endif %}
+  {% if editor %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.2.0/tinymce.min.js" integrity="sha512-tofxIFo8lTkPN/ggZgV89daDZkgh1DunsMYBq41usfs3HbxMRVHWFAjSi/MXrT+Vw5XElng9vAfMmOWdLg0YbA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/tiny_custom.css') }}"/>
+    <script src="https://cdn.jsdelivr.net/npm/tinymce-variable@0.9.2/src/plugin.min.js"></script>
+  {% endif %}
+{%- endmacro %}

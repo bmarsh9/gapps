@@ -1,0 +1,63 @@
+{% extends "layouts/basic.html" %}
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block header%}
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-3 gap-4">
+            <div class="col-span-3">
+              <h1 class="text-2xl tracking-tight font-bold text-gray-900 {%block hide_title_on_mobile%}{%endblock%}">
+                <div class="breadcrumbs p-0">
+                  <ul>
+                    <li><a href="{{url_for("main.projects")}}">Projects</a></li>
+                    <li><a href="{{url_for("main.view_project",id=project.id)}}">{{project.name}}</a></li>
+                    <li class="text-primary">Settings</li>
+                  </ul>
+                </div>
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div class="tabs max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 gap-x-4">
+          <a href="{{url_for("main.view_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Project Summary</a>
+          <a href="{{url_for("main.view_policies_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Policies</a>
+          <a href="{{url_for("main.view_controls_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Controls</a>
+          <a href="{{url_for("main.view_settings_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-primary tab-active">Settings</a>
+        </div>
+    </header>
+{%endblock%}
+
+{%block content%}
+<div class="mt-10 sm:mt-0">
+  <div class="md:grid md:grid-cols-3 md:gap-6">
+    <div class="mt-5 md:mt-0 md:col-span-3">
+      <form action="{{url_for("main.update_settings_in_project",id=project.id)}}" method="POST">
+        <div class="shadow overflow-hidden sm:rounded-md">
+          <div class="px-4 py-5 bg-white sm:p-6">
+            <div class="grid grid-cols-6 gap-6">
+              <div class="col-span-6 sm:col-span-3">
+                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                <input type="text" value="{{project.name}}" name="name" id="name" class="mt-1 input-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                <p class="mt-2 text-sm text-gray-500">The display name of your project</p>
+              </div>
+              <div class="col-span-6 sm:col-span-3">
+                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <input type="text" value="{{project.description}}" name="description" id="description" class="mt-1 input-md border border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                <p class="mt-2 text-sm text-gray-500">The description of your project</p>
+              </div>
+            </div>
+          </div>
+          <div class="px-4 py-3 text-right sm:px-6 bg-white">
+            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{%endblock%}

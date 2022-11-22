@@ -1,0 +1,45 @@
+version: '3'
+services:
+  gapps:
+    container_name: gapps
+    image: gapps
+    depends_on:
+      - postgres
+    networks:
+      - db_nw
+      - web_nw
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
+      - DEFAULT_EMAIL=${DEFAULT_EMAIL:-admin@example.com}
+      - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-admin}
+      - SETUP_DB=${SETUP_DB:-no}
+      - POSTGRES_DB=${POSTGRES_DB:-db1}
+      - DOC_LINK=https://github.com/bmarsh9/gapps
+      - VERSION=${VERSION:-1.0.0}
+      - APP_NAME=Gapps
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-db1}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-db1}
+      POSTGRES_DB: ${POSTGRES_DB:-db1}
+      PGDATA: /data/postgres
+    #volumes:
+    #   - postgres:/data/postgres
+    #ports:
+    #  - "5432:5432"
+    networks:
+      - db_nw
+    restart: unless-stopped
+
+networks:
+  db_nw:
+    driver: bridge
+  web_nw:
+    driver: bridge
+volumes:
+  dbdata:

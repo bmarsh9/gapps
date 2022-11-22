@@ -1,0 +1,133 @@
+<h2>Purpose and Scope</h2>
+<ul>
+<li>The purpose of this policy is to define requirements for establishing and maintaining baseline protection standards for company software, network devices, servers, and desktops.</li>
+<li>This policy applies to all users performing software development, system administration, and management of these activities within the organization. This typically includes employees and contractors, as well as any relevant external parties involved in these activities (hereinafter referred to as &ldquo;users&rdquo;). This policy must be made readily available to all users.</li>
+<li>This policy also applies to enterprise-wide systems and applications developed by the organization or on behalf of the organization for production implementation.</li>
+</ul>
+<h2>Background</h2>
+<ul>
+<li>The intent of this policy is to ensure a well-defined, secure and consistent process for managing the entire lifecycle of software and information systems, from initial requirements analysis until system decommission. The policy defines the procedure, roles, and responsibilities, for each stage of the software development lifecycle.</li>
+<li>Within this policy, the software development lifecycle consists of requirements analysis, architecture and design, development, testing, deployment/implementation, operations/maintenance, and decommission. These processes may be followed in any form; in a waterfall model, it may be appropriate to follow the process linearly, while in an agile development model, the process can be repeated in an iterative fashion.</li>
+</ul>
+<h2>References</h2>
+<ul>
+<li>Risk Assessment Policy</li>
+</ul>
+<h2>Policy</h2>
+<ul>
+<li>The organization&rsquo;s Software Development Life Cycle (SDLC) includes the following phases:
+<ul>
+<li>Requirements Analysis</li>
+<li>Architecture and Design</li>
+<li>Testing</li>
+<li>Deployment/Implementation</li>
+<li>Operations/Maintenance</li>
+<li>Decommission</li>
+</ul>
+</li>
+<li>During all phases of the SDLC where a system is not in production, the system must not have live data sets that contain information identifying actual people or corporate entities, actual financial data such as account numbers, security codes, routing information, or any other financially identifying data. Information that would be considered sensitive must never be used outside of production environments.</li>
+<li>The following activities must be completed and/or considered during the requirements analysis phase:
+<ul>
+<li>Analyze business requirements.</li>
+<li>Perform a risk assessment. More information on risk assessments is discussed in the Risk Assessment Policy (reference (a)).</li>
+<li>Discuss aspects of security (e.g., confidentiality, integrity, availability) and how they might apply to this requirement.</li>
+<li>Review regulatory requirements and the organization&rsquo;s policies, standards, procedures and guidelines.</li>
+<li>Review future business goals.</li>
+<li>Review current business and information technology operations.</li>
+<li>Incorporate program management items, including:
+<ul>
+<li>Analysis of current system users/customers.</li>
+<li>Understand customer-partner interface requirements (e.g., business-level, network).</li>
+<li>Discuss project timeframe.</li>
+</ul>
+</li>
+<li>Develop and prioritize security solution requirements.</li>
+<li>Assess cost and budget constraints for security solutions, including development and operations.</li>
+<li>Approve security requirements and budget.</li>
+<li>Make &ldquo;buy vs. build&rdquo; decisions for security services based on the information above.</li>
+</ul>
+</li>
+<li>The following must be completed/considered during the architecture and design phase:
+<ul>
+<li>Educate development teams on how to create a secure system.</li>
+<li>Develop and/or refine infrastructure security architecture.</li>
+<li>List technical and non-technical security controls.</li>
+<li>Perform architecture walkthrough.</li>
+<li>Create a system-level security design.</li>
+<li>Create high-level non-technical and integrated technical security designs.</li>
+<li>Perform a cost/benefit analysis for design components.</li>
+<li>Document the detailed technical security design.</li>
+<li>Perform a design review, which must include, at a minimum, technical reviews of application and infrastructure, as well as a review of high-level processes.</li>
+<li>Describe detailed security processes and procedures, including: segregation of duties and segregation of development, testing and production environments.</li>
+<li>Design initial end-user training and awareness programs.</li>
+<li>Design a general security test plan.</li>
+<li>Update the organization&rsquo;s policies, standards, and procedures, if appropriate.</li>
+<li>Assess and document how to mitigate residual application and infrastructure vulnerabilities.</li>
+<li>Design and establish separate development and test environments.</li>
+</ul>
+</li>
+<li>The following must be completed and/or considered during the development phase:
+<ul>
+<li>Set up a secure development environment (e.g., servers, storage).</li>
+<li>Train infrastructure teams on installation and configuration of applicable software, if required.</li>
+<li>Develop code for application-level security components.</li>
+<li>Install, configure and integrate the test infrastructure.</li>
+<li>Set up security-related vulnerability tracking processes.</li>
+<li>Develop a detailed security test plan for current and future versions (i.e., regression testing).</li>
+<li>Conduct unit testing and integration testing.</li>
+</ul>
+</li>
+<li>The following must be completed and/or considered during the testing phase:
+<ul>
+<li>Perform a code and configuration review through both static and dynamic analysis of code to identify vulnerabilities.</li>
+<li>Test configuration procedures.</li>
+<li>Perform system tests.</li>
+<li>Conduct performance and load tests with security controls enabled.</li>
+<li>Perform usability testing of application security controls.</li>
+<li>Conduct independent vulnerability assessments of the system, including the infrastructure and application.</li>
+</ul>
+</li>
+<li>The following must be completed and/or considered during the deployment phase:
+<ul>
+<li>Conduct pilot deployment of the infrastructure, application and other relevant components.</li>
+<li>Conduct transition between pilot and full-scale deployment.</li>
+<li>Perform integrity checking on system files to ensure authenticity.</li>
+<li>Deploy training and awareness programs to train administrative personnel and users in the system&rsquo;s security functions.</li>
+<li>Require participation of at least two developers in order to conduct full-scale deployment to the production environment.</li>
+</ul>
+</li>
+<li>The following must be completed and/or considered during the operations/maintenance phase:
+<ul>
+<li>Several security tasks and activities must be routinely performed to operate and administer the system, including but not limited to:
+<ul>
+<li>Administering users and access.</li>
+<li>Tuning performance.</li>
+<li>Performing backups according to requirements defined in the System Availability Policy</li>
+<li>Performing system maintenance (i.e., testing and applying security updates and patches).</li>
+<li>Conducting training and awareness.</li>
+<li>Conducting periodic system vulnerability assessments.</li>
+<li>Conducting annual risk assessments.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Operational systems must:
+<ul>
+<li>Be reviewed to ensure that the security controls, both automated and manual, are functioning correctly and effectively.</li>
+<li>Have logs that are periodically reviewed to evaluate the security of the system and validate audit controls.</li>
+<li>Implement ongoing monitoring of systems and users to ensure detection of security violations and unauthorized changes.</li>
+<li>Validate the effectiveness of the implemented security controls through security training as required by the Procedure For Executing Incident Response.</li>
+<li>Have a software application and/or hardware patching process that is performed regularly in order to eliminate software bug and security problems being introduced into the organization&rsquo;s technology environment. Patches and updates must be applied within ninety (90) days of release to provide for adequate testing and propagation of software updates. Emergency, critical, break-fix, and zero-day vulnerability patch releases must be applied as quickly as possible.</li>
+</ul>
+</li>
+<li>The following must be completed and/or considered during the decommission phase:
+<ul>
+<li>Conduct unit testing and integration testing on the system after component removal.</li>
+<li>Conduct operational transition for component removal/replacement.</li>
+<li>Determine data retention requirements for application software and systems data.</li>
+<li>Document the detailed technical security design.</li>
+<li>Update the organization&rsquo;s policies, standards and procedures, if appropriate.</li>
+<li>Assess and document how to mitigate residual application and infrastructure vulnerabilities.</li>
+</ul>
+</li>
+</ul>

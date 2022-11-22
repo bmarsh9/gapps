@@ -1,0 +1,83 @@
+{% extends "layouts/basic.html" %}
+
+{%block header_title%}User Profile{%endblock%}
+
+{% block head %}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(select=True) }}
+{% endblock %}
+
+{%if current_user.has_role("admin")%}{%set is_admin=True%}{%endif%}
+
+{%block content%}
+  <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">User Information</h2>
+        <p class="text-sm font-medium text-gray-500">Edit information</p>
+        <form action="{{url_for("main.user_profile",id=user.id)}}" method="POST">
+          <div class="overflow-hidden sm:rounded-md">
+            <div class="bg-white px-4 py-5">
+              <div class="grid grid-cols-6 gap-6">
+                <div class="col-span-6 sm:col-span-3">
+                  <label for="first" class="block text-sm font-medium text-gray-700">First name</label>
+                  <input type="text" name="first" id="first" value="{{user.first_name}}" class="mt-1 block w-full input-md rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div class="col-span-6 sm:col-span-3">
+                  <label for="last" class="block text-sm font-medium text-gray-700">Last name</label>
+                  <input type="text" name="last" id="last" value="{{user.last_name}}" class="mt-1 block w-full input-md rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div class="col-span-6 sm:col-span-3">
+                  <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                  <input type="text" name="username" id="username" value="{{user.username}}" class="mt-1 block w-full input-md rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div class="col-span-6 sm:col-span-3">
+                  <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                  <input type="text" name="email" id="email" autocomplete="email" value="{{user.email}}" class="{%if not is_admin%}pointer-events-none bg-slate-200{%endif%} mt-1 input-md block w-full rounded-md border-2 border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                </div>
+                <div class="col-span-6 sm:col-span-3">
+                  <label for="active" class="block text-sm font-medium text-gray-700">Active</label>
+                  <select id="active" name="active" class="{%if not is_admin%}pointer-events-none bg-slate-200{%endif%} mt-1 input-md block w-full rounded-md border border-2 border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm">
+                    <option value="yes" {%if user.is_active%}selected{%endif%}>Active</option>
+                    <option value="no" {%if not user.is_active%}selected{%endif%}>Inactive</option>
+                  </select>
+                </div>
+                <div class="col-span-6 sm:col-span-3">
+                    <label for="roles" class="block text-sm font-medium text-gray-700">Roles</label>
+                    {%if not is_admin%}
+                    <div>{%for role in user.pretty_roles()%}{%if role == "admin"%}<span class="badge bg-yellow-lt mr-1">{{role}}</span>{%else%}<span class="badge bg-blue-lt mr-1">{{role}}</span>{%endif%}{%endfor%}</div>
+                    {%else%}
+                    <select name="roles[]" data-placeholder="Search for Roles..." class="chosen-select mt-1 block w-full rounded-md border border-gray-300 bg-white py-2 px-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" multiple>
+                     {%if roles%}
+                     {% for role,enabled in roles.items() %}
+                     {% if enabled %}
+                       <option value="{{role.name}}" selected>{{role.name}}</option>
+                     {% else %}
+                       <option value="{{role.name}}">{{role.name}}</option>
+                     {% endif %}
+                     {% endfor %}
+                     {% endif %}
+                    </select>
+                    {%endif%}
+                </div>
+              </div>
+            </div>
+            <div class="px-4 py-3 text-right sm:px-6">
+              <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extrajs %}
+  <script>
+    $(document).ready(function () {
+        $(".chosen-select").chosen({
+          no_results_text: "Oops, nothing found!"
+        })
+    });
+  </script>
+{%endblock%}

@@ -1,0 +1,133 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True,query=True,apex=True) }}
+{% endblock %}
+
+{%block header%}
+<header class="bg-white shadow">
+  <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-3 gap-4">
+      <div class="col-span-2">
+        <h1 class="text-2xl tracking-tight font-bold text-gray-900 {%block hide_title_on_mobile%}{%endblock%}">
+          <div class="breadcrumbs p-0">
+            <ul>
+              <li><a href="{{url_for("main.controls")}}">Controls</a></li>
+              <li class="text-primary">Dashboard</li>
+            </ul>
+          </div>
+        </h1>
+      </div>
+    </div>
+    <p class="text-sm text-gray-500 font-medium">View the summary of your controls</p>
+  </div>
+</header>
+{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-8 gap-4 mt-5">
+  <div class="col-span-4">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title">Controls by Framework</h2>
+        <div id="chart1"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-4">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title">Controls by Category</h2>
+        <div id="chart2"></div>
+      </div>
+    </div>
+  </div>
+  <div class="col-span-8">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title">Controls by Subcategory</h2>
+        <div id="chart3"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+  $.ajax({
+    type: "GET",
+    url: "/api/v1/charts/controls-by-framework",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+        var options = {
+          series:data.data,
+          chart: {
+            type: 'donut',
+            height: 350
+          },
+          labels: data.categories,
+        };
+        var chart = new ApexCharts(document.querySelector("#chart1"), options);
+        chart.render();
+
+        return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+  $.ajax({
+    type: "GET",
+    url: "/api/v1/charts/controls-by-category",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+        var options = {
+          series:data.data,
+          chart: {
+            type: 'donut',
+            height: 350
+          },
+          labels: data.categories,
+        };
+        var chart = new ApexCharts(document.querySelector("#chart2"), options);
+        chart.render();
+
+        return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+  $.ajax({
+    type: "GET",
+    url: "/api/v1/charts/controls-by-subcategory",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+        var options = {
+          series:data.data,
+          chart: {
+            type: 'donut',
+            height: 350
+          },
+          labels: data.categories,
+        };
+        var chart = new ApexCharts(document.querySelector("#chart3"), options);
+        chart.render();
+
+        return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+  });
+</script>
+{%endblock%}

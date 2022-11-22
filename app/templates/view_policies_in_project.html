@@ -1,0 +1,127 @@
+{% extends "layouts/basic.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True,query=True,select2=True) }}
+{% endblock %}
+
+{%block header%}
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-3 gap-4">
+            <div class="col-span-2">
+              <h1 class="text-2xl tracking-tight font-bold text-gray-900 {%block hide_title_on_mobile%}{%endblock%}">
+                <div class="breadcrumbs p-0">
+                  <ul>
+                    <li><a href="{{url_for("main.projects")}}">Projects</a></li>
+                    <li><a href="{{url_for("main.view_project",id=project.id)}}">{{project.name}}</a></li>
+                    <li class="text-primary">Policies</li>
+                  </ul>
+                </div>
+              </h1>
+            </div>
+          </div>
+        </div>
+        <div class="tabs max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 gap-x-4">
+          <a href="{{url_for("main.view_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Project Summary</a>
+          <a href="{{url_for("main.view_policies_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-primary tab-active">Policies</a>
+          <a href="{{url_for("main.view_controls_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Controls</a>
+          <a href="{{url_for("main.view_settings_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Settings</a>
+        </div>
+    </header>
+{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-6 gap-4 mt-2">
+            <div class="col-span-6">
+    <div class="card bg-base-100">
+      <div class="card-body">
+        <h2 class="card-title mb-2">Policies</h2>
+        <p class="text-sm text-gray-500 font-medium mb-4">These policies are included in your SOC2 project. Be sure to update the status and implementation effort. <a href="{{config.DOC_LINK}}" class="text-primary">Need help?</a></p>
+        <table class="table table-vcenter table-bordered" id="policies-table" style="width:100%">
+          <thead>
+            <tr>
+              <th class="w-1">Ref Code</th>
+              <th>Name</th>
+              <th class="w-1">Assoc Controls</th>
+              <th class="w-1">More</th>
+            </tr>
+          </thead>
+          <tbody>
+            {%for policy in policies%}
+            <tr data-project-id={{project.id}} data-policy-id={{policy.id}}>
+              <td class="text-sm font-medium text-gray-500">{{policy.ref_code}}</td>
+              <td class="text-sm font-medium text-gray-500">{{policy.name}}</td>
+              <td class="text-sm font-medium text-gray-500">{{policy.total_controls()}}</td>
+              <td class="text-center">
+<div class="dropdown dropdown-top dropdown-end">
+  <label tabindex="0" class="btn btn btn-sm border border-white btn-outline"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label>
+  <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+    <li><a href="{{url_for("main.view_policy_in_project",id=project.id,cid=policy.id)}}" class="view">View</a></li>
+    <li><a data-id="{{policy.id}}" class="delete-policy">Delete</a></li>
+  </ul>
+</div>
+              </td>
+            </tr>
+            {%endfor%}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    </div>
+</div>
+
+<input type="checkbox" id="data-modal" class="modal-toggle" />
+<label for="data-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3  id="data-modal-title" class="text-lg font-bold"></h3>
+    <pre><code id="data-modal-body" class="card-body text-white bg-slate-500 rounded mt-4 whitespace-pre-line"></code></pre>
+  </label>
+</label>
+
+<input type="checkbox" id="view-modal" class="modal-toggle" />
+<label for="view-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 id="view-modal-title" class="text-lg font-bold"></h3>
+    <div id="view-modal-body" class="card-body">
+<div class="overflow-hidden bg-white border shadow sm:rounded-lg">
+  <div class="px-4 py-5 sm:px-6">
+    <h3 class="text-lg font-medium leading-6 text-gray-900">Policy Details</h3>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">View detailed information about the policy</p>
+  </div>
+  <div class="border-t border-gray-200">
+    <dl id="div-holder"><dl>
+  </div>
+</div>
+
+    </div>
+  </label>
+</label>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).ready(function() {
+     var table = $("#policies-table").DataTable({"pageLength":50});
+     $(document).on('click', '.delete-policy', function() {
+       var policyId = $(this).data('id')
+       $.ajax({
+         type: "DELETE",
+         url: `/api/v1/projects/{{project.id}}/policies/${policyId}`,
+         contentType: "application/json; charset=utf-8",
+         dataType: "json",
+         success: function(data){
+             createToast("success","Deleted policy")
+             setTimeout(function() {location.reload();}, 500);
+             return(data)
+         },
+         error: function(errMsg) {
+             return(errMsg);
+         }
+       })
+     });
+  });
+</script>
+{%endblock%}

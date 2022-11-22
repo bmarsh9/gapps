@@ -1,0 +1,518 @@
+from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy import func,and_,or_,not_
+from app.utils.mixin_models import LogMixin,DateMixin
+from flask_login import UserMixin
+from flask import current_app
+from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
+from datetime import datetime, timedelta
+from app import db, login
+from uuid import uuid4
+from app.utils import misc
+import arrow
+import json
+import os
+
+"""
+class ControlList
+
+class ControlListFocusArea
+
+class Project
+
+class ProjectControl
+
+project_id = fk
+
+class ProjectControlFocusArea
+
+control_id = fk
+"""
+
+
+class Tenant(LogMixin,db.Model):
+    __tablename__ = 'tenants'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    name = db.Column(db.String(64), unique=True)
+    contact_email = db.Column(db.String())
+    license = db.Column(db.String())
+    users = db.relationship('User', backref='tenant', lazy='dynamic')
+    projects = db.relationship('Project', backref='tenant', lazy='dynamic')
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    def generate_token(self, agent_id):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        return s.dumps({ 'agent_id': agent_id, 'tenant': self.token}).decode('utf-8')
+
+    def verify_token(self, token, get_agent=False):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            current_app.logger.warning("SignatureExpired for token")
+            return None # valid token, but expired
+        except BadSignature:
+            current_app.logger.warning("BadSignature for token")
+            return None # invalid token
+        if get_agent:
+            return Agent.query.filter(Agent.key == data["agent_id"]).first()
+        return True
+
+class Project(db.Model):
+    __tablename__ = 'projects'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    name = db.Column(db.String(64), unique=True)
+    description = db.Column(db.String())
+    controls = db.relationship('Control', secondary='project_controls', lazy='dynamic',
+        backref=db.backref('projects', lazy='dynamic'))
+    policies = db.relationship('Policy', secondary='project_policies', lazy='dynamic',
+        backref=db.backref('projects', lazy='dynamic'))
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False)
+    owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    def as_dict(self):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return data
+
+    def add_control(self, control_id):
+        """
+        add control to the project
+        """
+        if control := Control.query.get(control_id):
+            if not self.controls.filter(Control.id == control_id).first():
+                c = ProjectControls(control_id=control_id,project_id=self.id,owner_id=self.owner_id)
+                db.session.add(c)
+                db.session.commit()
+                return True
+        return False
+
+    def get_criteria(self):
+        """
+        returns list of criteria in the project - object is
+        from the Control table
+        """
+        results = self.controls.distinct(Control.criteria).all()
+        return sorted(results, key=lambda r: r.id)
+
+    def group_controls_by_criteria(self):
+        """
+        return a list of dict where the key is the criteria and the values are
+        a list of focus areas
+        """
+        data = []
+        for control in self.get_criteria():
+            focus_areas = Control.query.filter(Control.ref_subcode == control.ref_subcode).all()
+            data.append({control.criteria:focus_areas})
+        return data
+
+class Control(db.Model):
+    __tablename__ = 'controls'
+    id = db.Column(db.Integer(), primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    framework = db.Column(db.String(), nullable=False)
+    ref_code = db.Column(db.String())
+    ref_subcode = db.Column(db.String())
+    criteria = db.Column(db.String(), nullable=False)
+    focus = db.Column(db.String())
+    mitigation = db.Column(db.String())
+    system_level = db.Column(db.Boolean(), default=True)
+    dti = db.Column(db.String(), default="unknown")
+    dtc = db.Column(db.String(), default="unknown")
+    category = db.Column(db.String())
+    subcategory = db.Column(db.String())
+    meta = db.Column(db.JSON(),default="{}")
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    def as_dict(self):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return data
+
+    def from_project(self, project_id):
+        return ProjectControls.query.filter(ProjectControls.control_id == self.id).first()
+
+    @staticmethod
+    def frameworks():
+        return Control.query.with_entities(Control.framework).distinct()
+
+    @staticmethod
+    def get_criteria(framework=None):
+        _query = Control.query.distinct(Control.criteria)
+        if framework:
+            _query = _query.filter(Control.framework == framework)
+        results = _query.all()
+        return sorted(results, key=lambda r: r.id)
+
+    @staticmethod
+    def focus_areas(criteria):
+        return Control.query.filter(Control.criteria.ilike(f"%{criteria}%")).all()
+
+    @staticmethod
+    def find(uuid=None, framework=None, criteria=None, focus=None,
+        category=None, subcategory=None, system_level=None):
+        _query = Control.query
+        if framework:
+            _query = _query.filter(Control.framework == framework)
+        if criteria:
+            _query = _query.filter(Control.criteria == criteria)
+        if focus:
+            _query = _query.filter(Control.focus == focus)
+        if uuid:
+            _query = _query.filter(Control.uuid == uuid)
+        if category:
+            _query = _query.filter(Control.category == category)
+        if subcategory:
+            _query = _query.filter(Control.subcategory == subcategory)
+        if system_level:
+            _query = _query.filter(Control.system_level == system_level)
+        return _query.all()
+
+class Policy(db.Model):
+    __tablename__ = 'policies'
+    id = db.Column(db.Integer(), primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    framework = db.Column(db.String(), nullable=False)
+    ref_code = db.Column(db.String())
+    name = db.Column(db.String(), nullable=False)
+    description = db.Column(db.String())
+    content = db.Column(db.String())
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+# association object
+class ProjectControls(db.Model):
+    __tablename__ = 'project_controls'
+    id = db.Column(db.Integer(), primary_key=True)
+    evidence = db.Column(db.String())
+    progress = db.Column(db.Integer(), default=1)
+    status = db.Column(db.String(), default="not implemented")
+    tags = db.relationship('Tag', secondary='control_tags', lazy='dynamic',
+        backref=db.backref('project_controls', lazy='dynamic'))
+    project_id = db.Column(db.Integer(), db.ForeignKey('projects.id', ondelete='CASCADE'))
+    control_id = db.Column(db.Integer(), db.ForeignKey('controls.id', ondelete='CASCADE'))
+    owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    def as_dict(self):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        # is_complete
+        data["is_complete"] = self.is_complete()
+        data["is_implemented"] = self.is_implemented()
+        data["has_evidence"] = self.has_evidence()
+        data["is_applicable"] = self.is_applicable()
+        data["progress_percentage"] = self.progress_percentage()
+        return data
+
+    def progress_percentage(self):
+        map = {
+            1: 0,
+            2: 40,
+            3: 60,
+            4: 80,
+            5: 100,
+        }
+        progress = self.progress
+        if self.is_complete():
+            progress = 5
+        return map.get(progress, 0)
+
+    def is_complete(self):
+        if (self.is_implemented() and self.has_evidence()) or not self.is_applicable():
+            return True
+        return False
+
+    def is_implemented(self):
+        if self.status == "implemented":
+            return True
+        return False
+
+    def has_evidence(self):
+        if self.evidence:
+            return True
+        return False
+
+    def is_applicable(self):
+        if self.status == "not applicable":
+            return False
+        return True
+
+    def control(self):
+        return Control.query.get(self.control_id)
+
+# association object
+class ProjectPolicies(db.Model):
+    __tablename__ = 'project_policies'
+    id = db.Column(db.Integer(), primary_key=True)
+    content = db.Column(db.String())
+    tags = db.relationship('Tag', secondary='policy_tags', lazy='dynamic',
+        backref=db.backref('project_policies', lazy='dynamic'))
+    project_id = db.Column(db.Integer(), db.ForeignKey('projects.id', ondelete='CASCADE'))
+    policy_id = db.Column(db.Integer(), db.ForeignKey('policies.id', ondelete='CASCADE'))
+    owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
+    reviewer_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+class ControlTags(db.Model):
+    __tablename__ = 'control_tags'
+    id = db.Column(db.Integer(), primary_key=True)
+    control_id = db.Column(db.Integer(), db.ForeignKey('project_controls.id', ondelete='CASCADE'))
+    tag_id = db.Column(db.Integer(), db.ForeignKey('tags.id', ondelete='CASCADE'))
+
+class PolicyTags(db.Model):
+    __tablename__ = 'policy_tags'
+    id = db.Column(db.Integer(), primary_key=True)
+    policy_id = db.Column(db.Integer(), db.ForeignKey('project_policies.id', ondelete='CASCADE'))
+    tag_id = db.Column(db.Integer(), db.ForeignKey('tags.id', ondelete='CASCADE'))
+
+class User(LogMixin,db.Model, UserMixin):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    is_active = db.Column(db.Boolean(), nullable=False, server_default='1')
+    email = db.Column(db.String(255), nullable=False, unique=True)
+    username = db.Column(db.String(100), unique=True)
+    email_confirmed_at = db.Column(db.DateTime())
+    password = db.Column(db.String(255), nullable=False, server_default='')
+    last_password_change = db.Column(db.DateTime())
+    first_name = db.Column(db.String(100), nullable=False, server_default='')
+    last_name = db.Column(db.String(100), nullable=False, server_default='')
+    roles = db.relationship('Role', secondary='user_roles')
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    @staticmethod
+    def add(email, password=None, username=None, confirmed=None, tenant_id=None, roles=[], create_role=False):
+        email_confirmed_at = None
+        if not password:
+            password = uuid4().hex
+        if not tenant_id:
+            tenant_id = Tenant.query.first().id
+        if confirmed:
+            email_confirmed_at = datetime.utcnow()
+        if not username:
+            username = email
+        new_user = User(
+            email=email,
+            username=username,
+            email_confirmed_at=email_confirmed_at,
+            tenant_id=tenant_id
+        )
+        for role in roles:
+            if existing_role := Role.find_by_name(role):
+                new_user.roles.append(existing_role)
+            else:
+                if create_role:
+                    new_user.roles.append(Role(name=role))
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+        return new_user
+
+    @staticmethod
+    def verify_auth_token(token):
+        data = misc.verify_jwt(token)
+        if data is False:
+            return False
+        return User.query.get(data['id'])
+
+    def generate_auth_token(self, expiration=600):
+        data = {'id': self.id}
+        return misc.generate_jwt(data, expiration)
+
+    @staticmethod
+    def verify_invite_token(token):
+        data = misc.verify_jwt(token)
+        if data is False:
+            return False
+        return data
+
+    @staticmethod
+    def generate_invite_token(email, expiration=600):
+        data = {'email': email}
+        return misc.generate_jwt(data, expiration)
+
+    def pretty_roles(self):
+        data = []
+        for role in self.roles:
+            data.append(role.name.lower())
+        return data
+
+    def can_edit_roles(self):
+        return "admin" in self.pretty_roles()
+
+    def has_role(self,roles):
+        '''checks if user has any of the listed roles'''
+        if not roles:
+            return False
+        if not isinstance(roles,list) and not isinstance(roles,tuple):
+            roles = [roles]
+        my_roles = self.pretty_roles()
+        for role in roles:
+            if role.lower() in my_roles:
+                return True
+        return False
+
+    def has_roles(self,roles):
+        '''checks if user has all of the listed roles'''
+        if not roles:
+            return False
+        if not isinstance(roles,list) and not isinstance(roles,tuple):
+            roles = [roles]
+        my_roles = self.pretty_roles()
+        for role in roles:
+            if role.lower() not in my_roles:
+                return False
+        return True
+
+    def set_roles_by_name(self,roles):
+        #roles = ["Admin","Another Role"]
+        if not isinstance(roles,list):
+            roles = [roles]
+        new_roles = []
+        for role in roles:
+            found = Role.find_by_name(role)
+            if found:
+                new_roles.append(found)
+        self.roles[:] = new_roles
+        db.session.commit()
+        return True
+
+    def get_roles_for_form(self):
+        roles = {}
+        for role in Role.query.all():
+            if role in self.roles:
+                roles[role] = True
+            else:
+                roles[role] = False
+        return roles
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password, method='sha256')
+        self.last_password_change = str(datetime.utcnow())
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
+class Tag(LogMixin,db.Model):
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(), unique=True)
+    color = db.Column(db.String(), default="blue")
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    @staticmethod
+    def find_by_name(name):
+        tag_exists = Tag.query.filter(func.lower(Tag.name) == func.lower(name)).first()
+        if tag_exists:
+            return tag_exists
+        return False
+
+    @staticmethod
+    def add(tenant_id, name):
+        if Tag.find_by_name(name):
+            return True
+        tag = Tag(name=name,tenant_id=tenant_id)
+        db.session.add(tag)
+        db.session.commit()
+        return tag
+
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+
+    @staticmethod
+    def find_by_name(name):
+        return Role.query.filter(func.lower(Role.name) == func.lower(name)).first()
+
+class UserRoles(db.Model):
+    __tablename__ = 'user_roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
+
+class ConfigStore(db.Model,LogMixin):
+    __tablename__ = 'config_store'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    key = db.Column(db.String())
+    value = db.Column(db.String())
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+    @staticmethod
+    def find(key):
+        return ConfigStore.query.filter(ConfigStore.key == key).first()
+
+    @staticmethod
+    def upsert(key,value):
+        found = ConfigStore.find(key)
+        if found:
+            found.value = value
+            db.session.commit()
+        else:
+            c=ConfigStore(key=key,value=value)
+            db.session.add(c)
+            db.session.commit()
+        return True
+
+class Logs(db.Model):
+    __tablename__ = 'logs'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    namespace = db.Column(db.String(),nullable=False,default="general")
+    log_type = db.Column(db.String(),nullable=False,default="info")
+    message = db.Column(db.String(),nullable=False)
+    meta = db.Column(db.JSON(),default="[]")
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    @staticmethod
+    def add_log(message,log_type="info",namespace="general",meta={}):
+        if log_type.lower() not in ["info","warning","error","critical"]:
+            return False
+        msg = Logs(namespace=namespace.lower(),message=message,
+            log_type=log_type.lower(),meta=meta)
+        db.session.add(msg)
+        db.session.commit()
+        return True
+
+    @staticmethod
+    def get_logs(log_type=None,limit=100,as_query=False,span=None,as_count=False,paginate=False,page=1,namespace="general",meta={}):
+        '''
+        get_logs(log_type='error',namespace="my_namespace",meta={"key":"value":"key2":"value2"})
+        '''
+        _query = Logs.query.filter(Logs.namespace == namespace.lower()).order_by(Logs.id.desc())
+        if log_type:
+            if not isinstance(log_type,list):
+                log_type = [log_type]
+            _query = _query.filter(Logs.log_type.in_(log_type))
+
+        if meta:
+            for key,value in meta.items():
+                _query = _query.filter(Logs.meta.op('->>')(key) == value)
+        if span:
+            _query = _query.filter(Logs.date_added >= arrow.utcnow().shift(hours=-span).datetime)
+        if as_query:
+            return _query
+        if as_count:
+            return _query.count()
+        if paginate:
+            return _query.paginate(page=page, per_page=10)
+        return _query.limit(limit).all()
+
+@login.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))

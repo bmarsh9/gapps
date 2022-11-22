@@ -1,0 +1,154 @@
+{% extends "layouts/basic.html" %}
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(datatables=True,query=True,select2=True,editor=True) }}
+{% endblock %}
+
+{%block header_title%}{{policy.name}}<p class="text-sm text-gray-500 font-medium">Create policies and associate them with your projects</p>{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-10 gap-2">
+            <div class="col-span-2 h-full">
+        <ul class="bg-base-100 p-2 rounded-box h-full mx-auto">
+            <li class="text-xl font-medium text-gray-500">
+                <p class="m-auto text-center mt-4">Settings</p>
+            </li>
+            <div class="divider my-0"></div>
+            <li class="px-2 mt-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Policy name</label>
+              <input type="text" value="{{policy.name or ""}}" placeholder="Policy name" id="name" class="input w-full max-w-xs" />
+            </li>
+            <li class="px-2 mt-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Ref Code</label>
+              <input type="text" value="{{policy.ref_code or ""}}" placeholder="Reference Code" id="ref_code" class="input w-full max-w-xs" />
+            </li>
+            <li class="px-2 mt-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <input type="text" value="{{policy.description or ""}}" placeholder="Policy description" id="description" class="input w-full max-w-xs" />
+            </li>
+            <li class="px-2 mt-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Labels</label>
+              <select class="select custom-select ql-insertCustomTags bg-transparent">
+                <option value="">Add Label</option>
+                {%for label in labels.keys()%}
+                <option value="{{label}}" data-marker={{label}} data-title="{{label}}" data-colour="warning">{{label}}</option>
+                {%endfor%}
+              </select>
+            </li>
+        </ul>
+
+            </div>
+            <div class="col-span-8 h-full">
+                <div class="card bg-base-100">
+                    <div class="card-body gap-0">
+                        <h2 class="card-title mb-4 justify-between">Policy Content</h2>
+                        <textarea id="default">{%if policy.content%}{{policy.content|safe}}{%endif%}</textarea>
+                        <button class="save-policy btn btn-md hover:bg-primary hover:border-primary mt-4 w-20">Save</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-10">
+                <div class="card bg-base-100">
+                  <div class="card-body">
+                    <h2 class="card-title">Control Association</h2>
+                    <p class="text-sm text-gray-500 font-medium mb-4">Associate controls with your policy</p>
+                    <table class="table table-vcenter table-bordered" id="control-table" style="width:100%">
+                      <thead>
+                        <tr>
+                          <th class="w-1">Associated</th>
+                          <th class="w-1">Control Code</th>
+                          <th>Control Name</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {%set policy_controls = policy.controls()%}
+                        {%for control in controls%}
+                        <tr>
+                          <td class="text-sm font-medium text-gray-500"><input data-id={{control.id}} type="checkbox" {%if control in policy_controls%}checked="checked"{%endif%} class="control-checkbox checkbox" /></td>
+                          <td class="text-sm font-medium text-gray-500">{{control.ref_code}}</td>
+                          <td class="text-sm font-medium text-primary"><div class="truncate w-96"><a href="{{url_for("main.view_control",id=control.id)}}">{{control.name}}</a></div></td>
+                        </tr>
+                        {%endfor%}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+            </div>
+</div>
+{% endblock %}
+
+{%block extrajs%}
+
+<script>
+  $(document).ready(function() {
+tinymce.init({
+  selector: 'textarea#default',
+  content_css: "{{ url_for('static', filename='css/tiny_custom.css') }}",
+  promotion: false,
+  plugins: "preview fullscreen searchreplace table codesample lists advlist variable",
+  toolbar: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo",
+  variable_mapper: {{labels|tojson}},
+  variable_prefix: "{",
+  variable_suffix: "}"
+});
+
+    $(document).on('change', '.select', function() {
+      var value = $(this).val();
+      tinymce.activeEditor.execCommand('mceInsertContent', false, {% raw %}"{"+value+"}"{%endraw%});
+      $('select>option:eq(0)').prop('selected', true);
+    });
+
+    $(document).on('click', '.save-policy', function() {
+      var content = tinymce.get("default").getContent();
+
+        var data = {
+          "template":content,
+          "content":content,
+          "name":$("#name").val(),
+          "description":$("#description").val(),
+          "public":$("#public").is(":checked")
+        };
+  $.ajax({
+    type: "PUT",
+    url: "/api/v1/policies/{{policy.id}}",
+    data: JSON.stringify(data),
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+        createToast("success","Saved policy")
+        return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+    });
+
+    $("#control-table").DataTable({"pageLength":5,"order": [[ 0, "desc" ]]});
+    $(document).on('change', '.control-checkbox', function() {
+      var id = $(this).data('id')
+      if (this.checked) {
+        var status = "PUT";
+      } else {
+        var status = "DELETE";
+      }
+      $.ajax({
+        type: status,
+        url: `/api/v1/policies/{{policy.id}}/controls/${id}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          createToast("info", `Updated the controls for the policy`)
+          return(data)
+        },
+        error: function(errMsg) {
+          return(errMsg);
+        }
+      })
+    });
+  });
+</script>
+
+{%endblock%}
