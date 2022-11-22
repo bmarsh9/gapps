@@ -5,6 +5,8 @@
 2. [Getting Started](#getting-started)
 3. [Roadmap](#roadmap)
 
+Discord: https://discord.gg/9unhWAqadg
+
 ### About
 Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. Currently the only framework supported is SOC2 - however other frameworks will soon be added such as CIS CSC, CMMC and NIST CSF. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves*.
 - 200+ controls and 25+ policies out of the box for SOC2 (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
