@@ -129,6 +129,7 @@ class Control(LogMixin, db.Model):
     ref_code = db.Column(db.String())
     visible = db.Column(db.Boolean(), default=True)
     system_level = db.Column(db.Boolean(), default=True)
+
     category = db.Column(db.String())
     subcategory = db.Column(db.String())
     dti = db.Column(db.String(), default="easy")
