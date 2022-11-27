@@ -208,8 +208,8 @@ class Control(LogMixin, db.Model):
         db.session.commit()
         return True
 
-class ControlListFocusArea(LogMixin, db.Model):
-    __tablename__ = 'control_focus_areas'
+class SubControl(LogMixin, db.Model):
+    __tablename__ = 'subcontrol'
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
     name = db.Column(db.String(), nullable=False)
@@ -470,8 +470,9 @@ class ProjectControl(LogMixin, db.Model):
     tags = db.relationship('Tag', secondary='control_tags', lazy='dynamic',
         backref=db.backref('project_controls', lazy='dynamic'))
     focus_areas = db.relationship('ProjectControlFocusArea', backref='control', lazy='dynamic')
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
+
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     control_id = db.Column(db.Integer, db.ForeignKey('controls.id'), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -546,8 +547,8 @@ class ProjectControl(LogMixin, db.Model):
              _query = _query.filter(or_(ProjectControlFocusArea.status!="implemented",ProjectControlFocusArea.evidence=="",ProjectControlFocusArea.evidence==None))
         return _query.all()
 
-class ProjectControlFocusArea(LogMixin, db.Model):
-    __tablename__ = 'project_control_focus_areas'
+class ProjectSubControl(LogMixin, db.Model):
+    __tablename__ = 'project_subcontrol'
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
     name = db.Column(db.String(), nullable=False)
@@ -562,7 +563,8 @@ class ProjectControlFocusArea(LogMixin, db.Model):
     meta = db.Column(db.JSON(),default="{}")
     tags = db.relationship('Tag', secondary='focus_tags', lazy='dynamic',
         backref=db.backref('project_control_focus_areas', lazy='dynamic'))
-    control_id = db.Column(db.Integer, db.ForeignKey('project_controls.id'), nullable=False)
+    subcontrol_id = db.Column(db.Integer, db.ForeignKey('subcontrols.id'), nullable=False)
+    project_control_id = db.Column(db.Integer, db.ForeignKey('project_controls.id'), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
