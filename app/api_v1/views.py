@@ -53,6 +53,24 @@ def add_framework():
     db.session.commit()
     return jsonify(framework.as_dict())
 
+@api.route('/evidence', methods=['POST'])
+@roles_required("admin")
+def add_evidence():
+    payload = request.get_json()
+    evidence = models.Evidence(name=payload["name"],
+        description=payload["description"],content=payload["content"])
+    db.session.add(evidence)
+    db.session.commit()
+    return jsonify(evidence.as_dict())
+
+@api.route('/evidence/<int:id>/controls', methods=['PUT'])
+@roles_required("admin")
+def add_evidence_to_controls(id):
+    payload = request.get_json()
+    evidence = models.Evidence.query.get(id)
+    evidence.associate_with_controls(payload)
+    return jsonify({"message":"ok"})
+
 @api.route('/policies', methods=['POST'])
 @roles_required("admin")
 def add_policy():
@@ -100,6 +118,24 @@ def create_project():
     if not result:
         return jsonify({"message":"failed to create project"}),400
     return jsonify({"message":"project created"})
+
+@api.route('/projects/subcontrols', methods=['GET'])
+@login_required
+def get_subcontrols_in_projects():
+    data = []
+    for subcontrol in models.ProjectSubControl.query.all():
+        data.append(subcontrol.as_dict(include_evidence=True))
+    return jsonify(data)
+#haaaaa
+@api.route('/projects/<int:id>/controls', methods=['GET'])
+@login_required
+def get_controls_for_project(id):
+    data = []
+    project = models.Project.query.get(id)
+    for control in project.controls.all():
+        for subcontrol in control.subcontrols.all():
+            data.append(subcontrol.as_dict(include_evidence=True))
+    return jsonify(data)
 
 @api.route('/projects/<int:id>/policies/<int:pid>', methods=['GET'])
 @login_required

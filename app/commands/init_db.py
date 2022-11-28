@@ -17,8 +17,8 @@ def init_db():
     db.create_all()
     create_default_tenant()
     create_default_users()
-#    create_base_controls()
-#    create_base_policies()
+    create_base_controls()
+    create_base_policies()
 
 def create_default_tenant():
     if not Tenant.query.filter(Tenant.name == current_app.config['DEFAULT_TENANT_LABEL']).first():
@@ -46,31 +46,7 @@ def create_default_users():
 def create_base_controls():
     with open("app/files/base_controls/soc2_controls.json") as f:
         controls=json.load(f)
-        f = Framework(name="soc2", description="Framework for soc2")
-        for control in controls:
-            c = Control(
-                name=control["name"],
-                description=control["name"],
-                ref_code=control["ref_code"],
-                system_level=control["system_level"],
-                category=control["category"],
-                subcategory=control["subcategory"],
-                dti=control["dti"],
-                dtc=control["dtc"],
-                meta=control["meta"]
-            )
-            for area in control["focus_areas"]:
-                fa = ControlListFocusArea(
-                    name=area["name"],
-                    description=area["description"],
-                    ref_code=area["ref_code"],
-                    mitigation=area["mitigation"],
-                    meta=area["meta"]
-                )
-                c.focus_areas.append(fa)
-            f.controls.append(c)
-        db.session.add(f)
-        db.session.commit()
+        Control.create({"controls":controls,"framework":"soc2"})
     return True
 
 def create_base_policies():

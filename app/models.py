@@ -46,11 +46,40 @@ class Tenant(LogMixin, db.Model):
 class Evidence(LogMixin, db.Model):
     __tablename__ = 'evidence'
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(), unique=True)
     description = db.Column(db.String())
     content = db.Column(db.String())
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    def as_dict(self):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return data
+
+    def remove_controls(self):
+        EvidenceAssociation.query.filter(EvidenceAssociation.evidence_id == self.id).delete()
+        db.session.commit()
+        return True
+
+    def associate_with_controls(self, control_ids):
+#haaaaaaaaa
+        """
+        control_ids = list of ProjectSubControls id's. The operation will patch
+        the current list (e.g. empty list will delete all associations with the evidence)
+        """
+        self.remove_controls()
+        EvidenceAssociation.add(control_ids, self.id)
+        return True
+
+    def controls(self):
+        id_list = [x.control_id for x in EvidenceAssociation.query.filter(EvidenceAssociation.evidence_id == self.id).all()]
+        return ProjectSubControl.query.filter(ProjectSubControl.id.in_(id_list)).all()
+
+    def control_count(self):
+        return EvidenceAssociation.query.filter(EvidenceAssociation.evidence_id == self.id).count()
+
+    def has_control(self, control_id):
+        return EvidenceAssociation.exists(control_id, self.id)
 
 class EvidenceAssociation(db.Model):
     __tablename__ = 'evidence_association'
@@ -59,6 +88,22 @@ class EvidenceAssociation(db.Model):
     evidence_id = db.Column(db.Integer(), db.ForeignKey('evidence.id', ondelete='CASCADE'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    @staticmethod
+    def exists(control_id, evidence_id):
+        return EvidenceAssociation.query.filter(EvidenceAssociation.control_id == control_id).filter(EvidenceAssociation.evidence_id == evidence_id).first()
+
+    @staticmethod
+    def add(control_id_list, evidence_id, commit=True):
+        if not isinstance(control_id_list, list):
+            control_id_list = [control_id_list]
+        for control_id in control_id_list:
+            if not EvidenceAssociation.exists(control_id, evidence_id):
+                evidence = EvidenceAssociation(control_id=control_id,evidence_id=evidence_id)
+                db.session.add(evidence)
+        if commit:
+            db.session.commit()
+        return True
 
 class PolicyAssociation(LogMixin, db.Model):
     __tablename__ = 'policy_associations'
@@ -156,18 +201,19 @@ class Control(LogMixin, db.Model):
     meta = db.Column(db.JSON(),default="{}")
     subcontrols = db.relationship('SubControl', backref='control', lazy='dynamic', cascade="all, delete")
     framework_id = db.Column(db.Integer, db.ForeignKey('frameworks.id'), nullable=False)
+    project_controls = db.relationship('ProjectControl', backref='control', lazy='dynamic', cascade="all, delete")
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
     def as_dict(self, include=[], meta=True):
         data = {}
         if meta:
-            data["focus_areas"] = []
+            data["subcontrols"] = []
             data["framework"] = self.framework.name
-            focus_areas = self.focus_areas.all()
-            data["focus_area_count"] = len(focus_areas)
-            for area in focus_areas:
-                data["focus_areas"].append(area.as_dict())
+            subcontrols = self.subcontrols.all()
+            data["subcontrol_count"] = len(subcontrols)
+            for sub in subcontrols:
+                data["subcontrols"].append(sub.as_dict())
         for c in self.__table__.columns:
             if c.name in include or not include:
                 data[c.name] = getattr(self, c.name)
@@ -195,7 +241,7 @@ class Control(LogMixin, db.Model):
                 db.session.commit()
         else:
             return False
-        # create controls and focus areas
+        # create controls and subcontrols
         for control in data.get("controls",[]):
             c = Control(
                 name=control.get("name"),
@@ -209,21 +255,21 @@ class Control(LogMixin, db.Model):
                 meta=control.get("meta",{})
             )
             """
-            if there are no focus_areas for the control, we are going to add the
-            top-level control itself as the first focus area.
+            if there are no subcontrols for the control, we are going to add the
+            top-level control itself as the first subcontrol
             """
-            focus_areas = control.get("focus_areas",[])
-            if not focus_areas:
-                focus_areas = [{"name":c.name,"description":c.description,"ref_code":c.ref_code}]
-            for area in focus_areas:
-                fa = ControlListFocusArea(
-                    name=area.get("name"),
-                    description=area.get("description"),
-                    ref_code=area.get("ref_code",c.ref_code),
-                    mitigation=area.get("mitigation","Mitigation has not been documented"),
-                    meta=area.get("meta",{})
+            subcontrols = control.get("subcontrols",[])
+            if not subcontrols:
+                subcontrols = [{"name":c.name,"description":c.description,"ref_code":c.ref_code}]
+            for sub in subcontrols:
+                fa = SubControl(
+                    name=sub.get("name"),
+                    description=sub.get("description","The description has not been documented"),
+                    ref_code=sub.get("ref_code",c.ref_code),
+                    mitigation=sub.get("mitigation","The mitigation has not been documented"),
+                    meta=sub.get("meta",{})
                 )
-                c.focus_areas.append(fa)
+                c.subcontrols.append(fa)
             f.controls.append(c)
         db.session.commit()
         return True
@@ -238,6 +284,7 @@ class SubControl(LogMixin, db.Model):
     mitigation = db.Column(db.String())
     meta = db.Column(db.JSON(),default="{}")
     control_id = db.Column(db.Integer, db.ForeignKey('controls.id'), nullable=False)
+    project_subcontrols = db.relationship('ProjectSubControl', backref='subcontrol', lazy='dynamic', cascade="all, delete")
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -265,6 +312,7 @@ class Project(LogMixin, db.Model):
 
     def as_dict(self, with_controls=False):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        '''
         data["completion_progress"] = self.completion_progress()
         data["completed"] = self.progress("complete")
         data["implemented_progress"] = self.progress("implemented")
@@ -274,6 +322,7 @@ class Project(LogMixin, db.Model):
         data["total_applicable_controls"] = len(self.applicable_controls())
         if with_controls:
             data["controls"] = [x.as_dict() for x in self.controls.all()]
+        '''
         return data
 
     @staticmethod
@@ -299,21 +348,10 @@ class Project(LogMixin, db.Model):
             return False
         if self.has_control(control.id):
             return True
-        control_dict = control.as_dict(meta=False, include=["name",
-            "description","ref_code","system_level","category",
-            "subcategory","dti","dtc","meta"])
-        control_dict["control_id"] = control.id
-        project_control = ProjectControl(**control_dict)
-
-        for area in control.focus_areas.all():
-            area_dict = area.as_dict(include=["name","description",
-                "ref_code","mitigation","meta"
-            ])
-            area_dict["project_id"] = self.id
-            if not area.ref_code:
-                area_dict["ref_code"] = f"{control.ref_code}-{area.id}"
-            control_area = ProjectControlFocusArea(**area_dict)
-            project_control.focus_areas.append(control_area)
+        project_control = ProjectControl(control_id=control.id)
+        for sub in control.subcontrols.all():
+            control_sub = ProjectSubControl(subcontrol_id=sub.id, owner_id=self.owner_id)
+            project_control.subcontrols.append(control_sub)
         self.controls.append(project_control)
         if commit:
             db.session.commit()
@@ -324,10 +362,7 @@ class Project(LogMixin, db.Model):
             return False
         if self.has_policy(policy.id):
             return True
-        policy_dict = policy.as_dict(include=["name",
-            "description","ref_code","content","template"])
-        policy_dict["policy_id"] = policy.id
-        project_policy = ProjectPolicy(**policy_dict)
+        project_policy = ProjectPolicy(content=policy.content,policy_id=policy.id)
         self.policies.append(project_policy)
         if commit:
             db.session.commit()
@@ -338,16 +373,6 @@ class Project(LogMixin, db.Model):
             db.session.delete(policy)
             db.session.commit()
         return True
-
-    def applicable_controls(self, include_inapplicable=False):
-        controls = []
-        for control in self.controls.all():
-            if include_inapplicable:
-                controls.append(control)
-            else:
-                if control.is_applicable():
-                    controls.append(control)
-        return controls
 
     def completion_progress(self):
         count = len(self.query_fa("implemented"))+len(self.query_fa("with_evidence"))
@@ -365,6 +390,7 @@ class Project(LogMixin, db.Model):
         """
         helper method to query focus areas
         """
+        return []
         _query = ProjectControlFocusArea.query.filter(ProjectControlFocusArea.project_id == self.id)
         if not include_inapplicable:
             _query = _query.filter(ProjectControlFocusArea.status != "not applicable")
@@ -480,7 +506,7 @@ class ProjectControl(LogMixin, db.Model):
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
     tags = db.relationship('Tag', secondary='control_tags', lazy='dynamic',
         backref=db.backref('project_controls', lazy='dynamic'))
-    subcontrols = db.relationship('ProjectSubControl', backref='control', lazy='dynamic')
+    subcontrols = db.relationship('ProjectSubControl', backref='p_control', lazy='dynamic')
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     control_id = db.Column(db.Integer, db.ForeignKey('controls.id'), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
@@ -496,15 +522,9 @@ class ProjectControl(LogMixin, db.Model):
             data["focus_areas"] = [x.as_dict() for x in self.query_fa(include_inapplicable=True)]
         return data
 
-    def parent_object(self):
-        return Control.query.get(self.control_id)
-
     def set_applicability(self, applicable):
-        for focus in self.focus_areas.all():
-            if applicable:
-                focus.status = "not implemented"
-            else:
-                focus.status = "not applicable"
+        for control in self.subcontrols.all():
+            control.is_applicable = applicable
         db.session.commit()
         return True
 
@@ -518,43 +538,53 @@ class ProjectControl(LogMixin, db.Model):
         return "not started"
 
     def is_complete(self):
-        if self.query_fa(filter="uncomplete"):
+        if self.query_subcontrols(filter="uncomplete"):
             return False
         return True
 
     def is_applicable(self):
-        if self.query_fa():
+        if self.query_subcontrols():
             return True
         return False
 
     def progress(self, filter):
-        count = self.query_fa(filter=filter)
+        count = self.query_subcontrols(filter=filter)
         if not count:
             return 0
-        return round((len(count) / len(self.query_fa()))*100,2)
+        return round((len(count) / len(self.query_subcontrols()))*100,2)
 
-    def query_fa(self, filter=None, include_inapplicable=False):
+    def query_subcontrols(self, filter=None, only_applicable=True):
         """
-        helper method to query focus areas
+        helper method to query sub controls
         """
-        _query = self.focus_areas
-        if not include_inapplicable:
-            _query = _query.filter(ProjectControlFocusArea.status != "not applicable")
+        controls = []
+        _query = self.subcontrols
+        if only_applicable:
+            _query = _query.filter(ProjectSubControl.is_applicable == True)
         if filter == "not_applicable":
-            _query = self.focus_areas.filter(ProjectControlFocusArea.status == "not applicable")
-        if filter == "not_implemented":
-            _query = _query.filter(or_(ProjectControlFocusArea.status == "not implemented", ProjectControlFocusArea.status == None))
-        elif filter == "implemented":
-            _query = _query.filter(ProjectControlFocusArea.status == "implemented")
-        elif filter == "missing_evidence":
-            _query = _query.filter(or_(ProjectControlFocusArea.evidence == "",ProjectControlFocusArea.evidence == None))
-        elif filter == "with_evidence":
-            _query = _query.filter(and_(ProjectControlFocusArea.evidence != "",ProjectControlFocusArea.evidence != None))
-        elif filter == "complete":
-            _query = _query.filter(and_(ProjectControlFocusArea.status == "implemented",ProjectControlFocusArea.evidence != "",ProjectControlFocusArea.evidence != None))
-        elif filter == "uncomplete":
-             _query = _query.filter(or_(ProjectControlFocusArea.status!="implemented",ProjectControlFocusArea.evidence=="",ProjectControlFocusArea.evidence==None))
-        return _query.all()
+            _query = self.filter(ProjectSubControl.is_applicable == False)
+        for control in _query.all():
+            if filter == "not_implemented":
+                if not control.is_implemented():
+                    controls.append(control)
+            elif filter == "implemented":
+                if control.is_implemented():
+                    controls.append(control)
+            elif filter == "missing_evidence":
+                if not control.has_evidence():
+                    controls.append(control)
+            elif filter == "with_evidence":
+                if control.has_evidence():
+                    controls.append(control)
+            elif filter == "complete":
+                if control.is_complete():
+                    controls.append(control)
+            elif filter == "uncomplete":
+                if not control.is_complete():
+                    controls.append(control)
+            else:
+                controls.append(control)
+        return controls
 
 class ProjectSubControl(LogMixin, db.Model):
     __tablename__ = 'project_subcontrols'
@@ -576,16 +606,24 @@ class ProjectSubControl(LogMixin, db.Model):
     owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
     subcontrol_id = db.Column(db.Integer, db.ForeignKey('subcontrols.id'), nullable=False)
     project_control_id = db.Column(db.Integer, db.ForeignKey('project_controls.id'), nullable=False)
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
-    def as_dict(self, with_areas=False):
+    def as_dict(self, include_evidence=False):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         data["implementation_status"] = self.implementation_status()
         data["has_evidence"] = self.has_evidence()
         data["is_complete"] = self.is_complete()
+        data["framework"] = self.framework().name
+        data["project"] = self.p_control.project.name
+        data["parent_control"] = self.p_control.control.name
+        data["name"] = self.subcontrol.name
+        if include_evidence:
+            data["evidence"] = [x.as_dict() for x in self.evidence.all()]
         return data
+
+    def framework(self):
+        return self.p_control.control.framework
 
     def implementation_status(self):
         if not self.is_applicable:
@@ -597,12 +635,19 @@ class ProjectSubControl(LogMixin, db.Model):
         return "partially"
 
     def is_complete(self):
-        if self.status == "implemented":
+        framework = self.framework()
+        if framework.name == "soc2":
+            if self.implemented != 100 or not self.has_evidence():
+                return False
+        return False
+#haaaaaa
+    def has_evidence(self):
+        if self.evidence.first():
             return True
         return False
 
-    def has_evidence(self):
-        if self.evidence:
+    def is_implemented(self):
+        if self.implemented == 100:
             return True
         return False
 

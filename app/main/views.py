@@ -18,6 +18,14 @@ def home():
 def controls_dashboard():
     return render_template("controls_dashboard.html")
 
+@main.route('/evidence', methods=['GET'])
+@login_required
+def evidence():
+    projects = Project.query.all()
+    evidence = Evidence.query.all()
+    return render_template("evidence.html",
+        evidence=evidence, projects=projects)
+
 @main.route('/policies', methods=['GET'])
 @login_required
 def policies():
