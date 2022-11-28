@@ -209,7 +209,7 @@ class Control(LogMixin, db.Model):
         return True
 
 class SubControl(LogMixin, db.Model):
-    __tablename__ = 'subcontrol'
+    __tablename__ = 'subcontrols'
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
     name = db.Column(db.String(), nullable=False)
