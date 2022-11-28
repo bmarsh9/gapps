@@ -52,43 +52,10 @@ class Evidence(LogMixin, db.Model):
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
-class ProjectControlAssociation(LogMixin, db.Model):
-    __tablename__ = 'project_control_associations'
-    """
-    association object between the project and class SubControl
-    """
-    id = db.Column(db.Integer(), primary_key=True)
-    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
-    implemented = db.Column(db.Integer(),default=0)
-    is_applicable = db.Column(db.Boolean(), default=True)
-    notes = db.Column(db.String())
-
-    """
-    framework specific fields
-    """
-    # SOC2
-    feedback = db.Column(db.String())
-    """
-    may have multiple evidence items for each control
-    """
-    evidence = db.relationship('Evidence', secondary='evidence_association', lazy='dynamic',
-        backref=db.backref('project_control_associations', lazy='dynamic'))
-    tags = db.relationship('Tag', secondary='control_tags', lazy='dynamic',
-        backref=db.backref('project_control_associations', lazy='dynamic'))
-    owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
-    subcontrol_id = db.Column(db.Integer(), db.ForeignKey('subcontrols.id', ondelete='CASCADE'))
-    project_id = db.Column(db.Integer(), db.ForeignKey('projects.id', ondelete='CASCADE'))
-#haaaaaaaaa
-    project = db.relationship("Project", backref="subcontrol_association",viewonly=True)
-    control = db.relationship("SubControl", backref="project_association",viewonly=True)
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)
-    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
-
-
 class EvidenceAssociation(db.Model):
     __tablename__ = 'evidence_association'
     id = db.Column(db.Integer(), primary_key=True)
-    control_id = db.Column(db.Integer(), db.ForeignKey('project_control_associations.id', ondelete='CASCADE'))
+    control_id = db.Column(db.Integer(), db.ForeignKey('project_subcontrols.id', ondelete='CASCADE'))
     evidence_id = db.Column(db.Integer(), db.ForeignKey('evidence.id', ondelete='CASCADE'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -108,6 +75,9 @@ class Framework(LogMixin, db.Model):
     name = db.Column(db.String(), nullable=False)
     description = db.Column(db.String(), nullable=False)
     reference_link = db.Column(db.String())
+    """framework specific fields"""
+    evidence_required = db.Column(db.Boolean(), default=False)
+
     controls = db.relationship('Control', backref='framework', lazy='dynamic')
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -184,7 +154,7 @@ class Control(LogMixin, db.Model):
     dti = db.Column(db.String(), default="easy")
     dtc = db.Column(db.String(), default="easy")
     meta = db.Column(db.JSON(),default="{}")
-    focus_areas = db.relationship('ControlListFocusArea', backref='control', lazy='dynamic', cascade="all, delete")
+    subcontrols = db.relationship('SubControl', backref='control', lazy='dynamic', cascade="all, delete")
     framework_id = db.Column(db.Integer, db.ForeignKey('frameworks.id'), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -508,20 +478,9 @@ class ProjectControl(LogMixin, db.Model):
     __tablename__ = 'project_controls'
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
-    name = db.Column(db.String(), nullable=False)
-    description = db.Column(db.String())
-    ref_code = db.Column(db.String())
-    system_level = db.Column(db.Boolean(), default=True)
-    category = db.Column(db.String())
-    subcategory = db.Column(db.String())
-    dti = db.Column(db.String(), default="easy")
-    dtc = db.Column(db.String(), default="easy")
-    meta = db.Column(db.JSON(),default="{}")
     tags = db.relationship('Tag', secondary='control_tags', lazy='dynamic',
         backref=db.backref('project_controls', lazy='dynamic'))
-    focus_areas = db.relationship('ProjectControlFocusArea', backref='control', lazy='dynamic')
-    owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
-
+    subcontrols = db.relationship('ProjectSubControl', backref='control', lazy='dynamic')
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     control_id = db.Column(db.Integer, db.ForeignKey('controls.id'), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
@@ -608,14 +567,12 @@ class ProjectSubControl(LogMixin, db.Model):
     framework specific fields
     """
     # SOC2
-    feedback = db.Column(db.String())
+    auditor_feedback = db.Column(db.String())
     """
     may have multiple evidence items for each control
     """
     evidence = db.relationship('Evidence', secondary='evidence_association', lazy='dynamic',
-        backref=db.backref('project_control_associations', lazy='dynamic'))
-    tags = db.relationship('Tag', secondary='control_tags', lazy='dynamic',
-        backref=db.backref('project_control_associations', lazy='dynamic'))
+        backref=db.backref('project_subcontrols', lazy='dynamic'))
     owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
     subcontrol_id = db.Column(db.Integer, db.ForeignKey('subcontrols.id'), nullable=False)
     project_control_id = db.Column(db.Integer, db.ForeignKey('project_controls.id'), nullable=False)
@@ -623,22 +580,21 @@ class ProjectSubControl(LogMixin, db.Model):
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
-    def as_dict(self):
+    def as_dict(self, with_areas=False):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
-        data["is_complete"] = self.is_complete()
+        data["implementation_status"] = self.implementation_status()
         data["has_evidence"] = self.has_evidence()
-        data["is_applicable"] = self.is_applicable()
+        data["is_complete"] = self.is_complete()
         return data
 
-    @validates("binary_status")
-    def validate_key(self, key, value):
-        if self.binary_status:
-            value_list = ["not implemented","implemented", "not applicable"]
-        else:
-            value_list = ["implemented", "mostly","partially","not implemented","not applicable"]
-        if value not in value_list:
-            raise ValueError(f"value must be in {value_list}")
-        return key
+    def implementation_status(self):
+        if not self.is_applicable:
+            return "not applicatable"
+        if self.implemented == 100:
+            return "fully"
+        if self.implemented > 50:
+            return "mostly"
+        return "partially"
 
     def is_complete(self):
         if self.status == "implemented":
@@ -650,25 +606,6 @@ class ProjectSubControl(LogMixin, db.Model):
             return True
         return False
 
-    def is_applicable(self):
-        if self.status == "not applicable":
-            return False
-        return True
-
-    def progress(self):
-        progress_dict = {
-            "implemented": 100,
-            "mostly": 75,
-            "partially": 50,
-            "not implemented": 0,
-            "not applicable": 0
-        }
-        if self.binary_status:
-            if self.status in ["not implemented","not applicable"]:
-                return 0
-            return 100
-        return progress_dict.get(self.status)
-
 class ProjectTags(db.Model):
     __tablename__ = 'project_tags'
     id = db.Column(db.Integer(), primary_key=True)
@@ -679,12 +616,6 @@ class ControlTags(db.Model):
     __tablename__ = 'control_tags'
     id = db.Column(db.Integer(), primary_key=True)
     control_id = db.Column(db.Integer(), db.ForeignKey('project_controls.id', ondelete='CASCADE'))
-    tag_id = db.Column(db.Integer(), db.ForeignKey('tags.id', ondelete='CASCADE'))
-
-class FocusTags(db.Model):
-    __tablename__ = 'focus_tags'
-    id = db.Column(db.Integer(), primary_key=True)
-    focus_id = db.Column(db.Integer(), db.ForeignKey('project_control_focus_areas.id', ondelete='CASCADE'))
     tag_id = db.Column(db.Integer(), db.ForeignKey('tags.id', ondelete='CASCADE'))
 
 class PolicyTags(db.Model):

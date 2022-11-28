@@ -17,8 +17,8 @@ def init_db():
     db.create_all()
     create_default_tenant()
     create_default_users()
-    create_base_controls()
-    create_base_policies()
+#    create_base_controls()
+#    create_base_policies()
 
 def create_default_tenant():
     if not Tenant.query.filter(Tenant.name == current_app.config['DEFAULT_TENANT_LABEL']).first():
