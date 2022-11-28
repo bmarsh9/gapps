@@ -43,6 +43,56 @@ class Tenant(LogMixin, db.Model):
             return None
         return True
 
+class Evidence(LogMixin, db.Model):
+    __tablename__ = 'evidence'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    name = db.Column(db.String())
+    description = db.Column(db.String())
+    content = db.Column(db.String())
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+class ProjectControlAssociation(LogMixin, db.Model):
+    __tablename__ = 'project_control_associations'
+    """
+    association object between the project and class SubControl
+    """
+    id = db.Column(db.Integer(), primary_key=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    implemented = db.Column(db.Integer(),default=0)
+    is_applicable = db.Column(db.Boolean(), default=True)
+    notes = db.Column(db.String())
+
+    """
+    framework specific fields
+    """
+    # SOC2
+    feedback = db.Column(db.String())
+    """
+    may have multiple evidence items for each control
+    """
+    evidence = db.relationship('Evidence', secondary='evidence_association', lazy='dynamic',
+        backref=db.backref('project_control_associations', lazy='dynamic'))
+    tags = db.relationship('Tag', secondary='control_tags', lazy='dynamic',
+        backref=db.backref('project_control_associations', lazy='dynamic'))
+    owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
+    subcontrol_id = db.Column(db.Integer(), db.ForeignKey('subcontrols.id', ondelete='CASCADE'))
+    project_id = db.Column(db.Integer(), db.ForeignKey('projects.id', ondelete='CASCADE'))
+#haaaaaaaaa
+    project = db.relationship("Project", backref="subcontrol_association",viewonly=True)
+    control = db.relationship("SubControl", backref="project_association",viewonly=True)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+
+class EvidenceAssociation(db.Model):
+    __tablename__ = 'evidence_association'
+    id = db.Column(db.Integer(), primary_key=True)
+    control_id = db.Column(db.Integer(), db.ForeignKey('project_control_associations.id', ondelete='CASCADE'))
+    evidence_id = db.Column(db.Integer(), db.ForeignKey('evidence.id', ondelete='CASCADE'))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
 class PolicyAssociation(LogMixin, db.Model):
     __tablename__ = 'policy_associations'
     id = db.Column(db.Integer(), primary_key=True)
@@ -548,21 +598,25 @@ class ProjectControl(LogMixin, db.Model):
         return _query.all()
 
 class ProjectSubControl(LogMixin, db.Model):
-    __tablename__ = 'project_subcontrol'
+    __tablename__ = 'project_subcontrols'
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
-    name = db.Column(db.String(), nullable=False)
-    description = db.Column(db.String())
-    ref_code = db.Column(db.String())
-    mitigation = db.Column(db.String())
-    evidence = db.Column(db.String())
+    implemented = db.Column(db.Integer(),default=0)
+    is_applicable = db.Column(db.Boolean(), default=True)
     notes = db.Column(db.String())
+    """
+    framework specific fields
+    """
+    # SOC2
     feedback = db.Column(db.String())
-    binary_status = db.Column(db.Boolean(), default=True)
-    status = db.Column(db.String(), default="not implemented")
-    meta = db.Column(db.JSON(),default="{}")
-    tags = db.relationship('Tag', secondary='focus_tags', lazy='dynamic',
-        backref=db.backref('project_control_focus_areas', lazy='dynamic'))
+    """
+    may have multiple evidence items for each control
+    """
+    evidence = db.relationship('Evidence', secondary='evidence_association', lazy='dynamic',
+        backref=db.backref('project_control_associations', lazy='dynamic'))
+    tags = db.relationship('Tag', secondary='control_tags', lazy='dynamic',
+        backref=db.backref('project_control_associations', lazy='dynamic'))
+    owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
     subcontrol_id = db.Column(db.Integer, db.ForeignKey('subcontrols.id'), nullable=False)
     project_control_id = db.Column(db.Integer, db.ForeignKey('project_controls.id'), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
