@@ -100,10 +100,12 @@ def view_controls_in_project(id):
 @login_required
 def view_control_in_project(id, cid):
     project = Project.query.get(id)
-    control = project.controls.filter(ProjectControl.id == cid).first()
-    focus_areas = control.focus_areas.order_by(ProjectControlFocusArea.id.desc()).all()
+    project_control = project.controls.filter(ProjectControl.id == cid).first()
+    subcontrols = project_control.subcontrols.order_by(ProjectSubControl.id.desc()).all()
+    evidence = Evidence.query.all()
     return render_template("view_control_in_project.html",
-        project=project, control=control, focus_areas=focus_areas)
+        project=project, project_control=project_control, subcontrols=subcontrols,
+        evidence=evidence)
 
 @main.route('/projects/<int:id>/policies', methods=['GET'])
 @login_required

@@ -124,9 +124,9 @@ def create_project():
 def get_subcontrols_in_projects():
     data = []
     for subcontrol in models.ProjectSubControl.query.all():
-        data.append(subcontrol.as_dict(include_evidence=True))
+        data.append(subcontrol.as_dict(include_subcontrols=True))
     return jsonify(data)
-#haaaaa
+
 @api.route('/projects/<int:id>/controls', methods=['GET'])
 @login_required
 def get_controls_for_project(id):
@@ -199,7 +199,7 @@ def delete_policy_controls_for_project(id, pid, cid):
 @login_required
 def get_control_for_project(id, cid):
     control = models.ProjectControl.query.get(cid)
-    return jsonify(control.as_dict(with_areas=True))
+    return jsonify(control.as_dict(include_subcontrols=True))
 
 @api.route('/policies/<int:pid>/projects/<int:id>', methods=['PUT'])
 @roles_required("admin")
@@ -253,15 +253,17 @@ def focus_areas():
         data.pop("columns", None)
     return jsonify(data)
 
-@api.route('/controls/<int:cid>/focus-areas/<int:fid>', methods=['PUT'])
+@api.route('/controls/<int:cid>/subcontrols/<int:sid>', methods=['PUT'])
 @roles_required("admin")
-def update_focus_area_in_control(cid, fid):
+def update_subcontrols_in_control(cid, sid):
+#haaaaaaa
     payload = request.get_json()
-    focus = models.ProjectControlFocusArea.query.get(fid)
-    focus.status = payload["status"]
-    focus.evidence = payload["evidence"]
-    focus.notes = payload["notes"]
-    focus.feedback = payload["feedback"]
+    sub = models.ProjectSubControl.query.get(sid)
+    sub.is_applicable = payload["applicable"]
+    sub.implemented = payload["implemented"]
+    sub.notes = payload["notes"]
+    sub.auditor_feedback = payload["feedback"]
+    sub.set_evidence(payload["evidence"])
     db.session.commit()
     return jsonify({"message":"ok"})
 

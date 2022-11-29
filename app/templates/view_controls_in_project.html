@@ -39,7 +39,7 @@
     <div class="card bg-base-100">
       <div class="card-body">
         <h2 class="card-title mb-2">Controls</h2>
-        <p class="text-sm text-gray-500 font-medium mb-4">These controls are included in your SOC2 project. Be sure to update the status and implementation effort. <a href="{{config.DOC_LINK}}" class="text-primary">Need help?</a></p>
+        <p class="text-sm text-gray-500 font-medium mb-4">These controls are included in your project. Be sure to update the status and implementation effort. <a href="{{config.DOC_LINK}}" class="text-primary">Need help?</a></p>
         <table class="table table-vcenter table-bordered" id="controls-table" style="width:100%">
           <thead>
             <tr>
@@ -49,44 +49,37 @@
               <th class="w-1">Status</th>
               <th class="w-1">Implemented</th>
               <th class="w-1">Evidence</th>
-              <th class="w-1">View</th>
+              <th class="w-1">More</th>
             </tr>
           </thead>
           <tbody>
-            {%for control in controls%}
-            <tr data-project-id={{project.id}} data-control-id={{control.id}}>
-              <td class="text-sm font-medium text-gray-500">{{control.ref_code}}</td>
-              <td class="text-sm font-medium text-gray-500"><span class="badge badge-sm bg-slate-500 border-slate-500 hover:bg-accent hover:border-accent">{{control.category}}</span></td>
-              <td class="text-sm font-medium text-gray-500"><div class="tooltip" data-tip="Double click to see more"><div class="truncate w-96">{{control.name}}</div></div></td>
-              <td class="text-sm font-medium text-gray-500"><span class="badge badge-sm bg-slate-500 border-slate-500 hover:bg-accent hover:border-accent">{{control.status()}}</span></td>
+            {%for project_control in controls%}
+            {%set status_color = project_control.status_color()%}
+            <tr data-project-id={{project.id}} data-control-id={{project_control.id}}>
+              <td class="text-sm font-medium text-gray-500">{{project_control.control.ref_code}}</td>
+              <td class="text-sm font-medium text-gray-500"><span class="badge badge-sm bg-slate-500 border-slate-500 hover:bg-accent hover:border-accent">{{project_control.control.category}}</span></td>
+              <td class="text-sm font-medium text-gray-500"><div class="tooltip" data-tip="Double click to see more"><div class="truncate w-96">{{project_control.control.name}}</div></div></td>
+              <td class="text-sm font-medium text-gray-500"><span class="badge badge-sm bg-{{status_color}}-400 border-{{status_color}}-400">{{project_control.status()}}</span></td>
               <td>
-                {%set progress = control.progress("implemented")%}
-                {%if progress < 40%}
-                {%set color = "error"%}
-                {%elif progress < 70%}
-                {%set color = "warning"%}
-                {%else%}
-                {%set color = "success"%}
-                {%endif%}
+                {%set progress = project_control.implemented_progress()%}
                 <div class="flex flex-col">
-                  <b class="text-xs font-medium text-gray-500">{{progress}}</b><progress class="progress progress-{{color}} w-28" value="{{progress}}" max="100"></progress>
+                  <b class="text-xs font-medium text-gray-500">{{progress}}</b><progress class="progress progress-{{project_control.get_color_from_int(progress,alternate=True)}} w-28" value="{{progress}}" max="100"></progress>
                 </div>
               </td>
               <td>
-                {%set progress = control.progress("with_evidence")%}
-                {%if progress < 40%}
-                {%set color = "error"%}
-                {%elif progress < 70%}
-                {%set color = "warning"%}
-                {%else%}
-                {%set color = "success"%}
-                {%endif%}
+                {%set progress = project_control.progress("with_evidence")%}
                 <div class="flex flex-col">
-                  <b class="text-xs font-medium text-gray-500">{{progress}}</b><progress class="progress progress-{{color}} w-28" value="{{progress}}" max="100"></progress>
+                  <b class="text-xs font-medium text-gray-500">{{progress}}</b><progress class="progress progress-{{project_control.get_color_from_int(progress,alternate=True)}} w-28" value="{{progress}}" max="100"></progress>
                 </div>
               </td>
               <td class="text-center">
-                <a href="{{url_for("main.view_control_in_project",id=project.id,cid=control.id)}}" class="view btn btn-sm border border-white btn-outline"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg></a>
+<div class="dropdown dropdown-top dropdown-end">
+  <label tabindex="0" class="btn btn btn-sm border border-white btn-outline"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" /></svg></label>
+  <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+    <li><a href="{{url_for("main.view_control_in_project",id=project.id,cid=project_control.id)}}" class="view">View</a></li>
+    <li><a data-name="{{project_control.name}}" data-id="{{project_control.id}}" class="remove-control">Remove from Project</a></li>
+  </ul>
+</div>
               </td>
             </tr>
             {%endfor%}
