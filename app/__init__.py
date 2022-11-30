@@ -62,6 +62,7 @@ def create_app(config_name="default"):
 
     app.jinja_env.filters['is_admin'] = is_user_admin
     app.jinja_env.filters['tojson_pretty'] = to_pretty_json
+
     '''
     @app.before_request
     def before_request():

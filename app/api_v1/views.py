@@ -53,6 +53,49 @@ def add_framework():
     db.session.commit()
     return jsonify(framework.as_dict())
 
+@api.route('/evidence/<int:id>', methods=['GET'])
+@roles_required("admin")
+def get_evidence(id):
+    evidence = models.Evidence.query.get(id)
+    return jsonify(evidence.as_dict())
+
+@api.route('/evidence', methods=['POST'])
+@roles_required("admin")
+def add_evidence():
+    payload = request.get_json()
+    evidence = models.Evidence(name=payload["name"],
+        description=payload["description"],content=payload["content"])
+    db.session.add(evidence)
+    db.session.commit()
+    return jsonify(evidence.as_dict())
+
+@api.route('/evidence/<int:id>', methods=['PUT'])
+@roles_required("admin")
+def update_evidence(id):
+    payload = request.get_json()
+    evidence = models.Evidence.query.get(id)
+    evidence.name = payload["name"]
+    evidence.description = payload["description"]
+    evidence.content = payload["content"]
+    db.session.commit()
+    return jsonify(evidence.as_dict())
+
+@api.route('/evidence/<int:id>', methods=['DELETE'])
+@roles_required("admin")
+def delete_evidence(id):
+    evidence = models.Evidence.query.get(id)
+    db.session.delete(evidence)
+    db.session.commit()
+    return jsonify({"message":"ok"})
+
+@api.route('/evidence/<int:id>/controls', methods=['PUT'])
+@roles_required("admin")
+def add_evidence_to_controls(id):
+    payload = request.get_json()
+    evidence = models.Evidence.query.get(id)
+    evidence.associate_with_controls(payload)
+    return jsonify({"message":"ok"})
+
 @api.route('/policies', methods=['POST'])
 @roles_required("admin")
 def add_policy():
@@ -101,6 +144,24 @@ def create_project():
         return jsonify({"message":"failed to create project"}),400
     return jsonify({"message":"project created"})
 
+@api.route('/projects/subcontrols', methods=['GET'])
+@login_required
+def get_subcontrols_in_projects():
+    data = []
+    for subcontrol in models.ProjectSubControl.query.all():
+        data.append(subcontrol.as_dict())
+    return jsonify(data)
+
+@api.route('/projects/<int:id>/controls', methods=['GET'])
+@login_required
+def get_controls_for_project(id):
+    data = []
+    project = models.Project.query.get(id)
+    for control in project.controls.all():
+        for subcontrol in control.subcontrols.all():
+            data.append(subcontrol.as_dict(include_evidence=True))
+    return jsonify(data)
+
 @api.route('/projects/<int:id>/policies/<int:pid>', methods=['GET'])
 @login_required
 def get_policy_for_project(id, pid):
@@ -124,7 +185,7 @@ def update_policy_for_project(id, pid):
 @roles_required("admin")
 def delete_policy_for_project(id, pid):
     project = models.Project.query.get(id)
-    project.delete_policy(pid)
+    project.remove_policy(pid)
     return jsonify({"message":"policy removed"})
 
 @api.route('/policies/<int:id>/controls/<int:cid>', methods=['PUT'])
@@ -163,7 +224,14 @@ def delete_policy_controls_for_project(id, pid, cid):
 @login_required
 def get_control_for_project(id, cid):
     control = models.ProjectControl.query.get(cid)
-    return jsonify(control.as_dict(with_areas=True))
+    return jsonify(control.as_dict(include_subcontrols=True))
+
+@api.route('/projects/<int:id>/controls/<int:cid>', methods=['DELETE'])
+@login_required
+def remove_control_from_project(id, cid):
+    project = models.Project.query.get(id)
+    project.remove_control(cid)
+    return jsonify({"message":"ok"})
 
 @api.route('/policies/<int:pid>/projects/<int:id>', methods=['PUT'])
 @roles_required("admin")
@@ -199,39 +267,22 @@ def query_controls():
         data.pop("columns", None)
     return jsonify(data)
 
-@api.route('/query/focus-areas', methods=['GET','POST'])
-@login_required
-def focus_areas():
-    """
-    return query results for dt table
-    """
-    payload = request.get_json()
-    include_cols = request.args.get("columns", "no")
-    _filter = Filter(models, current_app.db.session.query(),tables=["control_focus_areas"])
-    data = _filter.handle_request(
-        payload,
-        default_filter={"condition":"OR","rules":[{"field":"control_focus_areas.id","operator":"is_not_null"}]},
-        default_fields=["id", "criteria", "control_ref"]
-    )
-    if include_cols == "no":
-        data.pop("columns", None)
-    return jsonify(data)
-
-@api.route('/controls/<int:cid>/focus-areas/<int:fid>', methods=['PUT'])
+@api.route('/project-controls/<int:cid>/subcontrols/<int:sid>', methods=['PUT'])
 @roles_required("admin")
-def update_focus_area_in_control(cid, fid):
+def update_subcontrols_in_control_for_project(cid, sid):
     payload = request.get_json()
-    focus = models.ProjectControlFocusArea.query.get(fid)
-    focus.status = payload["status"]
-    focus.evidence = payload["evidence"]
-    focus.notes = payload["notes"]
-    focus.feedback = payload["feedback"]
+    sub = models.ProjectSubControl.query.get(sid)
+    sub.is_applicable = payload["applicable"]
+    sub.implemented = payload["implemented"]
+    sub.notes = payload["notes"]
+    sub.auditor_feedback = payload["feedback"]
+    sub.set_evidence(payload["evidence"])
     db.session.commit()
     return jsonify({"message":"ok"})
 
-@api.route('/controls/<int:cid>/applicability', methods=['PUT'])
+@api.route('/project-controls/<int:cid>/applicability', methods=['PUT'])
 @roles_required("admin")
-def set_applicability_of_control(cid):
+def set_applicability_of_control_for_project(cid):
     payload = request.get_json()
     control = models.ProjectControl.query.get(cid)
     control.set_applicability(payload["applicable"])
@@ -272,22 +323,22 @@ def charts_get_project_summaries():
         data["categories"].append(project.name)
         data["controls"].append(project.controls.count())
         data["policies"].append(project.policies.count())
-        data["complete"].append(len(project.query_fa("complete")))
-        data["not_implemented"].append(len(project.query_fa("not_implemented")))
-        data["missing_evidence"].append(len(project.query_fa("missing_evidence")))
+        data["complete"].append(len(project.completed_controls()))
+        data["not_implemented"].append(len(project.completed_controls()))
+        data["missing_evidence"].append(len(project.missing_evidence_controls()))
     return jsonify(data)
 
 @api.route('/charts/tenant-summary', methods=['GET'])
 @login_required
 def charts_get_tenant_summary():
     data = {
-        "categories":["Projects","Controls","Policies","Focus Areas", "Users"],
+        "categories":["Projects","Controls","Policies","Subcontrols", "Users"],
         "data":[]
     }
     data["data"].append(models.Project.query.count())
     data["data"].append(models.Control.query.count())
     data["data"].append(models.Policy.query.count())
-    data["data"].append(models.ControlListFocusArea.query.count())
+    data["data"].append(models.SubControl.query.count())
     data["data"].append(models.User.query.count())
     return jsonify(data)
 

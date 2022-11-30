@@ -38,7 +38,7 @@ The following instructions are to get you started very quickly.
 
 ```
 $ git clone https://github.com/bmarsh9/gapps.git; cd gapps
-$ docker build --tag gapps .
+$ docker build --tag gapps:2.0.0 .
 $ export SETUP_DB=yes;docker-compose up -d
 ```
 

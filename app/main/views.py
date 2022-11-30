@@ -18,6 +18,14 @@ def home():
 def controls_dashboard():
     return render_template("controls_dashboard.html")
 
+@main.route('/evidence', methods=['GET'])
+@login_required
+def evidence():
+    projects = Project.query.all()
+    evidence = Evidence.query.all()
+    return render_template("evidence.html",
+        evidence=evidence, projects=projects)
+
 @main.route('/policies', methods=['GET'])
 @login_required
 def policies():
@@ -43,13 +51,6 @@ def controls():
     return render_template("controls.html",
         projects=projects, controls=controls,
         frameworks=frameworks)
-
-@main.route('/controls/<int:id>', methods=['GET'])
-@login_required
-def view_control(id):
-    control = Control.query.get(id)
-    focus_areas = control.focus_areas.all()
-    return render_template("view_control.html", control=control, focus_areas=focus_areas)
 
 @main.route('/projects', methods=['GET'])
 @login_required
@@ -92,10 +93,12 @@ def view_controls_in_project(id):
 @login_required
 def view_control_in_project(id, cid):
     project = Project.query.get(id)
-    control = project.controls.filter(ProjectControl.id == cid).first()
-    focus_areas = control.focus_areas.order_by(ProjectControlFocusArea.id.desc()).all()
+    project_control = project.controls.filter(ProjectControl.id == cid).first()
+    subcontrols = project_control.subcontrols.order_by(ProjectSubControl.id.desc()).all()
+    evidence = Evidence.query.all()
     return render_template("view_control_in_project.html",
-        project=project, control=control, focus_areas=focus_areas)
+        project=project, project_control=project_control, subcontrols=subcontrols,
+        evidence=evidence)
 
 @main.route('/projects/<int:id>/policies', methods=['GET'])
 @login_required

@@ -9,7 +9,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Sets the Tone at the Top - The board of directors and management, at all levels, demonstrate through their directives, actions, and behavior the importance of integrity and ethical values to support the functioning of the system of internal control.",
                 "description": "Sets the Tone at the Top - The board of directors and management, at all levels, demonstrate through their directives, actions, and behavior the importance of integrity and ethical values to support the functioning of the system of internal control.",
@@ -57,7 +57,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Establishes Oversight Responsibilities - The board of directors identifies and accepts its oversight responsibilities in relation to established requirements and expectations.",
                 "description": "Establishes Oversight Responsibilities - The board of directors identifies and accepts its oversight responsibilities in relation to established requirements and expectations.",
@@ -98,7 +98,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Considers All Structures of the Entity - Management and the board of directors consider the multiple structures used (including operating units, legal entities, geographic distribution, and outsourced service providers) to support the achievement of objectives.",
                 "description": "Considers All Structures of the Entity - Management and the board of directors consider the multiple structures used (including operating units, legal entities, geographic distribution, and outsourced service providers) to support the achievement of objectives.",
@@ -146,7 +146,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Establishes Policies and Practices - Policies and practices reflect expectations of competence necessary to support the achievement of objectives.",
                 "description": "Establishes Policies and Practices - Policies and practices reflect expectations of competence necessary to support the achievement of objectives.",
@@ -208,7 +208,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Enforces Accountability Through Structures, Authorities, and Responsibilities - Management and the board of directors establish the mechanisms to communicate and hold individuals accountable for performance of internal control responsibilities across the entity and implement corrective action as necessary.",
                 "description": "Enforces Accountability Through Structures, Authorities, and Responsibilities - Management and the board of directors establish the mechanisms to communicate and hold individuals accountable for performance of internal control responsibilities across the entity and implement corrective action as necessary.",
@@ -256,7 +256,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Identifies Information Requirements - A process is in place to identify the information required and expected to support the functioning of the other components of internal control and the achievement of the entity's objectives.",
                 "description": "Identifies Information Requirements - A process is in place to identify the information required and expected to support the functioning of the other components of internal control and the achievement of the entity's objectives.",
@@ -297,7 +297,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Communicates Internal Control Information - A process is in place to communicate required information to enable all personnel to understand and carry out their internal control responsibilities.",
                 "description": "Communicates Internal Control Information - A process is in place to communicate required information to enable all personnel to understand and carry out their internal control responsibilities.",
@@ -387,7 +387,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Communicates to External Parties - Processes are in place to communicate relevant and timely information to external parties, including shareholders, partners, owners, regulators, customers, financial analysts, and other external parties.",
                 "description": "Communicates to External Parties - Processes are in place to communicate relevant and timely information to external parties, including shareholders, partners, owners, regulators, customers, financial analysts, and other external parties.",
@@ -477,7 +477,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Reflects Management's Choices - Operations objectives reflect management's choices about structure, industry considerations, and performance of the entity.",
                 "description": "Reflects Management's Choices - Operations objectives reflect management's choices about structure, industry considerations, and performance of the entity.",
@@ -602,7 +602,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Includes Entity, Subsidiary, Division, Operating Unit, and Functional Levels - The entity identifies and assesses risk at the entity, subsidiary, division, operating unit, and functional levels relevant to the achievement of objectives.",
                 "description": "Includes Entity, Subsidiary, Division, Operating Unit, and Functional Levels - The entity identifies and assesses risk at the entity, subsidiary, division, operating unit, and functional levels relevant to the achievement of objectives.",
@@ -671,7 +671,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Considers Various Types of Fraud - The assessment of fraud considers fraudulent reporting, possible loss of assets, and corruption resulting from the various ways that fraud and misconduct can occur.",
                 "description": "Considers Various Types of Fraud - The assessment of fraud considers fraudulent reporting, possible loss of assets, and corruption resulting from the various ways that fraud and misconduct can occur.",
@@ -719,7 +719,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Assesses Changes in the External Environment - The risk identification process considers changes to the regulatory, economic, and physical environment in which the entity operates.",
                 "description": "Assesses Changes in the External Environment - The risk identification process considers changes to the regulatory, economic, and physical environment in which the entity operates.",
@@ -767,7 +767,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Considers a Mix of Ongoing and Separate Evaluations - Management includes a balance of ongoing and separate evaluations.",
                 "description": "Considers a Mix of Ongoing and Separate Evaluations - Management includes a balance of ongoing and separate evaluations.",
@@ -836,7 +836,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Assesses Results - Management and the board of directors, as appropriate, assess results of ongoing and separate evaluations.",
                 "description": "Assesses Results - Management and the board of directors, as appropriate, assess results of ongoing and separate evaluations.",
@@ -870,7 +870,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Integrates With Risk Assessment - Control activities help ensure that risk responses that address and mitigate risks are carried out.",
                 "description": "Integrates With Risk Assessment - Control activities help ensure that risk responses that address and mitigate risks are carried out.",
@@ -925,7 +925,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Determines Dependency Between the Use of Technology in Business Processes and Technology General Controls - Management understands and determines the dependency and linkage between business processes, automated control activities, and technology general controls.",
                 "description": "Determines Dependency Between the Use of Technology in Business Processes and Technology General Controls - Management understands and determines the dependency and linkage between business processes, automated control activities, and technology general controls.",
@@ -966,7 +966,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Establishes Policies and Procedures to Support Deployment of Management \u2018s Directives - Management establishes control activities that are built into business processes and employees' day-to-day activities through policies establishing what is expected and relevant procedures specifying actions.",
                 "description": "Establishes Policies and Procedures to Support Deployment of Management \u2018s Directives - Management establishes control activities that are built into business processes and employees' day-to-day activities through policies establishing what is expected and relevant procedures specifying actions.",
@@ -1021,7 +1021,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Identifies and Manages the Inventory of Information Assets - The entity identifies, inventories, classifies, and manages information assets.",
                 "description": "Identifies and Manages the Inventory of Information Assets - The entity identifies, inventories, classifies, and manages information assets.",
@@ -1104,7 +1104,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Controls Access Credentials to Protected Assets - Information asset access credentials are created based on an authorization from the system's asset owner or authorized custodian.",
                 "description": "Controls Access Credentials to Protected Assets - Information asset access credentials are created based on an authorization from the system's asset owner or authorized custodian.",
@@ -1138,7 +1138,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Creates or Modifies Access to Protected Information Assets - Processes are in place to create or modify access to protected information assets based on authorization  from the asset's owner.",
                 "description": "Creates or Modifies Access to Protected Information Assets - Processes are in place to create or modify access to protected information assets based on authorization  from the asset's owner.",
@@ -1172,7 +1172,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Creates or Modifies Physical Access - Processes are in place to create or modify physical access to facilities such as data centers, office spaces, and work areas, based on authorization from the system's asset owner.",
                 "description": "Creates or Modifies Physical Access - Processes are in place to create or modify physical access to facilities such as data centers, office spaces, and work areas, based on authorization from the system's asset owner.",
@@ -1206,7 +1206,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Identifies Data and Software for Disposal - Procedures are in place to identify data and software stored on equipment to be disposed and to render such data and software unreadable.",
                 "description": "Identifies Data and Software for Disposal - Procedures are in place to identify data and software stored on equipment to be disposed and to render such data and software unreadable.",
@@ -1233,7 +1233,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Restricts Access - The types of activities that can occur through a communication channel (for example, FTP site, router port) are restricted.",
                 "description": "Restricts Access - The types of activities that can occur through a communication channel (for example, FTP site, router port) are restricted.",
@@ -1274,7 +1274,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Restricts the Ability to Perform Transmission - Data loss prevention processes and technologies are used to restrict ability to authorize and execute transmission, movement and removal of information.",
                 "description": "Restricts the Ability to Perform Transmission - Data loss prevention processes and technologies are used to restrict ability to authorize and execute transmission, movement and removal of information.",
@@ -1315,7 +1315,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Restricts Application and Software Installation - The ability to install applications and software is restricted to authorized individuals.",
                 "description": "Restricts Application and Software Installation - The ability to install applications and software is restricted to authorized individuals.",
@@ -1363,7 +1363,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Uses Defined Configuration Standards - Management has defined configuration standards.",
                 "description": "Uses Defined Configuration Standards - Management has defined configuration standards.",
@@ -1411,7 +1411,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Implements Detection Policies, Procedures, and Tools - Detection policies and procedures are defined and implemented, and detection tools are implemented on Infrastructure and software to identify anomalies in the operation or unusual activity on systems. Procedures may include (1) a defined governance process for security event detection and management that includes provision of resources; (2) use of intelligence sources to identify newly discovered threats and vulnerabilities; and (3) logging of unusual system activities.",
                 "description": "Implements Detection Policies, Procedures, and Tools - Detection policies and procedures are defined and implemented, and detection tools are implemented on Infrastructure and software to identify anomalies in the operation or unusual activity on systems. Procedures may include (1) a defined governance process for security event detection and management that includes provision of resources; (2) use of intelligence sources to identify newly discovered threats and vulnerabilities; and (3) logging of unusual system activities.",
@@ -1452,7 +1452,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Responds to Security Incidents - Procedures are in place for responding to security incidents and evaluating the effectiveness of those policies and procedures on a periodic basis.",
                 "description": "Responds to Security Incidents - Procedures are in place for responding to security incidents and evaluating the effectiveness of those policies and procedures on a periodic basis.",
@@ -1500,7 +1500,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Assigns Roles and Responsibilities - Roles and responsibilities for the design, implementation, maintenance, and execution of the incident response program are assigned, including the use of external resources when necessary.",
                 "description": "Assigns Roles and Responsibilities - Roles and responsibilities for the design, implementation, maintenance, and execution of the incident response program are assigned, including the use of external resources when necessary.",
@@ -1604,7 +1604,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Restores the Affected Environment - The activities restore the affected environment to functional operation by rebuilding systems, updating software, installing patches, and changing configurations, as needed.",
                 "description": "Restores the Affected Environment - The activities restore the affected environment to functional operation by rebuilding systems, updating software, installing patches, and changing configurations, as needed.",
@@ -1659,7 +1659,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Manages Changes Throughout the System Lifecycle - A process for managing system changes throughout the lifecycle of the system and its components (infrastructure, data, software and procedures) is used to support system availability and processing integrity.",
                 "description": "Manages Changes Throughout the System Lifecycle - A process for managing system changes throughout the lifecycle of the system and its components (infrastructure, data, software and procedures) is used to support system availability and processing integrity.",
@@ -1777,7 +1777,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Considers Mitigation of Risks of Business Disruption - Risk mitigation activities include the development of planned policies, procedures, communications, and alternative processing solutions to respond to, mitigate, and recover from security events that disrupt business operations. Those policies and procedures include monitoring processes and information and communications to meet the entity's objectives during response, mitigation, and recovery efforts.",
                 "description": "Considers Mitigation of Risks of Business Disruption - Risk mitigation activities include the development of planned policies, procedures, communications, and alternative processing solutions to respond to, mitigate, and recover from security events that disrupt business operations. Those policies and procedures include monitoring processes and information and communications to meet the entity's objectives during response, mitigation, and recovery efforts.",
@@ -1804,7 +1804,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Establishes Requirements for Vendor and Business Partner Engagements - The entity establishes specific requirements for a vendor and business partner engagement that includes (1) scope of services and product specifications, (2) roles and responsibilities, (3) compliance requirements, and (4) service levels.",
                 "description": "Establishes Requirements for Vendor and Business Partner Engagements - The entity establishes specific requirements for a vendor and business partner engagement that includes (1) scope of services and product specifications, (2) roles and responsibilities, (3) compliance requirements, and (4) service levels.",
@@ -1901,7 +1901,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Measures Current Usage - The use of the system components is measured to establish a baseline for capacity management and to use when evaluating the risk of impaired availability due to capacity constraints.",
                 "description": "Measures Current Usage - The use of the system components is measured to establish a baseline for capacity management and to use when evaluating the risk of impaired availability due to capacity constraints.",
@@ -1935,7 +1935,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Identifies Environmental Threats - As part of the risk assessment process, management identifies environmental threats that could impair the availability of the system, including threats resulting from adverse weather, failure of environmental control systems, electrical discharge, fire, and water.",
                 "description": "Identifies Environmental Threats - As part of the risk assessment process, management identifies environmental threats that could impair the availability of the system, including threats resulting from adverse weather, failure of environmental control systems, electrical discharge, fire, and water.",
@@ -2018,7 +2018,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Implements Business Continuity Plan Testing - Business continuity plan testing is performed on a periodic basis. The testing includes (1) development of testing scenarios based on threat likelihood and magnitude; (2) consideration of system components from across the entity that can impair the availability; (3) scenarios that consider the potential for the lack of availability of key personnel; and (4) revision of continuity plans and systems based on test results.",
                 "description": "Implements Business Continuity Plan Testing - Business continuity plan testing is performed on a periodic basis. The testing includes (1) development of testing scenarios based on threat likelihood and magnitude; (2) consideration of system components from across the entity that can impair the availability; (3) scenarios that consider the potential for the lack of availability of key personnel; and (4) revision of continuity plans and systems based on test results.",
@@ -2045,7 +2045,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Identifies Confidential information - Procedures are in place to identify and designate confidential information when it is received or created and to determine the period over which the confidential information is to be retained.",
                 "description": "Identifies Confidential information - Procedures are in place to identify and designate confidential information when it is received or created and to determine the period over which the confidential information is to be retained.",
@@ -2072,7 +2072,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Identifies Confidential Information for Destruction - Procedures are in place to identify confidential information requiring destruction when the end of the retention period is reached.",
                 "description": "Identifies Confidential Information for Destruction - Procedures are in place to identify confidential information requiring destruction when the end of the retention period is reached.",
@@ -2099,7 +2099,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Identifies Information Specifications - The entity identifies information specifications required to support the use of products and services.",
                 "description": "Identifies Information Specifications - The entity identifies information specifications required to support the use of products and services.",
@@ -2126,7 +2126,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Defines Characteristics of Processing Inputs - The characteristics of processing inputs that are necessary to meet requirements are defined.",
                 "description": "Defines Characteristics of Processing Inputs - The characteristics of processing inputs that are necessary to meet requirements are defined.",
@@ -2160,7 +2160,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Defines Processing Specifications - The processing specifications that are necessary to meet product or service requirements are defined.",
                 "description": "Defines Processing Specifications - The processing specifications that are necessary to meet product or service requirements are defined.",
@@ -2208,7 +2208,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Protects Output - Output is protected when stored or delivered, or both, to prevent theft, destruction, corruption, or deterioration that would prevent output from meeting specifications.",
                 "description": "Protects Output - Output is protected when stored or delivered, or both, to prevent theft, destruction, corruption, or deterioration that would prevent output from meeting specifications.",
@@ -2249,7 +2249,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Protects Stored Items - Stored items are protected to prevent theft, corruption, destruction, or deterioration that would prevent output from meeting specifications.",
                 "description": "Protects Stored Items - Stored items are protected to prevent theft, corruption, destruction, or deterioration that would prevent output from meeting specifications.",
@@ -2290,7 +2290,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Communicates to Data Subjects - Notice is provided to data subjects regarding the following:\n - \u00a0\u00a0\u00a0 Purpose for collecting personal information\n - \u00a0\u00a0\u00a0 Choice and consent\n - \u00a0\u00a0\u00a0 Types of personal information collected\n - \u00a0\u00a0\u00a0 Methods of collection (for example, use of cookies or other tracking techniques)\n - \u00a0\u00a0\u00a0 Use, retention, and disposal\n - \u00a0\u00a0\u00a0 Access\n - \u00a0\u00a0\u00a0 Disclosure to third parties\n - \u00a0\u00a0\u00a0 Security for privacy\n - \u00a0\u00a0\u00a0 Quality, including data subjects' responsibilities for quality\n - \u00a0\u00a0\u00a0 Monitoring and enforcement\nIf personal information is collected from sources other than the individual, such sources are described in the privacy notice.",
                 "description": "Communicates to Data Subjects - Notice is provided to data subjects regarding the following:\n - \u00a0\u00a0\u00a0 Purpose for collecting personal information\n - \u00a0\u00a0\u00a0 Choice and consent\n - \u00a0\u00a0\u00a0 Types of personal information collected\n - \u00a0\u00a0\u00a0 Methods of collection (for example, use of cookies or other tracking techniques)\n - \u00a0\u00a0\u00a0 Use, retention, and disposal\n - \u00a0\u00a0\u00a0 Access\n - \u00a0\u00a0\u00a0 Disclosure to third parties\n - \u00a0\u00a0\u00a0 Security for privacy\n - \u00a0\u00a0\u00a0 Quality, including data subjects' responsibilities for quality\n - \u00a0\u00a0\u00a0 Monitoring and enforcement\nIf personal information is collected from sources other than the individual, such sources are described in the privacy notice.",
@@ -2331,7 +2331,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Communicates to Data Subjects - Data subjects are informed (a) about the choices available to them with respect to the collection, use, and disclosure of personal information and (b) that implicit or explicit consent is required to collect, use, and disclose personal information, unless a law or regulation specifically requires or allows otherwise.",
                 "description": "Communicates to Data Subjects - Data subjects are informed (a) about the choices available to them with respect to the collection, use, and disclosure of personal information and (b) that implicit or explicit consent is required to collect, use, and disclose personal information, unless a law or regulation specifically requires or allows otherwise.",
@@ -2386,7 +2386,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Limits the Collection of Personal Information - The collection of personal information is limited to that necessary to meet the entity's objectives.",
                 "description": "Limits the Collection of Personal Information - The collection of personal information is limited to that necessary to meet the entity's objectives.",
@@ -2427,7 +2427,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Obtains Explicit Consent for Sensitive Information - Explicit consent is obtained directly from the data subject when sensitive personal information is collected, used, or disclosed, unless a law or regulation specifically requires otherwise.",
                 "description": "Obtains Explicit Consent for Sensitive Information - Explicit consent is obtained directly from the data subject when sensitive personal information is collected, used, or disclosed, unless a law or regulation specifically requires otherwise.",
@@ -2454,7 +2454,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Uses Personal Information for Intended Purposes - Personal information is used only for the intended purposes for which it was collected and only when implicit or explicit consent has been obtained unless a law or regulation specifically requires otherwise.",
                 "description": "Uses Personal Information for Intended Purposes - Personal information is used only for the intended purposes for which it was collected and only when implicit or explicit consent has been obtained unless a law or regulation specifically requires otherwise.",
@@ -2474,7 +2474,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Retains Personal Information - Personal information is retained for no longer than necessary to fulfill the stated purposes, unless a law or regulation specifically requires otherwise.",
                 "description": "Retains Personal Information - Personal information is retained for no longer than necessary to fulfill the stated purposes, unless a law or regulation specifically requires otherwise.",
@@ -2501,7 +2501,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Captures, Identifies, and Flags Requests for Deletion - Requests for deletion of personal information are captured, and information related to the requests is identified and flagged for destruction to meet the entity's objectives related to privacy.",
                 "description": "Captures, Identifies, and Flags Requests for Deletion - Requests for deletion of personal information are captured, and information related to the requests is identified and flagged for destruction to meet the entity's objectives related to privacy.",
@@ -2535,7 +2535,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "\u00b7\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 Authenticates Data Subjects' Identity - The identity of data subjects who request access to their personal information is authenticated before they are given access to that information.",
                 "description": "\u00b7\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0 Authenticates Data Subjects' Identity - The identity of data subjects who request access to their personal information is authenticated before they are given access to that information.",
@@ -2576,7 +2576,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Communicates Denial of Access Requests - Data subjects are informed, in writing, of the reason a request for access to their personal information was denied, the source of the entity's legal right to deny such access, if applicable, and the individual's right, if any, to challenge such denial, as specifically permitted or required by law or regulation.",
                 "description": "Communicates Denial of Access Requests - Data subjects are informed, in writing, of the reason a request for access to their personal information was denied, the source of the entity's legal right to deny such access, if applicable, and the individual's right, if any, to challenge such denial, as specifically permitted or required by law or regulation.",
@@ -2610,7 +2610,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Communicates Privacy Policies to Third Parties - Privacy policies or other specific instructions or requirements for handling personal information are communicated to third parties to whom personal information is disclosed.",
                 "description": "Communicates Privacy Policies to Third Parties - Privacy policies or other specific instructions or requirements for handling personal information are communicated to third parties to whom personal information is disclosed.",
@@ -2651,7 +2651,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Creates and Retains Record of Authorized Disclosures - The entity creates and maintains a record of authorized disclosures of personal information that is complete, accurate, and timely.",
                 "description": "Creates and Retains Record of Authorized Disclosures - The entity creates and maintains a record of authorized disclosures of personal information that is complete, accurate, and timely.",
@@ -2671,7 +2671,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Creates and Retains Record of Detected or Reported Unauthorized Disclosures - The entity creates and maintains a record of detected or reported unauthorized disclosures of personal information that is complete, accurate, and timely.",
                 "description": "Creates and Retains Record of Detected or Reported Unauthorized Disclosures - The entity creates and maintains a record of detected or reported unauthorized disclosures of personal information that is complete, accurate, and timely.",
@@ -2691,7 +2691,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Discloses Personal Information Only to Appropriate Third Parties - Personal information is disclosed only to third parties who have agreements with the entity to protect personal information in a manner consistent with the relevant aspects of the entity's privacy notice or other specific instructions or requirements. The entity has procedures in place to evaluate that the third parties have effective controls to meet the terms of the agreement, instructions, or requirements.",
                 "description": "Discloses Personal Information Only to Appropriate Third Parties - Personal information is disclosed only to third parties who have agreements with the entity to protect personal information in a manner consistent with the relevant aspects of the entity's privacy notice or other specific instructions or requirements. The entity has procedures in place to evaluate that the third parties have effective controls to meet the terms of the agreement, instructions, or requirements.",
@@ -2718,7 +2718,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Remediates Misuse of Personal Information by a Third Party - The entity takes remedial action in response to misuse of personal information by a third party to whom the entity has transferred such information.",
                 "description": "Remediates Misuse of Personal Information by a Third Party - The entity takes remedial action in response to misuse of personal information by a third party to whom the entity has transferred such information.",
@@ -2745,7 +2745,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Remediates Misuse of Personal Information by a Third Party - The entity takes remedial action in response to misuse of personal information by a third party to whom the entity has transferred such information.",
                 "description": "Remediates Misuse of Personal Information by a Third Party - The entity takes remedial action in response to misuse of personal information by a third party to whom the entity has transferred such information.",
@@ -2772,7 +2772,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Identifies Types of Personal Information and Handling Process - The types of personal information and sensitive personal information and the related processes, systems, and third parties involved in the handling of such information are identified.",
                 "description": "Identifies Types of Personal Information and Handling Process - The types of personal information and sensitive personal information and the related processes, systems, and third parties involved in the handling of such information are identified.",
@@ -2799,7 +2799,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Ensures Accuracy and Completeness of Personal Information - Personal information is accurate and complete for the purposes for which it is to be used.",
                 "description": "Ensures Accuracy and Completeness of Personal Information - Personal information is accurate and complete for the purposes for which it is to be used.",
@@ -2826,7 +2826,7 @@
         "dti": "easy",
         "dtc": "easy",
         "meta": {},
-        "focus_areas": [
+        "subcontrols": [
             {
                 "name": "Communicates to Data Subjects - Data subjects are informed about how to contact the entity with inquiries, complaints, and disputes.",
                 "description": "Communicates to Data Subjects - Data subjects are informed about how to contact the entity with inquiries, complaints, and disputes.",
