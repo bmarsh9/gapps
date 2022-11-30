@@ -95,7 +95,7 @@
                 <div class="card bg-base-100">
                     <div class="card-body">
                         <h2 class="card-title mb-4">Implementation Progress</h2>
-                        <div id="implementation-progress" class="mx-auto">{{project.progress("implemented")}}</div>
+                        <div id="implementation-progress" class="mx-auto"></div>
                     </div>
                 </div>
             </div>
@@ -103,7 +103,7 @@
                 <div class="card bg-base-100">
                     <div class="card-body">
                         <h2 class="card-title mb-4">Evidence Progress</h2>
-                        <div id="evidence-progress" class="mx-auto">{{project.progress("with_evidence")}}</div>
+                        <div id="evidence-progress" class="mx-auto"></div>
                     </div>
                 </div>
             </div>
@@ -139,8 +139,8 @@
         $("#completed").html(`${data["completed"]}%`);
         $("#total-controls").html(data["total_controls"]);
         $("#total-policies").html(data["total_policies"]);
-        $("#implementation-progress").html(`<div class="radial-progress text-primary" style="--value:${data["implemented_progress"]};">${data["implemented_progress"]}%</div>`);
-        $("#evidence-progress").html(`<div class="radial-progress text-primary" style="--value:${data["evidence_progress"]};">${data["evidence_progress"]}%</div>`);
+        $("#implementation-progress").html(`<div class="radial-progress text-primary" style="--value:${data["implemented_progress"]};--size:12rem;">${data["implemented_progress"]}%</div>`);
+        $("#evidence-progress").html(`<div class="radial-progress text-primary" style="--value:${data["evidence_progress"]};--size:12rem;">${data["evidence_progress"]}%</div>`);
         return(data)
     },
     error: function(errMsg) {

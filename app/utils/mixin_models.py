@@ -41,7 +41,7 @@ class ControlMixin(object):
             return "not applicable"
         if self.is_complete():
             return "complete"
-        if self.progress(filter="implemented") > 0:
+        if self.implemented_progress() > 0:
             return "in progress"
         return "not started"
 
@@ -92,36 +92,37 @@ class ControlMixin(object):
     def query_subcontrols(self, filter=None, only_applicable=True):
         """
         helper method to query sub controls
+        by default, will return applicable controls only
         """
-        controls = []
+        subcontrols = []
         ProjectSubControl = current_app.get_table("project_subcontrols")
         _query = self.subcontrols
         if only_applicable:
             _query = _query.filter(ProjectSubControl.is_applicable == True)
         if filter == "not_applicable":
             _query = self.filter(ProjectSubControl.is_applicable == False)
-        for control in _query.all():
+        for subcontrol in _query.all():
             if filter == "not_implemented":
-                if not control.is_implemented():
-                    controls.append(control)
+                if not subcontrol.is_implemented():
+                    subcontrols.append(subcontrol)
             elif filter == "implemented":
-                if control.is_implemented():
-                    controls.append(control)
+                if subcontrol.is_implemented():
+                    subcontrols.append(subcontrol)
             elif filter == "missing_evidence":
-                if not control.has_evidence():
-                    controls.append(control)
+                if not subcontrol.has_evidence():
+                    subcontrols.append(subcontrol)
             elif filter == "with_evidence":
-                if control.has_evidence():
-                    controls.append(control)
+                if subcontrol.has_evidence():
+                    subcontrols.append(subcontrol)
             elif filter == "complete":
-                if control.is_complete():
-                    controls.append(control)
+                if subcontrol.is_complete():
+                    subcontrols.append(subcontrol)
             elif filter == "uncomplete":
-                if not control.is_complete():
-                    controls.append(control)
+                if not subcontrol.is_complete():
+                    subcontrols.append(subcontrol)
             else:
-                controls.append(control)
-        return controls
+                subcontrols.append(subcontrol)
+        return subcontrols
 
 class SubControlMixin(object):
     __table_args__ = {'extend_existing': True}
@@ -142,6 +143,7 @@ class SubControlMixin(object):
         data["project"] = self.p_control.project.name
         data["parent_control"] = self.p_control.control.name
         data["name"] = self.subcontrol.name
+        data["ref_code"] = self.subcontrol.ref_code
         if include_evidence:
             data["evidence"] = [x.as_dict() for x in self.evidence.all()]
         return data

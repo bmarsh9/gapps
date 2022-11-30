@@ -335,17 +335,43 @@ class Project(LogMixin, db.Model):
     def as_dict(self, with_controls=False):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         data["completion_progress"] = self.progress("complete")
-        data["implemented_progress"] = self.progress("implemented")
-        data["evidence_progress"] = self.progress("with_evidence")
+        data["implemented_progress"] = self.implemented_progress()
+        data["evidence_progress"] = self.evidence_progress()
         data["total_controls"] = self.controls.count()
         data["total_policies"] = self.policies.count()
-#        data["total_applicable_controls"] = len(self.applicable_controls())
-#        data["completed_controls"] = 0
-#        data["uncompleted_controls"] = 0
+        #TODO
+        #data["total_applicable_controls"] = len(self.applicable_controls())
+        #data["completed_controls"] = 0
+        #data["uncompleted_controls"] = 0
 
         if with_controls:
             data["controls"] = [x.as_dict() for x in self.controls.all()]
         return data
+
+    def subcontrols(self, as_query=False):
+        _query = ProjectSubControl.query.filter(ProjectSubControl.p_control.has(project_id=self.id))
+        if as_query:
+            return _query
+        return _query.all()
+
+    def evidence_progress(self):
+        total = 0
+        controls = self.controls.all()
+        if not controls:
+            return total
+        for control in controls:
+            total += control.progress("with_evidence")
+        return round((total/len(controls)),2)
+
+    def implemented_progress(self):
+        total = 0
+        controls = self.controls.all()
+        if not controls:
+            return total
+        for control in controls:
+            if control.is_applicable():
+                total += control.implemented_progress()
+        return round((total/len(controls)),2)
 
     @staticmethod
     def create(name,owner_id,tenant_id,description=None,controls=[]):
@@ -396,14 +422,13 @@ class Project(LogMixin, db.Model):
             db.session.commit()
         return True
 
-    def completion_progress(self, filter):
-        total = 0
-        controls = self.controls.all()
-        for control in controls:
-            result = control.is_complete()
-            #haaaaaa
+    def remove_control(self, id):
+        if control := self.controls.filter(ProjectControl.id == id).first():
+            db.session.delete(control)
+            db.session.commit()
+        return True
 
-    def progress(self, filter):
+    def progress(self, filter, percentage=True):
         total = 0
         controls = self.controls.all()
         if not controls:
@@ -411,7 +436,26 @@ class Project(LogMixin, db.Model):
         for control in controls:
             result = control.progress(filter)
             total+=result
-        return round((total/len(controls))*100,2)
+        if not percentage:
+            return total
+        return round(total/len(controls),2)
+
+    def completed_controls(self):
+        controls = []
+        for control in self.controls.all():
+            if control.is_complete():
+                controls.append(control)
+        return controls
+
+    def not_implemented_controls(self):
+        #TODO
+        controls = []
+        return controls
+
+    def missing_evidence_controls(self):
+        #TODO
+        controls = []
+        return controls
 
 class ProjectPolicyAssociation(LogMixin, db.Model):
     __tablename__ = 'project_policy_associations'
@@ -506,7 +550,7 @@ class ProjectControl(LogMixin, db.Model, ControlMixin):
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
     tags = db.relationship('Tag', secondary='control_tags', lazy='dynamic',
         backref=db.backref('project_controls', lazy='dynamic'))
-    subcontrols = db.relationship('ProjectSubControl', backref='p_control', lazy='dynamic')
+    subcontrols = db.relationship('ProjectSubControl', backref='p_control', lazy='dynamic',cascade="all, delete")
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     control_id = db.Column(db.Integer, db.ForeignKey('controls.id'), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)

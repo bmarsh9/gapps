@@ -63,6 +63,14 @@ def add_evidence():
     db.session.commit()
     return jsonify(evidence.as_dict())
 
+@api.route('/evidence/<int:id>', methods=['DELETE'])
+@roles_required("admin")
+def delete_evidence(id):
+    evidence = models.Evidence.query.get(id)
+    db.session.delete(evidence)
+    db.session.commit()
+    return jsonify({"message":"ok"})
+
 @api.route('/evidence/<int:id>/controls', methods=['PUT'])
 @roles_required("admin")
 def add_evidence_to_controls(id):
@@ -124,7 +132,7 @@ def create_project():
 def get_subcontrols_in_projects():
     data = []
     for subcontrol in models.ProjectSubControl.query.all():
-        data.append(subcontrol.as_dict(include_subcontrols=True))
+        data.append(subcontrol.as_dict())
     return jsonify(data)
 
 @api.route('/projects/<int:id>/controls', methods=['GET'])
@@ -160,7 +168,7 @@ def update_policy_for_project(id, pid):
 @roles_required("admin")
 def delete_policy_for_project(id, pid):
     project = models.Project.query.get(id)
-    project.delete_policy(pid)
+    project.remove_policy(pid)
     return jsonify({"message":"policy removed"})
 
 @api.route('/policies/<int:id>/controls/<int:cid>', methods=['PUT'])
@@ -200,6 +208,13 @@ def delete_policy_controls_for_project(id, pid, cid):
 def get_control_for_project(id, cid):
     control = models.ProjectControl.query.get(cid)
     return jsonify(control.as_dict(include_subcontrols=True))
+
+@api.route('/projects/<int:id>/controls/<int:cid>', methods=['DELETE'])
+@login_required
+def remove_control_from_project(id, cid):
+    project = models.Project.query.get(id)
+    project.remove_control(cid)
+    return jsonify({"message":"ok"})
 
 @api.route('/policies/<int:pid>/projects/<int:id>', methods=['PUT'])
 @roles_required("admin")
@@ -256,7 +271,6 @@ def focus_areas():
 @api.route('/controls/<int:cid>/subcontrols/<int:sid>', methods=['PUT'])
 @roles_required("admin")
 def update_subcontrols_in_control(cid, sid):
-#haaaaaaa
     payload = request.get_json()
     sub = models.ProjectSubControl.query.get(sid)
     sub.is_applicable = payload["applicable"]
@@ -310,9 +324,9 @@ def charts_get_project_summaries():
         data["categories"].append(project.name)
         data["controls"].append(project.controls.count())
         data["policies"].append(project.policies.count())
-        data["complete"].append(len(project.query_fa("complete")))
-        data["not_implemented"].append(len(project.query_fa("not_implemented")))
-        data["missing_evidence"].append(len(project.query_fa("missing_evidence")))
+        data["complete"].append(len(project.completed_controls()))
+        data["not_implemented"].append(len(project.completed_controls()))
+        data["missing_evidence"].append(len(project.missing_evidence_controls()))
     return jsonify(data)
 
 @api.route('/charts/tenant-summary', methods=['GET'])
@@ -325,7 +339,7 @@ def charts_get_tenant_summary():
     data["data"].append(models.Project.query.count())
     data["data"].append(models.Control.query.count())
     data["data"].append(models.Policy.query.count())
-    data["data"].append(models.ControlListFocusArea.query.count())
+    data["data"].append(models.SubControl.query.count())
     data["data"].append(models.User.query.count())
     return jsonify(data)
 

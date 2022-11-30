@@ -94,12 +94,12 @@
                       </thead>
                       <tbody>
                         {%set policy_controls = policy.get_controls()%}
-                        {%for control in project.controls.all()%}
+                        {%for project_control in project.controls.all()%}
                         <tr>
-                          <td class="text-sm font-medium text-gray-500"><input data-id={{control.id}} type="checkbox" {%if control in policy_controls%}checked="checked"{%endif%} class="control-checkbox checkbox" /></td>
-                          <td class="text-sm font-medium text-gray-500">{{control.ref_code}}</td>
-                          <td class="text-sm font-medium text-primary"><div class="truncate w-96"><a href="{{url_for("main.view_control_in_project",id=project.id,cid=control.id)}}">{{control.name}}</a></div></td>
-                          <td class="text-sm font-medium text-gray-500">{{control.status()}}</td>
+                          <td class="text-sm font-medium text-gray-500"><input data-id={{project_control.id}} type="checkbox" {%if control in policy_controls%}checked="checked"{%endif%} class="control-checkbox checkbox" /></td>
+                          <td class="text-sm font-medium text-gray-500">{{project_control.control.ref_code}}</td>
+                          <td class="text-sm font-medium text-primary"><div class="truncate w-96"><a href="{{url_for("main.view_control_in_project",id=project.id,cid=project_control.id)}}">{{project_control.control.name}}</a></div></td>
+                          <td class="text-sm font-medium text-gray-500">{{project_control.status()}}</td>
                         </tr>
                         {%endfor%}
                       </tbody>
