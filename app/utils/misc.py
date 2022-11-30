@@ -3,6 +3,15 @@ from app import models, db
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from sqlalchemy import or_
 
+def get_class_by_tablename(table):
+    """Return class reference mapped to table.
+    :use: current_app.db_tables["users"]
+    """
+    tables = {}
+    for c in dir(models):
+        if c == table:
+            return getattr(models,c)
+
 def perform_pwd_checks(password, password_two=None):
     if not password:
         return False

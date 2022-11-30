@@ -63,17 +63,19 @@ def create_app(config_name="default"):
     app.jinja_env.filters['is_admin'] = is_user_admin
     app.jinja_env.filters['tojson_pretty'] = to_pretty_json
 
-    def get_class_by_tablename(tablename):
+    '''
+    def get_class_by_tablename():
       """Return class reference mapped to table.
-
-      :param tablename: String with name of table.
-      :return: Class reference or None.
-      :use: current_app.get_table("users")
+      :use: current_app.db_tables["users"]
       """
+      tables = {}
       for c in db.Model.registry._class_registry.values():
-        if hasattr(c, '__tablename__') and c.__tablename__ == tablename:
-          return c
-    app.get_table = get_class_by_tablename
+          if hasattr(c, '__tablename__'):
+              if c.__tablename__ not in tables:
+                  tables[c.__tablename__] = c
+      return tables
+    app.db_tables = get_class_by_tablename()
+    '''
 
     '''
     @app.before_request

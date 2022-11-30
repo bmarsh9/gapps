@@ -1,6 +1,7 @@
 from app import db
 from flask import current_app
 from sqlalchemy.ext.declarative import declared_attr
+from app.utils.misc import get_class_by_tablename
 import arrow
 
 class ControlMixin(object):
@@ -95,7 +96,7 @@ class ControlMixin(object):
         by default, will return applicable controls only
         """
         subcontrols = []
-        ProjectSubControl = current_app.get_table("project_subcontrols")
+        ProjectSubControl = get_class_by_tablename("ProjectSubControl")
         _query = self.subcontrols
         if only_applicable:
             _query = _query.filter(ProjectSubControl.is_applicable == True)
@@ -223,13 +224,13 @@ class SubControlMixin(object):
         return self.evidence.all()
 
     def remove_evidence(self):
-        EvidenceAssociation = current_app.get_table("evidence_association")
+        EvidenceAssociation = get_class_by_tablename("EvidenceAssociation")
         EvidenceAssociation.query.filter(EvidenceAssociation.control_id == self.id).delete()
         db.session.commit()
         return True
 
     def set_evidence(self, evidence_id_list):
-        Evidence = current_app.get_table("evidence")
+        Evidence = get_class_by_tablename("Evidence")
         self.remove_evidence()
         if not isinstance(evidence_id_list, list):
             evidence_id_list = [evidence_id_list]
