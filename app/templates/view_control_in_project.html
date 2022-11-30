@@ -282,7 +282,7 @@
   $(document).on('click', '.btn-na', function() {
     $.ajax({
       type: "PUT",
-      url: "/api/v1/controls/{{project_control.id}}/applicability",
+      url: "/api/v1/project-controls/{{project_control.id}}/applicability",
       data: JSON.stringify({"applicable":false}),
       contentType: "application/json; charset=utf-8",
       dataType: "json",
@@ -311,7 +311,7 @@
     };
     $.ajax({
       type: "PUT",
-      url: `/api/v1/controls/{{project_control.id}}/subcontrols/${subId}`,
+      url: `/api/v1/project-controls/{{project_control.id}}/subcontrols/${subId}`,
       data: JSON.stringify(data),
       contentType: "application/json; charset=utf-8",
       dataType: "json",

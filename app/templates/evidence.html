@@ -10,7 +10,7 @@
 {% endblock %}
 
 {%block header_title%}Evidence<p class="text-sm text-gray-500 font-medium">Evidence can be added and associated with controls in your projects</p>{%endblock%}
-{%block header_actions%}<button class="btn btn-sm modal-button">New</button>{%endblock%}
+{%block header_actions%}<button class="btn btn-sm new-evidence-btn">New</button>{%endblock%}
 
 {%block content%}
 <div class="grid grid-cols-6 gap-4 mt-2">
@@ -38,7 +38,7 @@
 <div class="dropdown dropdown-top dropdown-end">
   <label tabindex="0" class="btn btn btn-sm border border-white btn-outline"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label>
   <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-    <li><a href="{#url_for("main.view_evidence",id=record.id)#}" class="view">View</a></li>
+    <li><a data-name="{{record.name}}" data-id="{{record.id}}" class="view-evidence">View</a></li>
     <li><a data-name="{{record.name}}" data-id="{{record.id}}" class="add-to-control">Associate</a></li>
     <li><a data-id="{{record.id}}" class="delete-record">Delete</a></li>
   </ul>
@@ -90,25 +90,6 @@
   </div>
 </div>
 
-<input type="checkbox" id="view-modal" class="modal-toggle" />
-<label for="view-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3 id="view-modal-title" class="text-lg font-bold"></h3>
-    <div id="view-modal-body" class="card-body">
-<div class="overflow-hidden bg-white border shadow sm:rounded-lg">
-  <div class="px-4 py-5 sm:px-6">
-    <h3 class="text-lg font-medium leading-6 text-gray-900">Evidence Details</h3>
-    <p class="mt-1 max-w-2xl text-sm text-gray-500">View detailed information about the evidence</p>
-  </div>
-  <div class="border-t border-gray-200">
-    <dl id="div-holder"><dl>
-  </div>
-</div>
-
-    </div>
-  </label>
-</label>
-
 <input type="checkbox" id="evidence-modal" class="modal-toggle" />
 <label for="evidence-modal" class="modal cursor-pointer">
   <label class="modal-box relative w-11/12 max-w-5xl" for="">
@@ -143,10 +124,10 @@
   </label>
 </label>
 
-<input type="checkbox" id="view-evidence-modal" class="modal-toggle" />
-<label for="view-evidence-modal" class="modal cursor-pointer">
+<input type="checkbox" id="view-modal" class="modal-toggle" />
+<label for="view-modal" class="modal cursor-pointer">
   <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3 class="text-lg font-bold">View Evidence</h3>
+    <h3 class="text-lg font-bold">View/Edit Evidence</h3>
         <div class="py-4 sm:mt-0">
           <div class="md:grid md:grid-cols-1 md:gap-6">
                 <div class="mt-5 md:col-span-2 md:mt-0">
@@ -155,20 +136,20 @@
                                 <div class="grid grid-cols-6 gap-6">
                                   <div class="col-span-3 sm:col-span-3">
                                         <label class="block text-sm font-medium text-gray-700">Name</label>
-                                        <input placeholder="Enter the display name of the evidence" type="text" name="name" id="name" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                        <input placeholder="Enter the display name of the evidence" type="text" name="name" id="update-name" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
                                   </div>
                                   <div class="col-span-3 sm:col-span-3">
                                         <label class="block text-sm font-medium text-gray-700">Description</label>
-                                        <input type="text" id="description" placeholder="Describe what the evidence entails/covers" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                        <input type="text" id="update-description" placeholder="Describe what the evidence entails/covers" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
                                   </div>
                                   <div class="col-span-6 sm:col-span-6">
                                         <label class="block text-sm font-medium text-gray-700">Evidence content</label>
-                                        <textarea id="content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea>
+                                        <textarea id="update-content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea>
                                   </div>
                                 </div>
                           </div>
                           <div class="px-4 py-3 text-right sm:px-6">
-                                <button type="submit" class="create-evidence inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+                                <button type="submit" class="edit-evidence inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
                           </div>
                         </div>
                 </div>
@@ -176,6 +157,7 @@
         </div>
   </label>
 </label>
+
 {%endblock%}
 
 {%block extrajs%}
@@ -204,11 +186,52 @@
        })
     });
     $(document).on('click', '.view-evidence', function() {
-      document.getElementById('view-evidence-modal').checked = true;
+      var evidenceId = $(this).data('id')
+      $(".edit-evidence").data("id",evidenceId)
+      document.getElementById('view-modal').checked = true;
+      $.ajax({
+        type: "GET",
+        url: `/api/v1/evidence/${evidenceId}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            $("#update-name").val(data["name"])
+            $("#update-description").val(data["description"])
+            $("#update-content").val(data["content"])
+            return(data)
+        },
+        error: function(errMsg) {
+            return(errMsg);
+        }
+      })
     });
-    $(document).on('click', '.modal-button', function() {
+    $(document).on('click', '.new-evidence-btn', function() {
       document.getElementById('evidence-modal').checked = true;
     });
+     $(document).on('click', '.edit-evidence', function() {
+       var evidenceId = $(this).data('id')
+       var data = {
+           "name":$("#update-name").val(),
+           "content":$("#update-content").val(),
+           "description":$("#update-description").val()
+       };
+       $.ajax({
+         type: "PUT",
+         url: `/api/v1/evidence/${evidenceId}`,
+         data: JSON.stringify(data),
+         contentType: "application/json; charset=utf-8",
+         dataType: "json",
+         success: function(data){
+             createToast("success","Edited evidence")
+             document.getElementById('view-modal').checked = false;
+             setTimeout(function() {location.reload();}, 500)
+             return(data)
+         },
+         error: function(errMsg) {
+             return(errMsg);
+         }
+       })
+     });
      $(document).on('click', '.create-evidence', function() {
        var data = {
            "name":$("#name").val(),

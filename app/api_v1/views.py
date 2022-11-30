@@ -53,6 +53,12 @@ def add_framework():
     db.session.commit()
     return jsonify(framework.as_dict())
 
+@api.route('/evidence/<int:id>', methods=['GET'])
+@roles_required("admin")
+def get_evidence(id):
+    evidence = models.Evidence.query.get(id)
+    return jsonify(evidence.as_dict())
+
 @api.route('/evidence', methods=['POST'])
 @roles_required("admin")
 def add_evidence():
@@ -60,6 +66,17 @@ def add_evidence():
     evidence = models.Evidence(name=payload["name"],
         description=payload["description"],content=payload["content"])
     db.session.add(evidence)
+    db.session.commit()
+    return jsonify(evidence.as_dict())
+
+@api.route('/evidence/<int:id>', methods=['PUT'])
+@roles_required("admin")
+def update_evidence(id):
+    payload = request.get_json()
+    evidence = models.Evidence.query.get(id)
+    evidence.name = payload["name"]
+    evidence.description = payload["description"]
+    evidence.content = payload["content"]
     db.session.commit()
     return jsonify(evidence.as_dict())
 
@@ -250,27 +267,9 @@ def query_controls():
         data.pop("columns", None)
     return jsonify(data)
 
-@api.route('/query/focus-areas', methods=['GET','POST'])
-@login_required
-def focus_areas():
-    """
-    return query results for dt table
-    """
-    payload = request.get_json()
-    include_cols = request.args.get("columns", "no")
-    _filter = Filter(models, current_app.db.session.query(),tables=["control_focus_areas"])
-    data = _filter.handle_request(
-        payload,
-        default_filter={"condition":"OR","rules":[{"field":"control_focus_areas.id","operator":"is_not_null"}]},
-        default_fields=["id", "criteria", "control_ref"]
-    )
-    if include_cols == "no":
-        data.pop("columns", None)
-    return jsonify(data)
-
-@api.route('/controls/<int:cid>/subcontrols/<int:sid>', methods=['PUT'])
+@api.route('/project-controls/<int:cid>/subcontrols/<int:sid>', methods=['PUT'])
 @roles_required("admin")
-def update_subcontrols_in_control(cid, sid):
+def update_subcontrols_in_control_for_project(cid, sid):
     payload = request.get_json()
     sub = models.ProjectSubControl.query.get(sid)
     sub.is_applicable = payload["applicable"]
@@ -281,9 +280,9 @@ def update_subcontrols_in_control(cid, sid):
     db.session.commit()
     return jsonify({"message":"ok"})
 
-@api.route('/controls/<int:cid>/applicability', methods=['PUT'])
+@api.route('/project-controls/<int:cid>/applicability', methods=['PUT'])
 @roles_required("admin")
-def set_applicability_of_control(cid):
+def set_applicability_of_control_for_project(cid):
     payload = request.get_json()
     control = models.ProjectControl.query.get(cid)
     control.set_applicability(payload["applicable"])
@@ -333,7 +332,7 @@ def charts_get_project_summaries():
 @login_required
 def charts_get_tenant_summary():
     data = {
-        "categories":["Projects","Controls","Policies","Focus Areas", "Users"],
+        "categories":["Projects","Controls","Policies","Subcontrols", "Users"],
         "data":[]
     }
     data["data"].append(models.Project.query.count())

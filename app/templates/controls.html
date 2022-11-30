@@ -16,7 +16,7 @@
     <div class="card bg-base-100">
       <div class="card-body">
         <h2 class="card-title mb-2">Controls</h2>
-        <p class="text-sm text-gray-500 font-medium mb-4">These controls are included in your SOC2 project. Be sure to update the status and implementation effort. <a href="{{config.DOC_LINK}}" class="text-primary">Need help?</a></p>
+        <p class="text-sm text-gray-500 font-medium mb-4">These controls can be included inside your projects. Be sure to update the status and implementation effort. <a href="{{config.DOC_LINK}}" class="text-primary">Need help?</a></p>
         <table class="table table-vcenter table-bordered" id="controls-table" style="width:100%">
           <thead>
             <tr>
@@ -33,12 +33,11 @@
               <td class="text-sm font-medium text-gray-500">{{control.ref_code}}</td>
               <td class="text-sm font-medium text-gray-500">{{control.framework.name}}</td>
               <td class="text-sm font-medium text-gray-500"><span class="badge badge-sm bg-slate-500 border-slate-500 hover:bg-accent hover:border-accent">{{control.category}}</span></td>
-              <td class="text-sm font-medium text-gray-500"><div class="tooltip" data-tip="Double click to see more"><div class="truncate w-96">{{control.name}}</div></div></td>
+              <td class="text-sm font-medium text-gray-500"><div class="tooltip" data-tip="Double click to see more"><div style="white-space:normal;text-align:left" class="">{{control.name}}</div></div></td>
               <td class="text-center">
 <div class="dropdown dropdown-top dropdown-end">
   <label tabindex="0" class="btn btn btn-sm border border-white btn-outline"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label>
   <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-    <li><a href="{{url_for("main.view_control",id=control.id)}}" class="view">View</a></li>
     <li><a data-name="{{control.name}}" data-id="{{control.id}}" class="add-to-project">Add to project</a></li>
     <li><a data-id="{{control.id}}" class="delete-control">Delete</a></li>
   </ul>
@@ -74,7 +73,7 @@
 
 <input type="checkbox" id="view-modal" class="modal-toggle" />
 <label for="view-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-7xl" for="">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
     <h3 id="view-modal-title" class="text-lg font-bold"></h3>
     <div id="view-modal-body" class="card-body">
 <div class="overflow-hidden bg-white border shadow sm:rounded-lg">
@@ -83,7 +82,19 @@
     <p class="mt-1 max-w-2xl text-sm text-gray-500">View detailed information about the control</p>
   </div>
   <div class="border-t border-gray-200">
-    <dl id="div-holder"><dl>
+    <dl id="div-holder"></dl>
+    <div class="px-4 py-5">
+      <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Subcontrols</h3>
+      <table class="table table-vcenter table-bordered" id="control-table" style="width:100%">
+        <thead>
+          <tr>
+            <th class="w-1">Ref</th>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody id="control-table-body"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
@@ -97,7 +108,7 @@
     <label for="control-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
     <h3 class="text-lg font-bold">New Control</h3>
         <div class="py-4 sm:mt-0">
-                <p class="text-sm font-medium text-gray-500">Create a new control which can be added to your projects. Focus areas are child tasks of the control. For example, if you create a control with two (2) focus areas, you would complete the focus areas and the top level control would be satisfied. Focus areas are not mandatory to use, but are highly encouraged to break down a control.</p>
+                <p class="text-sm font-medium text-gray-500">Create a new control which can be added to your projects. Subcontrols are child tasks of the control. For example, if you create a control with two (2) subcontrols, you would complete the subcontrols and the top level control would be satisfied. Subcontrols are not mandatory to use, but are highly encouraged to break down a control.</p>
                 <div class="card-body">
           <div class="md:grid md:grid-cols-1 md:gap-6">
                 <div class="mt-5 md:col-span-2 md:mt-0">
@@ -170,9 +181,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr id="area-1" class="item">
+                            <tr id="subcontrol-1" class="item">
                                 <td>
-                                    <input type="text" name="name_0" class="form-control w-full input-md border name rounded-md" required="true" placeholder="Focus area name"/>
+                                    <input type="text" name="name_0" class="form-control w-full input-md border name rounded-md" required="true" placeholder="Subcontrol name"/>
                                 </td>
                                 <td>
                                     <textarea rows="1" class="textarea textarea-bordered description"></textarea>
@@ -187,7 +198,7 @@
                         <tfoot>
                             <tr>
                                 <td colspan="5" class="text-left">
-                                    <input type="button" class="btn btn-md bg-green-500 border-green-500 btn-block" id="addrow" value="Add Focus Area" />
+                                    <input type="button" class="btn btn-md bg-green-500 border-green-500 btn-block" id="addrow" value="Add subcontrol" />
                                 </td>
                             </tr>
                             <tr>
@@ -243,7 +254,7 @@ $(".framework-select").select2({
             "subcategory":$("#subcategory").val(),
             "dti":$("#dti").val(),
             "dtc":$("#dtc").val(),
-            "focus_areas":[]
+            "subcontrols":[]
           }],
         }
         if (data["framework"] == null || data["framework"].length === 0){
@@ -254,7 +265,7 @@ $(".framework-select").select2({
           var obj = data["controls"][control]
           Object.keys(obj).forEach(function(key) {
             var value = obj[key];
-            if (key !== "focus_areas") {
+            if (key !== "subcontrols") {
               if (value == null || value.length === 0){
                 createToast("error", `${key} is required`)
                 validation = false
@@ -270,9 +281,9 @@ $(".framework-select").select2({
           var id = $(this).attr("id");
           var name = $(this).find("input.name").val();
           if (name == null || name.length === 0) {
-            console.log("empty focus areas")
+            console.log("empty subcontrols")
           } else {
-            data["controls"][0]["focus_areas"].push({"name":$(this).find("input.name").val(),
+            data["controls"][0]["subcontrols"].push({"name":$(this).find("input.name").val(),
               "description":$(this).find("textarea.description").val(),
               "mitigation":$(this).find("textarea.mitigation").val()
             });
@@ -302,10 +313,10 @@ $(".framework-select").select2({
               console.log("Reached row limit")
               return ""
             };
-            var newRow = $(`<tr id="area-${counter}" class="item">`);
+            var newRow = $(`<tr id="subcontrol-${counter}" class="item">`);
             var cols = "";
 
-            cols += '<td><input type="text" class="form-control w-full input-md border name rounded-md" required="true" placeholder="Focus area name"></td>';
+            cols += '<td><input type="text" class="form-control w-full input-md border name rounded-md" required="true" placeholder="Subcontrol name"></td>';
             cols += '<td><textarea rows="1" class="textarea textarea-bordered description"></textarea></td>';
             cols += '<td><textarea rows="1" class="textarea textarea-bordered mitigation"></textarea></td>';
 
@@ -372,7 +383,7 @@ $(".framework-select").select2({
                               divHolder.append(formatTableRow("Name",data["name"],"gray"));
                               divHolder.append(formatTableRow("Framework",data["framework"],"white"));
                               divHolder.append(formatTableRow("UUID",data["uuid"],"gray"));
-                              divHolder.append(formatTableRow("Focus Areas",data["focus_area_count"],"white"));
+                              divHolder.append(formatTableRow("Subcontrols",data["subcontrol_count"],"white"));
                               divHolder.append(formatTableRow("Description",data["description"],"gray"));
                               divHolder.append(formatTableRow("Reference Code",data["ref_code"],"white"));
                               divHolder.append(formatTableRow("System Level",data["system_level"],"gray"));
@@ -380,6 +391,14 @@ $(".framework-select").select2({
                               divHolder.append(formatTableRow("Subcategory",data["subcategory"],"gray"));
                               divHolder.append(formatTableRow("Difficulty to Implement",data["dti"],"white"));
                               divHolder.append(formatTableRow("Difficulty to Collect",data["dtc"],"gray"));
+                              var subControlTable = $("#control-table-body");
+                              for (var record in data.subcontrols) {
+                                subControlTable.append(`<tr>
+                                  <td class="text-sm font-medium text-gray-500">${data.subcontrols[record].ref_code}</td>
+                                  <td class="text-sm font-medium text-gray-500 whitespace-normal">${data.subcontrols[record].name}</td>
+                                  </tr>`
+                                )
+                              };                              
                             },
                             error: function(errMsg) {
                               return(errMsg);

@@ -68,7 +68,7 @@
                         <tr>
                           <td class="text-sm font-medium text-gray-500"><input data-id={{control.id}} type="checkbox" {%if control in policy_controls%}checked="checked"{%endif%} class="control-checkbox checkbox" /></td>
                           <td class="text-sm font-medium text-gray-500">{{control.ref_code}}</td>
-                          <td class="text-sm font-medium text-primary"><div class="truncate w-96"><a href="{{url_for("main.view_control",id=control.id)}}">{{control.name}}</a></div></td>
+                          <td class="text-sm font-medium text-primary"><div style="white-space:normal">{{control.name}}</div></td>
                         </tr>
                         {%endfor%}
                       </tbody>

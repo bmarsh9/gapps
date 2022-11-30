@@ -52,13 +52,6 @@ def controls():
         projects=projects, controls=controls,
         frameworks=frameworks)
 
-@main.route('/controls/<int:id>', methods=['GET'])
-@login_required
-def view_control(id):
-    control = Control.query.get(id)
-    focus_areas = control.focus_areas.all()
-    return render_template("view_control.html", control=control, focus_areas=focus_areas)
-
 @main.route('/projects', methods=['GET'])
 @login_required
 def projects():
