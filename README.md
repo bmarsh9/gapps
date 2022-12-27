@@ -5,7 +5,7 @@
 2. [Getting Started](#getting-started)
 3. [Roadmap](#roadmap)
 
-Contact me and/or stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw7
+Contact me and/or stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw7  
 Discord: https://discord.gg/9unhWAqadg
 
 ### About
