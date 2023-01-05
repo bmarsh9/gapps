@@ -1,7 +1,7 @@
 [
   {
     "Control": "Policies for information security",
-    "Description": "Information security policy and topic-specific policies should be defined, approved by management,published, communicated to and acknowledged by relevant personnel and relevant interested parties,\nand reviewed at planned intervals and if significant changes occur.",
+    "Description": "Information security policy and topic-specific policies should be defined, approved by management,published, communicated to and acknowledged by relevant personnel and relevant interested parties,and reviewed at planned intervals and if significant changes occur.",
     "Refcode": "A.5.1",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -34,7 +34,7 @@
   },
   {
     "Control": "Management responsibilities",
-    "Description": "Management should require all personnel to apply information security in accordance with the\nestablished information security policy, topic-specific policies and procedures of the organization",
+    "Description": "Management should require all personnel to apply information security in accordance with the established information security policy, topic-specific policies and procedures of the organization",
     "Refcode": "A.5.4",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -56,7 +56,7 @@
   },
   {
     "Control": "Contact with special interest groups",
-    "Description": "The organization should establish and maintain contact with special interest groups or other specialist\nsecurity forums and professional associations.",
+    "Description": "The organization should establish and maintain contact with special interest groups or other specialist security forums and professional associations.",
     "Refcode": "A.5.6",
     "System level": "FALSE",
     "Control type": "Preventive + Corrective",
@@ -67,7 +67,7 @@
   },
   {
     "Control": "Threat intelligence",
-    "Description": "Information relating to information security threats should be collected and analysed to produce threat\nintelligence.",
+    "Description": "Information relating to information security threats should be collected and analysed to produce threat intelligence.",
     "Refcode": "A.5.7",
     "System level": "FALSE",
     "Control type": "Preventive + Corrective + Detective",
@@ -221,7 +221,7 @@
   },
   {
     "Control": "Managing information security in the ICT supply chain",
-    "Description": "Processes and procedures should be defined and implemented to manage the information security\nrisks associated with the ICT products and services supply chain.",
+    "Description": "Processes and procedures should be defined and implemented to manage the information security risks associated with the ICT products and services supply chain.",
     "Refcode": "A.5.21",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -232,7 +232,7 @@
   },
   {
     "Control": "Monitoring, review and change management of supplier services",
-    "Description": "The organization should regularly monitor, review, evaluate and manage change in supplier information\nsecurity practices and service delivery.",
+    "Description": "The organization should regularly monitor, review, evaluate and manage change in supplier information security practices and service delivery.",
     "Refcode": "A.5.22",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -243,7 +243,7 @@
   },
   {
     "Control": "Information security for use of cloud services",
-    "Description": "Processes for acquisition, use, management and exit from cloud services should be established in\naccordance with the organization’s information security requirements.",
+    "Description": "Processes for acquisition, use, management and exit from cloud services should be established in accordance with the organization’s information security requirements.",
     "Refcode": "A.5.23",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -254,7 +254,7 @@
   },
   {
     "Control": "Information security incident management planning and preparation",
-    "Description": "The organization should plan and prepare for managing information security incidents by defining,\nestablishing and communicating information security incident management processes, roles and\nresponsibilities.",
+    "Description": "The organization should plan and prepare for managing information security incidents by defining, establishing and communicating information security incident management processes, roles and responsibilities.",
     "Refcode": "A.5.24",
     "System level": "FALSE",
     "Control type": "Corrective",
@@ -265,7 +265,7 @@
   },
   {
     "Control": "Assessment and decision on information security events",
-    "Description": "The organization should assess information security events and decide if they are to be categorized as\ninformation security incidents.",
+    "Description": "The organization should assess information security events and decide if they are to be categorized as information security incidents.",
     "Refcode": "A.5.25",
     "System level": "FALSE",
     "Control type": "Detective",
@@ -287,7 +287,7 @@
   },
   {
     "Control": "Learning from information security incidents",
-    "Description": "Knowledge gained from information security incidents should be used to strengthen and improve the\ninformation security controls.",
+    "Description": "Knowledge gained from information security incidents should be used to strengthen and improve the information security controls.",
     "Refcode": "A.5.27",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -298,7 +298,7 @@
   },
   {
     "Control": "Collection of evidence",
-    "Description": "The organization should establish and implement procedures for the identification, collection,\nacquisition and preservation of evidence related to information security events.",
+    "Description": "The organization should establish and implement procedures for the identification, collection, acquisition and preservation of evidence related to information security events.",
     "Refcode": "A.5.28",
     "System level": "FALSE",
     "Control type": "Corrective",
@@ -309,7 +309,7 @@
   },
   {
     "Control": "Information security during disruption",
-    "Description": "The organization should plan how to maintain information security at an appropriate level during\ndisruption.",
+    "Description": "The organization should plan how to maintain information security at an appropriate level during disruption.",
     "Refcode": "A.5.29",
     "System level": "FALSE",
     "Control type": "Preventive + Corrective",
@@ -320,7 +320,7 @@
   },
   {
     "Control": "ICT readiness for business continuity",
-    "Description": "ICT readiness should be planned, implemented, maintained and tested based on business continuity\nobjectives and ICT continuity requirements",
+    "Description": "ICT readiness should be planned, implemented, maintained and tested based on business continuity objectives and ICT continuity requirements",
     "Refcode": "A.5.30",
     "System level": "FALSE",
     "Control type": "Corrective",
@@ -331,7 +331,7 @@
   },
   {
     "Control": "Legal, statutory, regulatory and contractual requirements",
-    "Description": "Legal, statutory, regulatory and contractual requirements relevant to information security and the\norganization’s approach to meet these requirements should be identified, documented and kept up to\ndate.",
+    "Description": "Legal, statutory, regulatory and contractual requirements relevant to information security and the organization’s approach to meet these requirements should be identified, documented and kept up to date.",
     "Refcode": "A.5.31",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -353,7 +353,7 @@
   },
   {
     "Control": "Protection of records",
-    "Description": "Records should be protected from loss, destruction, falsification, unauthorized access and unauthorized\nrelease.",
+    "Description": "Records should be protected from loss, destruction, falsification, unauthorized access and unauthorized release.",
     "Refcode": "A.5.33",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -364,7 +364,7 @@
   },
   {
     "Control": "Privacy and protection of PII",
-    "Description": "The organization should identify and meet the requirements regarding the preservation of privacy and\nprotection of PII according to applicable laws and regulations and contractual requirements.",
+    "Description": "The organization should identify and meet the requirements regarding the preservation of privacy and protection of PII according to applicable laws and regulations and contractual requirements.",
     "Refcode": "A.5.34",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -375,7 +375,7 @@
   },
   {
     "Control": "Independent review of information security",
-    "Description": "The organization’s approach to managing information security and its implementation including people,\nprocesses and technologies should be reviewed independently at planned intervals, or when significant\nchanges occur",
+    "Description": "The organization’s approach to managing information security and its implementation including people, processes and technologies should be reviewed independently at planned intervals, or when significant changes occur",
     "Refcode": "A.5.35",
     "System level": "FALSE",
     "Control type": "Preventive + Corrective",
@@ -386,7 +386,7 @@
   },
   {
     "Control": "Compliance with policies, rules and standards for information security",
-    "Description": "Compliance with the organization’s information security policy, topic-specific policies, rules and\nstandards should be regularly reviewed.",
+    "Description": "Compliance with the organization’s information security policy, topic-specific policies, rules and standards should be regularly reviewed.",
     "Refcode": "A.5.36",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -397,18 +397,18 @@
   },
   {
     "Control": "Documented operating procedures",
-    "Description": "Operating procedures for information processing facilities should be documented and made available\nto personnel who need them.",
+    "Description": "Operating procedures for information processing facilities should be documented and made available to personnel who need them.",
     "Refcode": "A.5.37",
     "System level": "FALSE",
     "Control type": "Preventive + Corrective",
-    "Operational capability": "Asset management +  Physical security + System and network security + Application security+ Secure configuration + Identity and access management\n + Threat and vulnerability management + Continuity + Information security event management",
+    "Operational capability": "Asset management +  Physical security + System and network security + Application security+ Secure configuration + Identity and access management  + Threat and vulnerability management + Continuity + Information security event management",
     "References": "",
     "DTI": "Easy",
     "DTC": "Easy"
   },
   {
     "Control": "Screening",
-    "Description": "Background verification checks on all candidates to become personnel should be carried out prior to joining the organization and on an ongoing basis taking into consideration applicable laws, regulations\nand ethics and be proportional to the business requirements, the classification of the information to be\naccessed and the perceived risks.",
+    "Description": "Background verification checks on all candidates to become personnel should be carried out prior to joining the organization and on an ongoing basis taking into consideration applicable laws, regulations and ethics and be proportional to the business requirements, the classification of the information to be accessed and the perceived risks.",
     "Refcode": "A.6.1",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -430,7 +430,7 @@
   },
   {
     "Control": "Information security awareness, education and training",
-    "Description": "Personnel of the organization and relevant interested parties should receive appropriate information security awareness, education and training and regular updates of the organization's information\nsecurity policy, topic-specific policies and procedures, as relevant for their job function.",
+    "Description": "Personnel of the organization and relevant interested parties should receive appropriate information security awareness, education and training and regular updates of the organization's information security policy, topic-specific policies and procedures, as relevant for their job function.",
     "Refcode": "A.6.3",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -452,7 +452,7 @@
   },
   {
     "Control": "Responsibilities after termination or change of employment",
-    "Description": "Information security responsibilities and duties that remain valid after termination or change of employment should be defined, enforced and communicated to relevant personnel and other interested\nparties",
+    "Description": "Information security responsibilities and duties that remain valid after termination or change of employment should be defined, enforced and communicated to relevant personnel and other interested parties",
     "Refcode": "A.6.5",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -672,7 +672,7 @@
   },
   {
     "Control": "Information access restriction",
-    "Description": "Access to information and other associated assets should be restricted in accordance with the\nestablished topic-specific policy on access control.",
+    "Description": "Access to information and other associated assets should be restricted in accordance with the established topic-specific policy on access control.",
     "Refcode": "A.8.3",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -683,7 +683,7 @@
   },
   {
     "Control": "Access to source code",
-    "Description": "Read and write access to source code, development tools and software libraries should be appropriately\nmanaged.",
+    "Description": "Read and write access to source code, development tools and software libraries should be appropriately managed.",
     "Refcode": "A.8.4",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -694,7 +694,7 @@
   },
   {
     "Control": "Secure authentication",
-    "Description": "Secure authentication technologies and procedures should be implemented based on information\naccess restrictions and the topic-specific policy on access control",
+    "Description": "Secure authentication technologies and procedures should be implemented based on information access restrictions and the topic-specific policy on access control",
     "Refcode": "A.8.5",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -705,7 +705,7 @@
   },
   {
     "Control": "Capacity management",
-    "Description": "The use of resources should be monitored and adjusted in line with current and expected capacity\nrequirements.",
+    "Description": "The use of resources should be monitored and adjusted in line with current and expected capacity requirements.",
     "Refcode": "A.8.6",
     "System level": "TRUE",
     "Control type": "Preventive + Detective",
@@ -727,7 +727,7 @@
   },
   {
     "Control": "Management of technical vulnerabilities",
-    "Description": "Information about technical vulnerabilities of information systems in use should be obtained, the\norganization’s exposure to such vulnerabilities should be evaluated and appropriate measures should\nbe taken.",
+    "Description": "Information about technical vulnerabilities of information systems in use should be obtained, the organization’s exposure to such vulnerabilities should be evaluated and appropriate measures should be taken.",
     "Refcode": "A.8.8",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -738,7 +738,7 @@
   },
   {
     "Control": "Configuration management",
-    "Description": "Configurations, including security configurations, of hardware, software, services and networks should\nbe established, documented, implemented, monitored and reviewed",
+    "Description": "Configurations, including security configurations, of hardware, software, services and networks should be established, documented, implemented, monitored and reviewed",
     "Refcode": "A.8.9",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -749,7 +749,7 @@
   },
   {
     "Control": "Information deletion",
-    "Description": "Information stored in information systems, devices or in any other storage media should be deleted\nwhen no longer required.",
+    "Description": "Information stored in information systems, devices or in any other storage media should be deleted when no longer required.",
     "Refcode": "A.8.10",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -760,7 +760,7 @@
   },
   {
     "Control": "Data masking",
-    "Description": "Data masking should be used in accordance with the organization’s topic-specific policy on access\ncontrol and other related topic-specific policies, and business requirements, taking applicable\nlegislation into consideration.",
+    "Description": "Data masking should be used in accordance with the organization’s topic-specific policy on access control and other related topic-specific policies, and business requirements, taking applicable legislation into consideration.",
     "Refcode": "A.8.11",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -771,7 +771,7 @@
   },
   {
     "Control": "Data leakage prevention",
-    "Description": "Data leakage prevention measures should be applied to systems, networks and any other devices that\nprocess, store or transmit sensitive information.",
+    "Description": "Data leakage prevention measures should be applied to systems, networks and any other devices that process, store or transmit sensitive information.",
     "Refcode": "A.8.12",
     "System level": "TRUE",
     "Control type": "Preventive + Detective",
@@ -782,7 +782,7 @@
   },
   {
     "Control": "Information backup",
-    "Description": "Backup copies of information, software and systems should be maintained and regularly tested in\naccordance with the agreed topic-specific policy on backup.",
+    "Description": "Backup copies of information, software and systems should be maintained and regularly tested in accordance with the agreed topic-specific policy on backup.",
     "Refcode": "A.8.13",
     "System level": "TRUE",
     "Control type": "Corrective",
@@ -793,7 +793,7 @@
   },
   {
     "Control": "Redundancy of information processing facilities",
-    "Description": "Information processing facilities should be implemented with redundancy sufficient to meet availability\nrequirements.",
+    "Description": "Information processing facilities should be implemented with redundancy sufficient to meet availability requirements.",
     "Refcode": "A.8.14",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -804,7 +804,7 @@
   },
   {
     "Control": "Logging",
-    "Description": "Logs that record activities, exceptions, faults and other relevant events should be produced, stored,\nprotected and analysed.",
+    "Description": "Logs that record activities, exceptions, faults and other relevant events should be produced, stored, protected and analysed.",
     "Refcode": "A.8.15",
     "System level": "TRUE",
     "Control type": "Detective",
@@ -815,7 +815,7 @@
   },
   {
     "Control": "Monitoring activities",
-    "Description": "Networks, systems and applications should be monitored for anomalous behaviour and appropriate\nactions taken to evaluate potential information security incidents.",
+    "Description": "Networks, systems and applications should be monitored for anomalous behaviour and appropriate actions taken to evaluate potential information security incidents.",
     "Refcode": "A.8.16",
     "System level": "TRUE",
     "Control type": "Detective + Corrective",
@@ -826,7 +826,7 @@
   },
   {
     "Control": "Clock synchronization",
-    "Description": "The clocks of information processing systems used by the organization should be synchronized to\napproved time sources.",
+    "Description": "The clocks of information processing systems used by the organization should be synchronized to approved time sources.",
     "Refcode": "A.8.17",
     "System level": "TRUE",
     "Control type": "Detective",
@@ -837,7 +837,7 @@
   },
   {
     "Control": "Use of privileged utility programs",
-    "Description": "The use of utility programs that can be capable of overriding system and application controls should be\nrestricted and tightly controlled",
+    "Description": "The use of utility programs that can be capable of overriding system and application controls should be restricted and tightly controlled",
     "Refcode": "A.8.18",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -848,7 +848,7 @@
   },
   {
     "Control": "Installation of software on operational systems",
-    "Description": "Procedures and measures should be implemented to securely manage software installation on\noperational systems.",
+    "Description": "Procedures and measures should be implemented to securely manage software installation on operational systems.",
     "Refcode": "A.8.19",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -859,7 +859,7 @@
   },
   {
     "Control": "Networks security",
-    "Description": "Networks and network devices should be secured, managed and controlled to protect information in\nsystems and applications",
+    "Description": "Networks and network devices should be secured, managed and controlled to protect information in systems and applications",
     "Refcode": "A.8.20",
     "System level": "TRUE",
     "Control type": "Preventive + Detective",
@@ -870,7 +870,7 @@
   },
   {
     "Control": "Security of network services",
-    "Description": "Security mechanisms, service levels and service requirements of network services should be identified,\nimplemented and monitored.",
+    "Description": "Security mechanisms, service levels and service requirements of network services should be identified, implemented and monitored.",
     "Refcode": "A.8.21",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -881,7 +881,7 @@
   },
   {
     "Control": "Segregation of networks",
-    "Description": "Groups of information services, users and information systems should be segregated in the\norganization’s networks.",
+    "Description": "Groups of information services, users and information systems should be segregated in the organization’s networks.",
     "Refcode": "A.8.22",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -903,7 +903,7 @@
   },
   {
     "Control": "Use of cryptography",
-    "Description": "Rules for the effective use of cryptography, including cryptographic key management, should be defined\nand implemented.",
+    "Description": "Rules for the effective use of cryptography, including cryptographic key management, should be defined and implemented.",
     "Refcode": "A.8.24",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -925,7 +925,7 @@
   },
   {
     "Control": "Application security requirements",
-    "Description": "Information security requirements should be identified, specified and approved when developing or\nacquiring applications.",
+    "Description": "Information security requirements should be identified, specified and approved when developing or acquiring applications.",
     "Refcode": "A.8.26",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -936,7 +936,7 @@
   },
   {
     "Control": "Secure system architecture and engineering principles",
-    "Description": "Principles for engineering secure systems should be established, documented, maintained and applied\nto any information system development activities.",
+    "Description": "Principles for engineering secure systems should be established, documented, maintained and applied to any information system development activities.",
     "Refcode": "A.8.27",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -969,7 +969,7 @@
   },
   {
     "Control": "Outsourced development",
-    "Description": "The organization should direct, monitor and review the activities related to outsourced system\ndevelopment.",
+    "Description": "The organization should direct, monitor and review the activities related to outsourced system development.",
     "Refcode": "A.8.30",
     "System level": "TRUE",
     "Control type": "Preventive + Detective",
@@ -991,7 +991,7 @@
   },
   {
     "Control": "Change management",
-    "Description": "Changes to information processing facilities and information systems should be subject to change\nmanagement procedures.",
+    "Description": "Changes to information processing facilities and information systems should be subject to change management procedures.",
     "Refcode": "A.8.32",
     "System level": "TRUE",
     "Control type": "Preventive",
@@ -1013,7 +1013,7 @@
   },
   {
     "Control": "Protection of information systems during audit testing",
-    "Description": "Audit tests and other assurance activities involving assessment of operational systems should be\nplanned and agreed between the tester and appropriate management.",
+    "Description": "Audit tests and other assurance activities involving assessment of operational systems should be planned and agreed between the tester and appropriate management.",
     "Refcode": "A.8.34",
     "System level": "TRUE",
     "Control type": "Preventive",
