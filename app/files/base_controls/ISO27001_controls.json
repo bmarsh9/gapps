@@ -1,7 +1,7 @@
 [
   {
     "Control": "Policies for information security",
-    "Description": "Information security policy and topic-specific policies should be defined, approved by management,\npublished, communicated to and acknowledged by relevant personnel and relevant interested parties,\nand reviewed at planned intervals and if significant changes occur.",
+    "Description": "Information security policy and topic-specific policies should be defined, approved by management,published, communicated to and acknowledged by relevant personnel and relevant interested parties,\nand reviewed at planned intervals and if significant changes occur.",
     "Refcode": "A.5.1",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -89,7 +89,7 @@
   },
   {
     "Control": "Inventory of information and other associated assets",
-    "Description": "An inventory of information and other associated assets, including owners, should be developed and\nmaintained.",
+    "Description": "An inventory of information and other associated assets, including owners, should be developed and maintained.",
     "Refcode": "A.5.9",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -100,7 +100,7 @@
   },
   {
     "Control": "Acceptable use of information and other associated assets",
-    "Description": "Rules for the acceptable use and procedures for handling information and other associated assets\nshould be identified, documented and implemented.",
+    "Description": "Rules for the acceptable use and procedures for handling information and other associated assets should be identified, documented and implemented.",
     "Refcode": "A.5.10",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -111,7 +111,7 @@
   },
   {
     "Control": "Return of assets",
-    "Description": "Personnel and other interested parties as appropriate should return all the organization’s assets in\ntheir possession upon change or termination of their employment, contract or agreement.",
+    "Description": "Personnel and other interested parties as appropriate should return all the organization’s assets in their possession upon change or termination of their employment, contract or agreement.",
     "Refcode": "A.5.11",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -122,7 +122,7 @@
   },
   {
     "Control": "Classification of information",
-    "Description": "Information should be classified according to the information security needs of the organization based\non confidentiality, integrity, availability and relevant interested party requirements.",
+    "Description": "Information should be classified according to the information security needs of the organization based on confidentiality, integrity, availability and relevant interested party requirements.",
     "Refcode": "A.5.12",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -133,7 +133,7 @@
   },
   {
     "Control": "Labelling of information",
-    "Description": "An appropriate set of procedures for information labelling should be developed and implemented in\naccordance with the information classification scheme adopted by the organization.",
+    "Description": "An appropriate set of procedures for information labelling should be developed and implemented in accordance with the information classification scheme adopted by the organization.",
     "Refcode": "A.5.13",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -144,7 +144,7 @@
   },
   {
     "Control": "Information transfer",
-    "Description": "Information transfer rules, procedures, or agreements should be in place for all types of transfer\nfacilities within the organization and between the organization and other parties.",
+    "Description": "Information transfer rules, procedures, or agreements should be in place for all types of transfer facilities within the organization and between the organization and other parties.",
     "Refcode": "A.5.14",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -155,7 +155,7 @@
   },
   {
     "Control": "Access control",
-    "Description": "Rules to control physical and logical access to information and other associated assets should be\nestablished and implemented based on business and information security requirements.",
+    "Description": "Rules to control physical and logical access to information and other associated assets should be established and implemented based on business and information security requirements.",
     "Refcode": "A.5.15",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -177,7 +177,7 @@
   },
   {
     "Control": "Authentication information",
-    "Description": "Allocation and management of authentication information should be controlled by a management\nprocess, including advising personnel on the appropriate handling of authentication information",
+    "Description": "Allocation and management of authentication information should be controlled by a management process, including advising personnel on the appropriate handling of authentication information",
     "Refcode": "A.5.17",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -188,7 +188,7 @@
   },
   {
     "Control": "Access rights",
-    "Description": "Access rights to information and other associated assets should be provisioned, reviewed, modified\nand removed in accordance with the organization’s topic-specific policy on and rules for access control.",
+    "Description": "Access rights to information and other associated assets should be provisioned, reviewed, modified and removed in accordance with the organization’s topic-specific policy on and rules for access control.",
     "Refcode": "A.5.18",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -199,7 +199,7 @@
   },
   {
     "Control": "Information security in supplier relationships",
-    "Description": "Processes and procedures should be defined and implemented to manage the information security\nrisks associated with the use of supplier’s products or services",
+    "Description": "Processes and procedures should be defined and implemented to manage the information security risks associated with the use of supplier’s products or services",
     "Refcode": "A.5.19",
     "System level": "FALSE",
     "Control type": "Preventive",
@@ -210,7 +210,7 @@
   },
   {
     "Control": "Addressing information security within supplier agreements",
-    "Description": "Relevant information security requirements should be established and agreed with each supplier based\non the type of supplier relationship.",
+    "Description": "Relevant information security requirements should be established and agreed with each supplier based on the type of supplier relationship.",
     "Refcode": "A.5.20",
     "System level": "FALSE",
     "Control type": "Preventive",
