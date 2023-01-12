@@ -9,8 +9,8 @@ Contact me and/or stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw
 Discord: https://discord.gg/9unhWAqadg
 
 ### About
-Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. Currently the only framework supported is SOC2 - however other frameworks will soon be added such as CIS CSC, CMMC and NIST CSF. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves*.
-- 200+ controls and 25+ policies out of the box for SOC2 (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
+Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. Currently the only frameworks are CMMC and SOC2 - however other frameworks will soon be added such as CIS CSC, ISO and NIST CSF. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves*.
+- 300+ controls and 25+ policies out of the box for CMMC/SOC2 (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
 - Track the status of each control
 - Add custom controls/policies
 - WYSIWYG content editor
@@ -53,7 +53,7 @@ Next, create a project and select the framework (SOC2). Based on the selected cr
 
 [Take a look at the project](https://github.com/users/bmarsh9/projects/1)
 
-- [ ] Add additional frameworks such as NIST CSF, CMMC and CIS CSC
+- [ ] Add additional frameworks such as NIST CSF, ISO and CIS CSC
 - [ ] Add procedures for SOC2
 - [ ] Add evidence collection windows for SOC2
 - [ ] Add reminders for control/evidence collection
