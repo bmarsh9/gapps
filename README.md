@@ -14,7 +14,7 @@ Discord: https://discord.gg/9unhWAqadg
 - Multi-tenancy is now supported!
 
 ### About
-Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. Currently the only frameworks are CMMC and SOC2 - however other frameworks will soon be added such as CIS CSC, ISO and NIST CSF. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves*.
+Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. Currently the only frameworks are CMMC and SOC2 - however other frameworks will soon be added such as CIS CSC, ISO and NIST CSF. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves. Please do not use this in production.... yet!*.
 - 300+ controls and 25+ policies out of the box for CMMC/SOC2 (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
 - Track the status of each control
 - Add custom controls/policies
