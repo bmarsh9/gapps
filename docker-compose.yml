@@ -18,7 +18,7 @@ services:
       - SETUP_DB=${SETUP_DB:-no}
       - POSTGRES_DB=${POSTGRES_DB:-db1}
       - DOC_LINK=https://github.com/bmarsh9/gapps
-      - VERSION=${VERSION:-2.0.0}
+      - VERSION=${VERSION:-3.0.0}
       - APP_NAME=Gapps
   postgres:
     container_name: postgres
