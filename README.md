@@ -33,11 +33,6 @@ Track Progress          |
 :-------------------------:|
 ![](img/3_gapps_2.PNG)  |
 
-Complete Controls          |
-:-------------------------:|
-![](img/gapps_1.PNG)  |
-
-
 ### Getting Started
 
 ##### Setting up the server with Docker
