@@ -25,6 +25,13 @@ Home Dashboard          |
 :-------------------------:|
 ![](img/gapps_2.PNG)  |
 
+Project Controls          |
+:-------------------------:|
+![](img/3_gapps_1.PNG)  |
+
+Track Progress          |
+:-------------------------:|
+![](img/3_gapps_2.PNG)  |
 
 Complete Controls          |
 :-------------------------:|
@@ -35,11 +42,10 @@ Complete Controls          |
 
 ##### Setting up the server with Docker
 
-The following instructions are to get you started very quickly.
+The following instructions are to get you started very quickly. The image will be pulled from Docker Hub
 
 ```
 $ git clone https://github.com/bmarsh9/gapps.git; cd gapps
-$ docker build --tag gapps:2.0.0 .
 $ export SETUP_DB=yes;docker-compose up -d
 ```
 
