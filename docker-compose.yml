@@ -2,7 +2,7 @@ version: '3'
 services:
   gapps:
     container_name: gapps
-    image: gapps:2.0.0
+    image: bmarsh13/gapps:3.0.0
     depends_on:
       - postgres
     networks:
