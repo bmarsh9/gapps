@@ -8,9 +8,14 @@
 Contact me and/or stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw7  
 Discord: https://discord.gg/9unhWAqadg
 
+### New Features :snowflake:
+- CMMC framework has been added!
+- Total revamp of the UI
+- Multi-tenancy is now supported!
+
 ### About
-Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. Currently the only framework supported is SOC2 - however other frameworks will soon be added such as CIS CSC, CMMC and NIST CSF. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves*.
-- 200+ controls and 25+ policies out of the box for SOC2 (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
+Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. Currently the only frameworks are CMMC and SOC2 - however other frameworks will soon be added such as CIS CSC, ISO and NIST CSF. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves. Please do not use this in production.... yet!*.
+- 300+ controls and 25+ policies out of the box for CMMC/SOC2 (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
 - Track the status of each control
 - Add custom controls/policies
 - WYSIWYG content editor
@@ -25,21 +30,22 @@ Home Dashboard          |
 :-------------------------:|
 ![](img/gapps_2.PNG)  |
 
-
-Complete Controls          |
+Project Controls          |
 :-------------------------:|
-![](img/gapps_1.PNG)  |
+![](img/3_gapps_1.PNG)  |
 
+Track Progress          |
+:-------------------------:|
+![](img/3_gapps_2.PNG)  |
 
 ### Getting Started
 
 ##### Setting up the server with Docker
 
-The following instructions are to get you started very quickly.
+The following instructions are to get you started very quickly. The image will be pulled from Docker Hub
 
 ```
 $ git clone https://github.com/bmarsh9/gapps.git; cd gapps
-$ docker build --tag gapps:2.0.0 .
 $ export SETUP_DB=yes;docker-compose up -d
 ```
 
@@ -52,7 +58,7 @@ Next, create a project and select the framework (SOC2). Based on the selected cr
 
 [Take a look at the project](https://github.com/users/bmarsh9/projects/1)
 
-- [ ] Add additional frameworks such as NIST CSF, CMMC and CIS CSC
+- [ ] Add additional frameworks such as NIST CSF, ISO and CIS CSC
 - [ ] Add procedures for SOC2
 - [ ] Add evidence collection windows for SOC2
 - [ ] Add reminders for control/evidence collection
