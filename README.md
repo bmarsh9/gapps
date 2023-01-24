@@ -9,7 +9,7 @@ Contact me and/or stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw
 Discord: https://discord.gg/9unhWAqadg
 
 ### New Features :snowflake:
-- CMMC framework has been added!
+- CMMC and ISO27001 have been added!
 - Total revamp of the UI
 - Multi-tenancy is now supported!
 
