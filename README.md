@@ -14,8 +14,8 @@ Discord: https://discord.gg/9unhWAqadg
 - Multi-tenancy is now supported!
 
 ### About
-Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. Currently the only frameworks are CMMC and SOC2 - however other frameworks will soon be added such as CIS CSC, ISO and NIST CSF. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves. Please do not use this in production.... yet!*.
-- 300+ controls and 25+ policies out of the box for CMMC/SOC2 (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
+Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. Currently the only frameworks are ISO27001, CMMC and SOC2 - however other frameworks will soon be added such as CIS CSC and NIST CSF. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves. Please do not use this in production.... yet!*.
+- 300+ controls and 25+ policies out of the box for ISO27001/CMMC/SOC2 (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
 - Track the status of each control
 - Add custom controls/policies
 - WYSIWYG content editor
@@ -54,11 +54,20 @@ The default email/password is `admin@example.com:admin`
 
 Next, create a project and select the framework (SOC2). Based on the selected criteria, controls and policies will be automatically added to your project. You can also go to the Controls and Policies page and add them to your project.
 
+##### Email
+
+You can setup email (for sending user invites) as well by setting the following environment variables (docker-compose file or elsewhere)
+
+```
+MAIL_USERNAME="email@gmail.com"
+MAIL_PASSWORD="app password" # https://support.google.com/accounts/answer/185833?hl=en
+```
+
 ### Roadmap
 
 [Take a look at the project](https://github.com/users/bmarsh9/projects/1)
 
-- [ ] Add additional frameworks such as NIST CSF, ISO and CIS CSC
+- [ ] Add additional frameworks such as NIST CSF CIS CSC
 - [ ] Add procedures for SOC2
 - [ ] Add evidence collection windows for SOC2
 - [ ] Add reminders for control/evidence collection
