@@ -20,8 +20,9 @@ Discord: https://discord.gg/9unhWAqadg
 - [Take a look at the current roadmap](https://github.com/users/bmarsh9/projects/1) or [submit a issue](https://github.com/bmarsh9/gapps/issues)
 
 ### About
-Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves. Please do not use this in production.... yet!*.
-- 300+ controls and 25+ policies out of the box for the frameworks (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
+Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves. Please do not use this in production.... yet!*.  
+- Supports 7 security compliance frameworks (more coming)  
+- 1500+ controls and 25+ policies out of the box for the frameworks (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
 - Track the status of each control
 - Add custom controls/policies
 - WYSIWYG content editor
@@ -46,7 +47,7 @@ Track Progress          |
 
 ### Getting Started
 
-##### Setting up the server with Docker
+##### Setting up the server with Docker in 2 minutes
 
 The following instructions are to get you started very quickly. The image will be pulled from Docker Hub
 
