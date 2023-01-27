@@ -9,9 +9,15 @@ Contact me and/or stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw
 Discord: https://discord.gg/9unhWAqadg
 
 ### New Features :snowflake:
-- NIST CSF, NIST-800-53, CMMC, HIPAA, ASVS and ISO27001 have been added!
+- NIST CSF, NIST-800-53, CMMC, HIPAA, ASVS and ISO27001 have been added! That makes 7 total frameworks
 - Total revamp of the UI
 - Multi-tenancy is now supported!
+
+### Next big features :snowflake:  
+- Control automation?
+- Endpoint agents for compliance?
+- More frameworks?
+- [Take a look at the current roadmap](https://github.com/users/bmarsh9/projects/1) or [submit a issue](https://github.com/bmarsh9/gapps/issues)
 
 ### About
 Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves. Please do not use this in production.... yet!*.
