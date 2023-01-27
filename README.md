@@ -28,7 +28,7 @@ https://user-images.githubusercontent.com/26391921/203190627-84abcaa8-70ba-47f1-
 
 Home Dashboard          |
 :-------------------------:|
-![](img/gapps_2.PNG)  |
+![](img/dashboard_2.PNG)  |
 
 Project Controls          |
 :-------------------------:|
