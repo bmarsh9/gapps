@@ -5,8 +5,9 @@
 2. [Getting Started](#getting-started)
 3. [Roadmap](#roadmap)
 
-Contact me and/or stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw7  
-Discord: https://discord.gg/9unhWAqadg
+- Interested in some form of partnership or new license? Contact me on [discord](https://discord.gg/9unhWAqadg)
+- Stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw7  
+- Discord: https://discord.gg/9unhWAqadg
 
 ### New Features :snowflake:
 - NIST CSF, NIST-800-53, CMMC, HIPAA, ASVS and ISO27001 have been added! That makes 7 total frameworks
