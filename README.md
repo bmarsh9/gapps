@@ -4,6 +4,7 @@
 1. [About](#about)
 2. [Getting Started](#getting-started)
 3. [Roadmap](#roadmap)
+4. [Things to know](#things-to-know)
 
 - Interested in some form of partnership or new license? Contact me on [discord](https://discord.gg/9unhWAqadg)
 - Stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw7  
@@ -74,3 +75,9 @@ MAIL_PASSWORD="app password" # https://support.google.com/accounts/answer/185833
 ### Roadmap
 
 [Take a look at the project](https://github.com/users/bmarsh9/projects/1)
+
+### Things to know
+- Authentication is fully functioning but authorization is not complete. In other words, the roles assigned to users are not respected. There is a ticket open to address this
+- The mitigation details of the controls are not documented. So it won't tell you how to mitigate a specific control. This requires a ton of work to complete but there is a ticket
+- Difficulty to Implement (dtc) is a field attached to the controls and every single control is labeled as "Easy" (that doesn't actually mean it is easy). This also requires a ton of work to update.
+
