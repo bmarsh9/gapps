@@ -3,8 +3,9 @@
 ### Table of Contents
 1. [About](#about)
 2. [Getting Started](#getting-started)
-3. [Roadmap](#roadmap)
-4. [Things to know](#things-to-know)
+3. [Supported Frameworks](#supported-frameworks)
+4. [Roadmap](#roadmap)
+5. [Things to know](#things-to-know)
 
 - Interested in some form of partnership or new license? Contact me on [discord](https://discord.gg/9unhWAqadg)
 - Stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw7  
@@ -71,6 +72,16 @@ You can setup email (for sending user invites) as well by setting the following 
 MAIL_USERNAME="email@gmail.com"
 MAIL_PASSWORD="app password" # https://support.google.com/accounts/answer/185833?hl=en
 ```
+
+### Supported frameworks
++ SOC2
++ CMMC
++ ASVS
++ ISO27001
++ HIPAA
++ NIST CSF
++ NIST 800-53
++ SSF (custom framework "Startup Security Framework")
 
 ### Roadmap
 
