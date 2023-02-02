@@ -11,7 +11,7 @@
 - Discord: https://discord.gg/9unhWAqadg
 
 ### New Features :snowflake:
-- NIST CSF, NIST-800-53, CMMC, HIPAA, ASVS and ISO27001 have been added! That makes 7 total frameworks
+- NIST CSF, NIST-800-53, CMMC, HIPAA, ASVS, ISO27001 and SSF have been added! That makes 8 total frameworks
 - Total revamp of the UI
 - Multi-tenancy is now supported!
 
