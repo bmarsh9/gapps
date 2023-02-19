@@ -12,7 +12,7 @@
 - Discord: https://discord.gg/9unhWAqadg
 
 ### New Features :snowflake:
-- NIST CSF, NIST-800-53, CMMC, HIPAA, ASVS, ISO27001 and SSF have been added! That makes 8 total frameworks
+- NIST CSF, NIST-800-53, CMMC, HIPAA, ASVS, ISO27001, CSC CIS18, PCI DSS and SSF have been added! That makes 10 total frameworks
 - Total revamp of the UI
 - Multi-tenancy is now supported!
 
@@ -81,6 +81,8 @@ MAIL_PASSWORD="app password" # https://support.google.com/accounts/answer/185833
 + HIPAA
 + NIST CSF
 + NIST 800-53
++ CSC CIS 18
++ PCI DSS
 + SSF (custom framework "Startup Security Framework")
 
 ### Roadmap
