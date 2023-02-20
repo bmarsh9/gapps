@@ -2,7 +2,7 @@ version: '3'
 services:
   gapps:
     container_name: gapps
-    image: bmarsh13/gapps:3.1.0
+    image: bmarsh13/gapps:3.1.1
     depends_on:
       - postgres
     networks:
@@ -18,7 +18,7 @@ services:
       - SETUP_DB=${SETUP_DB:-no}
       - POSTGRES_DB=${POSTGRES_DB:-db1}
       - DOC_LINK=https://github.com/bmarsh9/gapps
-      - VERSION=${VERSION:-3.1.0}
+      - VERSION=${VERSION:-3.1.1}
       - APP_NAME=Gapps
   postgres:
     container_name: postgres
