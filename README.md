@@ -44,9 +44,13 @@ Home Dashboard          |
 
 Project Controls          |
 :-------------------------:|
-![](img/3_gapps_1.PNG)  |
+![](img/ui_1.PNG)  |
 
-Track Progress          |
+Project Controls (Dark Mode)          |
+:-------------------------:|
+![](img/ui_2.PNG)  |
+
+Track Progress of Controls          |
 :-------------------------:|
 ![](img/3_gapps_2.PNG)  |
 
