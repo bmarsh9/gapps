@@ -2,7 +2,7 @@ version: '3'
 services:
   gapps:
     container_name: gapps
-    image: bmarsh13/gapps:3.1.1
+    image: bmarsh13/gapps:3.1.2
     depends_on:
       - postgres
     networks:
@@ -16,10 +16,35 @@ services:
       - DEFAULT_EMAIL=${DEFAULT_EMAIL:-admin@example.com}
       - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-admin}
       - SETUP_DB=${SETUP_DB:-no}
-      - POSTGRES_DB=${POSTGRES_DB:-db1}
       - DOC_LINK=https://github.com/bmarsh9/gapps
-      - VERSION=${VERSION:-3.1.1}
+      - VERSION=${VERSION:-3.1.2}
       - APP_NAME=Gapps
+      - POSTGRES_USER=${POSTGRES_USER:-db1}
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
+      - POSTGRES_DB=${POSTGRES_DB:-db1}
+      - GUNICORN_WORKERS=2
+  gapps-worker:
+    container_name: gapps-worker
+    image: bmarsh13/gapps:3.1.2
+    depends_on:
+      - postgres
+    networks:
+      - db_nw
+      - web_nw
+    #ports:
+    #  - "5000:5000"
+    restart: unless-stopped
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
+      - VERSION=${VERSION:-3.1.2}
+      - APP_NAME=Gapps
+      - AS_WORKER=yes
+      - POSTGRES_USER=${POSTGRES_USER:-db1}
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
+      - POSTGRES_DB=${POSTGRES_DB:-db1}
+      - WORKER_CONCURRENCY=${WORKER_CONCURRENCY:-1}
   postgres:
     container_name: postgres
     image: postgres
