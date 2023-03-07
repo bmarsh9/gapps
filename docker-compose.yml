@@ -2,7 +2,7 @@ version: '3'
 services:
   gapps:
     container_name: gapps
-    image: bmarsh13/gapps:3.1.2
+    image: bmarsh13/gapps:3.1.3
     depends_on:
       - postgres
     networks:
@@ -17,7 +17,7 @@ services:
       - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-admin}
       - SETUP_DB=${SETUP_DB:-no}
       - DOC_LINK=https://github.com/bmarsh9/gapps
-      - VERSION=${VERSION:-3.1.2}
+      - VERSION=${VERSION:-3.1.3}
       - APP_NAME=Gapps
       - POSTGRES_USER=${POSTGRES_USER:-db1}
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
@@ -26,7 +26,7 @@ services:
       - GUNICORN_WORKERS=2
   gapps-worker:
     container_name: gapps-worker
-    image: bmarsh13/gapps:3.1.2
+    image: bmarsh13/gapps:3.1.3
     depends_on:
       - postgres
     networks:
@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
-      - VERSION=${VERSION:-3.1.2}
+      - VERSION=${VERSION:-3.1.3}
       - APP_NAME=Gapps
       - AS_WORKER=yes
       - POSTGRES_USER=${POSTGRES_USER:-db1}
@@ -45,6 +45,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
       - POSTGRES_DB=${POSTGRES_DB:-db1}
       - WORKER_CONCURRENCY=${WORKER_CONCURRENCY:-1}
+      - WORKER_LOG_LEVEL=DEBUG
   postgres:
     container_name: postgres
     image: postgres
