@@ -123,7 +123,7 @@ unset POSTGRES_HOST
 
 ##### Set env variables for the database connection
 
-The value `db1` is the default value for the username, database and password. If you would like to change it, update `db1` with the respective values
+The value `db1` is the default value for the username, database and password. If you would like to change it, update `db1` with the respective values and `localhost` for the host.
 ```
 export POSTGRES_HOST=${POSTGRES_HOST:-localhost}
 export POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
