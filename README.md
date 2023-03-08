@@ -8,6 +8,7 @@
 3. [Supported Frameworks](#supported-frameworks)
 4. [Roadmap](#roadmap)
 5. [Things to know](#things-to-know)
+6. [FAQ](#faq)
 
 - Interested in some form of partnership or new license? Contact me on [discord](https://discord.gg/9unhWAqadg)
 - Stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw7  
@@ -99,4 +100,38 @@ MAIL_PASSWORD="app password" # https://support.google.com/accounts/answer/185833
 - Authentication is fully functioning but authorization is not complete. In other words, the roles assigned to users are not respected. There is a ticket open to address this
 - The mitigation details of the controls are not documented. So it won't tell you how to mitigate a specific control. This requires a ton of work to complete but there is a ticket
 - Difficulty to Implement (dtc) is a field attached to the controls and every single control is labeled as "Easy" (that doesn't actually mean it is easy). This also requires a ton of work to update.
+
+
+### FAQ
+
+##### If you get a database connection error trying to start Gapps, you need to update (or remove) your env variables
+```
+[INFO] Checking if we can connect to the database server: postgresql://db1:db1@localhost/db1
+[ERROR] could not connect to server: Connection refused
+        Is the server running on host "localhost" (127.0.0.1) and accepting
+        TCP/IP connections on port 5432?
+could not connect to server: Cannot assign requested address
+        Is the server running on host "localhost" (::1) and accepting
+        TCP/IP connections on port 5432?
+```
+
+Can usually be fixed by unsetting two variables if running within docker. If you want to use a external database, see the next FAQ
+```
+unset SQLALCHEMY_DATABASE_URI
+unset POSTGRES_HOST
+```
+
+##### Set env variables for the database connection
+
+The value `db1` is the default value for the username, database and password. If you would like to change it, update `db1` with the respective values
+```
+export POSTGRES_HOST=${POSTGRES_HOST:-localhost}
+export POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
+export POSTGRES_USER=${POSTGRES_USER:-db1}
+export POSTGRES_DB=${POSTGRES_DB:-db1}
+export SQLALCHEMY_DATABASE_URI="postgresql://db1:db1@localhost/db1"
+```
+
+##### Setting up the database
+When setting the `export SETUP_DB=yes` variable, Gapps will initialize the database. If this env variable is set, the database will be deleted and recreated.
 
