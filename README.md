@@ -63,7 +63,7 @@ The following instructions are to get you started very quickly. The image will b
 
 ```
 $ git clone https://github.com/bmarsh9/gapps.git; cd gapps
-$ export SETUP_DB=yes;docker-compose up -d
+$ docker-compose up -d
 ```
 
 The server should be running on `http://<your-ip>:5000`  
@@ -132,8 +132,8 @@ export POSTGRES_DB=${POSTGRES_DB:-db1}
 export SQLALCHEMY_DATABASE_URI="postgresql://db1:db1@postgres/db1"
 ```
 
-##### Setting up the database
-When setting the `export SETUP_DB=yes` variable, Gapps will initialize the database. If this env variable is set, the database will be deleted and recreated.
+##### Resetting the database
+When starting Gapps for the first time, it will automatically create the database models. If you want to reset the data (e.g. delete all data), you can set the `RESET_DB` env variable such as `export RESET_DB=yes`.
 
 ##### Running Gapps for development
 Sometimes you may want to run Gapps outside of Docker. You can do this by starting the Postgres container and then starting Gapps in the foreground.
@@ -148,5 +148,5 @@ export POSTGRES_USER=${POSTGRES_USER:-db1}
 export POSTGRES_DB=${POSTGRES_DB:-db1}
 export SQLALCHEMY_DATABASE_URI="postgresql://db1:db1@localhost/db1"
 ```
-4. Run `export SETUP_DB=yes;export FLASK_CONFIG=development;bash run.sh` 
+4. Run `export FLASK_CONFIG=development;bash run.sh` 
 5. Gapps should be running and connected to the database. You can now make changes to the code.
