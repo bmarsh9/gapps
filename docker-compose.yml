@@ -15,7 +15,7 @@ services:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
       - DEFAULT_EMAIL=${DEFAULT_EMAIL:-admin@example.com}
       - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-admin}
-      - SETUP_DB=${SETUP_DB:-no}
+      - RESET_DB=${RESET_DB:-no}
       - DOC_LINK=https://github.com/bmarsh9/gapps
       - VERSION=${VERSION:-3.2.0}
       - APP_NAME=Gapps
