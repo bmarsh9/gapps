@@ -32,7 +32,8 @@ Gapps is an Security compliance platform that makes it easy to track your progre
 - 1500+ controls and 25+ policies out of the box for the frameworks (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
 - Track the status of each control
 - Add custom controls/policies
-- WYSIWYG content editor
+- WYSIWYG content editor  
+- Vendor questionnaires
 
 #### Check out the intro video below!
 https://user-images.githubusercontent.com/26391921/215197665-8f8f3e26-e79c-4271-8dc5-7194975f55c5.mp4
