@@ -18,7 +18,8 @@
 - SOC2, NIST CSF, NIST-800-53, CMMC, HIPAA, ASVS, ISO27001, CSC CIS18, PCI DSS and SSF have been added! That makes 10 total frameworks
 - Total revamp of the UI
 - Multi-tenancy is now supported!
-- Collaboration with auditors
+- Collaboration with auditors  
+- Vendor Questionnaires
 
 ### Next big features :snowflake:  
 - Control automation?
