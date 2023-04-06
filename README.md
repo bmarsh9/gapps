@@ -153,3 +153,8 @@ export SQLALCHEMY_DATABASE_URI="postgresql://db1:db1@localhost/db1"
 ```
 4. Run `export FLASK_CONFIG=development;bash run.sh` 
 5. Gapps should be running and connected to the database. You can now make changes to the code.
+
+##### Running with Docker Desktop
+1. Download the [docker-compose.yml](https://github.com/bmarsh9/gapps/blob/main/docker-compose.yml) file
+2. Open up a elevated command prompt and change directories (cd) to where the docker-compose.yml file was downloaded (likely Downloads)
+3. Run `docker compose up`
