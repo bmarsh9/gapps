@@ -29,7 +29,7 @@
 
 ### About
 Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves. Please do not use this in production.... yet!*.  
-- Supports 7 security compliance frameworks (more coming)  
+- Supports 10 security compliance frameworks (more coming)  
 - 1500+ controls and 25+ policies out of the box for the frameworks (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
 - Track the status of each control
 - Add custom controls/policies
