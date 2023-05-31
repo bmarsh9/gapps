@@ -159,3 +159,15 @@ export SQLALCHEMY_DATABASE_URI="postgresql://db1:db1@localhost/db1"
 1. Download the [docker-compose.yml](https://github.com/bmarsh9/gapps/blob/main/docker-compose.yml) file
 2. Open up a elevated command prompt and change directories (cd) to where the docker-compose.yml file was downloaded (likely Downloads)
 3. Run `docker compose up`
+
+##### Perform database migration
+
+```
+docker-compose up -d
+docker exec -it gapps bash
+python3 manage.py db migrate
+python3 manage.py db stamp head
+python3 manage.py db upgrade
+exit
+```
+
