@@ -1,6 +1,7 @@
 # Gapps
+###  💰 Please [consider supporting the project](https://www.buymeacoffee.com/bmarsh/membership)
 
-:snowflake: View the [Gapps site](https://web-gapps.pages.dev/)
+:snowflake: View the [Gapps site](https://web-gapps.pages.dev/)  
 
 ### Table of Contents
 1. [About](#about)
