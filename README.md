@@ -171,3 +171,10 @@ python3 manage.py db upgrade
 exit
 ```
 
+##### Upgrading versions
+1.) Edit `docker-compose.yml` file with the desired version from [Docker Hub](https://hub.docker.com/r/bmarsh13/gapps/tags). Anywhere you see the old version in the compose file (should be 4 instances), update it with the desired version. (e.g. bmarsh13/gapps:3.3.9 -> bmarsh13/gapps:3.4.0)  
+2.) `docker-compose up -d`  
+3.) [Perform database migration](https://github.com/bmarsh9/gapps#perform-database-migration) if neccesary 
+
+
+
