@@ -176,5 +176,32 @@ exit
 2.) `docker-compose up -d`  
 3.) [Perform database migration](https://github.com/bmarsh9/gapps#perform-database-migration) if neccesary 
 
+##### JSON format for programmically adding controls
 
+The format consists of controls and subcontrols. The snippet below shows an example of a control having one (1) subcontrol however you can add as many as you like. It is not a requirement to have subcontrols for a control (you can have zero). However it may make sense if you want to break down a control into specific actions that are trackable. Let's take the CIS 18 framework as an example. You could place all 18 "domains" as controls and the controls within each domain would be a subcontrol within Gapps.
+
+```
+[
+    {
+        "name": "Limit information system access to authorized users, processes acting on behalf of authorized users or",       
+        "description": "Maintain list of authorized users defining their identity and associated role and sync with sys",       
+        "guidance": "List approved users, services, and devices, and have logical controls in place to prevent unauthor",
+        "ref_code": "AC.L1-3.1.1",
+        "system_level": false,
+        "subcategory": "Identity & Access Management (IAM)",
+        "category": "Access Control",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": [
+            {
+                "ref_code": "3.1.1.a",
+                "name": "Authorized users are identified.",
+                "description": "Authorized users are identified.",
+                "meta": {}
+            }
+        ]
+    }
+}
+```
 
