@@ -8,7 +8,7 @@
 <meta name="docsearch:language" content="en">
 <meta name="docsearch:version" content="5.2">
 
-<title>{{policy.name}}</title>
+<title>{{policy.policy.name}}</title>
 
 <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
 <link href="{{ url_for('static', filename='css/docs.css') }}" rel="stylesheet">
@@ -16,6 +16,9 @@
 <style>
 header.navbar.navbar-expand-lg.navbar-dark.bd-navbar.sticky-top {
     background: #1f2937;
+}
+.bd-masthead {
+  background-image:none !important;
 }
 </style>
 <meta name="theme-color" content="#712cf9">
@@ -25,8 +28,8 @@ header.navbar.navbar-expand-lg.navbar-dark.bd-navbar.sticky-top {
   <nav class="container-xxl bd-gutter flex-wrap flex-lg-nowrap" aria-label="Main navigation">
       <div class="d-lg-none" style="width: 1.5rem;"></div>
 
-    <a class="navbar-brand p-0 me-0 me-lg-2" href="/" aria-label="{{tenant.name}}">
-      {%if tenant.logo_ref%}<img src="{{tenant.logo_ref}}" width="40" height="32" alt="{{tenant.name}}" class="d-block my-1">{%endif%}
+    <a class="navbar-brand p-0 me-0 me-lg-2" href="/" aria-label="{{policy.policy.tenant.name}}">
+      {%if policy.policy.tenant.logo_ref%}<img src="{{policy.policy.tenant.logo_ref}}" width="40" height="32" alt="{{policy.policy.tenant.name}}" class="d-block my-1">{%endif%}
     </a>
 
     <div class="d-flex">
@@ -39,7 +42,7 @@ header.navbar.navbar-expand-lg.navbar-dark.bd-navbar.sticky-top {
 
     <div class="offcanvas-lg offcanvas-end flex-grow-1" tabindex="-1" id="bdNavbar" aria-labelledby="bdNavbarOffcanvasLabel" data-bs-scroll="true">
       <div class="offcanvas-header px-4 pb-0">
-        <h5 class="offcanvas-title text-white" id="bdNavbarOffcanvasLabel">{{tenant.name}}</h5>
+        <h5 class="offcanvas-title text-white" id="bdNavbarOffcanvasLabel">{{policy.policy.tenant.name}}</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#bdNavbar"></button>
       </div>
 
@@ -74,7 +77,7 @@ header.navbar.navbar-expand-lg.navbar-dark.bd-navbar.sticky-top {
 
 <li class="nav-item dropdown">
   <button type="button" class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
-    <span class="d-lg-none" aria-hidden="true">{{tenant.name}}</span><span class="visually-hidden">{{tenant.name}}&nbsp;</span> v{{policy.version}} <span class="visually-hidden">(switch to other versions)</span>
+    <span class="d-lg-none" aria-hidden="true">{{policy.policy.tenant.name}}</span><span class="visually-hidden">{{policy.policy.tenant.name}}&nbsp;</span> v{{policy.policy.version}} <span class="visually-hidden">(switch to other versions)</span>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
     <li><h6 class="dropdown-header">Previous releases</h6></li>
@@ -96,18 +99,18 @@ header.navbar.navbar-expand-lg.navbar-dark.bd-navbar.sticky-top {
     <div class="bd-masthead mb-3" id="content">
   <div class="container-xxl bd-gutter">
     <div class="col-md-8 mx-auto text-center">
-      {%if tenant.logo_ref%}
-      <img src="{{tenant.logo_ref}}" width="200" height="165" alt="{{tenant.name}}" class="d-block mx-auto mb-3">
+      {%if policy.policy.tenant.logo_ref%}
+      <img src="{{policy.policy.tenant.logo_ref}}" width="200" height="165" alt="{{policy.policy.tenant.name}}" class="d-block mx-auto mb-3">
       {%endif%}
-      <h2 class="display-5 mb-3 {%if not tenant.logo_ref%}mt-5{%endif%} fw-semibold lh-sm">{{policy.name}}</h2>
-      {%if policy.description%}
+      <h2 class="display-5 mb-3 {%if not policy.policy.tenant.logo_ref%}mt-5{%endif%} fw-semibold lh-sm">{{policy.policy.name}}</h2>
+      {%if policy.policy.description%}
       <p class="lead mb-4">
-        {{policy.description}}
+        {{policy.policy.description}}
       </p>
       {%endif%}
       
       <p class="text-muted mb-0">
-        Currently <strong class="d-sm-inline-block p-2 me-2 mb-2 mb-lg-0 rounded-3 masthead-notice">v{{policy.version}}</strong>
+        Currently <strong class="d-sm-inline-block p-2 me-2 mb-2 mb-lg-0 rounded-3 masthead-notice">v{{policy.policy.version}}</strong>
         <span class="px-1">·</span>
         <a href="" class="link-secondary">Download</a>
         <span class="px-1">·</span>

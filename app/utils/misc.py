@@ -2,10 +2,12 @@ from flask import current_app
 from app import models, db
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from sqlalchemy import or_
+import re
 
 def get_class_by_tablename(table):
     """Return class reference mapped to table.
     :use: current_app.db_tables["users"]
+    'User' -> User
     """
     tables = {}
     for c in dir(models):
@@ -48,7 +50,7 @@ def request_to_json(request):
         data[property] = getattr(request,property)
     return data
 
-def project_creation(payload, user):
+def project_creation(tenant, payload, user):
     """
     handles project creation from payload
     """
@@ -56,12 +58,16 @@ def project_creation(payload, user):
     if not name:
         return False
     description = payload.get("description")
-    framework = payload.get("framework")
+    fw_name = payload.get("framework")
 
-    table = models.Framework.find_by_name(framework)
-    if not table:
+    if fw_name == "empty":
+        tenant.create_project(name, user,
+            description=description, controls=[])
+        return True
+    framework = models.Framework.find_by_name(fw_name, tenant.id)
+    if not framework:
         return False
-    if framework == "soc2":
+    if fw_name == "soc2":
         category_list = []
         if payload.get("criteria-1"):
             category_list.append("security")
@@ -77,13 +83,59 @@ def project_creation(payload, user):
         filter_list = []
         for category in category_list:
             filter_list.append(models.Control.category == category)
-        controls = models.Control.query.filter(or_(*filter_list)).filter(models.Control.framework_id == table.id).all()
-    elif framework == "empty":
-        controls = []
+        controls = models.Control.query.filter(or_(*filter_list)).filter(models.Control.framework_id == framework.id).all()
+    elif fw_name == "cmmc":
+        level_list = []
+        if payload.get("level-1"):
+            level_list.append(1)
+        if payload.get("level-2"):
+            level_list.append(2)
+        if payload.get("level-3"):
+            level_list.append(3)
+        if payload.get("level-4"):
+            level_list.append(4)
+        if payload.get("level-5"):
+            level_list.append(5)
+        if not level_list:
+            level_list = [1,2,3,4,5]
+        filter_list = []
+        for level in level_list:
+            filter_list.append(models.Control.level == level)
+        controls = models.Control.query.filter(or_(*filter_list)).filter(models.Control.framework_id == framework.id).all()
+    elif fw_name == "cmmc_v2":
+        level_list = []
+        if payload.get("level-1"):
+            level_list.append(1)
+        if payload.get("level-2"):
+            level_list.append(2)
+        if payload.get("level-3"):
+            level_list.append(3)
+        if not level_list:
+            level_list = [1,2,3]
+        filter_list = []
+        for level in level_list:
+            filter_list.append(models.Control.level == level)
+        controls = models.Control.query.filter(or_(*filter_list)).filter(models.Control.framework_id == framework.id).all()
     else:
-        controls = models.Control.query.filter(models.Control.framework_id == table.id).all()
+        controls = models.Control.query.filter(models.Control.framework_id == framework.id).order_by(models.Control.id.asc()).all()
 
-    models.Project.create(name=name,description=description,
-        owner_id=user.id,tenant_id=user.tenant_id,
-        controls=controls)
+    tenant.create_project(name, user,
+        framework, description=description, controls=controls)
     return True
+
+def generate_layout(dict):
+    return {**current_app.config["LAYOUT"], **dict}
+
+def get_users_from_text(text, resolve_users=False, tenant=None):
+    data = []
+    usernames = re.findall("(?<![@\w])@(\w{1,25})", text)
+    if not resolve_users:
+        return usernames
+    for username in usernames:
+        if user := models.User.find_by_username(username):
+            if tenant:
+                if tenant.has_user(user):
+                    data.append(user)
+            else:
+                data.append(user)
+    return data

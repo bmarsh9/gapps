@@ -1,0 +1,1185 @@
+{% extends "layouts/sidebar-nav.html" %}
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(select2=True,editor=True,confetti=True,mentions=True) }}
+  <style>
+    .breadcrumbs>ul>li+:before {
+      margin-top: 5px;
+    }
+  </style>
+{% endblock %}
+
+{%block page_header%}{%endblock%}
+{%block tenant_btn%}{%endblock%}
+
+{%set is_auditor = project.has_auditor(current_user)%}
+{%set tenant_users = project.tenant.users()%}
+{%block content%}
+<div class="grid grid-cols-9 gap-4">
+  <div class="col-span-9">
+
+<div class="lg:flex lg:items-center lg:justify-between">
+  <div class="min-w-0 flex-1">
+    <div class="breadcrumbs text-2xl font-bold sm:tracking-tight">
+      <ul>
+        <li><a href="{{url_for("main.projects")}}">Projects</a></li>
+        <li><a class="capitalize" href="{{url_for("main.view_project",pid=project.id)}}">{{project.name}}</a></li>
+        <li><a class="capitalize" href="{{url_for("main.view_project",pid=project.id,tab="controls")}}">Controls</a></li>
+        <li><a class="uppercase" href="{{url_for("main.view_control_in_project",pid=project.id,cid=project_subcontrol.p_control.id)}}">{{project_subcontrol.p_control.control.ref_code}}</a></li>
+        <li><a class="uppercase text-primary hover:text-primary-focus" href="{{url_for("main.view_subcontrol_in_project",pid=project.id,cid=project_subcontrol.p_control.id,sid=project_subcontrol.id)}}">{{project_subcontrol.subcontrol.ref_code}}</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="flex">
+    <span @click="document.getElementById('status-modal').checked = true" class="sm:block mr-3 my-auto cursor-pointer" id="status-indicator">
+      <span class="badge badge-sm"></span>
+    </span>
+    <span class="sm:block mr-3 my-auto">
+      <select class="select select-sm select-bordered w-64 capitalize" @change="setStatus($event)">
+        <!-- todo - clean this mess up -->
+        {%set auditor_list=["action required","complete"]%}
+        {%set user_list=["not started","infosec action","ready for auditor"]%}
+        {%if is_auditor%}
+          {%if project_subcontrol.review_status not in auditor_list%}
+          <option selected>{{project_subcontrol.review_status}}</option>            
+          {%endif%}
+          {%for status in auditor_list%}
+          <option {%if project_subcontrol.review_status == status%}selected{%endif%}>{{status}}</option>
+          {%endfor%}
+        {%else%}
+          {%if project_subcontrol.review_status != "complete"%}
+            {%if project_subcontrol.review_status not in user_list%}
+            <option selected>{{project_subcontrol.review_status}}</option>            
+            {%endif%}
+            {%for status in user_list%}
+            <option {%if project_subcontrol.review_status == status%}selected{%endif%}>{{status}}</option>
+            {%endfor%}
+          {%else%}
+          <option selected>{{project_subcontrol.review_status}}</option>
+          {%endif%}
+        {%endif%}
+      </select>
+    </span>
+    <span class="sm:block mr-3 ">
+      <button @click="document.getElementById('status-modal').checked = true" class="btn btn-sm help-button btn-ghost border border-base-300">Help<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg></button>
+    </span>
+    <span class="sm:block">
+      <button class="btn btn-sm btn-primary" @click="$dispatch('reload');toast('Reloaded')">Reload<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-2 svg-reload"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg></button>
+    </span>
+    {%if is_auditor%}
+    <span class="sm:block ml-3">
+      <button class="btn btn-sm btn-error no-animation cursor-auto">Auditor</span>
+    </span>
+    {%endif%}
+
+  </div>
+</div>
+
+{%if not project_subcontrol.is_applicable%}
+<div class="col-span-9 mb-2">
+  <div class="alert alert-warning shadow-sm border border-base-300 rounded-md">
+    <div>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <span>This subcontrol has been marked as Not Applicable. You can change the status on the left card.</span>
+    </div>
+  </div>
+</div>
+{%endif%}
+</div>
+</div>
+
+<div class="grid grid-cols-10 gap-4 mt-2 mb-4 pb-16">
+<div class="col-span-4">
+  <div class="card border border-base-300">
+    <div class="card-body">
+      <div class="flex justify-between">
+        <div><h2 class="card-title">Control Details</h2></div>
+        <div><a href="{{url_for("main.view_control_in_project",pid=project.id,cid=project_subcontrol.p_control.id)}}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-ghost border border-base-300">View Parent Control<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></div>
+      </div>
+      <div class="grid grid-cols-6 gap-6">
+        <div class="col-span-6">
+          <label class="block text-sm font-medium text-primary">Completion Status</label>
+          <p class="text-sm">{{project_subcontrol.completion_description()}}</p>
+        </div>
+        <div class="col-span-6">
+          <label class="block text-sm font-medium text-primary">Name</label>
+          {%if project_subcontrol.subcontrol.description and project_subcontrol.subcontrol.description|length >100%}
+          <div x-data="{truncated:true,msg:&quot;{{project_subcontrol.subcontrol.name}}&quot;}" class="text-sm">
+            <span x-show="truncated" x-html="msg.substring(0,100)+'<span @click=&quot;truncated=false&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show more</span>'"></span>
+            <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show less</span>'"></span>
+          </div>
+          {%else%}
+          <p class="text-sm">{{project_subcontrol.subcontrol.name}}</p>
+          {%endif%}
+        </div>
+        <div class="col-span-6">
+          <label class="block text-sm font-medium text-primary">Description</label>
+          {%if project_subcontrol.subcontrol.description and project_subcontrol.subcontrol.description|length >100%}
+          <div x-data="{truncated:true,msg:&quot;{{project_subcontrol.subcontrol.description}}&quot;}" class="text-sm">
+            <span x-show="truncated" x-html="msg.substring(0,100)+'<span @click=&quot;truncated=false&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show more</span>'"></span>
+            <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show less</span>'"></span>
+          </div>
+          {%else%}
+          <p class="text-sm">{{project_subcontrol.subcontrol.description}}</p>
+          {%endif%}
+        </div>
+        <div class="col-span-6">
+          <label class="block text-sm font-medium text-primary">Mitigation</label>
+          {%if project_subcontrol.subcontrol.mitigation and project_subcontrol.subcontrol.mitigation|length >100%}
+          <div x-data="{truncated:true,msg:&quot;{{project_subcontrol.subcontrol.mitigation}}&quot;}" class="text-sm">
+            <span x-show="truncated" x-html="msg.substring(0,100)+'<span @click=&quot;truncated=false&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show more</span>'"></span>
+            <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show less</span>'"></span>
+          </div>
+          {%else%}
+          <p class="text-sm">Mitigation has not been documented</p>
+          {%endif%}
+        </div>
+        <div class="col-span-6">
+          <label class="block text-sm font-medium text-primary mb-1">Implemented</label>
+          <input id="input-implemented" type="range" min="0" max="100" @change="saveSubControl" value="{{project_subcontrol.implemented}}" class="range range-primary range-xs" step="25"/>
+          <div class="w-full flex justify-between text-xs px-2">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100%</span>
+          </div>
+        </div>
+        <div class="col-span-6">
+          <label class="block text-sm font-medium text-primary mb-1">Is Applicable</label>
+          <input id="input-applicable" type="checkbox" @change="saveSubControl" class="toggle toggle-success toggle-sm" {% if project_subcontrol.is_applicable%}checked{%endif%} />
+        </div>
+        <div class="col-span-6">
+          <label class="block text-sm font-medium text-primary mb-2">Control Owner</label>
+          <select id="input-owner" @change="saveSubControl" class="select select-bordered w-full">
+            <option value="0">Empty Owner</option>
+            {%for user in tenant_users%}
+            <option value="{{user.id}}" {%if user.id == project_subcontrol.owner_id%}selected{%endif%}>{{user.email}}</option>
+            {%endfor%}
+          </select>
+        </div>
+        <div class="col-span-6">
+          <label class="block text-sm font-medium text-primary mb-2">Control Operator</label>
+          <select id="input-operator" @change="saveSubControl" class="select select-bordered w-full">
+            <option value="0">Empty Operator</option>
+            {%for user in tenant_users%}
+            <option value="{{user.id}}" {%if user.id == project_subcontrol.operator_id%}selected{%endif%}>{{user.email}}</option>
+            {%endfor%}
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="col-span-6 card pt-5 pb-2 px-5 border border-base-300" x-data="app()">
+  <div>
+    <div 
+      class="flex flex-row mx-1 justify-between"
+    >
+      <button
+        x-on:click="changeTab('context')"
+        x-bind:class="{ 'tab-active border-primary border-b-2': tab === 'context' }"
+        class="tab hover:text-primary tab-lg capitalize text-lg font-semibold focus:border-primary"
+      >
+        Context<span class="ml-1 text-sm" id="context-title">{%if project_subcontrol.context%}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-orange-400"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>{%endif%}</span>
+      </button>
+      <button
+        x-on:click="changeTab('comments')"
+        x-bind:class="{ 'tab-active border-primary border-b-2': tab === 'comments' }"
+        class="tab hover:text-primary tab-lg capitalize text-lg font-semibold focus:border-primary"
+      >
+        Comments<span class="ml-1 text-sm" id="comments-title"></span>
+      </button>
+      <button
+        x-on:click="changeTab('todo')"
+        x-bind:class="{ 'tab-active border-primary border-b-2': tab === 'todo' }"
+        class="tab hover:text-primary tab-lg capitalize text-lg font-semibold focus:border-primary"
+      >
+        Feedback<span class="ml-1 text-sm" id="feedback-title"></span>
+      </button>
+      <button
+        x-on:click="changeTab('evidence')"
+        x-bind:class="{ 'tab-active border-primary border-b-2': tab === 'evidence' }"
+        class="tab hover:text-primary tab-lg capitalize text-lg font-semibold focus:border-primary"
+      >
+        Evidence<span class="ml-1 text-sm" id="evidence-title"></span>
+      </button>
+      {%if not is_auditor%}
+      <button
+        x-on:click="changeTab('internal-notes')"
+        x-bind:class="{ 'tab-active border-primary border-b-2': tab === 'internal-notes' }"
+        class="tab hover:text-primary tab-lg capitalize text-lg font-semibold focus:border-primary"
+      >
+        Notes<span class="ml-1 text-sm" id="notes-title">{%if project_subcontrol.notes%}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-orange-400"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>{%endif%}</span>
+      </button>
+      {%endif%}
+      {%if is_auditor%}
+      <button
+        x-on:click="changeTab('auditor-notes')"
+        x-bind:class="{ 'tab-active border-primary border-b-2': tab === 'auditor-notes' }"
+        class="tab hover:text-primary tab-lg capitalize text-lg font-semibold focus:border-primary"
+      >
+        Auditor Notes<span class="ml-1 text-sm" id="auditor-notes-title">{%if project_subcontrol.auditor_notes%}<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-orange-400"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>{%endif%}</span>
+      </button>
+      {%endif%}
+    </div>
+    <ul class="text-sm card px-6 py-4 border-t border-base-200 rounded-none max-h-screen overflow-auto">
+      <li x-show="tab === 'comments'" @reload.window="getComments()">
+        <div class="mb-4 justify-between flex">
+          <div>
+            <h1 class="text-2xl font-bold">Comments<span id="comment-count" class="ml-2"></span></h1>
+            <p class="text-sm">Comments are used by the InfoSec team and Auditor to converse about the control</p>
+          </div>
+          <div class="my-auto flex justify-between gap-x-2">
+            <button @click="saveComment" class="btn btn-sm btn-primary">Send</button>
+          </div>
+        </div>
+        <div class="mb-5">
+          <textarea id="comment" rows="4" class="textarea textarea-bordered w-full text-sm" placeholder="Write a comment..." required=""></textarea>
+          <div class=" h-[calc(100vh-550px)] overflow-auto px-3" id="comments"></div>
+        </div>
+      </li>
+      <li x-show="tab === 'evidence'">
+    <div class="mx-auto rounded-lg" x-data="evidence()" x-init="getEvidence()" @reload.window="getEvidence()">
+
+<!-- attach modal -->
+<input type="checkbox" id="attach-modal" class="modal-toggle" />
+<label for="attach-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <p class="font-semibold text-primary text-sm"></p>
+        <h2 class="card-title mb-5">Attach Evidence</h2>
+      </div>
+    </div>
+    <select class="evidence-selection" style="width: 100%" name="evidence-list[]" multiple="multiple"></select>
+    <div class="text-right mt-5">
+      <button class="btn btn-primary" @click="saveAttachedEvidence">Save</button>
+    </div>
+  </label>
+</label>
+<!-- end attach modal -->
+
+        <div class="mb-4 grid grid-cols-5">
+          <div class="col-span-3">
+            <h1 class="text-2xl font-bold">Evidence<span id="evidence-count" class="ml-2"></span></h1>
+            <p class="text-sm">Attach or create evidence to show how you satisfy the control (e.g. screenshots of settings, csv results, etc).</p>
+          </div>
+          {%if not is_auditor%}<div class="col-span-2 text-right"><button class="btn btn-sm btn-primary mr-2" @click="document.getElementById('attach-modal').checked = true;attachEvidence()">Attach</button><button class="btn btn-sm btn-primary" @click="addEvidence()">Create</button></div>{%endif%}
+        </div>
+        <div id="evidence-body" class="overflow-auto h-[calc(100vh-400px)] px-3">
+            <template x-if="evidence.length">
+                <ul @click.away="defocusEvidence()" class="">
+                    <template x-for="(item,index) in evidence">
+                        <div class="tooltip tooltip-bottom w-full text-left" data-tip="Double click to view">
+                        <li @click="focusEvidence(index)" @dblclick="openEvidence(index)" class="px-4 py-2 rounded-lg transition-all flex text-md hover:bg-base-300" :class="{'bg-base-200':item.focused,'shadow-lg py-4 my-5 border':item.open,'mb-1 border border-base-300 cursor-pointer':!item.open}" :key="index">
+                            <div class="flex-none w-10 leading-none py-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>
+                            </div>
+                            <div class="flex-grow max-w-full py-4">
+                                <div class="w-full leading-none">
+                                    <h3 class="text-md leading-none truncate w-full pr-10 mt-1 font-semibold" :class="item.name.length?'text-base-content':'text-primary'" x-text="item.name||'Add Evidence...'" x-show="!item.open"></h3>
+                                    <input type="text" x-show="item.open" class="text-md w-full bg-transparent leading-none focus:outline-none mb-2" x-model="item.name" :id="`titleField${index}`" placeholder="Add Evidence..." {%if is_auditor%}disabled{%endif%}/>
+                                </div>
+                                <div class="w-full" x-show="item.open">
+                                    <textarea class="textarea bg-base-200 w-full leading-tight my-4" rows="1" x-model="item.description" placeholder="Enter description of the evidence" {%if is_auditor%}disabled{%endif%}></textarea>
+                                </div>
+                                <div class="w-full" x-show="item.open">
+                                    <textarea class="textarea bg-base-200 w-full leading-tight mb-4" rows="3" x-model="item.content" placeholder="Enter the content of the evidence (e.g. links, raw CSV results, etc). Using a Google Drive (or similar) folder is recommended" {%if is_auditor%}disabled{%endif%}></textarea>
+                                </div>
+                                {%if not is_auditor%}
+                                <div class="w-full flex justify-end" x-show="item.open">
+                                    <button class="btn btn-error mr-2" @click="removeEvidence(index)">Remove from Control</button>
+                                    <button class="btn btn-primary" @click="saveEvidence(index)">Save</button>
+                                </div>
+                                {%endif%}
+                            </div>
+                        </li>
+                        </div>
+                    </template>
+                </ul>
+            </template>
+            <template x-if="!evidence.length">
+                <p class="text-primary text-xl font-semibold mx-auto text-center mt-5"><b class="mr-2">😊</b>No Evidence</p>
+            </template>
+        </div>
+    </div>
+      </li>
+      <li x-show="tab === 'context'">
+        <div class="mb-4 justify-between flex">
+          <div>
+            <h1 class="text-2xl font-bold">Context</h1>
+            <p class="text-sm">Add additional context about how you satisfy the control. This will be viewable by the Auditor.</p>
+          </div>
+          {%if not is_auditor%}<button @click="saveContext" class="btn btn-primary btn-sm">Save</button>{%endif%}
+        </div>
+        <div id="context-editor" class="mb-5">{%if project_subcontrol.context%}{{project_subcontrol.context|safe}}{%endif%}</div>
+      </li>
+      {%if not is_auditor%}
+      <li x-show="tab === 'internal-notes'">
+        <div class="mb-4 justify-between flex">
+          <div>
+            <h1 class="text-2xl font-bold">Internal Notes</h1>
+            <p class="text-sm">Internal notes are not viewable by the auditor/reviewer</p>
+          </div>
+          <button @click="saveNotes" class="btn btn-primary btn-sm">Save</button>
+        </div>
+        <div id="internal-editor" class="mb-5">{%if project_subcontrol.notes%}{{project_subcontrol.notes|safe}}{%endif%}</div>
+      </li>
+      {%endif%}
+      {%if is_auditor%}
+      <li x-show="tab === 'auditor-notes'">
+        <div class="mb-4 justify-between flex">
+          <div>
+            <h1 class="text-2xl font-bold">Auditor Notes</h1>
+            <p class="text-sm">Auditor notes are not viewable by the InfoSec team</p>
+          </div>
+          <button @click="saveAuditorNotes" class="btn btn-primary btn-sm">Save</button>
+        </div>
+        <div id="auditor-editor" class="mb-5">{%if project_subcontrol.auditor_notes%}{{project_subcontrol.auditor_notes|safe}}{%endif%}</div>
+      </li>
+      {%endif%}
+      <li x-show="tab === 'todo'">
+    <div class="mx-auto rounded-lg" x-init="getItems()" @reload.window="todos=[];getItems()">
+        <div class="mb-4 flex justify-between">
+          <div>
+            <h1 class="text-2xl font-bold">Feedback<span id="feedback-count" class="ml-2"></span></h1>
+            <p class="text-sm">Feedback is used by the Auditor to list specific action items for the InfoSec team to complete. Mark the checkbox once the feedback is complete.</p>
+          </div>
+          {%if is_auditor%}<button class="btn btn-primary btn-sm" @click="addItem()">Create</button>{%endif%}
+        </div>
+        <div id="feedback-body" class="h-[calc(100vh-400px)] overflow-auto px-3">
+            <template x-if="todos.length">
+                <ul @click.away="defocusItems()" class="">
+                    <template x-for="(item,index) in todos">
+                        <div class="tooltip tooltip-bottom w-full text-left" data-tip="Double click to view">
+                        <li @click="focusItem(index)" @dblclick="openItem(index)" class="px-4 py-2 rounded-lg transition-all flex text-md hover:bg-base-300" :class="{'bg-base-200':item.focused,'shadow-lg py-4 my-5 border':item.open,'mb-1 border border-base-300 cursor-pointer':!item.open}" :key="index">
+                            <div class="flex-none leading-none py-2">
+				<div class="flex flex-row gap-x-2 text-xs leading-none font-semibold text-base-content">
+					<div class="flex flex-col gap-y-2">
+					  <p class="mx-auto">Team</p>
+					  <input class="checkbox border-2 mx-auto" type="checkbox" :checked="item.is_complete" @click="checkItem(index)" {%if is_auditor%}disabled{%endif%}>
+					</div>
+					<div class="flex flex-col gap-y-2">
+					  <p class="mx-auto">Auditor</p>
+					  <input class="checkbox border-2 mx-auto" type="checkbox" :checked="item.auditor_complete" @click="checkAuditorItem(index)" {%if not is_auditor%}disabled{%endif%}>
+					</div>
+				</div>
+                            </div>
+                            <div class="flex-grow max-w-full py-4 ml-4 my-auto">
+                                <div class="w-full leading-none">
+                                    <h3 class="text-md leading-none truncate w-full pr-10 mt-1 font-semibold capitalize" :class="item.title.length?'text-base-content':'text-primary'" x-text="item.title||'Add Feedback...'" x-show="!item.open"></h3>
+                                    <input type="text" x-show="item.open" class="text-md w-full bg-transparent leading-none focus:outline-none mb-2" x-model="item.title" :id="`titleField${index}`" placeholder="Add Feedback..." {%if not is_auditor%}disabled{%endif%}/>
+                                </div>
+                                <div class="w-full" x-show="item.open">
+                                    <textarea class="textarea bg-base-200 w-full leading-tight my-4" rows="3" x-model="item.description" placeholder="Enter notes or supporting items to help the team" {%if not is_auditor%}disabled{%endif%}></textarea>
+                                </div>
+                                {%if is_auditor%}
+                                <div class="w-full flex justify-end" x-show="item.open">
+                                    <button class="btn btn-primary mr-2" @click="saveItem(index)">Save</button>
+                                    <button class="btn btn-error" @click="removeItem(index)">Delete</button>
+                                </div>
+                                {%endif%}
+                            </div>
+                        </li>
+                        </div>
+                    </template>
+                </ul>
+            </template>
+            <template x-if="!todos.length">
+                <p class="text-primary text-xl font-semibold mx-auto text-center mt-5"><b class="mr-2">😊</b>No Feedback</p>
+            </template>
+        </div>
+    </div>
+
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+</div>
+
+<!-- modal-->
+<input @open-modal.window="document.getElementById('modal').checked = true" type="checkbox" id="modal" class="modal-toggle" />
+<label x-data={"title":"default","body":"default"} @open-modal.window="title=$event.detail.title;body=$event.detail.body" for="modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <p class="font-semibold text-primary text-sm" id="policy-subtitle"></p>
+        <h2 class="card-title mb-5" x-text="title"></h2>
+      </div>
+    </div>
+    <p class="text-sm font-medium" x-text="body"></p>
+  </label>
+</label>
+
+<!-- modal-->
+<input type="checkbox" id="status-modal" class="modal-toggle" />
+<label for="status-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <h2 class="card-title">Auditor Status</h2>
+        <p class="font-semibold text-primary text-sm mb-4">The InfoSec team and Auditor can change the review status of the control. View the table below to understand what the status means and who is responsible.</p> 
+      </div>
+    </div>
+    <p class="text-sm font-medium">
+	<div class="overflow-x-auto">
+	  <table class="table w-full">
+		<thead>
+		  <tr>
+			<th class="w-1">Status</th>
+			<th>Description</th>
+			<th class="w-1">InfoSec Team</th>
+			<th class="w-1">Auditor</th>
+		  </tr>
+		</thead>
+		<tbody>
+		  <tr>
+			<th>Not Started</th>
+			<td><div class="whitespace-normal">The default status that is used to inform the InfoSec team that they have outstanding work to do.</div></td>
+			<td><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"></path></svg></td>
+			<td></td>
+		  </tr>
+		  <tr>
+			<th>InfoSec Action</th>
+			<td><div class="whitespace-normal">Status is used by the InfoSec team to track which controls are currently in progress.</div></td>
+			<td><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"></path></svg></td>
+			<td></td>
+		  </tr>
+		  <tr>
+			<th>Ready for Auditor</th>
+			<td><div class="whitespace-normal">This status is used by the InfoSec team to tell the auditor or reviewer that they are ready for the control to be looked at. The auditor can review the control and determine if it is satisfied</div></td>
+			<td><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"></path></svg></td>
+			<td></td>
+		  </tr>
+		  <tr>
+			<th>Action Required</th>
+			<td><div class="whitespace-normal">This status is used by the auditor/reviewer to inform the InfoSec team that additional work and/or evidence is required. It is encouraged that the auditor uses the Feedback and Comments tab.</div></td>
+			<td></td>
+			<td><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"></path></svg></td>
+		  </tr>
+		  <tr>
+			<th>Complete</th>
+			<td><div class="whitespace-normal">This status is used by the auditor/reviewer to signify that the control is complete and no further work is required</div></td>
+			<td></td>
+			<td><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"></path></svg></td>
+		  </tr>
+                </tbody>
+	  </table>
+	</div>
+
+    </p>
+  </label>
+</label>
+
+{%endblock%}
+{%block extrajs%}
+<script>
+  function saveSubControl() {
+    var applicable = $(`#input-applicable`).is(':checked');
+    var implemented = parseInt($(`#input-implemented`).val());
+    var data = {
+      "applicable":applicable,
+      "implemented":implemented
+    };
+    var owner_id = parseInt($(`#input-owner`).val());
+    var operator_id = parseInt($(`#input-operator`).val());
+    if (owner_id) {
+      data["owner-id"] = owner_id;
+    }
+    if (operator_id) {
+      data["operator-id"] = operator_id;
+    }
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/project-controls/{{project_subcontrol.p_control.id}}/subcontrols/{{project_subcontrol.id}}`,
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+          toast("Updated control")
+          return(data)
+      },
+      error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+      }
+    })
+  }
+
+function setStatusIndicator(status) {
+    var status = status.toLowerCase();
+    var color = "gray"
+    if (status === "complete") {
+      var color = "green"
+    } else if (status === "infosec action") {
+      var color = "yellow"
+    } else if (status === "ready for auditor") {
+      var color = "blue"
+    } else if (status === "action required") {
+      var color = "red"
+    }
+    $("#status-indicator").html(`<span class="badge bg-${color}-500 border-${color}-500 badge-sm"></span>`)
+}
+setStatusIndicator("{{project_subcontrol.review_status}}")
+function setStatus(e) {
+  var status = e.target.value.toLowerCase();
+  $.ajax({
+    type: "PUT",
+    url: `/api/v1/subcontrols/{{project_subcontrol.id}}/status`,
+    data: JSON.stringify({"review-status":status}),
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+      toast("Updated review status")
+      setStatusIndicator(status)
+      return(data)
+    },
+    error: function(errMsg) {
+      toast(errMsg["responseJSON"]["message"],"error")
+      return(errMsg);
+    }
+  })
+}
+
+function evidence() {
+  return {
+        evidence: [],
+        evidence_map: {},
+        focusEvidence: function(index) {
+            if ( !this.evidence[index].open ) {
+                for(let i = 0; i < this.evidence.length; i++){
+                    this.evidence[i].open = false;
+                    this.evidence[i].focused = i == index;
+                }
+            }
+        },
+        openEvidence: function(index) {
+            for(let i = 0; i < this.evidence.length; i++){
+                this.evidence[i].focused = false;
+                this.evidence[i].open = i == index;
+            }
+            setTimeout(()=>document.getElementById(`titleField${index}`).focus(),10);
+        },
+        defocusEvidence: function() {
+            for(let i = 0; i < this.evidence.length; i++){
+                this.evidence[i].focused = false;
+                this.evidence[i].open = false;
+            }
+        },
+        removeEvidence: function(index) {
+            reload = this.getEvidence
+            var item = this.evidence[index];
+            this.evidence = this.evidence.filter((todo, i) => {
+                return i == index ? false : true;
+            });
+            setTimeout(()=>this.defocusEvidence(),10);
+            $.ajax({
+              type: "DELETE",
+              url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/evidence/${item.id}`,
+              contentType: "application/json; charset=utf-8",
+              dataType: "json",
+              success: function(data){
+                toast("Removed evidence")
+                reload()
+                return(data)
+              },
+              error: function(errMsg) {
+                toast(errMsg["responseJSON"]["message"],"error")
+                return(errMsg);
+              }
+            })
+        },
+        saveAttachedEvidence: function() {
+          reload = this.getEvidence;
+          data = {
+            "evidence": $(`.evidence-selection`).val()
+          }
+          $.ajax({
+            type: "PUT",
+            url: `/api/v1/project-controls/{{project_subcontrol.p_control.id}}/subcontrols/{{project_subcontrol.id}}`,
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+              toast("Saved evidence")
+              document.getElementById('attach-modal').checked = false;
+              setTimeout(()=>reload(),100);
+              return(data)
+            },
+            error: function(errMsg) {
+              toast(errMsg["responseJSON"]["message"],"error")
+              return(errMsg);
+            }
+          })
+        },
+        attachEvidence: function() {
+          var evidence_map = this.evidence_map;
+          $(`.evidence-selection`).empty()
+          var evidence_select = $(`.evidence-selection`).select2({closeOnSelect: false});
+          $.ajax({
+            type: "GET",
+            url: `/api/v1/tenants/{{project.tenant_id}}/evidence`,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+              
+              for (var item in data) {
+                if (evidence_map[data[item].id]) {
+                  var newOption = new Option(data[item].name, data[item].id, true, true)
+                  evidence_select.append(newOption).trigger('change');
+                } else {
+                  var newOption = new Option(data[item].name, data[item].id, false, false)
+                  evidence_select.append(newOption).trigger('change');
+                }
+              }
+              return(data)
+            },
+            error: function(errMsg) {
+              toast(errMsg["responseJSON"]["message"],"error")
+              return(errMsg);
+            }
+          })
+        },
+        addEvidence: function() {
+            d = {
+                name: '',
+                description: '',
+                content: '',
+                focused: false,
+                open: false
+            }
+            this.evidence.unshift(d);
+            setTimeout(()=>this.openEvidence(0),10);
+
+            /* push to bottom
+            this.evidence.push(d);
+            setTimeout(()=>this.openEvidence(this.evidence.length-1),10);
+            setTimeout(()=>this.scrollDiv(),100);
+            */
+        },
+        scrollDiv: function() {
+          var objDiv = document.getElementById("evidence-body");
+          objDiv.scrollTop = objDiv.scrollHeight;    
+        },
+        updateEvidence: function(index) {
+          var item = this.evidence[index];
+          var data = {
+            "name":item.name,
+            "description":item.description,
+            "content":item.content
+          }
+          $.ajax({
+            type: "PUT",
+            url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/evidence/${item.id}`,
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+              toast("Updated evidence")
+              return(data)
+            },
+            error: function(errMsg) {
+              toast(errMsg["responseJSON"]["message"],"error")
+              return(errMsg);
+            }
+          })
+        },
+        saveEvidence: function(index) {
+          reload = this.getEvidence
+          var item = this.evidence[index];
+          var evidence_map = this.evidence_map;
+          if (!item.name) {
+            toast("Name is required","error")
+            return
+          }
+          if (item.id) {
+            this.updateEvidence(index)
+            return
+          }
+          var data = {
+            "name":item.name,
+            "description":item.description,
+            "content":item.content
+          }
+          $.ajax({
+            type: "POST",
+            url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/evidence`,
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+              toast("Added evidence")
+              item.open = false;
+              item.focused = false;
+              item.id = data.id;
+              evidence_map[data.id] = data.name;
+              reload()
+              return(data)
+            },
+            error: function(errMsg) {
+              toast(errMsg["responseJSON"]["message"],"error")
+              return(errMsg);
+            }
+          })            
+        },
+        getEvidence: function() {
+          evidence = this.evidence;
+          evidence_map = this.evidence_map;
+          // reset values
+          evidence.length = 0;
+          evidence_map.length = 0;
+          $.ajax({
+            type: "GET",
+            url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/evidence`,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+              $("#evidence-count").html(`(${data.length})`)
+              if (data) {
+                $("#evidence-title").html(`(${data.length})`)
+              }
+              for (var item in data) {
+                evidence.push(data[item])
+                evidence_map[data[item].id] = data[item].name;
+              }
+              return(data)
+            },
+            error: function(errMsg) {
+              toast(errMsg["responseJSON"]["message"],"error")
+              return(errMsg);
+            }
+          })
+        }
+  }
+}
+function app(){
+    return {
+        init() {
+          var params = new window.URLSearchParams(window.location.search);
+          var tab = params.get('tab');
+          if (tab) {
+            this.tab = tab;
+          }
+          this.getItems()
+        },
+        todos: [],
+        tab: "context",
+        changeTab: function(tab) {
+          this.tab = tab;
+          var queryParams = new URLSearchParams(window.location.search);
+          queryParams.set("tab", tab)
+          history.replaceState(null, null, "?"+queryParams.toString());
+        },
+        focusItem: function(index) {
+            if ( !this.todos[index].open ) {
+                for(let i = 0; i < this.todos.length; i++){
+                    this.todos[i].open = false;
+                    this.todos[i].focused = i == index;
+                }
+            }
+        },
+        openItem: function(index) {
+            for(let i = 0; i < this.todos.length; i++){
+                this.todos[i].focused = false;
+                this.todos[i].open = i == index;
+            }
+            setTimeout(()=>document.getElementById(`titleField${index}`).focus(),10);
+        },
+        defocusItems: function() {
+            for(let i = 0; i < this.todos.length; i++){
+                this.todos[i].focused = false;
+                this.todos[i].open = false;
+            }
+        },
+        removeItem: function(index) {
+            var item = this.todos[index];
+            this.todos = this.todos.filter((todo, i) => {
+                return i == index ? false : true;
+            });
+            setTimeout(()=>this.defocusItems(),10);
+            $.ajax({
+              type: "DELETE",
+              url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/feedback/${item.id}`,
+              contentType: "application/json; charset=utf-8",
+              dataType: "json",
+              success: function(data){
+                toast("Deleted feedback")
+                return(data)
+              },
+              error: function(errMsg) {
+                toast(errMsg["responseJSON"]["message"],"error")
+                return(errMsg);
+              }
+            })
+        },
+        addItem: function() {
+            d = {
+                title: '',
+                description: '',
+                is_complete: false,
+                auditor_complete: false,
+                focused: false,
+                open: false
+            }
+            this.todos.unshift(d);
+            setTimeout(()=>this.openItem(0),10);
+            /* push to bottom
+            this.todos.push(d);
+            setTimeout(()=>this.openItem(this.todos.length-1),10);
+            setTimeout(()=>this.scrollDiv(),100);
+            */
+        },
+        scrollDiv: function() {
+          var objDiv = document.getElementById("feedback-body");
+          objDiv.scrollTop = objDiv.scrollHeight;
+        },
+        checkItem: function(index) {
+          var item = this.todos[index];
+          item.is_complete=!item.is_complete
+          if (item.is_complete) {
+            confetti({particleCount: 200,spread: 300,origin: { y: .6 }});
+          }
+          this.updateItem(index)
+        },
+        checkAuditorItem: function(index) {
+          var item = this.todos[index];
+          item.auditor_complete=!item.auditor_complete
+          if (item.auditor_complete) {
+            confetti({particleCount: 200,spread: 300,origin: { y: .6 }});
+          }
+          this.updateItem(index)
+        },
+        updateItem: function(index) {
+          var item = this.todos[index];
+          var data = {
+            "title":item.title,
+            "description":item.description,
+            "is_complete":item.is_complete,
+            "auditor_complete":item.auditor_complete
+          }
+          $.ajax({
+            type: "PUT",
+            url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/feedback/${item.id}`,
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+              toast("Updated feedback")
+              return(data)
+            },
+            error: function(errMsg) {
+              toast(errMsg["responseJSON"]["message"],"error")
+              return(errMsg);
+            }
+          })
+        },
+        saveItem: function(index) {
+          var item = this.todos[index];
+          if (!item.title) {
+            toast("Title is required","error")
+            return
+          }
+          if (item.id) {
+            this.updateItem(index)
+            return
+          }
+          var data = {
+            "title":item.title,
+            "description":item.description,
+            "is_complete":item.is_complete,
+            "auditor_complete":item.auditor_complete
+          }
+          $.ajax({
+            type: "POST",
+            url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/feedback`,
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+              toast("Added feedback")
+              item.open = false;
+              item.focused = false;
+              item.id = data.id;
+              //for (var item in data) {
+              //  todos.push(data[item])
+              //}
+              return(data)
+            },
+            error: function(errMsg) {
+              toast(errMsg["responseJSON"]["message"],"error")
+              return(errMsg);
+            }
+          })            
+        },
+        getItems: function() {
+          todos = this.todos
+          $.ajax({
+            type: "GET",
+            url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/feedback`,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+              $("#feedback-count").html(`(${data.length})`)
+              if (data) {
+                $("#feedback-title").html(`(${data.length})`)
+              }
+              for (var item in data) {
+                todos.push(data[item])
+              }
+              return(data)
+            },
+            error: function(errMsg) {
+              toast(errMsg["responseJSON"]["message"],"error")
+              return(errMsg);
+            }
+          })
+        }
+    }
+}
+</script>
+<script>
+var contextEditor = tinymce.init({
+  selector: '#context-editor',
+  statusbar: false,
+  promotion: false,
+  {%if is_auditor%}
+  readonly: true,
+  menubar: false,
+  toolbar: false,
+  {%else%}
+  plugins: "preview fullscreen searchreplace table codesample lists advlist variable link",
+  toolbar1: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo"
+  {%endif%}
+
+});
+var internalEditor = tinymce.init({
+  selector: '#internal-editor',
+  statusbar: false,
+  promotion: false,
+  plugins: "preview fullscreen searchreplace table codesample lists advlist variable link",
+  toolbar1: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo"
+});
+var auditorEditor = tinymce.init({
+  selector: '#auditor-editor',
+  statusbar: false,
+  promotion: false,
+  plugins: "preview fullscreen searchreplace table codesample lists advlist variable link",
+  toolbar1: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo"
+});
+</script>
+<script>
+function scrollToBottomOfChat() {
+  var objDiv = document.getElementById("chat-body");
+  objDiv.scrollTop = objDiv.scrollHeight;
+}
+</script>
+<script>
+function addCommentToDiv(comment) {
+  delete_str = `<div class="dropdown dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"></path></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 text-error"><li><a @click="deleteComment(${comment.id})">Delete</a></li></ul></div>`
+  var record = `
+    <article id="comment-${comment.id}" class="py-6 mb-6 rounded-lg border-b border-base-200">
+        <footer class="flex justify-between items-center mb-2">
+            <div class="flex items-center text-sm">
+                <div class="avatar placeholder mr-2"><div class="bg-neutral-focus text-neutral-content rounded-full w-6"><span class="text-xs uppercase">${comment.author_email[0]}</span></div></div>${comment.author_email}
+                <p class="inline-flex items-center mr-3 text-sm"></p>
+                <p class="text-xs font-semibold"><time pubdate="">${comment.date_added}</time></p>
+            </div>${delete_str}
+        </footer>
+        <p class="">${comment.message}</p>
+    </article>
+  `
+  $("#comments").prepend(record)
+}
+
+function saveNotes() {
+    var data = {"data":tinymce.get("internal-editor").getContent()}
+    $.ajax({
+        type: "PUT",
+        url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/notes`,
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            toast("Saved notes")
+            return(data)
+        },
+        error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+        }
+    })
+}
+
+function saveAuditorNotes() {
+    var data = {"data":tinymce.get("auditor-editor").getContent()}
+    $.ajax({
+        type: "PUT",
+        url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/auditor-notes`,
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            toast("Saved notes")
+            return(data)
+        },
+        error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+        }
+    })
+}
+function saveContext() {
+    var data = {"data":tinymce.get("context-editor").getContent()}
+    $.ajax({
+        type: "PUT",
+        url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/context`,
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            toast("Saved context")
+            return(data)
+        },
+        error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+        }
+    })
+}
+
+
+function getComments() {
+    $.ajax({
+        type: "GET",
+        url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/comments`,
+        data: JSON.stringify({"data":document.getElementById("comment").value}),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            $("#comments").html("")
+            $("#comment-count").html(`(${data.length})`)
+            if (data) {
+              $("#comments-title").html(`(${data.length})`)
+            }
+            for (var comment in data) {
+              addCommentToDiv(data[comment])
+            }
+            mention_options = [];
+            var users = JSON.parse(localStorage.getItem("tenant-users-{{project.tenant_id}}"));
+            for(user in users) {
+              mention_options.push({key:users[user].email, value:users[user].username})
+            }
+            var tribute = new Tribute({values:mention_options});
+            tribute.attach(document.getElementById("comment"));
+            return(data)
+        },
+        error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+        }
+    })
+}
+
+function deleteComment(id) {
+    $.ajax({
+        type: "DELETE",
+        url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/comments/${id}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            $(`#comment-${id}`).remove()
+            toast("Deleted comment")
+            return(data)
+        },
+        error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+        }
+    })
+}
+function saveComment(e) {
+    var value = document.getElementById("comment").value;
+    if (!value) {
+      return
+    }
+    $.ajax({
+        type: "POST",
+        url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/comments`,
+        data: JSON.stringify({"data":value}),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            addCommentToDiv(data)
+            document.getElementById("comment").value = ""
+            toast("Added comment")
+            getComments()
+            return(data)
+        },
+        error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+        }
+    })
+}
+
+function getFeedback() {
+}
+
+function saveFeedback(data) {
+    $.ajax({
+        type: "POST",
+        url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/feedback`,
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            return(data)
+        },
+        error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+        }
+    })
+}
+
+function updateFeedback() {
+    $.ajax({
+        type: "PUT",
+        url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/feedback/${id}`,
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            return(data)
+        },
+        error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+        }
+    })
+}
+
+function deleteFeedback() {
+    $.ajax({
+        type: "DELETE",
+        url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/feedback/${id}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            return(data)
+        },
+        error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+        }
+    })
+}
+
+getComments()
+</script>
+{%endblock%}

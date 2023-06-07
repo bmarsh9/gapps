@@ -1,0 +1,31 @@
+{% extends "layouts/basic.html" %}
+{%block body%}
+<div class="hero min-h-screen bg-base-200">
+  <div class="hero-content flex-col lg:flex-row-reverse p-16">
+    <div class="card flex-shrink-0 w-96 shadow-2xl bg-base-100">
+      <div class="card-body">
+      <h2 class="text-4xl font-bold text-center mb-2">{{config.APP_NAME}}</h2>
+      {%if config.APP_SUBTITLE%}
+      <p class="text-xs font-medium text-gray-500 text-center">{{config.APP_SUBTITLE}}</p>
+      {%endif%}
+      <form action="{{url_for("auth.login_with_magic_link", tid=tid)}}" method="POST">
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text font-semibold">Email</span>
+          </label>
+          <input type="text" id="email" name="email" placeholder="{{ _('Email') }}" class="input input-bordered" required/>
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <a href="{{url_for("auth.login")}}" class="label-text-alt link link-hover">Go Back</a>
+          </label>
+        </div>
+        <div class="form-control mt-6">
+          <button class="btn btn-primary">Request Email</button>
+        </div>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}

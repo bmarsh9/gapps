@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+
+    <title>{{config.APP_NAME}}</title>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+    <!-- Bootstrap core CSS -->
+    <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'>
+
+    <!-- Custom styles for this template -->
+    <link href="https://getbootstrap.com/docs/4.0/examples/dashboard/dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    {%block before_head%}
+    {%endblock%}
+    {%block head%}
+    {%endblock%}
+    <style>
+      .navbar-base {
+        background: #394e6a;
+      }
+      .base-content-100 {
+        color: #394e6a !important;
+      }
+      .base-content {
+        color: #a3c6ff;
+      }
+    </style>
+  <body>
+    <nav class="navbar sticky-top flex-md-nowrap p-0">
+     {%block nav_header%} <a class="navbar-brand col-sm-3 col-md-2 mr-0 base-content bg-light text-dark" style="font-weight:600;" href="{{url_for("main.home")}}">{{config.APP_NAME}}</a>{%endblock%}
+      <ul class="navbar-nav px-3">
+        <li class="nav-item text-nowrap">
+        </li>
+      </ul>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        {%block sidebar%}
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link base-content-100" href="{{url_for("main.home")}}">
+                  Home <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link base-content-100" href="{{url_for("main.questionnaires")}}">
+                  Forms
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        {%endblock%}
+        {%block sidebar_flex%}<main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">{%endblock%}
+          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+           {%block page_header%}<h1 class="h2 base-content-100 text-capitalize">{%block page_header_title%}<a href="">Forms</a> / Create Form{%endblock%}</h1>{%endblock%}
+
+            <div class="w-50 text-right mb-2 mb-md-0">
+                {%block page_header_buttons%}
+                <button class="btn btn-sm btn-outline-secondary">Share</button>
+                <button class="btn btn-sm btn-outline-secondary">Export</button>
+                {%endblock%}
+            </div>
+          </div>
+          {%block content%}
+          {%endblock%}
+        </main>
+      </div>
+    </div>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+      function toast(message,level="info") {
+        var bg = "#367ff5"
+        if (level === "success") {
+          var bg = "#4ade80"
+        } else if (level === "warning") {
+          var bg = "#ffa929"
+        } else if (level === "error") {
+          var bg = "#f5584c"
+        }
+        Toastify({
+          text: message,
+          escapeMarkup: false,
+          duration: 5000,
+          close: true,
+          gravity: "top",
+          position: "right",
+          stopOnFocus: true,
+          style: {
+            background: bg,
+          },
+          onClick: function(){} // Callback after click
+        }).showToast();
+      }
+    </script>
+{%block extrajs%}
+{%endblock%}
+</html>

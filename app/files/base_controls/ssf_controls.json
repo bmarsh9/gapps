@@ -1,0 +1,317 @@
+[
+    {
+        "name": "Hire senior and experienced employees",
+        "description": "Use employees and other trusted networks to hire smart, capable and experienced people. Startups rarely have the time to train novice and junior employees.",
+        "ref_code": "ssf1",
+        "system_level": false,
+        "category": "people",
+        "subcategory": "identify",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Enable Google Workspace",
+        "description": "Sign up for Google Workspace - Business standard or above",
+        "ref_code": "ssf2",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Use Windows laptops for employees",
+        "description": "Employees within your company should be use company issued, Windows laptops. Updated version of WSL2 should be installed by developers who need access to a development environment",
+        "ref_code": "ssf3",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Enable Windows Defender and Bitlocker",
+        "description": "Ensure that Windows Defender and Bitlocker are enabled for all laptops",
+        "ref_code": "ssf4",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Enable and enforce MFA",
+        "description": "Enforce MFA for all users through Google Workspace",
+        "ref_code": "ssf5",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Enable Google SSO for all applications",
+        "description": "Enable and enforce Google SSO within Google workspace for all applications and third parties. This will require users to login to apps with their Google credentials and make it much easier to provision and deprovision users",
+        "ref_code": "ssf6",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Use Google groups to grant access to applications, roles and permissions",
+        "description": "With SSO enabled, many applications will allow you to grant specific access to apps based on Google groups. In the case of GCP, you can assign permissions (roles) and attach them to Google groups. It is highly recommend to make the group names descriptive such as GCP-ReadOnly or Gitlab-SuperUser",
+        "ref_code": "ssf7",
+        "system_level": false,
+        "category": "process",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Enable GCPW",
+        "description": "Install the Google Credential Provider for Windows on company laptops. Employees will use their Google account to sign into their laptops and it will provide admins with control over the laptops",
+        "ref_code": "ssf8",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Enable GCP for cloud infrastructure",
+        "description": "Enable GCP (Google Cloud Platform) if your company needs to leverage cloud infrastructure",
+        "ref_code": "ssf9",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Use GCP IAP and IAP Desktop for remote access",
+        "description": "Developers typically need remote access to workloads within GCP. Enable and enforce IAP to provide developers a mechanism to connect to resources within your cloud environments. IAP Desktop is a GUI application that provides the same benefits",
+        "ref_code": "ssf10",
+        "system_level": false,
+        "category": "process",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Enable GCP organization constaints to disable high risk configurations",
+        "description": "GCP organizational constaints allow GCP admins to set security controls across the entire environment. See the subcontrols below for a list of recommended organizational constaints",
+        "ref_code": "ssf11",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": [
+            {
+                "name": "Enforce public access prevention",
+                "ref_code": "ssf11.1",
+                "mitigation": "",
+                "meta": {}
+            },
+            {
+                "name": "Enable domain restricted sharing",
+                "ref_code": "ssf11.2",
+                "mitigation": "",
+                "meta": {}
+            },
+            {
+                "name": "Enable define allowed external IPs for VM instances",
+                "ref_code": "ssf11.3",
+                "mitigation": "",
+                "meta": {}
+            },
+            {
+                "name": "Disable public IPs for Cloud SQL instances",
+                "ref_code": "ssf11.4",
+                "mitigation": "",
+                "meta": {}
+            }
+        ]
+    },
+    {
+        "name": "Use Gitlab for code repositories",
+        "description": "Sign up and use Gitlab as your code repository",
+        "ref_code": "ssf12",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "All non-product websites should be static",
+        "description": "All websites should be stored in Gitlab and deployed to Cloudflare pages or similar (e.g. GCS buckets). Changes to the websites should be made through Gitlab with pipeline files and deployed to Cloudflare pages. Unless there is a very good reason for a backend server (e.g. python, php, CMS, etc), static websites should be used. If your startup produces a product such as a SaaS app, its likely a backend language/server will be required (this would be a valid exception).",
+        "ref_code": "ssf13",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Use docker images for your applications and products",
+        "description": "Packge your applications inside docker images and use GCP container registry for storage",
+        "ref_code": "ssf14",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": [
+            {
+                "name": "Docker images must be minimal and not contain unused dependencies",
+                "ref_code": "ssf14.1",
+                "mitigation": "",
+                "meta": {}
+            },
+            {
+                "name": "Store docker images inside GCP container registry and if possible, use Google Cloud Run for a execution environment",
+                "ref_code": "ssf14.1",
+                "mitigation": "",
+                "meta": {}
+            },
+            {
+                "name": "Enable Gitlab security features such as dependency, secrets and vulnerability scanning for docker images",
+                "ref_code": "ssf14.1",
+                "mitigation": "",
+                "meta": {}
+            }
+        ]
+    },
+    {
+        "name": "Use Gitlab issues for change management",
+        "description": "When changes are required such as user onboarding, offboarding, IT changes, new policies or workstreams, use Gitlab issues to create a history of the changes",
+        "ref_code": "ssf15",
+        "system_level": false,
+        "category": "process",
+        "subcategory": "identify",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Use Terraform and Gitlab for your infrastructure",
+        "description": "Use Gitlab to source/version and Terraform (or similar) to deploy your infrastructure such as GCP or Gitlab.",
+        "ref_code": "ssf16",
+        "system_level": false,
+        "category": "technology",
+        "subcategory": "protect",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Maintain an inventory of applications and their data classification",
+        "description": "Maintain an inventory of all applications (internal) and third party apps. If you use Gitlab to store code and configuration files, then a spreadsheet (or similar) should list Gitlab and the relevant data classification (source code would likely be sensitive)",
+        "ref_code": "ssf17",
+        "system_level": false,
+        "category": "process",
+        "subcategory": "identify",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Create policies for data classification, SDLC, incident response, third-parties, and change management",
+        "description": " Create policies for data classification, SDLC, incident response, third-parties, and change management",
+        "ref_code": "ssf18",
+        "system_level": false,
+        "category": "process",
+        "subcategory": "identify",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": [
+            {
+                "name": "Create policy for data classification",
+                "ref_code": "ssf18.1",
+                "mitigation": "",
+                "meta": {}
+            },
+            {
+                "name": "Create policy for SDLC",
+                "ref_code": "ssf18.2",
+                "mitigation": "",
+                "meta": {}
+            },
+            {
+                "name": "Create policy for incident response",
+                "ref_code": "ssf18.3",
+                "mitigation": "",
+                "meta": {}
+            },
+            {
+                "name": "Create policy for third party management",
+                "ref_code": "ssf18.4",
+                "mitigation": "",
+                "meta": {}
+            },
+            {
+                "name": "Create policy for change management",
+                "ref_code": "ssf18.5",
+                "mitigation": "",
+                "meta": {}
+            }
+        ]
+    },
+    {
+        "name": "Meet with a outside security consultant on a bi-weekly schedule",
+        "description": "On a bi-weekly schedule (or similar) meet with a security consultant who is knowledgeable in your company vertical. For example, if you create SaaS products within GCP, the individual should be a expert in GCP security and SDLC.  The general goal of this meeting is to make sure your company security concerns are being addressed by a outside party",
+        "ref_code": "ssf19",
+        "system_level": false,
+        "category": "people",
+        "subcategory": "identify",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    },
+    {
+        "name": "Create runbooks for common tasks",
+        "description": "Startups and the employees can change quickly so runbooks should be created for common tasks such as code deployments, updating infrastructure, interfacing with clients, incident response and any other tasks that are common and high risk of failing if someone or something changes.",
+        "ref_code": "ssf20",
+        "system_level": false,
+        "category": "process",
+        "subcategory": "respond",
+        "dti": "easy",
+        "dtc": "easy",
+        "meta": {},
+        "subcontrols": []
+    }
+]

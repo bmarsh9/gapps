@@ -1,0 +1,22 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block page_header_title%}<a href="{{url_for("main.frameworks")}}" class="uppercase">{{framework.name}}</a>{%endblock%}
+{%block page_header_title_border%}{%endblock%}
+
+{%block content%}
+<div class="grid grid-cols-6 gap-4">
+  <div class="col-span-6">
+    <div class="card bg-base-100 border border-base-200">
+      <div class="p-4">
+        {{framework.guidance|safe}}
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}

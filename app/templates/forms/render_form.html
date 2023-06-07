@@ -1,0 +1,223 @@
+{% extends "layouts/bootstrap.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(apex=True) }}
+{% endblock %}
+
+{%block head%}
+  <link rel="stylesheet" href="https://cdn.form.io/formiojs/formio.full.min.css">
+  <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
+  <script src="https://cdn.jsdelivr.net/gh/cferdinandi/smooth-scroll/dist/smooth-scroll.polyfills.min.js"></script>
+  <style>
+    span.btn.btn-primary.btn-sm.btn-block.formcomponent.drag-copy {
+      background: #394e6a;
+      border-color: #394e6a;
+    }
+    .btn-primary {
+      background: #394e6a;
+      border-color: #394e6a;
+    }
+    .px-10 {
+      padding-left: 3rem;
+      padding-right: 3rem;
+    }
+    .mt-c-10 {
+      margin-top:10%;
+    }
+    .mt-c-20 {
+      margin-top:20%;
+    }
+  </style>
+{%endblock%}
+
+{%if current_user.super or current_user.has_role_for_tenant_by_id(session.get("tenant-id"),"admin")%}
+{%set can_edit=True%}
+{%else%}
+{%set can_edit=False%}
+{%endif%}
+
+{%block page_header_title%}{{questionnaire.name}}{%endblock%}
+{%block page_header_buttons%}
+  {%if can_edit%}
+  {%if questionnaire.submitted%}<a href="{{url_for("main.view_questionnaire",qid=questionnaire.id)}}" class="btn btn-md btn-light mr-2">View Results</a>{%else%}
+  <a href="{{url_for("main.view_questionnaire",qid=questionnaire.id)}}" class="btn btn-md btn-light mr-2">Edit Form</a>
+  {%endif%}
+  {%endif%}
+  <a href="{{url_for("main.questionnaires")}}" class="btn btn-md btn-primary mr-2">Home</a>
+  {%if questionnaire.enabled%}
+  <div class="d-inline" id="submit-div"></div>
+  {%endif%}
+
+{%endblock%}
+
+{%block sidebar%}
+  <nav class="col-md-3 d-none d-md-block bg-light sidebar">
+      <div class="mt-c-20 text-center">
+        <h6>Total: {{metrics["total"]}}</h6>
+        <h6>Remaining: {{metrics["uncomplete"]}}</h6>
+      </div>
+      <div class="mt-c-10" id="chart"></div>
+  </nav>
+{%endblock%}
+{%block nav_header%} <a class="navbar-brand col-sm-3 col-md-3 mr-0 base-content bg-light text-dark" style="font-weight:600;" href="{{url_for("main.home")}}">{{config.APP_NAME}}</a>{%endblock%}
+{%block sidebar_flex%}<main role="main" class="col-md-9 ml-sm-auto col-lg-9 pt-3 px-10">{%endblock%}
+
+{% set metrics = questionnaire.metrics() %}
+
+{%block content%}
+  {%if questionnaire.submitted%}
+  <div class="alert alert-warning" role="alert">
+    The questionnaire has been submitted. We will review the submission and reach out to you with any questions.
+  </div>
+  {%endif%}
+  {%if questionnaire.enabled and questionnaire.published%}
+  <div id="render"></div>
+  {%else%}
+  <p>The questionnaire is currently disabled and/or unpublished. {%if can_edit%}Please <a href="{{url_for("main.view_questionnaire",qid=questionnaire.id)}}">update the settings</a> if you would like to enable the questionnaire.{%else%}Please reach out to admin to enable the questionnaire.{%endif%}</p>
+  {%endif%}
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  function updateSubmitBtn(status) {
+    if (status === "available") {
+      $("#submit-div").html(`<button id="submit-btn" class="btn btn-md btn-success">Submit Questionnaire</button>`)
+    } else if (status === "submitted") {
+      $("#submit-div").html(`<button id="submit-btn" class="btn btn-md btn-success" disabled>Submitted</button>`)
+    } else if (status === "waiting") {
+      $("#submit-div").html(`<button id="submit-btn" class="btn btn-md btn-success" disabled>Questions Outstanding</button>`)
+    } else {
+      $("#submit-div").html("")
+    }
+  }
+
+  {%if not questionnaire.enabled%}
+    updateSubmitBtn("")
+  {%elif questionnaire.submitted%}
+    updateSubmitBtn("submitted")
+  {%elif metrics.percentage_complete == 100%}
+    updateSubmitBtn("available")
+  {%else%}
+    updateSubmitBtn("waiting")
+  {%endif%}
+
+  function loadForm() {
+    $.ajax({
+      type: "GET",
+      url: `/api/v1/questionnaires/{{questionnaire.id}}`,
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        console.log(data)
+        return(data)
+      },
+      error: function(errMsg) {
+        return(errMsg);
+      }
+    })
+  }
+
+  function loadChart(complete) {
+        $("#chart").html("<div id='render-chart'></div>")
+        var chartOptions = {
+          series:[100-complete, complete],
+          chart: {
+            type: 'donut',
+            height: 350,
+            animations:{enabled:false}
+          },
+          colors: ["#ececec","#28a745"],
+          labels: ["Uncomplete","Complete"],
+          legend: {"position":"bottom"},
+          plotOptions: {
+            pie: {
+              donut: {
+                labels: {
+                  show: true,
+                  total: {
+                    show: true,
+                    label: '',
+                    formatter: () => complete+"%"
+                  }
+                }
+              }
+            }
+          }
+        };
+        var chart = new ApexCharts(document.querySelector("#render-chart"), chartOptions);
+        chart.render();
+  }
+  loadChart({{metrics["percentage_complete"]}})
+  var options = {};
+  {%if questionnaire.submitted%}
+  options.readOnly = true;
+  {%endif%}
+
+  Formio.createForm(document.getElementById('render'), {{questionnaire.form|tojson}},options)
+  .then(function(form) {
+    form.submission = {
+        data: {{questionnaire.get_submission_data()|tojson}}
+    };
+
+    // form.on("blur") does not work for checkboxes
+    $('.form-check-input').on('blur', function() {
+      form.emit('blur',form.submission)
+    });
+
+    form.on("blur", function(submission) {
+      return Formio.fetch('/api/v1/questionnaires/{{questionnaire.id}}/submission', {
+          body: JSON.stringify({"form":submission.data}),
+          headers: {
+            'content-type': 'application/json'
+          },
+          method: 'PUT'
+        })
+        .then(function(response) {
+          form.emit('submitDone', submission)
+          return response.json()
+          .then(({metrics}) => {
+            loadChart(metrics.percentage_complete)
+            if (metrics.percentage_complete === 100) {
+              updateSubmitBtn("available")
+            } else {
+              updateSubmitBtn("waiting")
+            }
+          });
+        })
+    });
+
+    /*
+    form.on("componentChanged", function(submission){
+      console.log(submission.data)
+    });
+    */
+
+    // Prevent the submission from going to the form.io server.
+    form.nosubmit = true;
+
+    $('#submit-div').on("click", '#submit-btn', function() {
+        form.submit();
+    });
+
+    // Triggered when they click the submit button.
+    form.on('submit', function(submission) {
+      return Formio.fetch('/api/v1/questionnaires/{{questionnaire.id}}/submission?submit=true', {
+          body: JSON.stringify({"form":submission.data}),
+          headers: {
+            'content-type': 'application/json'
+          },
+          method: 'PUT'
+        })
+        .then(function(response) {
+          form.emit('submitDone', submission)
+          response.json()
+          location.reload();
+          updateSubmitBtn("submitted")
+        })
+    });
+  });
+</script>
+{%endblock%}

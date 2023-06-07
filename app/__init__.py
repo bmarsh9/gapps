@@ -7,6 +7,7 @@ from flask_login import LoginManager
 from flask_babel import Babel, lazy_gettext as _l
 import json
 
+
 db = SQLAlchemy()
 babel = Babel()
 migrate = Migrate()
@@ -25,42 +26,40 @@ def create_app(config_name="default"):
 
     @app.errorhandler(404)
     def not_found(e):
-        return render_template("layouts/errors/default.html", title="Not found"), 404
+        if request.path.startswith("/api/"):
+            if isinstance(e.description, dict):
+                return jsonify(e.description), e.code
+            return jsonify({"ok":False, "message":e.description, "code":e.code}), e.code
+        return render_template("layouts/errors/default.html", title="Not found"), e.code
+
+    @app.errorhandler(403)
+    def not_authorized(e):
+        if request.path.startswith("/api/"):
+            if isinstance(e.description, dict):
+                return jsonify(e.description), e.code
+            return jsonify({"ok":False, "message":e.description, "code":e.code}), e.code
+        return render_template("layouts/errors/default.html", title="Unauthorized"), e.code
+
+    @app.errorhandler(401)
+    def not_authenticated(e):
+        if request.path.startswith("/api/"):
+            if isinstance(e.description, dict):
+                return jsonify(e.description), e.code
+            return jsonify({"ok":False, "message":e.description, "code":e.code}), e.code
+        return render_template("layouts/errors/default.html", title="Unauthenticated"), e.code
 
     @app.errorhandler(500)
     def internal_error(e):
-        return render_template("layouts/errors/default.html", title="Internal error"), 500
-
-    @app.errorhandler(401)
-    def unauthorized(e):
-        if 'Authorization' in request.headers:
-            return jsonify({"message":"unauthorized"}),401
-        return render_template("layouts/errors/default.html", title="Unauthorized"), 401
-
-    @app.errorhandler(400)
-    def malformed(e):
-        if 'Authorization' in request.headers:
-            return jsonify({"message":"malformed request"}),400
-        return render_template("layouts/errors/default.html", title="Client error"), 400
-
-    @app.errorhandler(403)
-    def forbidden(e):
-        if 'Authorization' in request.headers:
-            return jsonify({"message":"forbidden"}),403
-        return render_template("layouts/errors/default.html", title="Forbidden"), 403
-
-    def is_user_admin(user=False):
-        if not user:
-            return False
-        if user.is_authenticated:
-            return user.has_role("admin")
-        return False
+        if request.path.startswith("/api/"):
+            if isinstance(e.description, dict):
+                return jsonify(e.description), e.code
+            return jsonify({"ok":False, "message":e.description, "code":e.code}), e.code
+        return render_template("layouts/errors/default.html", title="Internal error"), e.code
 
     def to_pretty_json(value):
         return json.dumps(value, sort_keys=True,
                       indent=4, separators=(',', ': '))
 
-    app.jinja_env.filters['is_admin'] = is_user_admin
     app.jinja_env.filters['tojson_pretty'] = to_pretty_json
 
     '''

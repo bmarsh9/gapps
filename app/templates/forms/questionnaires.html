@@ -1,0 +1,324 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True,select2=True) }}
+{% endblock %}
+
+{%block page_header_title%}Questionnaires{%endblock%}
+{%block page_header_title_border%}{%endblock%}
+
+{%if current_user.super or current_user.has_role_for_tenant_by_id(session.get("tenant-id"),"admin")%}
+{%set can_edit = True%}
+{%else%}
+{%set can_edit = False%}
+{%endif%}
+
+{%if current_user.has_role_for_tenant_by_id(session.get("tenant-id"),"vendor")%}
+{%set is_vendor=True%}
+{%else%}
+{%set is_vendor=False%}
+{%endif%}
+
+{%block page_header_buttons%}{%if can_edit%}<button class="btn btn-sm add-questionnaire-btn btn-primary">Add Questionnaire</button>{%endif%}{%endblock%}
+{%block content%}
+<div class="grid grid-cols-6 gap-4">
+  <div class="col-span-6">
+    <div class="card bg-base-100 border border-base-200">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Questionnaires</h2>
+              <table class="table table-vcenter" id="questionnaires" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Vendor</th>
+                    <th class="w-1">Enabled</th>
+                    <th class="w-1">Status</th>
+                    <th class="w-1">Progress</th>
+                    {%if can_edit%}
+                    <th class="w-1">Access</th>
+                    <th class="w-1">Edit</th>
+                    {%endif%}
+                    <th class="w-1">View</th>
+                  </tr>
+                </thead>
+                <tbody id="questionnaire-body"></tbody>
+              </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="edit-access-modal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box relative w-11/12 max-w-7xl">
+    <label for="edit-access-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <h3 class="text-lg font-bold">Edit User</h3>
+        <div class="py-4 sm:mt-0">
+          <div class="md:grid md:grid-cols-1 md:gap-6">
+                <div class="mt-5 md:col-span-2 md:mt-0">
+                    <div class="overflow-hidden sm:rounded-md px-4">
+                          <div class="px-4 py-5 sm:p-6">
+                                <div class="grid grid-cols-6 gap-6">
+                                  <div class="col-span-6">
+                                    <label for="name" class="block text-sm font-medium mb-2">Add/Remove Vendors to the Questionnaire</label>
+                                    <select name="guests[]" multiple="multiple" class="select select-bordered w-full access-select" id="access"></select>
+                                    <p class="font-medium text-xs mt-2">The user must be <a class="text-primary underline" href="/users">added to your tenant</a> with the <b>Vendor</b> role before you are able to add them to Questionnaires. Newly added users will receive a email notification{%if config.MAIL_USERNAME and config.MAIL_PASSWORD%}.{%else%} however you have not completed the mail server settings.{%endif%}</p>
+                                  </div>
+                                </div>
+                          </div>
+                          <div class="px-4 py-3 text-right sm:px-6">
+                                <button class="btn btn-primary save-access-btn">Save</button>
+                          </div>
+                    </div>
+                </div>
+          </div>
+        </div>
+  </div>
+</div>
+
+<input type="checkbox" id="edit-questionnaire-modal" class="modal-toggle" />
+<label for="edit-questionnaire-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">Edit Questionnaire</h3>
+        <div class="py-4 sm:mt-0">
+          <div class="md:grid md:grid-cols-1 md:gap-6">
+                <div class="mt-5 md:col-span-2 md:mt-0">
+                    <div class="overflow-hidden sm:rounded-md px-4">
+                          <div class="px-4 py-5 sm:p-6">
+                                <div class="grid grid-cols-6 gap-6">
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label for="name" class="block text-sm font-medium mb-2">Name</label>
+                                    <input id="edit-name" type="text" placeholder="Input name" class="input input-bordered w-full" />
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label for="description" class="block text-sm font-medium mb-2">Description</label>
+                                    <input id="edit-description" type="text" placeholder="Input description" class="input input-bordered w-full" />
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label for="vendor" class="block text-sm font-medium mb-2">Vendor</label>
+                                    <input id="edit-vendor" type="text" placeholder="Input vendor name" class="input input-bordered w-full" />
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label class="block text-sm font-medium mb-2">Enabled</label>
+                                    <select id="edit-enabled" class="select select-bordered w-full">
+                                      <option value="true">True</option>
+                                      <option value="false">False</option>
+                                    </select>
+                                  </div>
+                                </div>
+                          </div>
+                          <div class="px-4 py-3 text-right sm:px-6">
+                                <button class="btn btn-primary save-edit-btn">Save</button>
+                          </div>
+                    </div>
+                </div>
+          </div>
+        </div>
+  </label>
+</label>
+
+<input type="checkbox" id="add-questionnaire-modal" class="modal-toggle" />
+<label for="add-questionnaire-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">Add Questionnaire</h3>
+        <div class="py-4 sm:mt-0">
+          <div class="md:grid md:grid-cols-1 md:gap-6">
+                <div class="mt-5 md:col-span-2 md:mt-0">
+                    <div class="overflow-hidden sm:rounded-md">
+                          <div class="px-4 py-5 sm:p-6">
+                                <div class="grid grid-cols-6 gap-6">
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label for="name" class="block text-sm font-medium mb-2">Name</label>
+                                    <input id="name" type="text" placeholder="Input name" class="input input-bordered w-full" />
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label for="description" class="block text-sm font-medium mb-2">Description</label>
+                                    <input id="description" type="text" placeholder="Input description" class="input input-bordered w-full" />
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label for="vendor" class="block text-sm font-medium mb-2">Vendor</label>
+                                    <input id="vendor" type="text" placeholder="Input vendor name" class="input input-bordered w-full" />
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label class="block text-sm font-medium mb-2">Copy Template</label>
+                                    <select id="template" class="select select-bordered w-full"></select>
+                                  </div>
+                                </div>
+                          </div>
+                          <div class="px-4 py-3 text-right sm:px-6">
+                                <button class="btn btn-primary save-questionnaire-btn">Save</button>
+                          </div>
+                    </div>
+                </div>
+          </div>
+        </div>
+  </label>
+</label>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).on('click', '.save-access-btn', function() {
+    var id = $(this).data('questionnaire-id')
+    var data = {
+      "guests": $("#access").val()
+    }
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/questionnaires/${id}/guests`,
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        toast("Edited questionnaire guests")
+        document.getElementById('edit-access-modal').checked = false;
+        loadQuestionnaireTable()
+        return(data)
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+      }
+    })    
+  })
+  $(document).on('click', '.save-edit-btn', function() {
+    var selectedTenant = getTenant();
+    var id = $(this).data('questionnaire-id')
+    var enabled = $("#edit-enabled").val() === "true" ? true : false;
+    var data = {
+      "name": $("#edit-name").val(),
+      "description": $("#edit-description").val(),
+      "vendor": $("#edit-vendor").val(),
+      "enabled": enabled
+    }
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/questionnaires/${id}`,
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        toast("Edited questionnaire settings")
+        document.getElementById('edit-questionnaire-modal').checked = false;
+        loadQuestionnaireTable()
+        return(data)
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+      }
+    })
+  });
+  $(document).on('click', '.edit-access-btn', function() {
+      $(".access-select").empty().trigger("change");
+      var id = $(this).data('questionnaire-id')
+      $(".save-access-btn").data("questionnaire-id",id)
+      $.ajax({
+        type: "GET",
+        url: `/api/v1/questionnaires/${id}?available-guests=yes`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          document.getElementById('edit-access-modal').checked = true;
+          $(".access-select").select2({"tags":true, "closeOnSelect": false});
+          for (var user in data.guests) {
+            if (data.guests[user].guest) {
+              var newOption = new Option(data.guests[user].email, data.guests[user].id, false, true);
+            } else {
+              var newOption = new Option(data.guests[user].email, data.guests[user].id, false, false);
+            }
+            $('#access').append(newOption).trigger('change');
+          }
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })    
+  });
+  $(document).on('click', '.edit-questionnaire-btn', function() {
+      var id = $(this).data('questionnaire-id')
+      $(".save-edit-btn").data("questionnaire-id",id)
+      $.ajax({
+        type: "GET",
+        url: `/api/v1/questionnaires/${id}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          document.getElementById('edit-questionnaire-modal').checked = true;
+          $("#edit-name").val(data.name)
+          $("#edit-description").val(data.description)
+          $("#edit-vendor").val(data.vendor)
+          data.enabled ? $("#edit-enabled").val("true"):$("#edit-enabled").val("false");
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })    
+  });
+
+  $(document).on('click', '.add-questionnaire-btn', function() {
+      document.getElementById('add-questionnaire-modal').checked = true;
+  });
+  $(document).on('click', '.save-questionnaire-btn', function() {
+      var selectedTenant = getTenant();
+      var data = {
+        "name": $("#name").val(),
+        "description": $("#description").val(),
+        "vendor": $("#vendor").val(),
+        "template": $("#template").val()
+      }
+      $.ajax({
+        type: "POST",
+        url: `/api/v1/tenants/${selectedTenant.id}/questionnaires`,
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(data),
+        dataType: "json",
+        success: function(data){
+          toast("Created questionnaire")
+          document.getElementById('add-questionnaire-modal').checked = false;
+          loadQuestionnaireTable()
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          document.getElementById('add-questionnaire-modal').checked = false;
+          return(errMsg);
+        }
+
+      })
+  });
+
+  function loadQuestionnaireTable() {
+      $("#template").html('<option value="empty">Empty</option>');
+      var selectedTenant = getTenant();
+      $("#questionnaires").dataTable().fnDestroy();
+      $("#questionnaire-body").html('<div class="col-span-9 mx-auto mt-10"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+      $.ajax({
+        type: "GET",
+        url: `/api/v1/tenants/${selectedTenant.id}/questionnaires`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          for (var questionnaire in data) {
+            $("#template").append(`<option value="${data[questionnaire].id}">${clean(data[questionnaire].name)}</option>`)
+            var is_enabled = (data[questionnaire].enabled === true) ? '<p class="font-medium text-sm capitalize text-green-600 bg-green-400/10 rounded-full py-1 px-3 w-fit">True</p>' : '<p class="font-medium text-sm capitalize text-red-600 bg-red-400/10 rounded-full py-1 px-3 w-fit">False</p>';
+            $("#questionnaire-body").append(`<tr><td class="text-sm font-medium capitalize">${clean(data[questionnaire].name)}</td><td class="text-sm font-medium capitalize">${clean(data[questionnaire].vendor)}</td><td class="text-sm font-medium capitalize">${is_enabled}</td><td class="text-sm font-medium capitalize">${data[questionnaire].status}</td><td><div class="flex flex-col"><b class="text-xs font-medium">${data[questionnaire].metrics.percentage_complete}</b><progress class="progress progress-primary w-28" value="${data[questionnaire].metrics.percentage_complete}" max="100"/></div></td>{%if can_edit%}<td class="text-center"><button data-questionnaire-id="${data[questionnaire].id}" class="btn btn-xs bg-base-200 border-base-200 text-base-content edit-access-btn">Edit</button></td><td class="text-center"><button data-questionnaire-id="${data[questionnaire].id}" class="btn btn-xs bg-base-200 border-base-200 text-base-content edit-questionnaire-btn">Edit</button></td>{%endif%}<td class="text-center"><a href="/questionnaires/${data[questionnaire].id}{%if is_vendor%}/render{%endif%}" class="btn btn-xs bg-base-200 border-base-200 text-base-content">View</button></td></tr>`);
+          }
+          $('#questionnaires').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })
+  }
+  loadQuestionnaireTable()
+</script>
+{% endblock %}
