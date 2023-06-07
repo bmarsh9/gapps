@@ -67,7 +67,6 @@ MAIL_PASSWORD="app password" # https://support.google.com/accounts/answer/185833
 
 
 ### Things to know
-- Authentication is fully functioning but authorization is not complete. In other words, the roles assigned to users are not respected. There is a ticket open to address this
 - The mitigation details of the controls are not documented. So it won't tell you how to mitigate a specific control. This requires a ton of work to complete but there is a ticket
 - Difficulty to Implement (dtc) is a field attached to the controls and every single control is labeled as "Easy" (that doesn't actually mean it is easy). This also requires a ton of work to update.
 
