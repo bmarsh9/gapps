@@ -1162,8 +1162,8 @@ class User(LogMixin, db.Model, UserMixin):
         return address
 
     @staticmethod
-    def validate_registration(email, user, password, password2):
-        if not email or not user:
+    def validate_registration(email, username, password, password2):
+        if not email or not username:
             return False
         if not misc.perform_pwd_checks(password, password_two=password2):
             return False

@@ -153,7 +153,7 @@ def register():
         password2 = request.form.get("password2")
         if not User.validate_registration(email, username, password, password2):
             flash("Invalid email, username and/or password", "warning")
-            return redirect(next_page or url_for('auth.register'))
+            return redirect(next_page or url_for('auth.register', token=token))
         new_user = User.add(email, password=password,
             username=username, confirmed=True,
             tenants=[{"id":result.get("tenant_id"), "roles": result.get("roles",[])}])
