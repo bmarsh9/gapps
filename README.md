@@ -67,7 +67,7 @@ $ docker-compose up -d
 The server should be running on `http://<your-ip>:5000`  
 The default email/password is `admin@example.com:admin`
 
-Next, create a project and select the framework (SOC2). Based on the selected criteria, controls and policies will be automatically added to your project. You can also go to the Controls and Policies page and add them to your project.
+Next, create a Tenant and a Project with you desired framework (e.g. SOC2). Based on the selected criteria, controls and policies will be automatically added to your project. Start exploring your project!
 
 ##### Email  
 
