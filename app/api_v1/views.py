@@ -348,9 +348,10 @@ def get_users():
 def create_user():
     result = Authorizer(current_user).can_user_manage_platform()
     if not current_app.config["MAIL_USERNAME"] or not current_app.config["MAIL_PASSWORD"]:
-        return jsonify({"message":"MAIL_USERNAME amd MAIL_PASSWORD must be set"}),400
+        return jsonify({"message":"MAIL_USERNAME and MAIL_PASSWORD must be set"}),400
     data = request.get_json()
-    if not models.User.validate_email(data.get("email")):
+    email = data.get("email")
+    if not models.User.validate_email(email):
         return jsonify({"message":"invalid email"}), 400
     tenant_id = data.get("tenant_id")
     token = models.User.generate_invite_token(email, tenant_id)
