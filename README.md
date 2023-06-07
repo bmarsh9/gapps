@@ -187,3 +187,10 @@ The format consists of controls and subcontrols. The snippet below shows an exam
     }
 }
 ```
+
+##### Building and pushing
+```
+docker build -t gapps:3.4.3 .
+docker tag gapps:3.4.3 bmarsh13/gapps:3.4.3
+docker push bmarsh13/gapps:3.4.3
+```
