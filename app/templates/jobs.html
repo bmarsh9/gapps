@@ -1,0 +1,181 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block page_header_title%}Jobs{%endblock%}
+{%block page_header_title_border%}{%endblock%}
+{%block page_header_buttons%}<a href="/tasks" class="btn btn-sm">View Tasks</a>{%endblock%}
+{%block content%}
+<div class="grid grid-cols-6 gap-4">
+  <div class="col-span-6">
+    <div class="card bg-base-100 border border-base-200">
+      <div class="card-body">
+        <div class="justify-between flex"><div><h2 class="card-title mb-4">Jobs</h2></div><div><select class="select select-sm select-bordered task-filter w-full"><option value="">No Filter</option><option value="exclude-scheduler">Exclude Scheduler</option>{%for task in tasks%}<option value="{{task.name}}">{{task.name}}</option>{%endfor%}</select></div></div>
+              <table class="table table-vcenter" id="jobs" style="width:100%">
+                <thead>
+                  <tr>
+                    <th class="w-1">ID</th>
+                    <th>Name</th>
+                    <th class="w-1">Status</th>
+                    <th class="w-1">Queue</th>
+                    <th class="w-1">Attempts</th>
+                    <th class="w-1">Tenant</th>
+                    <th class="w-1">At</th>
+                    <th class="w-1">View</th>
+                  </tr>
+                </thead>
+                <tbody id="job-body"></tbody>
+              </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="view-job-modal" class="modal-toggle" />
+<label for="view-job-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">View Job</h3>
+        <div class="py-4 sm:mt-0">
+
+<div class="grid grid-rows-5 grid-flow-col gap-4">
+  <div class="row-span-5">
+    <div class="border rounded-md border-base-200">
+      <div class="px-4 py-5 sm:px-6">
+        <h3 class="text-lg font-medium leading-6">Job Details</h3>
+        <p class="mt-1 max-w-2xl text-sm ">View detailed information about the job</p>
+      </div>
+      <div class="border-t border-base-200">
+        <dl>
+          <div class="bg-base-200 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium ">Task Name</dt><dd class="mt-1 text-sm  sm:col-span-2 sm:mt-0" id="task-name"></dd></div>
+          <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium ">Queue</dt><dd class="mt-1 text-sm  sm:col-span-2 sm:mt-0" id="queue-name"></dd></div>
+          <div class="bg-base-200 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium ">Scheduled At</dt><dd class="mt-1 text-sm  sm:col-span-2 sm:mt-0" id="scheduled-at"></dd></div>
+          <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium ">Job ID</dt><dd class="mt-1 text-sm  sm:col-span-2 sm:mt-0" id="job-id"></dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-span-2 text-center">
+      <div id="status-card" class="stats shadow">  
+        <div class="stat place-items-center">
+          <div class="stat-title">Status</div>
+          <div class="stat-value capitalize font-bold" id="text-status">?</div>
+        </div>
+      </div>
+  </div>
+  <div class="row-span-4 col-span-2" id="job-events">
+  </div>
+</div>
+
+        </div>
+  </label>
+</label>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+
+  $(document).on('change', '.task-filter', function() {
+    var filter = $(this).val();
+    loadJobTable(filter=filter)
+  });
+
+  $(document).on('click', '.view-job-btn', function() {
+      var id = $(this).data('job-id')
+      $.ajax({
+        type: "GET",
+        url: `/api/v1/jobs/${id}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          document.getElementById('view-job-modal').checked = true;
+
+          if (data.status === "succeeded") {
+            var statusColor = "green"
+          } else if (data.status === "doing") {
+            var statusColor = "orange"
+          } else if (data.status === "todo") {
+            var statusColor = "gray"
+          } else {
+            var statusColor = "red"
+          }
+          $("#status-card").attr("class",`stats border text-${statusColor}-600 px-16`);
+          $("#task-name").html(data.task_name)
+          $("#queue-name").html(data.queue_name)
+          $("#scheduled-at").html(data.scheduled_at)
+          $("#job-id").html(data.job_id)
+
+          $("#text-status").html(data.status)
+          $("#job-events").html("");
+          var icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>';
+
+          for (var event in data.events) {
+            if (data.events[event].status === "succeeded") {
+              var eventColor = "green"
+            } else if (data.events[event].status === "failed") {
+              var eventColor = "red"
+            } else {
+              var eventColor = "gray"
+            }
+
+            $("#job-events").append(`
+              <div class="card text-${eventColor}-600 bg-${eventColor}-400/10 mb-2"><div class="py-3 px-6"><h2 class="card-title capitalize"><b class="mr-2">${icon}</b>${data.events[event].status} <b class=" text-sm my-auto">(${data.events[event].ts_humanize})</b></h2><p class="text-sm font-medium ">Job status was set to [${data.events[event].status}] at ${data.events[event].timestamp}</p></div></div>
+            `);
+          }
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })
+  });
+  function loadJobTable(filter) {
+      var selectedTenant = getTenant();
+      if (filter) {
+        if (filter === "exclude-scheduler") {
+          url = `/api/v1/tenants/${selectedTenant.id}/jobs?exclude-scheduler=yes`
+        } else {
+          url = `/api/v1/tenants/${selectedTenant.id}/jobs?name=${filter}`
+        }
+      } else {
+        url = `/api/v1/tenants/${selectedTenant.id}/jobs`
+      }
+      $("#jobs").dataTable().fnDestroy();
+      $("#job-body").html('<div class="col-span-9 mx-auto mt-10"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 animate-spin fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+      $.ajax({
+        type: "GET",
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          for (var job in data) {
+            obj = data[job];
+            if (obj.status === "succeeded") {
+              var statusColor = "green"
+            } else if (obj.status === "doing") {
+              var statusColor = "orange"
+            } else if (obj.status === "todo") {
+              var statusColor = "gray"
+            } else {
+              var statusColor = "red"
+            }
+            $("#job-body").append(`<tr><td class="text-sm font-medium  uppercase">${data[job].id}</td><td class="text-sm font-medium ">${clean(data[job].task_name)}</td><td class="text-sm font-medium  capitalize"><p class="text-${statusColor}-600 bg-${statusColor}-400/10 rounded-full py-1 px-3 w-fit">${obj.status}</p></td><td class="text-sm font-medium "><p class="text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${obj.queue}</p></td><td class="text-sm font-medium "><p class="text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${obj.attempts}</p></td><td class="text-sm font-medium  capitalize">${clean(obj["context"].tenant)}</td><td class="text-sm font-medium  capitalize">${obj.scheduled_at ? obj.scheduled_at:"?"}</td><td class="text-center"><button data-job-id="${obj.id}" class="btn btn-xs view-job-btn">+</button></td></tr>`);
+          }
+          $('#jobs').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })
+
+  }
+  loadJobTable()
+</script>
+{% endblock %}

@@ -1,152 +1,1894 @@
-{% extends "layouts/basic.html" %}
+{% extends "layouts/sidebar-nav.html" %}
 
 {% import "helpers/snippets.html" as snippet with context %}
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True) }}
+  {{ macro.filehelper(datatables=True,select2=True,apex=True,editor=True,mentions=True) }}
+  <style>
+    .breadcrumbs>ul>li+:before {
+      margin-top: 5px;
+    }
+  </style>
 {% endblock %}
 
-{%block header%}
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-3 gap-4">
-            <div class="col-span-2">
-              <h1 class="text-2xl tracking-tight font-bold text-gray-900 {%block hide_title_on_mobile%}{%endblock%}">
-                <div class="breadcrumbs p-0">
-                  <ul>
-                    <li><a href="{{url_for("main.projects")}}">Projects</a></li>
-                    <li class="text-primary">{{project.name}}</li>
-                  </ul>
-                </div>
-              </h1>
+{%block header%}{%endblock%}
+{%block page_header%}{%endblock%}
+
+{%block tenant_btn%}{%endblock%}
+{%set is_auditor = project.has_auditor(current_user)%}
+{%block content%}
+<div class="grid grid-cols-9 gap-8">
+  <div class="col-span-9">
+<div class="lg:flex lg:items-center lg:justify-between">
+  <div class="min-w-0 flex-1">
+    <div class="breadcrumbs text-2xl font-bold sm:tracking-tight py-0">
+      <ul>
+        <li><a>Home</a></li>
+        <li><a href="{{url_for("main.projects")}}">Projects</a></li>
+        <li><a class="capitalize" href="{{url_for("main.view_project",pid=project.id)}}">{{project.name}}</a></li>
+        <li>
+          <select class="select text-2xl font-bold text-primary sm:tracking-tight pl-0 focus:border-transparent focus:outline-none tab-select hover:text-secondary">
+            <option selected value="summary">Summary</option>
+            <option value="controls">Controls</option>
+            <option value="policies">Policies</option>
+            <option value="evidence">Evidence</option>
+            <option value="matrix">Resp. Matrix</option>
+            <option value="scratchpad">Scratchpad</option>
+            <option value="comments">Comments</option>
+            <option value="report">Report</option>
+            <option value="settings">Settings</option>
+          </select>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+  <div class="flex">
+    <span class="ml-3 hidden sm:block">
+      <div class="tooltip tooltip-left" data-tip="Generate PDF report"><button class="btn btn-ghost border border-base-300 btn-sm" @click="createReport">Generate Report</button></div>
+    </span>
+    <span class="ml-3 hidden sm:block">
+      <div class="tooltip tooltip-left" data-tip="Refresh data from Server"><button class="format-btn btn btn-sm btn-primary reload-button">Refresh Data</button></div>
+    </span>
+  </div>
+</div>
+    <div class="flex flex-row border-b border-base-300 py-3">
+      <div class="flex gap-x-1 py-1 pr-2 tooltip" data-tip="Framework">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
+        <span class="text-sm font-medium uppercase">{{project.framework.name}}</span>
+      </div>
+      <div class="flex gap-x-1 py-1 px-2 tooltip" data-tip="Completion">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+        <span class="text-sm font-medium">{{project.progress("complete")}}%</span>
+      </div>
+      <div class="flex gap-x-1 py-1 px-2 tooltip" data-tip="Start Date">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" /></svg>
+        <span class="text-sm font-medium">{{project.simple(project.date_added)}}</span>
+      </div>
+      {%if is_auditor%}
+      <div class="flex gap-x-1 py-1 px-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+        <span class="text-sm font-medium">Auditor</span>
+      </div>
+      {%endif%}
+      <div class="divider divider-horizontal mx-0"></div>
+      <div class="flex space-x-4 tabs">
+        {%for tab in ["summary","controls","policies","evidence","matrix","scratchpad","comments","report","settings"]%}
+        <span @click="changeTab('{{tab}}')" id="tab-{{tab}}" class="cursor-pointer rounded-md py-1 px-4 text-sm font-medium hover:bg-base-200 capitalize">{{tab}}</span>
+        {%endfor%}
+      </div>
+    </div>
+    <div class="flex flex-row rounded-md border-b border-r border-l border-base-300 p-3">
+      <div class="flex gap-x-1 py-1 tooltip font-medium text-sm" data-tip="Quick filters for the controls">
+      Quick Filters
+      </div>
+      <div class="divider divider-horizontal mx-0"></div>
+      <div class="flex gap-x-4 tabs">
+        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&owner={{current_user.email}}">Control's I Own</a>
+        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&operator={{current_user.email}}">Control's I Operate</a>
+        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=12">InfoSec: Not Started</a>
+        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=13">InfoSec: In Progress</a>
+        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=14">InfoSec: Action</a>
+        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=15">Auditor: Ready for Auditor</a>
+        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=16">Complete</a>
+      </div>
+    </div>
+
+  </div>
+  </div>
+  <div id="page-div">
+    <div class="grid grid-cols-9 gap-4" id="alert-div"></div>
+    <div class="grid grid-cols-9 gap-4" id="summary-div"></div>
+    <div class="grid grid-cols-9 gap-4 mt-4 pb-10" id="card-div">
+      <div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="memberModal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box w-8/12 max-w-4xl">
+    <label for="memberModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <div id="memberModalBody">
+      <div class="grid grid-cols-6 gap-6"><div class="col-span-6"><label class="block font-medium mb-2">Add Members to Project</label><select class="input-members w-full" name="members[]" multiple="multiple"/></select></div></div>
+    </div>
+    <div class="modal-action">
+      <button @click="addMembers" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="ownerModal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <label for="ownerModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <div id="ownerModalBody"></div>
+    <div class="modal-action">
+      <button data-id="" class="btn btn-primary save-owner-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="ownerPolicyModal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <label for="ownerPolicyModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <div id="ownerPolicyModalBody"></div>
+    <div class="modal-action">
+      <button data-id="" class="btn btn-primary save-policy-owner-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="control-modal" class="modal-toggle" />
+<label for="control-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <h2 id="control-modal-title" class="card-title mb-2 capitalize"></h2>
+      </div>
+      <div>
+        <span id="control-modal-date" class="text-xs">?</span>
+      </div>
+    </div>
+    <div class="grid grid-cols-6 gap-4">
+      <div class="col-span-6" id="applicable-control"></div>
+      <div class="col-span-3">
+        <div class="card border border-base-300">
+          <div class="card-body p-5">
+            <div class="card-title justify-between">
+              <h2 class="card-title text-lg">Complete</h2>
+              <div id="complete-modal-icon"></div>
             </div>
           </div>
         </div>
-        <div class="tabs max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 gap-x-4">
-          <a href="" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-primary tab-active">Project Summary</a> 
-          <a href="{{url_for("main.view_policies_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Policies</a>
-          <a href="{{url_for("main.view_controls_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Controls</a> 
-          <a href="{{url_for("main.view_settings_in_project",id=project.id)}}" class="tab tab-lg tab-lifted text-sm font-medium border-b-0 !px-8 hover:text-primary text-gray-500">Settings</a>
+      </div>
+      <div class="col-span-3">
+        <div class="card border border-base-300">
+          <div class="card-body p-5">
+            <div class="card-title justify-between">
+              <h2 class="card-title text-lg">Applicable</h2>
+              <div id="applicable-modal-icon"></div>
+            </div>
+          </div>
         </div>
-    </header>
-{%endblock%}
+      </div>
+      <div class="col-span-4">
+        <div class="overflow-hidden shadow sm:rounded-lg"><div class="px-4 py-5 sm:px-6"><h3 class="text-lg font-medium leading-6">Control Details</h3></div><div class="border-t border-base-300"><dl id="control-modal-details"></dl></div></div>
+      </div>
+      <div class="col-span-2 m-auto flex flex-col">
+        <div class="mx-auto" id="control-modal-completion"></div>
+        <div class="mx-auto mt-2 text-sm font-semibold">Progress of control</div>
+      </div>
+    </div>
+    <div class="modal-action">
+      <a id="view-control" href="" class="btn btn-primary">View</a>
+    </div>
+  </label>
+</label>
 
-{%block content%}
-<div class="grid grid-cols-6 gap-4 mt-2">
-    <div class="col-span-6">
-        <div class="grid grid-cols-6 gap-4 mt-2">
-            <div class="col-span-2">
-                <div class="card bg-base-100">
-                    <div class="card-body pr-20">
-                        <div class="card-title justify-between">
-                            <h2 class="card-title">Completion Status</h2>
-                            <div>
-                                <a id="completion-status" href="{{url_for("main.view_controls_in_project",id=project.id)}}"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-span-2">
-                <div class="card bg-base-100">
-                    <div class="card-body pr-20">
-                        <div class="card-title justify-between">
-                            <h2 class="card-title">Total Controls</h2>
-                            <div>
-                                <a id="total-controls" href="{{url_for("main.view_controls_in_project",id=project.id)}}"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-span-2">
-                <div class="card bg-base-100">
-                    <div class="card-body pr-20">
-                        <div class="card-title justify-between">
-                            <h2 class="card-title">Total Policies</h2>
-                            <div>
-                                <a id="total-policies" href="{{url_for("main.view_policies_in_project",id=project.id)}}"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-span-6">
-                <div class="card bg-base-100">
-                    <div class="card-body">
-                        <h2 class="card-title mb-4">Summary</h2>
-                        <div class="grid grid-cols-4 gap-4">
-                            <div><label class="text-sm font-medium text-gray-500">Name</label>
-                                <p class="text-sm">{{project.id}}-{{project.name}}</p></div>
-                            <div><label class="text-sm font-medium text-gray-500">Description</label>
-                                <p class="text-sm">{{project.description}}</p></div>
-                            <div><label class="text-sm font-medium text-gray-500">Owner</label>
-                                <p class="text-sm">{{project.user.email}}</p></div>
-                            <div><label class="text-sm font-medium text-gray-500">UUID</label>
-                                <p class="text-sm">{{project.uuid}}</p></div>
-                            <div><label class="text-sm font-medium text-gray-500">Date Added</label>
-                                <p class="text-sm">{{project.date_added}}</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-span-3">
-                <div class="card bg-base-100">
-                    <div class="card-body">
-                        <h2 class="card-title mb-4">Implementation Progress</h2>
-                        <div id="implementation-progress" class="mx-auto"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-span-3">
-                <div class="card bg-base-100">
-                    <div class="card-body">
-                        <h2 class="card-title mb-4">Evidence Progress</h2>
-                        <div id="evidence-progress" class="mx-auto"></div>
-                    </div>
-                </div>
-            </div>
+<input type="checkbox" id="policy-modal" class="modal-toggle" />
+<label for="policy-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <p class="font-semibold text-primary text-sm" id="policy-subtitle"></p>
+        <h2 class="card-title mb-5">Policy</h2>
+      </div>
+      <div>
+        <span class="text-xs" id="policy-date"></span>
+      </div>
+    </div>
+    <div class="grid grid-cols-6 gap-6">
+        <div class="col-span-6 sm:col-span-3">
+          <label class="block text-sm font-medium  mb-2">Name</label>
+          <span id="tenant-select-div" class=""></span>
+        </div>
+        <div class="col-span-6 sm:col-span-3">
+          <label class="block text-sm font-medium  mb-2"></label>
+          <span id="framework-select-div" class=""></span>
         </div>
     </div>
+    <div class="modal-action">
+      <a id="view-policy" href="#" class="btn btn-primary">View</a>
+    </div>
+  </label>
+</label>
+
+<input type="checkbox" id="owner-modal" class="modal-toggle" />
+<label for="owner-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <p class="font-semibold text-primary text-sm"></p>
+        <h2 id="owner-modal-title" class="card-title mb-5">Owner</h2>
+      </div>
+    </div>
+    <div class="grid grid-cols-6 gap-6">
+      <div class="col-span-6">
+<div class="">
+  <table class="table w-full">
+    <!-- head -->
+    <thead>
+      <tr>
+        <th class="w-1"></th>
+        <th>Name</th>
+        <th class="w-1">View</th>
+      </tr>
+    </thead>
+    <tbody id="owner-modal-body"></tbody>
+  </table>
 </div>
 
-<input type="checkbox" id="data-modal" class="modal-toggle" />
-<label for="data-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3  id="data-modal-title" class="text-lg font-bold"></h3>
-    <pre><code id="data-modal-body" class="card-body text-white bg-slate-500 rounded mt-4 whitespace-pre-line"></code></pre>
+
+      </div>
+    </div>
   </label>
 </label>
+<input type="checkbox" id="operator-modal" class="modal-toggle" />
+<label for="operator-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <p class="font-semibold text-primary text-sm"></p>
+        <h2 id="operator-modal-title" class="card-title mb-5">Operator</h2>
+      </div>
+    </div>
+    <div class="grid grid-cols-6 gap-6">
+      <div class="col-span-6">
+<div class="">
+  <table class="table w-full">
+    <!-- head -->
+    <thead>
+      <tr>
+        <th class="w-1"></th>
+        <th>Name</th>
+        <th class="w-1">View</th>
+      </tr>
+    </thead>
+    <tbody id="operator-modal-body"></tbody>
+  </table>
+</div>
 
 
+      </div>
     </div>
   </label>
 </label>
 {%endblock%}
-
 {%block extrajs%}
-
 <script>
-  $(document).ready(function() {
+function loadUsers(reload=false) {
+    var users = localStorage.getItem("tenant-users-{{project.tenant_id}}");
+    if (reload || !users) {
+      console.log("Pulling users from API")
+      $.ajax({
+        type: "GET",
+        url: `/api/v1//tenants/{{project.tenant_id}}/users`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          localStorage.setItem('tenant-users-{{project.tenant_id}}', JSON.stringify(data));
+        },
+        error: function(errMsg) {
+         toast(errMsg["responseJSON"]["message"],"error")
+         return(errMsg);
+        }
+      })
+    } 
+}
+</script>
+<script>
+  function populateOwnerModal(id, owner, operator){
+    $("#ownerModalBody").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+    document.getElementById('ownerModal').checked = true;
+    var users = JSON.parse(localStorage.getItem("tenant-users-{{project.tenant_id}}"));
+    $(".save-owner-btn").data("id", id)
+    ownerSelect = '<label class="block text-sm font-medium mb-2">Owner of the Control</label><select class="select select-md w-full max-w-xs select-bordered owner-id"><option value="empty">Select an Owner</option>'
+    for(var user in users) {
+      if (users[user].email === owner) {
+        ownerSelect+=`<option value="${users[user].id}" selected>${users[user].email}</option>`
+      } else {
+        ownerSelect+=`<option value="${users[user].id}">${users[user].email}</option>`
+      }
+    }
+    ownerSelect+='</select>'
+    operatorSelect = '<label class="block text-sm font-medium mb-2 mt-5">Operator of the Control</label><select class="select select-md w-full max-w-xs select-bordered operator-id"><option value="empty">Select an Operator</option>'
+    for(var user in users) {
+      if (users[user].email === operator) {
+        operatorSelect+=`<option value="${users[user].id}" selected>${users[user].email}</option>`
+      } else {
+        operatorSelect+=`<option value="${users[user].id}">${users[user].email}</option>`
+      }
+    }
+    operatorSelect+='</select>'
+    $("#ownerModalBody").html(ownerSelect);
+    $("#ownerModalBody").append(operatorSelect);
+  }
+  function populatePolicyModal(id, email, owner=true){
+    $("#ownerPolicyModalBody").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+    document.getElementById('ownerPolicyModal').checked = true;
+    var users = JSON.parse(localStorage.getItem("tenant-users-{{project.tenant_id}}"));
+    $(".save-policy-owner-btn").data("id", id)
+    $(".save-policy-owner-btn").data("type", owner?"owner":"reviewer")
+    if (owner) {
+      ownerSelect = '<label class="block text-sm font-medium mb-2">Owner of the Policy</label><select class="select select-md w-full max-w-xs select-bordered owner-policy-id"><option value="empty">Select an Owner</option>'
+    } else {
+      ownerSelect = '<label class="block text-sm font-medium mb-2">Reviewer of the Policy</label><select class="select select-md w-full max-w-xs select-bordered owner-policy-id"><option value="empty">Select an Reviewer</option>'
+    }
+    for(var user in users) {
+      if (users[user].email === email) {
+        ownerSelect+=`<option value="${users[user].id}" selected>${users[user].email}</option>`
+      } else {
+        ownerSelect+=`<option value="${users[user].id}">${users[user].email}</option>`
+      }
+    }
+    $("#ownerPolicyModalBody").html(ownerSelect);
+  }
+</script>
+<script>
+function saveScratchPad(showToast=true) {
+    var data = {"data":tinymce.get("scratchpad-editor").getContent()}
+    $.ajax({
+        type: "PUT",
+        url: `/api/v1/projects/{{project.id}}/scratchpad`,
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            $("#save-notes-btn").html("Save")
+            $("#save-notes-btn").removeClass("btn-warning")
+            $("#save-notes-btn").addClass("btn-primary")
+            return(data)
+        },
+        error: function(errMsg) {
+            // we autosave when a user clicks away but some users
+            // dont have access to save, so we hide the error
+            if (showToast) {
+              toast(errMsg["responseJSON"]["message"],"error")
+            }
+            return(errMsg);
+        }
+    })
+}
+function createReport() {
+    toast("Working on it...", "warning")
+    $.ajax({
+          type: "POST",
+          url: `/api/v1/projects/{{project.id}}/reports`,
+          contentType: "application/json; charset=utf-8",
+          success: function(data){
+            toast("Generated report")
+            window.open(`/projects/{{project.id}}/reports/${data.name}`, '_blank').focus();
+            return(data)
+          },
+          error: function(errMsg) {
+            toast("Hmm.. we were unable to create a report","error")
+            return(errMsg);
+          }
+    })
+}
+
+function blurOwnerFilter(e) {
+  var owner = e.target.value;
+  var operator = $('.operator-filter').val();
+  var filter = $('.controls-filter').val();
+  var grouping = $('.grouping-filter').val();
+  var queryParams = new URLSearchParams(window.location.search);
+  queryParams.set("filter", filter);
+  queryParams.set("grouping", grouping);
+  if (owner) {
+    queryParams.set("owner", owner);
+  } else {
+    queryParams.delete("owner");
+  }
+  if (operator) {
+    queryParams.set("operator", operator);
+  } else {
+    queryParams.delete("operator");
+  }
+  history.replaceState(null, null, "?"+queryParams.toString());
+  if (grouping === "subcontrols") {
+    loadControls()
+  } else {
+    loadControls(reload=true)
+  }
+}
+
+function blurOperatorFilter(e) {
+  var operator = e.target.value;
+  var owner = $('.owner-filter').val();
+  var filter = $('.controls-filter').val();
+  var grouping = $('.grouping-filter').val();
+  var queryParams = new URLSearchParams(window.location.search);
+  queryParams.set("filter", filter);
+  queryParams.set("grouping", grouping);
+  if (owner) {
+    queryParams.set("owner", owner);
+  } else {
+    queryParams.delete("owner");
+  }
+  if (operator) {
+    queryParams.set("operator", operator);
+  } else {
+    queryParams.delete("operator");
+  }
+  history.replaceState(null, null, "?"+queryParams.toString());
+  if (grouping === "subcontrols") {
+    loadControls()
+  } else {
+    loadControls(reload=true)
+  }
+}
+
+$(document).on('change', '.controls-filter', function() {
+  var filter = $(this).val();
+  var grouping = $('.grouping-filter').val();
+  var queryParams = new URLSearchParams(window.location.search);
+  queryParams.set("filter", filter);
+  queryParams.set("grouping", grouping);
+  history.replaceState(null, null, "?"+queryParams.toString());
+  if (grouping === "subcontrols") {
+    loadControls()
+  } else {
+    loadControls(reload=true)
+  }
+});
+$(document).on('change', '.grouping-filter', function() {
+  var grouping = $(this).val();
+  var filter = "1";
+  var queryParams = new URLSearchParams(window.location.search);
+  queryParams.set("grouping", grouping);
+  queryParams.set("filter", filter);
+  //queryParams.delete("filter");
+  history.replaceState(null, null, "?"+queryParams.toString());
+  loadControls(reload=true)
+});
+function changeTab(tab) {
+  $(".tabs span").removeClass("bg-base-200");
+  $(`#tab-${tab}`).addClass("bg-base-200")
+  loadPageElements(tab)
+}
+$(document).on('change', '.tab-select', function() {
+  var tab = $(this).val();
+  $(".tabs span").removeClass("bg-base-200");
+  $(`#tab-${tab}`).addClass("bg-base-200")
+  loadPageElements(tab)
+});
+$(document).on('click', '.reload-button', function() {
+  localStorage.removeItem("project-controls-{{project.uuid}}")
+  localStorage.removeItem("tenant-users-{{project.tenant_id}}")
+  var tab = $(".tab-select").val();
+  loadUsers(reload=true)
+  loadPageElements(tab)
+});
+$(document).on('click', '.remove-control-filter', function() {
+  var queryParams = new URLSearchParams(window.location.search);
+  queryParams.delete("grouping")
+  queryParams.delete("filter")
+  queryParams.delete("owner")
+  queryParams.delete("operator")
+  history.replaceState(null, null, "?"+queryParams.toString());
+  loadControls(reload=true)
+});
+
+function toggleScratchPad(e=false) {
+  if (!e || !e.target.checked) {
+    $(".tox-editor-header").addClass("invisible")
+    $(".tox-editor-header").addClass("!h-0")
+    tinymce.activeEditor.mode.set("readonly");
+  } else {
+    $(".tox-editor-header").removeClass("invisible")
+    $(".tox-editor-header").removeClass("!h-0")
+    tinymce.activeEditor.mode.set("design");
+  }
+}
+
+function loadScratchPad() {
+    {%if is_auditor and not project.can_auditor_read_scratchpad%}
+    toast("You lack permissions to view the scratchpad.","warning")
+    $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
+    return
+    {%endif%}
+    $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+    $.ajax({
+        type: "GET",
+        url: "/api/v1/projects/{{project.id}}/scratchpad",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+
+        $("#card-div").html(`<div class="col-span-9">
+          <div class="mb-4 justify-between flex">
+            <div>
+              <h1 class="text-2xl font-bold">Scratchpad</h1>
+              <p class="text-sm">Use this place to document any details about the project or general notes and updates. {%if project.can_auditor_read_scratchpad%}The auditor <b>can read</b> the scratchpad.{%else%} The auditor <b>can not read</b> the scratchpad.{%endif%}</p>
+            </div>
+            <div class="gap-x-2 flex flex-row">
+              {%if not is_auditor or project.can_auditor_write_scratchpad%}<div class="mt-1"><input @change="toggleScratchPad" type="checkbox" class="toggle toggle-primary"/></div>{%endif%}
+              <button id="save-notes-btn" @click="saveScratchPad" class="btn btn-primary btn-sm">Save</button>
+            </div>
+          </div>
+          <div id="scratchpad-editor" class="w-full">${data["notes"] || ""}</div>
+        </div>`);
+          tinymce.remove('#scratchpad-editor');
+          var contextEditor = tinymce.init({
+            //skin: 'snow',
+            //icons: 'thin',
+            //content_style: 'body { margin: 2rem 10%; }',
+            setup: (editor) => {
+              editor.on('init', (e) => {
+                $(".tox-editor-header").addClass("invisible")
+                $(".tox-editor-header").addClass("!h-0")
+              });
+              editor.on('keyup', (e) => {
+                $("#save-notes-btn").html("Please Save")
+                $("#save-notes-btn").removeClass("btn-primary")
+                $("#save-notes-btn").addClass("btn-warning")
+              });
+            },
+            selector: '#scratchpad-editor',
+            statusbar: false,
+            promotion: false,
+            readonly: true,
+            {%if is_auditor and not project.can_auditor_write_scratchpad%}
+            menubar: false,
+            toolbar: false,
+            {%else%}
+            plugins: "preview fullscreen searchreplace table codesample lists advlist variable link",
+            toolbar1: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo"
+            {%endif%}
+          });
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+        }
+    })
+}
+function addCommentToDiv(comment) {
+  user_id = {{current_user.id}};
+  if (user_id === comment.author_id) {
+    delete_str = `<div class="dropdown dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"></path></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 text-error"><li><a @click="deleteComment(${comment.id})">Delete</a></li></ul></div>`
+  } else {
+    delete_str = ""
+  }
+  var record = `
+    <article id="comment-${comment.id}" class="py-6 mb-6 rounded-lg border-b border-base-200">
+        <footer class="flex justify-between items-center mb-2">
+            <div class="flex items-center text-sm">
+                <div class="avatar placeholder mr-2"><div class="bg-neutral-focus text-neutral-content rounded-full w-6"><span class="text-xs uppercase">${comment.author_email[0]}</span></div></div>${comment.author_email}
+                <p class="inline-flex items-center mr-3 text-sm"></p>
+                <p class="text-xs font-semibold"><time pubdate="">${comment.date_added}</time></p>
+            </div>${delete_str}
+        </footer>
+        <p class="">${comment.message}</p>
+    </article>
+  `
+  $("#comments").prepend(record)
+}
+function deleteComment(id) {
+    $.ajax({
+        type: "DELETE",
+        url: `/api/v1/projects/{{project.id}}/comments/${id}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            $(`#comment-${id}`).remove()
+            toast("Deleted comment")
+            return(data)
+        },
+        error: function(errMsg) {
+            return(errMsg);
+        }
+    })
+}
+function saveComment(e) {
+    var value = document.getElementById("comment").value;
+    if (!value) {
+      return
+    }
+    $.ajax({
+        type: "POST",
+        url: `/api/v1/projects/{{project.id}}/comments`,
+        data: JSON.stringify({"data":value}),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            addCommentToDiv(data)
+            document.getElementById("comment").value = ""
+            toast("Added comment")
+            loadComments()
+            return(data)
+        },
+        error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+        }
+    })
+}
+function loadReport() {
+  $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Coming Soon!</div>');
+  return
+}
+function loadComments() {
+    {%if is_auditor and not project.can_auditor_read_comments%}
+    toast("You lack permissions to view the comments.","warning")
+    $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
+    return
+    {%endif%}
+    $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+    $.ajax({
+        type: "GET",
+        url: "/api/v1/projects/{{project.id}}/comments",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+        $("#card-div").html(`<div class="col-span-9">
+          <div class="mb-4 justify-between flex">
+            <div>
+              <h1 class="text-2xl font-bold">Comments<span id="comment-count" class="ml-2"></span></h1>
+              <p class="text-sm">Comments are used to discuss generals topics about the project. {%if project.can_auditor_read_comments%}The auditor <b>can read</b> the comments.{%else%} The auditor <b>can not read</b> the comments.{%endif%}</p>
+            </div>
+            {%if not auditor or project.project.can_auditor_write_comments%}
+            <div class="my-auto flex justify-between gap-x-2">
+              <button @click="saveComment" class="btn btn-sm btn-primary">Send</button>
+            </div>
+            {%endif%}
+          </div>
+          <div class="mb-5">
+            <textarea id="comment" rows="4" class="textarea textarea-bordered w-full text-sm" placeholder="Write a comment..." required=""></textarea>
+            <div class=" h-[calc(100vh-500px)] overflow-auto px-3" id="comments"></div>
+          </div>
+        </div>`)
+          $("#comments").html("")
+          $("#comment-count").html(`(${data.length})`)
+          if (data) {
+            $("#comments-title").html(`(${data.length})`)
+          }
+          for (var comment in data) {
+            addCommentToDiv(data[comment])
+          }
+          mention_options = [];
+          var users = JSON.parse(localStorage.getItem("tenant-users-{{project.tenant_id}}"));
+          for(user in users) {
+            mention_options.push({key:users[user].email, value:users[user].username})
+          }
+          var tribute = new Tribute({values:mention_options});
+          tribute.attach(document.getElementById("comment"));
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+        }
+    })
+
+
+}
+function loadSummary() {
+  $("#summary-div").html("");
+  var url = new URL(location.protocol + '//' + location.host + "/api/v1/projects/{{project.id}}?review-summary=true");
+
+  var summary_alert = `
+<div class="alert alert-primary shadow-sm border border-base-300 rounded-md">
+  <div>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <span>Get started by <a class="underline text-primary" href="{{url_for("main.view_project",pid=project.id,tab='controls')}}">viewing the controls in your project.</a> Add members & auditors to your project under <a class="underline text-primary" href="{{url_for("main.view_project",pid=project.id,tab='settings')}}">settings.</a> You can also view the responsibilities for each control <a class="underline text-primary" href="{{url_for("main.view_project",pid=project.id,tab='matrix')}}">under the matrix.</a> </span>
+  </div>
+</div>
+` 
+
+  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+  $.ajax({
+    type: "GET",
+    url: url.toString(),
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+      $("#card-div").html("");
+	  var complete_options = {
+            series: [100-data.completion_progress,data.completion_progress],
+            legend: {
+	      show: false
+	    },
+            dataLabels: {
+              enabled: false
+            },
+	    chart: {
+	      type: 'donut',
+              height: 200
+              //redrawOnParentResize: true
+	    },
+plotOptions: {
+    pie: {
+      donut: {
+        labels: {
+          show: true,
+        value:{
+          offsetY: -8,
+          color:'#6b6a6e'
+        },
+          total: {
+            show: true,
+            label: '',
+            formatter: () => `${data.completion_progress}%`
+          }
+        }
+      }
+    }
+  },
+            labels: ['Uncomplete', 'Complete'],
+            fill:{colors:['#f3f4f6', '#4ade80']},
+            responsive: [{
+	      breakpoint: 300,
+	      options: {
+	        chart: {
+	          width: 100
+	        }
+	      }
+  	    }]
+	  };
+	  var implemented_options = {
+            series: [100-data.implemented_progress,data.implemented_progress],
+            legend: {
+	      show: false
+	    },
+            dataLabels: {
+              enabled: false
+            },
+	    chart: {
+	      type: 'donut',
+              height: 200
+              //redrawOnParentResize: true
+	    },
+plotOptions: {
+    pie: {
+      donut: {
+        labels: {
+          show: true,
+        value:{
+          offsetY: -8,
+          color:'#6b6a6e'
+        },
+          total: {
+            show: true,
+            label: '',
+            formatter: () => `${data.implemented_progress}%`
+          }
+        }
+      }
+    }
+  },
+            labels: ['Uncomplete', 'Complete'],
+            fill:{colors:['#f3f4f6', '#4ade80']},
+            responsive: [{
+	      breakpoint: 300,
+	      options: {
+	        chart: {
+	          width: 100
+	        }
+	      }
+  	    }]
+	  };
+	  var evidence_options = {
+            series: [100-data.evidence_progress,data.evidence_progress],
+            legend: {
+	      show: false
+	    },
+            dataLabels: {
+              enabled: false
+            },
+	    chart: {
+	      type: 'donut',
+              height: 200
+              //redrawOnParentResize: true
+	    },
+plotOptions: {
+    pie: {
+      donut: {
+        labels: {
+          show: true,
+        value:{
+          offsetY: -8,
+          color:'#6b6a6e'
+        },
+          total: {
+            show: true,
+            label: '',
+            formatter: () => `${data.evidence_progress}%`
+          }
+        }
+      }
+    }
+  },
+            labels: ['Uncomplete', 'Complete'],
+            fill:{colors:['#f3f4f6', '#4ade80']},
+            responsive: [{
+              breakpoint: 300,
+	      options: {
+	        chart: {
+	          width: 100
+	        }
+	      }
+  	    }]
+	  };
+          var review_complete = Number(parseFloat(((data.review_summary["complete"]||0)/data.review_summary["total"])*100).toFixed(2));
+	  var review_options = {
+            series: [100-review_complete,review_complete],
+            legend: {
+	      show: false
+	    },
+            dataLabels: {
+              enabled: false
+            },
+	    chart: {
+	      type: 'donut',
+              height: 200
+              //redrawOnParentResize: true
+	    },
+plotOptions: {
+    pie: {
+      donut: {
+        labels: {
+          show: true,
+        value:{
+          offsetY: -8,
+          color:'#6b6a6e'
+        },
+          total: {
+            show: true,
+            label: '',
+            formatter: () => `${review_complete}%`
+          }
+        }
+      }
+    }
+  },
+            labels: ['Uncomplete', 'Complete'],
+            fill:{colors:['#f3f4f6', '#4ade80']},
+            responsive: [{
+              breakpoint: 300,
+	      options: {
+	        chart: {
+	          width: 100
+	        }
+	      }
+  	    }]
+	  };
+          $("#card-div").append(`<div class="col-span-9 mb-2">${summary_alert}</div>`)
+
+          $("#card-div").append(`<div class="grid grid-cols-8 col-span-full gap-x-4">
+            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip" data-tip="Progress of your project completion">Complete Progress</div></h2><div class="text-center"><div id="complete-progress"></div></div></div></div></div>
+            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip" data-tip="Progress of controls that are implemented">Implemented Progress</div></h2><div class="text-center"><div id="implemented-progress"></div></div></div></div></div>
+            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip" data-tip="Progress of evidence collected for controls">Evidence Progress</div></h2><div class="text-center"><div id="evidence-progress"></div></div></div></div></div>
+            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip" data-tip="Progress between InfoSec and Auditor">Review Progress</div></h2><div class="text-center"><div id="review-progress"></div></div></div></div></div>
+          </div>`)
+
+          var auditor_alert = "";
+          if (data.auditors === undefined || data.auditors.length == 0) {
+            var auditor_alert = `<div class="alert shadow-sm mb-2"><div><span>Please <a class="underline text-primary" href="/projects/{{project.id}}?tab=settings">add an auditor</a> to your project.</span></div></div>`;
+          }
+
+          $("#card-div").append(`<div class="grid grid-cols-6 col-span-full gap-x-4">
+            <div class="col-span-3">
+<div class="card border border-base-300">
+  <div class="card-body">
+    <div class="card-title mb-4 justify-between">
+      <h2 class="card-title">InfoSec Summary</h2>
+      <div>
+        <a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls" class="btn btn-sm btn-ghost border border-base-300">View Controls<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a>
+      </div>
+    </div>
+    <div class="font-medium text-md">
+<div class="overflow-x-auto">
+  <table class="table w-full">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th># of Controls</th>
+        <th>View</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><div class="tooltip tooltip-right" data-tip="Control has not been started">Not Started</div></td>
+        <td>${data.review_summary["not started"]||0}</td>
+        <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=12" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg></a></td>
+      </tr>
+      <tr>
+        <td><div class="tooltip tooltip-right" data-tip="InfoSec team is working on the control">InfoSec Action</div></td>
+        <td>${data.review_summary["infosec action"]||0}</td>
+        <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=13" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg></a></td>
+      </tr>
+      <tr>
+        <td><div class="tooltip tooltip-right" data-tip="Auditor says that Action is required from you">Action Required</div></td>
+        <td>${data.review_summary["action required"]||0}</td>
+        <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=14" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg></a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+    </div>
+  </div>
+</div>
+            </div>
+            <div class="col-span-3">
+<div class="card border border-base-300">
+  <div class="card-body">
+    <div class="card-title mb-4 justify-between">
+      <h2 class="card-title">Auditor Summary</h2>
+      <div>
+        <a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls" class="btn btn-sm btn-ghost border border-base-300">View Controls<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a>
+      </div>
+    </div>
+    ${auditor_alert}
+    <div class="font-medium text-md">
+<div class="overflow-x-auto">
+  <table class="table w-full">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th># of Controls</th>
+        <th>View</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><div class="tooltip tooltip-right" data-tip="Control is waiting for the auditor to review">Ready for Auditor</div></td>
+        <td>${data.review_summary["ready for auditor"]||0}</div></td>
+        <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=15" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg></a></td>
+      </tr>
+      <tr>
+        <td><div class="tooltip tooltip-right" data-tip="Auditor has marked the review as complete">Complete</div></td>
+        <td>${data.review_summary["complete"]||0}</td>
+        <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=16" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg></a></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+    </div>
+  </div>
+</div>
+            </div>
+          </div>`);
+
+          $("#card-div").append(`
+            <div class="col-span-9"><div class="overflow-hidden shadow sm:rounded-lg border border-base-200"><div class="px-4 py-6 sm:px-6"><h3 class="text-lg font-medium leading-6">Project Details</h3><p class="mt-1 max-w-2xl text-sm">Overview of your project details and status</p></div><div class="border-t border-base-300"><div class="grid grid-cols-9 px-6 py-5 gap-y-8">
+            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Name</strong><span class="text-sm capitalize">${data.name}</span></div></div>
+            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Tenant</strong><span class="text-sm capitalize">${data.tenant}</span></div></div>
+            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Framework</strong><a href="/frameworks/${data.framework}" class="text-sm uppercase text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${data.framework}</a></div></div>
+            <div class="col-span-9"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Description</strong><span class="text-sm rounded-md border border-base-200 p-4 mt-2">${data.description}</span></div></div>
+            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Owner</strong><span class="text-sm">${data.owner}</span></div></div>
+            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Controls</strong><span class="text-sm">${data.total_controls}</span></div></div>
+            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Policies</strong><span class="text-sm">${data.total_policies}</span></div></div>
+            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Creation</strong><span class="text-sm">${data.date_added}</span></div></div>
+          </div></div></div></div>`);
+          $("#project-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Name</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.name}</dd></div>`)
+          $("#complete-progress").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+          $("#implemented-progress").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+          $("#evidence-progress").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+          $("#review-progress").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+          var complete_chart = new ApexCharts(document.querySelector("#complete-progress"), complete_options);
+          var implemented_chart = new ApexCharts(document.querySelector("#implemented-progress"), implemented_options);
+          var evidence_chart = new ApexCharts(document.querySelector("#evidence-progress"), evidence_options);
+          var review_chart = new ApexCharts(document.querySelector("#review-progress"), review_options);
+
+          setTimeout(() => {
+            $("#complete-progress").html("")
+            $("#implemented-progress").html("")
+            $("#evidence-progress").html("")
+            $("#review-progress").html("")
+            complete_chart.render();
+            implemented_chart.render();
+            evidence_chart.render();
+            review_chart.render();
+          },2000)
+          return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+}
+
+function loadEvidence() {
+      //load evidence in table format for the project
+      $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+      $("#card-div").html("");
+      // top left
+      $("#card-div").append('<div class="col-span-3"><div class="card shadow border border-base-200"><div class="p-5"><h2 class="card-title capitalize text-lg">Evidence Progress</h2><div class="text-center"><div id="evidence-progress"></div></div></div></div></div>')
+      $("#evidence-progress").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+      $.ajax({
+        type: "GET",
+        url: "/api/v1/projects/{{project.id}}",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+	  var evidence_options = {
+            series: [100-data.evidence_progress,data.evidence_progress],
+            legend: {
+	      show: false
+	    },
+            dataLabels: {
+              enabled: false
+            },
+	    chart: {
+	      type: 'donut',
+              height: 350
+	    },
+            plotOptions: {
+                pie: {
+                  donut: {
+                    labels: {
+                      show: true,
+                    value:{
+                      offsetY: -8,
+                      color:'#6b6a6e'
+                    },
+                      total: {
+                        show: true,
+                        label: '',
+                        formatter: () => `${data.evidence_progress}%`
+                      }
+                    }
+                  }
+                }
+            },
+            labels: ['Uncomplete', 'Complete'],
+            fill:{colors:['#f3f4f6', '#4ade80']},
+            responsive: [{
+              breakpoint: 300,
+	      options: {
+	        chart: {
+	          width: 100
+	        }
+	      }
+  	    }]
+	  };
+          var evidence_chart = new ApexCharts(document.querySelector("#evidence-progress"), evidence_options);
+
+          setTimeout(() => {
+            $("#evidence-progress").html("")
+            evidence_chart.render();
+          },2000)
+        },
+        error: function(errMsg) {
+          return(errMsg);
+        }
+      });
+
+      $("#card-div").append(`<div class="col-span-6"><div class="card shadow-md card-body border border-base-300"><div class=""><h2 class="card-title mb-4">Evidence by Controls</h2><table class="table table-vcenter " id="evidence-table" style="width:100%"><thead><tr><th class="bg-base-200">Name</th><th class="w-1 bg-base-200"># of Controls</th></tr></thead><tbody id="evidence-table-body"></tbody></table></div></div></div>`);
+      $.ajax({
+        type: "GET",
+        url: "/api/v1/projects/{{project.id}}/evidence/controls",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          for (var record in data) {
+            $("#evidence-table-body").append(`<tr><td class="text-sm font-medium capitalize whitespace-normal">${clean(data[record].name)}</td><td class="text-sm font-semibold">${data[record].count}</td></tr>`);
+          }
+          $("#evidence-table").DataTable({"pageLength":10,"order": [[ 0, "desc" ]]});
+
+        },
+        error: function(errMsg) {
+        }
+      })
+}
+
+function buildSubControlsTable(data) {
+    var params = new window.URLSearchParams(window.location.search);
+    var filter = params.get('filter');
+    var grouping = params.get('grouping');
+    var owner = params.get('owner');
+    var operator = params.get('operator');
+    var subSelectList = '<select class="select select-sm select-bordered controls-filter"><option value="1">All</option><option value="10">Complete</option><option value="11">Not Complete</option><option value="12">Review: Not Started</option><option value="13">Review: InfoSec Action</option><option value="14">Review: Action Required</option><option value="15">Review: Ready for Auditor</option><option value="16">Review: Complete</option></select>';
+    var selectGrouping = `<select class="select select-sm select-bordered grouping-filter"><option value="subcontrols">Grouping: Subcontrols</option><option value="controls">Grouping: Controls</option></select>`;
+    var selectOwner = `<div><input @blur="blurOwnerFilter" type="text" placeholder="Search Owner" class="input input-bordered input-sm w-full owner-filter" /></div>`;
+    var selectOperator = `<div><input @blur="blurOperatorFilter" type="text" placeholder="Search Operator" class="input input-bordered input-sm w-full operator-filter" /></div>`;
+    $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300 p-5"><div><div class="justify-between flex"><div><h2 class="card-title mb-4 control-title"></h2></div><div class="flex flex-row gap-x-2">${selectOwner}${selectOperator}<div>${selectGrouping}</div>${subSelectList}<div class="space-x-2"><button class="btn btn-sm btn-ghost border border-base-300 capitalize reload-button tooltip" data-tip="Refresh Data"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg></button><button class="btn btn-sm btn-ghost border border-base-300 capitalize remove-control-filter tooltip" data-tip="Remove Filter"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div></div></div><table class="table table-vcenter " id="project-table" style="width:100%"><thead><tr><th class="bg-base-200">ID</th><th class="bg-base-200">Ref Code</th><th class="bg-base-200">Subcontrol</th><th class="bg-base-200 w-1"><div class="tooltip" data-tip="Owner/Operator">O/Op</div></th><th class="bg-base-200 w-1">Complete</th><th class="bg-base-200 w-1"><div class="tooltip" data-tip="Review status with auditor">Review</div></th><th class="bg-base-200 w-1"><div class="tooltip" data-tip="Progress of the control">Progress</div></th><th class="bg-base-200 w-1"><div class="tooltip" data-tip="Action Items from Auditor">Todo</div></th><th class="bg-base-200 w-1">Evidence</th><th class="bg-base-200 w-1">View</th></tr></thead><tbody id="project-table-body"></tbody></table></div></div></div>`);
+
+    setTimeout(()=>$(".controls-filter").val(filter),100);
+    setTimeout(()=>$(".grouping-filter").val(grouping),100);
+    setTimeout(()=>$(".owner-filter").val(owner),100);
+    setTimeout(()=>$(".operator-filter").val(operator),100);
+
+    var total_subcontrols = 0;
+    for (var i in data) {
+        var control = data[i];
+        for (var record in control.subcontrols) {
+          var obj = control.subcontrols[record];
+          // todo - improve this ugly, filtering hack
+          if (filter !== "1" && filter == "10" && !obj.complete) {
+            continue;
+          }
+          if (filter !== "1" && filter == "11" && obj.complete) {
+            continue;
+          }
+          if (filter !== "1" && filter == "12" && obj.review_status != "not started") {
+            continue;
+          }
+          if (filter !== "1" && filter == "13" && obj.review_status != "infosec action") {
+            continue;
+          }
+          if (filter !== "1" && filter == "14" && obj.review_status != "action required") {
+            continue;
+          }
+          if (filter !== "1" && filter == "15" && obj.review_status != "ready for auditor") {
+            continue;
+          }
+          if (filter !== "1" && filter == "16" && obj.review_status != "complete") {
+            continue;
+          }
+          if (owner && !obj.owner.includes(owner)) {
+            continue
+          }
+          if (operator && !obj.operator.includes(operator)) {
+            continue
+          }
+          total_subcontrols += 1;
+          var completeColor = obj.is_complete ? "green":"red";
+          var reviewColor = "gray";
+          if (obj.review_status === "complete") {
+            var reviewColor = "green";
+          } else if (obj.review_status === "action required") {
+            var reviewColor = "red";
+          } else if (obj.review_status === "infosec action") {
+            var reviewColor = "yellow";
+          } else if (obj.review_status === "ready for auditor") {
+            var reviewColor = "blue";
+          }
+          if (obj.has_evidence) {
+            var evidence_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>'
+          } else {
+            var evidence_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
+          }
+          if (obj.is_applicable) {
+            if (obj.has_evidence) {
+              var complete_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>'
+            } else {
+              var complete_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
+            }
+          } else {
+              var complete_icon = '<div class="tooltip" data-tip="Not Applicable"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg></div>'
+          }
+          if (obj.owner.startsWith("Missing")) {
+            var owner_avatar = `<div class="avatar placeholder font-semibold"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
+          } else {
+            var owner_avatar = `<div class="avatar placeholder font-semibold"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${obj.owner[0]}</span></div></div>`;
+          }
+          if (obj.operator.startsWith("Missing")) {
+            var operator_avatar = `<div class="avatar placeholder font-semibold"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
+          } else {
+            var operator_avatar = `<div class="avatar placeholder font-semibold"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${obj.operator[0]}</span></div></div>`;
+          }
+          $("#project-table-body").append(`<tr><td class="text-sm font-medium">${obj.id}</td><td class="text-sm font-medium uppercase"><p class="text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${clean(obj.ref_code)}</p></td><td class="text-sm font-medium whitespace-normal">${clean(obj.name)}</td><td><div data-id="${obj.id}" data-owner="${obj.owner}" data-operator="${obj.operator}" class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 populate-owner-modal">${owner_avatar}${operator_avatar}</div></td><td class="text-sm font-medium capitalize text-center">${complete_icon}</td><td class="text-sm font-medium capitalize"><p class="py-1 px-3 w-fit text-${reviewColor}-600 bg-${reviewColor}-400/10 rounded-full">${obj.review_status}</p></td><td class="text-sm font-medium capitalize text-center">${obj.implemented}%</td><td class="text-sm font-medium text-center">${obj.complete_feedback}/${obj.feedback}</td><td>${evidence_icon}</td><td class="text-sm font-medium"><a target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-ghost" href="/projects/{{project.id}}/controls/${obj.id}/subcontrols/${obj.id}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td></tr>`)
+      }
+    }
+    table = $("#project-table").DataTable({"pageLength":25,"order": [[ 0, "asc" ]]});
+    $(".control-title").html(`Project Subcontrols (${total_subcontrols})`)
+}
+
+function buildControlsTable(data) {
+      var params = new window.URLSearchParams(window.location.search);
+      var filter = params.get('filter');
+      var grouping = params.get('grouping');
+      var selectList = '<select class="select select-sm select-bordered controls-filter"><option value="1">All</option><option value="2">With Evidence</option><option value="3">Missing Evidence</option><option value="4">Not Implemented</option><option value="5">Implemented</option><option value="6">Applicable</option><option value="7">Not Applicable</option><option value="8">Complete</option><option value="9">Not Complete</option></select>';
+      var selectGrouping = `<select class="select select-sm select-bordered grouping-filter"><option value="controls">Grouping: Controls</option><option value="subcontrols">Grouping: Subcontrols</option></select>`;
+      $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300 p-5"><div><div class="justify-between flex"><div><h2 class="card-title mb-4">Project Controls (${Object.keys(data).length})</h2></div><div class="flex flex-row gap-x-2"><div>${selectGrouping}</div>${selectList}<div class="space-x-2"><button class="btn btn-sm btn-ghost border border-base-300 capitalize reload-button tooltip" data-tip="Refresh data"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg></button><button class="btn btn-sm btn-ghost border border-base-300 capitalize remove-control-filter tooltip" data-tip="Remove filter"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div></div></div><table class="table table-vcenter " id="project-table" style="width:100%"><thead><tr><th class="w-1 bg-base-200">ID</th><th class="w-1 bg-base-200">Ref Code</th><th class="bg-base-200">Name</th><th class="w-1 bg-base-200"><div class="tooltip" data-tip="Status of the control">Status</div></th><th class="w-1 bg-base-200"><div class="tooltip" data-tip="Review status with auditor">Review</div></th><th class="w-1 bg-base-200"><div class="tooltip" data-tip="Action items from auditor">Todo</div></th><th class="w-1 bg-base-200"><div class="tooltip" data-tip="% of control implemented">Implemented</div></th><th class="w-1 bg-base-200">View</th></tr></thead><tbody id="project-table-body"></tbody></table></div></div></div>`);
+
+      $(".controls-filter").val(filter);
+      $(".grouping-filter").val(grouping);
+
+      if (!filter) {
+        filter = "1";
+      }
+      if (!grouping) {
+        grouping = "controls";
+      }
+      setTimeout(()=>$(".controls-filter").val(filter),100);
+      setTimeout(()=>$(".grouping-filter").val(grouping),100);
+
+      for (var record in data) {
+        var obj = data[record]
+        if (obj.status === "complete") {
+          var statusColor = "green"
+        } else if (obj.status === "in progress") {
+          var statusColor = "yellow"
+        } else if (obj.status === "not applicable") {
+          var statusColor = "red"
+        } else {
+          var statusColor = "gray"
+        }
+        total_reviews = obj.subcontrols.length;
+        complete_reviews = 0;
+        total_feedback = 0;
+        complete_feedback = 0;
+        for (var record in obj.subcontrols) {
+          total_feedback += obj.subcontrols[record].feedback;
+          complete_feedback += obj.subcontrols[record].complete_feedback;
+          if (obj.subcontrols[record].review_status === "complete"){
+            complete_reviews += 1
+          }
+        }
+        var modal_icon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
+        $("#project-table-body").append(`<tr><td class="text-sm font-medium uppercase dt-control"><b class="ml-2">${obj.id}</b></td><td class="text-sm font-medium uppercase"><p class="text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${clean(obj.ref_code)}</p></td><td class="text-sm font-medium whitespace-normal capitalize">${clean(obj.name)}</td><td class="text-sm font-medium capitalize"><p class="text-${statusColor}-600 bg-${statusColor}-400/10 rounded-full py-1 px-3 w-fit">${obj.status}</p></td><td class="text-sm font-medium text-center">${complete_reviews}/${total_reviews}</td><td><div class="text-sm font-medium text-center">${complete_feedback}/${total_feedback}</div></td><td><div class="flex flex-col"><b class="text-xs font-medium">${obj.progress_implemented}</b><progress class="progress progress-primary w-28" value="${obj.progress_implemented}" max="100"/></div></td><td class=""><a data-id="${obj.id}" class="btn btn-xs btn-ghost control-modal-btn" href="#">${modal_icon}</a></td></tr>`);
+      }
+      table = $("#project-table").DataTable({"pageLength":25,"order": [[ 0, "asc" ]]});
+      function format(d) {
+        // hack to get ID from formatted HTML
+        var id = parseInt(d[0].split(">")[1].split("<")[0]);
+        obj = JSON.parse(localStorage.getItem("project-controls-{{project.uuid}}"))[id];
+        var subcontrol_body = "";
+        var comment_count = 0;
+        var feedback_count = 0;
+        var evidence_count = 0;
+        for (var record in obj.subcontrols) {
+          var sub = obj.subcontrols[record];
+          comment_count += sub.comments;
+          feedback_count += sub.feedback;
+          evidence_count += sub.evidence;
+          var completeColor = sub.is_complete ? "green":"red";
+          var reviewColor = "gray";
+          if (sub.review_status === "complete") {
+            var reviewColor = "green";
+          } else if (sub.review_status === "action required") {
+            var reviewColor = "red";
+          } else if (sub.review_status === "infosec action") {
+            var reviewColor = "yellow";
+          } else if (sub.review_status === "ready for auditor") {
+            var reviewColor = "blue";
+          }
+          if (sub.has_evidence) {
+            var evidence_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>'
+          } else {
+            var evidence_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
+          }
+          if (sub.is_applicable) {
+            if (sub.is_complete) {
+              var complete_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>'
+            } else {
+              var complete_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
+            }
+          } else {
+              var complete_icon = '<div class="tooltip" data-tip="Not Applicable"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg></div>'
+          }
+          if (sub.owner.startsWith("Missing")) {
+            var owner_avatar = `<div class="avatar placeholder font-semibold"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
+          } else {
+            var owner_avatar = `<div class="avatar placeholder font-semibold"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${sub.owner[0]}</span></div></div>`;
+          }
+          if (sub.operator.startsWith("Missing")) {
+            var operator_avatar = `<div class="avatar placeholder font-semibold"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
+          } else {
+            var operator_avatar = `<div class="avatar placeholder font-semibold"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${sub.operator[0]}</span></div></div>`;
+          }
+          subcontrol_body += `<tr><td @dblclick="" class="text-sm font-medium whitespace-normal">${sub.name}</td><td><div data-id="${sub.id}" data-owner="${sub.owner}" data-operator="${sub.operator}" class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 populate-owner-modal">${owner_avatar}${operator_avatar}</div></td><td class="text-sm font-medium capitalize text-center">${complete_icon}</td><td class="text-sm font-medium capitalize"><p class="py-1 px-3 w-fit text-${reviewColor}-600 bg-${reviewColor}-400/10 rounded-full">${sub.review_status}</p></td><td class="text-sm font-medium capitalize text-center">${sub.implemented}%</td><td class="text-sm font-medium text-center">${sub.complete_feedback}/${sub.feedback}</td><td>${evidence_icon}</td><td class="text-sm font-medium"><a target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-ghost" href="/projects/{{project.id}}/controls/${sub.id}/subcontrols/${sub.id}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td></tr>`
+        }
+        return (`
+          <div class="col-span-9"><div class="card card-body border border-slate-200"><div class="justify-between flex mb-2 my-auto"><div><h2 class="card-title mb-2">Details</h2><p class="text-sm">View the subcontrols below and the summary details.</p></div><div><a href="/projects/{{project.id}}/controls/${obj.id}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">View Control</a></div></div><div class="grid grid-cols-10 gap-x-2 gap-y-5"><div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg></div><div class="ml-4"><h2 class="font-semibold">Complete</h2><p class="mt-2 text-sm">${obj.stats.subcontrols_complete}/${obj.stats.subcontrols} complete</p></div></div></div><div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></div><div class="ml-4"><h2 class="font-semibold">Inapplicable</h2><p class="mt-2 text-sm">${obj.stats.inapplicable_subcontrols}/${obj.stats.subcontrols} inapplicable</p></div></div></div><div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg></div><div class="ml-4"><h2 class="font-semibold">Feedback</h2><p class="mt-2 text-sm">${feedback_count} action items</p></div></div></div><div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg></div><div class="ml-4"><h2 class="font-semibold">Comments</h2><p class="mt-2 text-sm">${comment_count} comments</p></div></div></div><div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/></svg></div><div class="ml-4"><h2 class="font-semibold">Evidence</h2><p class="mt-2 text-sm">${evidence_count} evidence</p></div></div></div><div class="col-span-10"><div class="overflow-x-auto"><table class="table w-full"><thead><tr><th class="bg-base-200">Subcontrol Name</th><th class="bg-base-200 w-1"><div class="tooltip tooltip-right" data-tip="Owner/Operator">O/OP</div></th><th class="bg-base-200 w-1">Complete</th><th class="bg-base-200 w-1"><div class="tooltip tooltip-right" data-tip="Review status with auditor">Review</div></th><th class="bg-base-200 w-1"><div class="tooltip tooltip-right" data-tip="Progress of the control">Progress</div></th><th class="bg-base-200 w-1"><div class="tooltip tooltip-left" data-tip="Action items from auditor">Todo</div></th><th class="bg-base-200 w-1">Evidence</th><th class="bg-base-200 w-1">View</th></tr></thead><tbody>${subcontrol_body}</tbody></table></div></div>
+          <div class="col-span-10"><div class="overflow-x-auto"><table class="table w-full"><thead><tr><th class="w-2 bg-base-200">Key</th><th class="bg-base-200">Value</th></tr></thead><tbody>
+            <tr><td class="text-sm font-medium text-primary">Description</td><td class="whitespace-normal text-sm font-medium">${obj.description}</td></tr>
+            <tr><td class="text-sm font-medium text-primary">Status</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.status}</td></tr>
+            <tr><td class="text-sm font-medium text-primary">Applicable</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.is_applicable}</td></tr>
+            <tr><td class="text-sm font-medium text-primary">Complete</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.is_complete}</td></tr>
+            <tr><td class="text-sm font-medium text-primary">Reference</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.ref_code}</td></tr>
+            <tr><td class="text-sm font-medium text-primary">Category</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.category}</td></tr>
+            <tr><td class="text-sm font-medium text-primary">Subcategory</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.subcategory}</td></tr>
+            <tr><td class="text-sm font-medium text-primary">Updated</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.date_updated}</td></tr>
+          </tbody></table></div></div></div></div></div>
+       `)
+      }
+      $('#project-table tbody').on('click', 'td.dt-control', function () {
+        var tr = $(this).closest('tr');
+        var row = table.row(tr);
+ 
+        if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            // Open this row
+            row.child(format(row.data())).show();
+            tr.addClass('shown');
+        }
+      });
+
+      return
+}
+function loadControls(reload=false) {
+  var params = new window.URLSearchParams(window.location.search);
+  var filter = params.get('filter');
+  var grouping = params.get('grouping');
+  if (grouping === undefined || grouping === null || grouping === "null") {
+    grouping = "controls";
+  }
+  if (filter === undefined || filter === null || filter === "null") {
+    filter = "1";
+  }
+  setTimeout(()=>$(".controls-filter").val(filter),500);
+  setTimeout(()=>$(".grouping-filter").val(grouping),100);
+
+  console.log(`Loading controls with grouping:${grouping} and filter:${filter}`)
+  controls_grouping = true;
+  if (grouping === "subcontrols"){
+    controls_grouping = false;
+  }
+
+  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+  // check if controls are in local storage
+
+  if (localStorage.getItem("project-controls-{{project.uuid}}") && !reload) {
+    console.log("Pulling controls from local storage")
+    data = JSON.parse(localStorage.getItem("project-controls-{{project.uuid}}"))
+    controls_grouping ? buildControlsTable(data):buildSubControlsTable(data)
+  } else {
+    console.log("Pulling controls from API")
+    //load controls in table format for the project
+    if (filter === "1"){
+      var url = "/api/v1/projects/{{project.id}}/controls?stats=yes"
+    } else if (filter === "2"){
+      var url = "/api/v1/projects/{{project.id}}/controls?view=with-evidence&stats=yes"
+    } else if (filter === "3"){
+      var url = "/api/v1/projects/{{project.id}}/controls?view=missing-evidence&stats=yes"
+    } else if (filter === "4"){
+      var url = "/api/v1/projects/{{project.id}}/controls?view=not-implemented&stats=yes"
+    } else if (filter === "5"){
+      var url = "/api/v1/projects/{{project.id}}/controls?view=implemented&stats=yes"
+    } else if (filter === "6"){
+      var url = "/api/v1/projects/{{project.id}}/controls?view=applicable&stats=yes"
+    } else if (filter === "7"){
+      var url = "/api/v1/projects/{{project.id}}/controls?view=not-applicable&stats=yes"
+    } else if (filter === "8"){
+      var url = "/api/v1/projects/{{project.id}}/controls?view=complete&stats=yes"
+    } else if (filter === "9"){
+      var url = "/api/v1/projects/{{project.id}}/controls?view=not-complete&stats=yes"
+    } else {
+      var url = "/api/v1/projects/{{project.id}}/controls?stats=yes"
+    }
+    $.ajax({
+      type: "GET",
+      url: url,
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        // build hash table for easy access
+        controls = {};
+        for (var control in data) {
+          controls[data[control].id] = data[control]
+        }
+        localStorage.setItem('project-controls-{{project.uuid}}', JSON.stringify(controls));
+        controls_grouping ? buildControlsTable(data):buildSubControlsTable(data)
+        return(data)
+      },
+      error: function(errMsg) {
+        return(errMsg);
+      }
+    })
+  }
+}
+
+function loadPolicies() {
+  //load policies in table format for the project
+  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+  $.ajax({
+    type: "GET",
+    url: "/api/v1/projects/{{project.id}}/policies",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+      $("#card-div").html("");
+      $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300"><div class=""><h2 class="card-title mb-4">Project Policies</h2><table class="table table-vcenter " id="project-table" style="width:100%"><thead><tr><th class="w-1 bg-base-200">Name</th><th class="bg-base-200">Description</th><th class="w-1 bg-base-200">Ref Code</th><th class="w-1 bg-base-200">Public</th><th class="w-1 bg-base-200">Owner</th><th class="w-1 bg-base-200">Reviewer</th><th class="w-1 bg-base-200">View</th></tr></thead><tbody id="project-table-body"></tbody></table></div></div></div>`);
+      for (var record in data) {
+        var obj = data[record];
+
+        if (obj.owner) {
+          var owner = `<div data-id="${obj.id}" data-type="owner" data-owner="${obj.owner}" class="avatar placeholder font-semibold cursor-pointer transform transition duration-500 hover:scale-110 populate-policy-modal"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${obj.owner[0]}</span></div></div>`;
+        } else {
+          var owner = `<div data-id="${obj.id}" data-type="owner" data-owner="${obj.owner}" class="avatar placeholder font-semibold cursor-pointer transform transition duration-500 hover:scale-110 populate-policy-modal"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
+        }
+        if (obj.reviewer) {
+          var reviewer = `<div data-id="${obj.id}" data-reviewer="${obj.reviewer}" class="avatar placeholder font-semibold cursor-pointer transform transition duration-500 hover:scale-110 populate-policy-modal"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${obj.reviewer[0]}</span></div></div>`;
+        } else {
+          var reviewer = `<div data-id="${obj.id}" data-reviewer="${obj.reviewer}" class="avatar placeholder font-semibold cursor-pointer transform transition duration-500 hover:scale-110 populate-policy-modal"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
+        }
+        if (obj.ref_code) {
+          var ref_code = obj.ref_code
+        } else {
+          var ref_code = "?"
+        }
+        $("#project-table-body").append(`<tr><td class="text-sm font-medium whitespace-normal capitalize">${clean(obj.name)}</td><td class="text-sm font-medium capitalize">${clean(obj.description)}</td><td class="text-sm font-medium capitalize"><p class="bg-base-200 rounded-full py-1 px-3 w-fit">${ref_code}</p></td><td class="text-sm font-medium"><p class="bg-base-200 rounded-full py-1 px-3 capitalize w-fit">${obj.public_viewable}</p></td><td class="text-sm font-medium capitalize">${owner}</td><td class="text-sm font-medium capitalize">${reviewer}</td><td class=""><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}/policies/${obj.id}" data-id="${obj.id}" class="btn btn-xs btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td></tr>`);
+      }
+      $("#project-table").DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+      if (data === undefined || data.length == 0) {
+        $("#card-div").prepend('<div class="alert shadow-lg col-span-9 alert-warning px-8 rounded-md"><div><div><h3 class="font-bold">Your project does not have any policies!</h3> <div class="text-xs">Please add policies to your project</div> </div> </div> <div class="flex-none"> <a href="{{url_for("main.policies")}}" class="btn btn-sm btn-ghost">Add Policies</a> </div> </div>');
+      }
+      return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+}
+
+function loadMembers() {
+  $.ajax({
+    type: "GET",
+    url: "/api/v1/projects/{{project.id}}/members",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+      $("#card-div").append(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300"><div class="justify-between flex"><div><h2 class="card-title mb-2">Project Members</h2><p class="text-sm font-medium mb-2">Before adding an member to your project, they must be <a class="text-primary underline" href="{{url_for("main.tenant_users")}}">invited to your tenant.</a></p></div><div><button @click="document.getElementById('memberModal').checked = true" class="btn btn-primary">Add Member</button></div></div><div class="grid grid-cols-6 gap-6"><div class="col-span-6"><div class="overflow-x-auto"><table class="table w-full"><thead><tr><th>#</th><th>Email</th><th>Access</th><th>Manage</th></tr></thead><tbody id="members-body"/></table></div></div></div></div></div>`)
+      $(".input-members").empty().trigger('change');
+      $(".input-members").select2();
+      roles = ["manager","contributor","viewer","auditor"];
+      for (var user in data) {
+        var options = "";
+        if (data[user].member) {
+          for(var role in roles) {
+            console.log(data[user].access_level)
+            if (data[user].access_level === roles[role]) {
+              options+=`<option selected="selected" value=${roles[role]}>${roles[role]}</option>`
+            } else {
+              options+=`<option value=${roles[role]}>${roles[role]}</option>`
+            }
+          }
+          $("#members-body").append(`<tr><th>${data[user].id}</th><td class="text-sm font-medium">${data[user].email}</td><td><select @change="updateMemberAccess(${data[user].id})" id="member-${data[user].id}" class="select select-bordered select-sm w-full capitalize">${options}</select></td><td><button @click="removeMember(${data[user].id})" class="btn-xs btn btn-ghost border-base-300 border">Remove</button></td></tr>`)
+        } else {
+          var newOption = new Option(data[user].email, data[user].id, false, false);
+          $('.input-members').append(newOption).trigger('change');
+        }
+      }
+      return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+}
+function updateMemberAccess(user_id) {
+  $.ajax({
+    type: "PUT",
+    url: `/api/v1/projects/{{project.id}}/members/${user_id}/access`,
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    data: JSON.stringify({"access_level":$(`#member-${user_id}`).val()}),
+    success: function(data){
+      toast("Updated access level")
+    },
+    error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+    }
+  })
+}
+function removeMember(user_id) {
+  $.ajax({
+    type: "DELETE",
+    url: `/api/v1/projects/{{project.id}}/members/${user_id}`,
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+      toast("Removed user")
+      loadSettings()
+    },
+    error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+    }
+  })
+}
+function addMembers() {
+  $.ajax({
+    type: "POST",
+    url: `/api/v1/projects/{{project.id}}/members`,
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    data: JSON.stringify({"members":$(".input-members").select2('data')}),
+    success: function(data){
+      document.getElementById('memberModal').checked = false;
+      toast("Added members")
+      loadSettings()
+    },
+    error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+    }
+  })
+}
+
+function loadMatrix() {
+  //load matrix for the project
+  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+  $.ajax({
+    type: "GET",
+    url: "/api/v1/projects/{{project.id}}/matrix/summary",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+      var owners_total = 0;
+      var operators_total = 0;
+      var owners_table_body = "";
+      var operators_table_body = "";
+      for (var record in data.owners) {
+        owners_total += data.owners[record].subcontrols;
+        owners_table_body += `<tr>
+          <th>${data.owners[record].user_id}</th>
+          <td>${data.owners[record].email}</td>
+          <td>${data.owners[record].subcontrols}</td>
+          <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=1&owner=${data.owners[record].email}" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td>
+        </tr>`
+      }
+      for (var record in data.operators) {
+        operators_total += data.operators[record].subcontrols;
+        operators_table_body += `<tr>
+          <th>${data.operators[record].user_id}</th>
+          <td>${data.operators[record].email}</td>
+          <td>${data.operators[record].subcontrols}</td>
+          <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=1&operator=${data.operators[record].email}" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td>
+        </tr>`
+      }
+      if (data.total !== owners_total) {
+        owners_table_body += `<tr class="text-red-500">
+          <th>null</th>
+          <td>Missing Owner</td>
+          <td>${data.total-owners_total}</td>
+          <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=1&owner=Missing" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td>
+        </tr>`
+      }
+      if (data.total !== operators_total) {
+        operators_table_body += `<tr class="text-red-500">
+          <th>null</th>
+          <td>Missing Operator</td>
+          <td>${data.total-operators_total}</td>
+          <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=1&operator=Missing" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td>
+        </tr>`
+      }
+      $("#card-div").html("");
+      $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300"><div class=""><h2 class="card-title mb-2">Responsibility Matrix (Owners)</h2><p class="text-sm">The table below shows who is responsible for the control, grouped by count</p></div>
+    <div class="grid grid-cols-6 gap-6">
+      <div class="col-span-6">
+<div class="overflow-x-auto">
+  <table class="table w-full text-sm font-medium">
+    <!-- head -->
+    <thead>
+      <tr>
+        <th></th>
+        <th>Email</th>
+        <th># of Controls</th>
+        <th>Explore</th>
+      </tr>
+    </thead>
+    <tbody>
+    ${owners_table_body}
+    </tbody>
+  </table>
+</div>
+
+      </div>
+    </div>
+</div></div>
+`);
+      $("#card-div").append(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300"><div class=""><h2 class="card-title mb-2">Responsibility Matrix (Operators)</h2><p class="text-sm">The table below shows who is responsible for executing the control to standards, grouped by count</p></div>
+    <div class="grid grid-cols-6 gap-6">
+      <div class="col-span-6">
+<div class="overflow-x-auto">
+  <table class="table w-full text-sm font-medium">
+    <!-- head -->
+    <thead>
+      <tr>
+        <th></th>
+        <th>Email</th>
+        <th># of Controls</th>
+        <th>Explore</th>
+      </tr>
+    </thead>
+    <tbody>
+    ${operators_table_body}
+    </tbody>
+  </table>
+</div>
+
+      </div>
+    </div>
+</div></div>
+`);
+      return(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+}
+function loadSettings() {
+  {%if is_auditor and not project.can_auditor_read_comments%}
+  toast("You lack permissions to view the settings.","warning")
+  $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
+  return
+  {%endif%}
+  //load settings for the project
+  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
   $.ajax({
     type: "GET",
     url: "/api/v1/projects/{{project.id}}",
     contentType: "application/json; charset=utf-8",
     dataType: "json",
     success: function(data){
-        $("#completion-status").html(`${data["completion_progress"]}%`);
-        $("#completed").html(`${data["completed"]}%`);
-        $("#total-controls").html(data["total_controls"]);
-        $("#total-policies").html(data["total_policies"]);
-        $("#implementation-progress").html(`<div class="radial-progress text-primary" style="--value:${data["implemented_progress"]};--size:12rem;">${data["implemented_progress"]}%</div>`);
-        $("#evidence-progress").html(`<div class="radial-progress text-primary" style="--value:${data["evidence_progress"]};--size:12rem;">${data["evidence_progress"]}%</div>`);
-        return(data)
+      $("#card-div").html("");
+      $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300"><div class=""><h2 class="card-title mb-4">Project Settings</h2></div>
+    <div class="grid grid-cols-6 gap-6">
+      <div class="col-span-6 sm:col-span-3">
+        <label for="name" class="block text-sm font-medium ">Name</label>
+        <input type="text" name="name" value="${data.name}" id="name" class="mt-1 block border input-md w-full rounded-md border-base-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+      </div>
+
+      <div class="col-span-6 sm:col-span-3">
+        <label for="description" class="block text-sm font-medium ">Description</label>
+        <input type="text" name="description" value="${data.description}" id="description" class="mt-1 block border input-md w-full rounded-md border-base-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+      </div>
+      <div class="col-span-1">
+        <label for="name" class="block text-sm font-medium mb-1">Read ScratchPad (Auditor)</label>
+        <input type="checkbox" id="can_auditor_read_scratchpad" class="toggle toggle-primary" ${data.can_auditor_read_scratchpad ? 'checked' : ''} />
+      </div>
+      <div class="col-span-1">
+        <label for="name" class="block text-sm font-medium mb-1">Write ScratchPad (Auditor)</label>
+        <input type="checkbox" id="can_auditor_write_scratchpad" class="toggle toggle-primary" ${data.can_auditor_write_scratchpad ? 'checked' : ''} />
+      </div>
+      <div class="col-span-1">
+        <label for="name" class="block text-sm font-medium mb-1">Read Comments (Auditor)</label>
+        <input type="checkbox" id="can_auditor_read_comments" class="toggle toggle-primary" ${data.can_auditor_read_comments ? 'checked' : ''} />
+      </div>
+      <div class="col-span-1">
+        <label for="name" class="block text-sm font-medium mb-1">Write Comments (Auditor)</label>
+        <input type="checkbox" id="can_auditor_write_comments" class="toggle toggle-primary" ${data.can_auditor_write_comments ? 'checked' : ''} />
+      </div>
+      <div class="col-span-6">
+        <button class="btn btn-md btn-primary save-btn">Save</button>
+      </div>
+    </div>
+</div></div>
+`);
+      loadMembers()
+      return(data)
     },
     error: function(errMsg) {
         return(errMsg);
     }
   })
-  });
+}
+
+$(document).on('click', '.save-btn', function() {
+  var data = {
+    "name":$("#name").val(),
+    "description":$("#description").val(),
+    "can_auditor_read_scratchpad":$("#can_auditor_read_scratchpad").is(':checked'),
+    "can_auditor_write_scratchpad":$("#can_auditor_write_scratchpad").is(':checked'),
+    "can_auditor_read_comments":$("#can_auditor_read_comments").is(':checked'),
+    "can_auditor_write_comments":$("#can_auditor_write_comments").is(':checked'),
+  };
+  $.ajax({
+    type: "POST",
+    url: `/api/v1/projects/{{project.id}}/settings`,
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    data: JSON.stringify(data),
+    success: function(data){
+      toast("Saved settings")
+    },
+    error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+    }
+  })
+});
+
+$(document).on('click', '.save-owner-btn', function() {
+  var id = $(this).data("id")
+  var owner = $(".owner-id").val();
+  var operator = $(".operator-id").val();
+  data = {}
+  if(owner === "empty") {
+    owner = null;
+  }
+  if(operator === "empty") {
+    operator = null;
+  }
+  data["owner-id"] = owner;
+  data["operator-id"] = operator;
+  $.ajax({
+    type: "PUT",
+    url: `/api/v1/project-controls/{{project.id}}/subcontrols/${id}`,
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    data: JSON.stringify(data),
+    success: function(data){
+      toast('Updated subcontrol. You may need to refresh the data.')
+    },
+    error: function(errMsg) {
+      toast(errMsg["responseJSON"]["message"],"error")
+    }
+  })
+  document.getElementById('ownerModal').checked = false;
+});
+$(document).on('click', '.save-policy-owner-btn', function() {
+  data = {}
+  var id = $(this).data("id")
+  var email = $(".owner-policy-id").val();
+  if(email === "empty") {
+    email = null;
+  }
+  if ($(this).data("type") === "owner") {
+    data["owner_id"] = email;
+  } else {
+    data["reviewer_id"] = email;
+  }
+  $.ajax({
+    type: "PUT",
+    url: `/api/v1/projects/{{project.id}}/policies/${id}`,
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    data: JSON.stringify(data),
+    success: function(data){
+      toast('Updated policy')
+      loadPolicies()
+    },
+    error: function(errMsg) {
+      toast("Hmm.. something went wrong", "error")
+    }
+  })
+  document.getElementById('ownerPolicyModal').checked = false;
+});
+$(document).on('click', '.populate-owner-modal', function() {
+  populateOwnerModal($(this).data("id"),$(this).data('owner'),$(this).data('operator'))
+});
+$(document).on('click', '.populate-policy-modal', function() {
+  if ($(this).data('type')) {
+    populatePolicyModal($(this).data("id"),$(this).data('owner'))
+  } else {
+    populatePolicyModal($(this).data("id"),$(this).data('reviewer'),owner=false)
+  }
+});
+
+$(document).on('click', '.control-modal-btn', function() {
+  var id = $(this).data('id')
+  $.ajax({
+    type: "GET",
+    url: `/api/v1/projects/{{project.id}}/controls/${id}`,
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+      if (data.is_complete) {
+        $("#complete-modal-icon").html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-success"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>');
+      } else {
+        $("#complete-modal-icon").html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>');
+      }
+      if (data.is_applicable) {
+        $("#applicable-modal-icon").html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-success"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>');
+      } else {
+        $("#applicable-control").html('<p class="bg-error text-error-content rounded-md p-4">Control has been marked as not applicable and will not be included in the project. If you wish to change this, please view and edit the control.</p>')
+        $("#applicable-modal-icon").html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>');
+      }
+
+      $("#control-modal-completion").html(`<div id="modal-completion-${id}"></div>`)
+      $("#control-modal-details").html("")
+      $("#control-modal-title").html(`${data.id} - ${data.name}`);
+      $("#control-modal-date").html(data.date_added);
+      var options = {
+            series: [100-data.progress_implemented,data.progress_implemented],
+            legend: {
+              show: false
+            },
+            dataLabels: {
+              enabled: false
+            },
+            chart: {
+              type: 'donut',
+            },
+plotOptions: {
+    pie: {
+      donut: {
+        labels: {
+          show: true,
+        value:{
+          offsetY: -8,
+          color:'#6b6a6e'
+        },
+          total: {
+            show: true,
+            label: '',
+            formatter: () => `${data.progress_implemented}%`
+          }
+        }
+      }
+    }
+  },
+            labels: ['Uncomplete', 'Complete'],
+            fill:{colors:['#f3f4f6', '#4ade80']},
+            responsive: [{
+              breakpoint: 300,
+              options: {
+                chart: {
+                  width: 100
+                }
+              }
+            }]
+      };
+      new ApexCharts(document.querySelector(`#modal-completion-${id}`), options).render()
+      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Name</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.name}</dd></div>`)
+      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Status</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize text-primary bg-base-200 rounded-md py-1 px-2 font-semibold w-fit">${data.status}</dd></div>`)
+      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Description</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.description}</dd></div>`)
+      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Subcontrols</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.subcontrol_count}</dd></div>`)
+      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Category</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize">${data.category}</dd></div>`)
+      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Subcategory</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize">${data.subcategory}</dd></div>`)
+      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Reference Code</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 uppercase text-primary bg-base-200 rounded-md py-1 px-2 font-semibold w-fit">${data.ref_code}</dd></div>`)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+  document.getElementById('control-modal').checked = true;
+  $("#view-control").attr("href",`/projects/{{project.id}}/controls/${id}`)
+});
+
+// on load of page
+function loadPageElements(tab) {
+  if(document.getElementById("save-notes-btn")) {
+    saveScratchPad(showToast=false)
+  }
+
+  $(".tabs span").removeClass("bg-base-200");
+  $(`#tab-${tab}`).addClass("bg-base-200")
+  if (tab == null) {
+    var tab = "summary"
+  }
+  if (tab === "controls") {
+    loadControls(reload=true)
+  } else if (tab === "summary") {
+    loadSummary()
+  } else if (tab === "policies") {
+    loadPolicies()
+  } else if (tab === "evidence") {
+    loadEvidence()
+  } else if (tab === "matrix") {
+    loadMatrix()
+  } else if (tab === "scratchpad") {
+    loadScratchPad()
+  } else if (tab === "comments") {
+    loadComments()
+  } else if (tab === "report") {
+    loadReport()
+  } else if (tab === "settings") {
+    loadSettings()
+  } else {
+    loadSummary();
+  }
+  $(".select").val(tab)
+  var queryParams = new URLSearchParams(window.location.search);
+  queryParams.set("tab", tab);
+  history.replaceState(null, null, "?"+queryParams.toString());
+};
+var params = new window.URLSearchParams(window.location.search);
+var tab = params.get('tab');
+loadUsers(reload=true)
+loadPageElements(tab)
 </script>
 {%endblock%}

@@ -1,4 +1,4 @@
-{% extends "layouts/basic.html" %}
+{% extends "layouts/sidebar-nav.html" %}
 
 {% import "helpers/snippets.html" as snippet with context %}
 {% block before_head %}
@@ -9,17 +9,17 @@
   <script src="https://gyrocode.github.io/jquery-datatables-checkboxes/1.2.10/js/dataTables.checkboxes.min.js"></script>
 {% endblock %}
 
-{%block header_title%}Evidence<p class="text-sm text-gray-500 font-medium">Evidence can be added and associated with controls in your projects</p>{%endblock%}
-{%block header_actions%}<button class="btn btn-sm new-evidence-btn">New</button>{%endblock%}
+{%block page_header_title%}Evidence<p class="text-sm  font-medium">Evidence can be added and associated with controls in your projects</p>{%endblock%}
+{%block page_header_title_border%}{%endblock%}
+{%block page_header_buttons%}<button class="btn btn-sm btn-primary new-evidence-btn">New</button>{%endblock%}
 
 {%block content%}
 <div class="grid grid-cols-6 gap-4 mt-2">
             <div class="col-span-6">
-    <div class="card bg-base-100">
+    <div class="card bg-base-100 border border-base-200">
       <div class="card-body">
         <h2 class="card-title mb-2">Evidence</h2>
-        <p class="text-sm text-gray-500 font-medium mb-4">Add evidence and associate it with your controls. <a href="{{config.DOC_LINK}}" class="text-primary">Need help?</a></p>
-        <table class="table table-vcenter table-bordered" id="evidence-table" style="width:100%">
+        <table class="table table-vcenter" id="evidences" style="width:100%">
           <thead>
             <tr>
               <th>Name</th>
@@ -28,31 +28,23 @@
               <th class="w-1">More</th>
             </tr>
           </thead>
-          <tbody>
-            {%for record in evidence%}
-            <tr data-record-id={{record.id}}>
-              <td class="text-sm font-medium text-gray-500">{{record.name}}</td>
-              <td class="text-sm font-medium text-gray-500">{{record.description}}</td>
-              <td class="text-sm font-medium text-gray-500">{{record.control_count()}}</td>
-              <td class="text-center">
-<div class="dropdown dropdown-top dropdown-end">
-  <label tabindex="0" class="btn btn btn-sm border border-white btn-outline"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label>
-  <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-    <li><a data-name="{{record.name}}" data-id="{{record.id}}" class="view-evidence">View</a></li>
-    <li><a data-name="{{record.name}}" data-id="{{record.id}}" class="add-to-control">Associate</a></li>
-    <li><a data-id="{{record.id}}" class="delete-record">Delete</a></li>
-  </ul>
-</div>
-              </td>
-            </tr>
-            {%endfor%}
-          </tbody>
+          <tbody id="evidence-body"></tbody>
         </table>
       </div>
     </div>
     </div>
 </div>
 
+<input type="checkbox" id="delete-modal" class="modal-toggle" />
+<label for="delete-modal" class="modal cursor-pointer">
+  <label class="modal-box relative" for="">
+    <h3 class="text-lg font-bold">Confirm deletion</h3>
+    <p class="py-4">Are you sure you want to delete <b id="delete-evidence-body">?</b>? If this evidence is attached to any project controls, it will be removed!</p>
+    <div class="modal-action">
+      <label id="delete-evidence-btn" data-id="" @click="deleteEvidence;document.getElementById('delete-modal').checked = false;" class="btn btn-error">Yes, Delete</label>
+    </div>
+  </label>
+</label>
 
 <input type="checkbox" id="add-to-control-modal" class="modal-toggle" />
 <div class="modal">
@@ -61,18 +53,17 @@
     <h3 id="add-to-control-modal-title" class="text-lg font-bold"></h3>
         <div class="py-4 sm:mt-0">
 
-      <label class="block text-sm font-medium text-gray-700">Selected Evidence</label>
+      <label class="block text-sm font-medium ">Selected Evidence</label>
       <p id="modal-p" class="mb-2"></p>
       <div id="form-content" class="col-span-6 sm:col-span-6 mt-3">
         <div class="flex justify-between">
-          <label class="block text-sm font-medium text-gray-700 mb-3">Please select the controls below</label>
-          <button class="btn-save-evidence-to-control inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 mb-2">Save</button>
+          <label class="block text-sm font-medium  mb-3">Please select the controls below</label>
+          <button class="btn btn-primary btn-save-evidence-to-control mb-2">Save</button>
         </div>
-        <table class="table table-vcenter table-bordered" id="control-table" style="width:100%">
+        <table class="table table-vcenter" id="control-table" style="width:100%">
           <thead>
             <tr>
-              <th></th>
-              <!--<th class="w-1">Associated</th>-->
+              <th class="w-1 bg-primary-content"></th>
               <th class="w-1">Ref</th>
               <th class="w-1">Project</th>
               <th>Control Name</th>
@@ -83,7 +74,7 @@
       </div>
 
     <div class="text-right mt-3">
-      <button class="btn-save-evidence-to-control inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+      <button class="btn btn-primary btn-save-evidence-to-control">Save</button>
     </div>
 
         </div>
@@ -93,29 +84,33 @@
 <input type="checkbox" id="evidence-modal" class="modal-toggle" />
 <label for="evidence-modal" class="modal cursor-pointer">
   <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3 class="text-lg font-bold">New Evidence<p class="text-sm text-gray-500 font-medium mt-2">After you add the evidence, you can associate it with controls in your projects.</p></h3>
+    <h3 class="text-lg font-bold">New Evidence<p class="text-sm  font-medium mt-2">After you add the evidence, you can associate it with controls in your projects.</p></h3>
         <div class="py-4 sm:mt-0">
           <div class="md:grid md:grid-cols-1 md:gap-6">
                 <div class="mt-5 md:col-span-2 md:mt-0">
                         <div class="overflow-hidden sm:rounded-md">
-                          <div class="bg-white px-4 py-5 sm:p-6">
+                          <div class="px-4 py-5 sm:p-6">
                                 <div class="grid grid-cols-6 gap-6">
                                   <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium text-gray-700">Name</label>
-                                        <input placeholder="Enter the display name of the evidence" type="text" name="name" id="name" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                        <label class="block text-sm font-medium ">Name</label>
+                                        <input placeholder="Enter the display name of the evidence" type="text" name="name" id="name" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
                                   </div>
                                   <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium text-gray-700">Description</label>
-                                        <input type="text" id="description" placeholder="Describe what the evidence entails/covers" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                        <label class="block text-sm font-medium ">Description</label>
+                                        <input type="text" id="description" placeholder="Describe what the evidence entails/covers" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
                                   </div>
                                   <div class="col-span-6 sm:col-span-6">
-                                        <label class="block text-sm font-medium text-gray-700">Evidence content</label>
+                                        <label class="block text-sm font-medium mb-3">Collected On</label>
+                                        <input type="text" id="collected" class="rounded-md input-md w-full" placeholder="Input date (m/dd/yyyy)">
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-6">
+                                        <label class="block text-sm font-medium ">Evidence content</label>
                                         <textarea id="content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea>
                                   </div>
                                 </div>
                           </div>
                           <div class="px-4 py-3 text-right sm:px-6">
-                                <button type="submit" class="create-evidence inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+                                <button class="btn btn-primary create-evidence">Save</button>
                           </div>
                         </div>
                 </div>
@@ -132,24 +127,28 @@
           <div class="md:grid md:grid-cols-1 md:gap-6">
                 <div class="mt-5 md:col-span-2 md:mt-0">
                         <div class="overflow-hidden sm:rounded-md">
-                          <div class="bg-white px-4 py-5 sm:p-6">
+                          <div class="px-4 py-5 sm:p-6">
                                 <div class="grid grid-cols-6 gap-6">
                                   <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium text-gray-700">Name</label>
-                                        <input placeholder="Enter the display name of the evidence" type="text" name="name" id="update-name" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                        <label class="block text-sm font-medium ">Name</label>
+                                        <input placeholder="Enter the display name of the evidence" type="text" name="name" id="update-name" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
                                   </div>
                                   <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium text-gray-700">Description</label>
-                                        <input type="text" id="update-description" placeholder="Describe what the evidence entails/covers" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                        <label class="block text-sm font-medium ">Description</label>
+                                        <input type="text" id="update-description" placeholder="Describe what the evidence entails/covers" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
                                   </div>
                                   <div class="col-span-6 sm:col-span-6">
-                                        <label class="block text-sm font-medium text-gray-700">Evidence content</label>
+                                        <label class="block text-sm font-medium mb-3">Collected On</label>
+                                        <input type="text" id="update-collected" class="rounded-md input-md w-full" placeholder="Input date (m/dd/yyyy)">
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-6">
+                                        <label class="block text-sm font-medium ">Evidence content</label>
                                         <textarea id="update-content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea>
                                   </div>
                                 </div>
                           </div>
                           <div class="px-4 py-3 text-right sm:px-6">
-                                <button type="submit" class="edit-evidence inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
+                                <button class="btn btn-primary edit-evidence">Save</button>
                           </div>
                         </div>
                 </div>
@@ -162,28 +161,63 @@
 
 {%block extrajs%}
 <script>
-  $(document).ready(function() {
+  function deleteEvidence(e) {
+    var id = $('#delete-evidence-btn').data('id')
+    $.ajax({
+          type: "DELETE",
+          url: `/api/v1/evidence/${id}`,
+          contentType: "application/json; charset=utf-8",
+          success: function(data){
+            toast("Deleted evidence")
+            loadEvidenceTable()
+            return(data)
+          },
+          error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+          }
+    })
+
+  }
+
+  function loadEvidenceTable() {
+      $("#evidences").dataTable().fnDestroy();
+      var selectedTenant = getTenant();
+      if (!selectedTenant.id) {
+        $('#evidences').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+      } else {
+      $("#evidence-body").html('<div class="col-span-9 mx-auto mt-10"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 animate-spin text-gray-200 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+      $.ajax({
+        type: "GET",
+        url: `/api/v1/tenants/${selectedTenant.id}/evidence`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          for (var evidence in data) {
+            $("#evidence-body").append(`<tr data-record-id=${data[evidence].id}> <td class="text-sm font-medium ">${clean(data[evidence].name)}</td><td class="text-sm font-medium ">${clean(data[evidence].description)}</td><td class="text-sm font-medium ">${data[evidence].control_count}</td><td class="text-center"><div class="dropdown dropdown-top dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"><li><a data-name="${clean(data[evidence].name)}" data-id="${data[evidence].id}" class="view-evidence">View</a></li><li><a data-id="${data[evidence].id}" data-evidence-name="${clean(data[evidence].name)}" data-evidence-id="${data[evidence].id}" class="delete-record">Delete</a></li></ul></div></td></tr>`);
+          }
+          $('#evidences').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })
+      }
+  }
+  loadEvidenceTable()
 
     $(document).on('change', '.select-btn', function() {
       $('#control-table tbody tr td input[type="checkbox"]').prop('checked', $(this).prop('checked'));
     });
 
     $(document).on('click', '.delete-record', function() {
-       var evidenceId = $(this).data('id')
-       $.ajax({
-         type: "DELETE",
-         url: `/api/v1/evidence/${evidenceId}`,
-         contentType: "application/json; charset=utf-8",
-         dataType: "json",
-         success: function(data){
-             createToast("success","Deleted evidence")
-             setTimeout(function() {location.reload();}, 500);
-             return(data)
-         },
-         error: function(errMsg) {
-             return(errMsg);
-         }
-       })
+      var id = $(this).data('evidence-id')
+      var name = $(this).data('evidence-name')
+      $('#delete-evidence-btn').data('id',id);
+      $('#delete-evidence-body').html(`${name} [${id}]`);
+      document.getElementById('delete-modal').checked = true;
     });
     $(document).on('click', '.view-evidence', function() {
       var evidenceId = $(this).data('id')
@@ -198,14 +232,21 @@
             $("#update-name").val(data["name"])
             $("#update-description").val(data["description"])
             $("#update-content").val(data["content"])
+            $("#update-collected").val(data["collected_on"])
             return(data)
         },
         error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
             return(errMsg);
         }
       })
     });
     $(document).on('click', '.new-evidence-btn', function() {
+      $('.daterangepicker').css('z-index','1600');
+      $("#name").val("");
+      $("#description").val("");
+      $("#collected").val("");
+      $("#content").val("");
       document.getElementById('evidence-modal').checked = true;
     });
      $(document).on('click', '.edit-evidence', function() {
@@ -213,7 +254,8 @@
        var data = {
            "name":$("#update-name").val(),
            "content":$("#update-content").val(),
-           "description":$("#update-description").val()
+           "description":$("#update-description").val(),
+           "collected":$("#update-collected").val()
        };
        $.ajax({
          type: "PUT",
@@ -222,35 +264,39 @@
          contentType: "application/json; charset=utf-8",
          dataType: "json",
          success: function(data){
-             createToast("success","Edited evidence")
+             toast("Edited evidence")
              document.getElementById('view-modal').checked = false;
-             setTimeout(function() {location.reload();}, 500)
+             loadEvidenceTable()
              return(data)
          },
          error: function(errMsg) {
+             toast(errMsg["responseJSON"]["message"],"error")
              return(errMsg);
          }
        })
      });
      $(document).on('click', '.create-evidence', function() {
+       var selectedTenant = getTenant();
        var data = {
            "name":$("#name").val(),
            "content":$("#content").val(),
-           "description":$("#description").val()
+           "description":$("#description").val(),
+           "collected":$("#collected").val()
        };
        $.ajax({
          type: "POST",
-         url: `/api/v1/evidence`,
+         url: `/api/v1/tenants/${selectedTenant.id}/evidence`,
          data: JSON.stringify(data),
          contentType: "application/json; charset=utf-8",
          dataType: "json",
          success: function(data){
-             createToast("success","Added evidence")
+             toast("Added evidence")
              document.getElementById('evidence-modal').checked = false;
-             setTimeout(function() {location.reload();}, 500)
+             loadEvidenceTable()
              return(data)
          },
          error: function(errMsg) {
+             toast(errMsg["responseJSON"]["message"],"error")
              return(errMsg);
          }
        })
@@ -268,18 +314,20 @@
          contentType: "application/json; charset=utf-8",
          dataType: "json",
          success: function(data){
-             createToast("success","Added evidence to the controls")
+             toast("Added evidence to the controls")
              document.getElementById('add-to-control-modal').checked = false;
-             setTimeout(function() {location.reload();}, 500)
+             loadEvidenceTable()
              return(data)
          },
          error: function(errMsg) {
+             toast(errMsg["responseJSON"]["message"],"error")
              return(errMsg);
          }
        })
      });
 
      $(document).on('click', '.add-to-control', function() {
+      $("#control-table").dataTable().fnDestroy();
        document.getElementById('add-to-control-modal').checked = true;
        var evidenceId = $(this).data('id')
        var evidenceName = $(this).data('name')
@@ -288,7 +336,7 @@
        $("#modal-p").html(`${evidenceName}`)
 
        var divHolder = $("#control-table-body")
-       divHolder.html('<div role="status" class="mt-5"><svg aria-hidden="true" class="mr-2 w-12 h-12 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div>');
+       divHolder.html('<div role="status" class="mt-5"><svg aria-hidden="true" class="mr-2 w-12 h-12 animate-spin text-gray-200 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div>');
        $.ajax({
          type: "GET",
          url: `/api/v1/projects/subcontrols`,
@@ -305,15 +353,16 @@
                }
              }
              divHolder.append(`<tr>
-               <td>${record.id}</td>
-               <td class="text-sm font-medium text-gray-500">${record.ref_code}</td>
-               <td class="text-sm font-medium text-gray-500">${record.project}</td>
-               <td class="text-sm font-medium text-gray-500 whitespace-normal">${record.name}</td>
+               <td class="w-1">${record.id}</td>
+               <td class="text-sm font-medium w-1">${clean(record.ref_code)}</td>
+               <td class="text-sm font-medium w-1">${clean(record.project)}</td>
+               <td class="text-sm font-medium whitespace-normal">${clean(record.name)}</td>
               </tr>
               `
              )
            };
            var table = $("#control-table").DataTable({
+             'bDestroy': true,
              'columnDefs': [
                {
                  'targets': 0,
@@ -341,12 +390,12 @@
            return(data)
          },
          error: function(errMsg) {
+           toast(errMsg["responseJSON"]["message"],"error")
            return(errMsg);
          }
        })
 
      });
      var table = $("#evidence-table").DataTable({"pageLength":50});
-  });
 </script>
 {%endblock%}

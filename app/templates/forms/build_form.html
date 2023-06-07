@@ -1,0 +1,199 @@
+{% extends "layouts/bootstrap.html" %}
+
+{%block head%}
+  <link rel="stylesheet" href="https://cdn.form.io/formiojs/formio.full.min.css">
+  <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
+  <style>
+    span.btn.btn-primary.btn-sm.btn-block.formcomponent.drag-copy {
+      background: #394e6a;
+      border-color: #394e6a;
+    }
+    .btn-primary {
+      background: #394e6a;
+      border-color: #394e6a;
+    }
+  </style>
+{%endblock%}
+
+
+{%block page_header%}
+<div>
+  <h1 class="h2 base-content-100 text-capitalize"><a href="{{url_for("main.questionnaires")}}">Questionnaires</a> / {{questionnaire.name}}</h1>
+  {%if questionnaire.enabled%}<span class="badge badge-success">Enabled</span>{%else%}<span class="badge badge-danger">Disabled</span>{%endif%}
+  {%if questionnaire.published%}<span class="badge badge-success">Published</span>{%else%}<span class="badge badge-danger">Unpublished</span>{%endif%}
+</div>
+{%endblock%}
+{%block page_header_buttons%}
+  <button type="button" class="btn btn-light ml-2" data-toggle="modal" data-target="#exampleModalCenter">
+    Settings
+  </button>
+  <a href="{{url_for("main.render_questionnaire",qid=questionnaire.id)}}" class="btn btn-md btn-light mx-2">Preview</a>
+  <button id="save-btn" onclick="saveForm()" class="btn btn-md btn-success">Saved</button>
+  <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#publish-modal">
+    Publish
+  </button>
+
+{%endblock%}
+
+{%block content%}
+  {%if not questionnaire.published or not questionnaire.enabled%}
+  <div class="alert alert-warning" role="alert">
+    {%if not questionnaire.published%}The form is not published. When you are complete, please publish the form.{%endif%}{%if not questionnaire.enabled%} The form is not enabled. Please enable the form when you are ready.{%endif%}
+  </div>
+  {%endif%}
+  <div id="builder"></div>
+
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Settings</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+                                <div class="form-row">
+                                  <div class="form-group col-md-6">
+                                    <label for="name" class="mb-2">Name</label>
+                                    <input id="edit-name" type="text" placeholder="Input name" value="{{questionnaire.name}}" class="form-control" />
+                                  </div>
+                                  <div class="form-group col-md-6">
+                                    <label for="description" class="mb-2">Description</label>
+                                    <input id="edit-description" type="text" placeholder="Input description" value="{{questionnaire.description}}" class="form-control" />
+                                  </div>
+                                  <div class="form-group col-md-6">
+                                    <label for="vendor" class="mb-2">Vendor</label>
+                                    <input id="edit-vendor" type="text" placeholder="Input vendor name" value="{{questionnaire.vendor}}" class="form-control" />
+                                  </div>
+                                  <div class="form-group col-md-6">
+                                    <label class="mb-2">Enabled</label>
+                                    <select id="edit-enabled" class="form-control">
+                                      <option value="true" {%if questionnaire.enabled%}selected{%endif%}>True</option>
+                                      <option value="false" {%if not questionnaire.enabled%}selected{%endif%}>False</option>
+                                    </select>
+                                  </div>
+                                </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary save-edit-btn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="publish-modal" tabindex="-1" role="dialog" aria-labelledby="publish-modalTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Publish Questionnaure?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+      Are you sure you want to publish the questionnaire? Once published, you will not be able to edit the form and the vendor will be able to provide a response.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary save-publish-btn">Yes, Publish</button>
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  $(document).on('click', '.save-publish-btn', function() {
+    var data = {
+      "enabled": true
+    }
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/questionnaires/{{questionnaire.id}}/publish`,
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        location.reload();
+        return(data)
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+      }
+    })
+  });
+  $(document).on('click', '.save-edit-btn', function() {
+    var id = $(this).data('questionnaire-id')
+    var enabled = $("#edit-enabled").val() === "true" ? true : false;
+    var data = {
+      "name": $("#edit-name").val(),
+      "description": $("#edit-description").val(),
+      "vendor": $("#edit-vendor").val(),
+      "enabled": enabled
+    }
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/questionnaires/{{questionnaire.id}}`,
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        toast("Edited questionnaire settings")
+        $('#exampleModalCenter').modal('hide')
+        location.reload();
+        return(data)
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+      }
+    })
+  });
+
+  var gen_form = {};
+  var options = {
+    noDefaultSubmitButton: true,
+    builder: {premium: false,data: false}
+  }
+  var formjs = Formio.builder(document.getElementById('builder'),{{questionnaire.form|tojson}},options).then(function(form) {
+    form.on("change", function(e){
+      gen_form = form.schema;
+      $("#save-btn").attr("class","btn btn-md btn-warning");
+      $("#save-btn").html('Save updates<div class="spinner-grow text-light ml-2" style="height:1rem;width:1rem" role="status"><span class="sr-only">Loading...</span></div>')
+    });
+
+  });
+  function saveForm() {
+    fetch("/api/v1/questionnaires/{{questionnaire.id}}/form", {
+      method:"PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({"form":gen_form})
+    })
+    .then((response) => {
+      if (response.ok) {
+        toast("Successfully saved the questionnaire")
+        $("#save-btn").attr("class","btn btn-md btn-success");
+        $("#save-btn").html("Saved")
+        return;
+      }
+      toast("Unable to save the questionnaire","error")
+      throw new Error('Something went wrong');
+    })
+    .catch((error) => {
+      toast("Something went wrong... check the console","error")
+      console.log(error)
+    });
+  }
+
+//  var form = Formio.builder(document.getElementById('builder'));
+//  console.log(form)
+
+</script>
+{%endblock%}

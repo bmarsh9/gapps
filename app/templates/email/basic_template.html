@@ -1,0 +1,30 @@
+  <div style="max-width: 30rem;margin: auto;padding-top:10px;padding-bottom:10px;">
+    <div  style="{%if help_link%}border-top-left-radius: 0.5rem;{%else%}border-radius: 0.5rem;{%endif%} border-top-right-radius: 0.5rem; background-color: #374151; padding: 32px;box-shadow: 0px 0px 10px #374151;">
+      <div style="display: flex; align-items: center; justify-content: space-between; font-weight: 500;">
+        <span></span>
+        <span style="font-size: 12px; color: #d1d5db;">{{config["APP_NAME"]|capitalize}}</span>
+      </div>
+      <div style="margin-top: 12px; align-items: center; text-align: center;">
+        <div>
+          <h3 style="font-size: 24px; font-weight: 600; color: #d1d5db;">{{title}}</h3>
+        </div>
+      </div>
+      <div style="margin-top: 32px; margin-bottom: 32px;">
+        <div style="font-weight: 500;">
+          <span style="margin: 4px; margin-left: 0; display: inline-block; color: #d1d5db;">
+            {{content}}
+          </span>
+        </div>
+      </div>
+      {%if button_link%}
+      <div style="text-align:center">
+        <a href="{{button_link}}" itemprop="url" style="box-sizing: border-box; font-size: 18px; color: #FFF; text-decoration: none; line-height: 2em; font-weight: bold; text-align: center; cursor: pointer; display: inline-block; border-radius: 5px; text-transform: capitalize; background-color: #38d770; margin: 0; border-color: #38d770; border-style: solid; border-width: 8px 16px;padding-right:30px;padding-left:30px">{{button_label or "View"}}</a>
+      </div>
+      {%endif%}
+    </div>
+    {%if help_link%}
+    <div style="display: flex; border-bottom-right-radius: 0.5rem; border-bottom-left-radius: 0.5rem; background-color: #f1f5f9; padding-left: 32px; padding-right: 32px; padding-top: 8px; padding-bottom: 8px; font-weight: 500;">
+      <a href="{{help_link}}" style="font-size: 12px; text-transform: uppercase; color: #22c55e;">Help</a>
+    </div>
+    {%endif%}
+  </div>

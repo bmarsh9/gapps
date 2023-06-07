@@ -1,0 +1,52 @@
+{% extends "layouts/bootstrap.html" %}
+
+{%block head%}
+  <link rel="stylesheet" href="https://cdn.form.io/formiojs/formio.full.min.css">
+  <script src='https://cdn.form.io/formiojs/formio.full.min.js'></script>
+  <script src="https://cdn.jsdelivr.net/gh/cferdinandi/smooth-scroll/dist/smooth-scroll.polyfills.min.js"></script>
+  <style>
+    .btn-primary {
+      background: #394e6a;
+      border-color: #394e6a;
+    }
+  </style>
+{%endblock%}
+
+{%block page_header%}
+<div>
+  <h1 class="h2 base-content-100 text-capitalize"><a href="{{url_for("main.questionnaires")}}">{{questionnaire.name}}</a></h1>
+  {%if questionnaire.status() == "complete"%}<span class="badge badge-success text-capitalize">Complete</span>
+  {%else%}<span class="badge badge-warning text-capitalize">{{questionnaire.status()}}</span>
+  {%endif%}
+</div>
+{%endblock%}
+
+
+{%block page_header_buttons%}
+  <a href="{{url_for("main.render_questionnaire",qid=questionnaire.id)}}" class="btn btn-md btn-primary mx-2">Preview</a>
+{%endblock%}
+
+{%block content%}
+  {%if questionnaire.submitted%}
+  <div class="alert alert-success" role="alert">
+  Please review the submitted questionnaire from the vendor.
+  </div>
+  {%else%}
+  <div class="alert alert-warning" role="alert">
+  The questionnaire has not been submitted by the vendor. Please check back later.
+  </div>
+  {%endif%}
+  <div id="render"></div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  var options = {readOnly:true};
+  Formio.createForm(document.getElementById('render'), {{questionnaire.form|tojson}},options)
+  .then(function(form) {
+    form.submission = {
+        data: {{questionnaire.get_submission_data()|tojson}}
+    };
+  });
+</script>
+{%endblock%}

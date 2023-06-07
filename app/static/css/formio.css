@@ -1,0 +1,41 @@
+@media (min-width: 50.01em)
+.md\:col-span-2 {
+    grid-column: span 2 / span 2;
+}
+
+@media (min-width: 40.01em)
+.sm\:col-span-3 {
+    grid-column: span 3 / span 3;
+}
+.col-span-12 {
+    grid-column: span 12 / span 12;
+}
+
+[ref=sidebar-groups] > .card, .card-group > .card {
+    margin-bottom: 0.75rem;
+}
+
+.card {
+    position: relative;
+    display: flex;
+    min-width: 0px;
+    flex-direction: column;
+    overflow-wrap: break-word;
+    border-radius: 0.25rem;
+    border-width: 1px;
+    border-style: solid;
+    --tw-border-opacity: 1;
+    border-color: rgba(209, 213, 219, var(--tw-border-opacity));
+    background-color: hsla(0, 100%, 100%, 1);
+    background-clip: border-box;
+}
+[ref=sidebar-groups], .card-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.builder-sidebar_scroll {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 15px;
+}

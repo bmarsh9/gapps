@@ -1,4 +1,4 @@
-{% extends "layouts/basic.html" %}
+{% extends "layouts/sidebar-nav.html" %}
 
 {% block before_head %}
   {{ super() }}
@@ -6,49 +6,224 @@
   {{ macro.filehelper(datatables=True) }}
 {% endblock %}
 
-{%block header_title%}User Management{%endblock%}
-{%block header_actions%}<a href="{{url_for("main.add_user")}}" class="btn btn-sm">Invite User</a>{%endblock%}
-
+{%block page_header_title%}User Management{%endblock%}
+{%block page_header_title_border%}{%endblock%}
+{%block page_header_buttons%}<button class="btn btn-primary btn-sm add-user-btn">Add User</button>{%endblock%}
+{%block tenant_btn%}{%endblock%}
 {%block content%}
-<div class="grid grid-cols-6 gap-4 mt-5">
+<div class="grid grid-cols-6 gap-4">
   <div class="col-span-6">
-    <div class="card bg-base-100">
+    <div class="card bg-base-100 border border-base-200">
       <div class="card-body">
         <h2 class="card-title mb-4">Users</h2>
-              <table class="table table-vcenter table-bordered" id="example" style="width:100%">
+              <table class="table table-vcenter" id="users" style="width:100%">
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Name</th>
                     <th>Email</th>
-                    <th>Roles</th>
+                    <th>Username</th>
+                    <th class="w-1">Create Tenant</th>
+                    <th class="w-1">Tenants</th>
+                    <th class="w-1">Active</th>
+                    <th class="w-1">Super</th>
+                    <th class="w-1">Confirmed</th>
                     <th class="w-1">Manage</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {%for user in users%}
-                  <tr>
-                    <td class="text-sm font-medium text-gray-500">{{user.id}}</td>
-                    <td class="text-sm font-medium text-gray-500">{{user.first_name}} {{user.last_name}}</td>
-                    <td class="text-sm font-medium text-gray-500">{{user.email}}</td>
-                    <td>{%for role in user.pretty_roles()%}{%if role == "admin"%}<span class="badge bg-yellow-lt mr-1">{{role}}</span>{%else%}<span class="badge bg-blue-lt mr-1">{{role}}</span>{%endif%}{%endfor%}</td>
-                    <td class="text-center">
-                      <a class="btn btn-xs" href="{{url_for("main.user_profile",id=user.id)}}">Edit</a>
-                    </td>
-                  </tr>
-                  {%endfor%}
-                </tbody>
+                <tbody id="user-body"></tbody>
               </table>
       </div>
     </div>
   </div>
 </div>
+
+<input type="checkbox" id="edit-user-modal" class="modal-toggle" />
+<label for="edit-user-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">Edit User</h3>
+        <div class="py-4 sm:mt-0">
+          <div class="md:grid md:grid-cols-1 md:gap-6">
+                <div class="mt-5 md:col-span-2 md:mt-0">
+                    <div class="overflow-hidden sm:rounded-md px-4">
+                          <div class="grid grid-cols-6 gap-6">
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label class="block text-sm font-medium mb-2">Email</label>
+                                    <input id="email" type="text" class="input input-bordered w-full" disabled/>
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label class="block text-sm font-medium mb-2">Username</label>
+                                    <input id="username" type="text" placeholder="Input username" class="input input-bordered w-full" />
+                                  </div>
+                          </div>
+                          <div class="grid grid-cols-6 gap-6 mt-4">
+                                  <div class="col-span-2">
+                                    <label class="block text-sm font-medium mb-2">Can User Create Tenants</label>
+                                    <input id="can-user-create-tenants" type="checkbox" class="toggle toggle-primary" checked />
+                                  </div>
+                                  <div class="col-span-2">
+                                    <label class="block text-sm font-medium mb-2">Active</label>
+                                    <input id="active" type="checkbox" class="toggle toggle-primary" checked />
+                                  </div>
+                                  <div class="col-span-2">
+                                    <label class="block text-sm font-medium mb-2">Super</label>
+                                    <input id="super" type="checkbox" class="toggle toggle-primary" checked />
+                                  </div>
+                          </div>
+                          <div id="tenant-div" class="grid grid-cols-10 gap-2 mt-4">
+                          </div>
+                          <div class="px-4 py-3 text-right sm:px-6">
+                                <button class="btn btn-primary save-edit-btn">Save</button>
+                          </div>
+                    </div>
+                </div>
+          </div>
+        </div>
+  </label>
+</label>
+
+<input type="checkbox" id="add-user-modal" class="modal-toggle" />
+<label for="add-user-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">Add User</h3>
+        <div class="py-4 sm:mt-0">
+          <div class="md:grid md:grid-cols-1 md:gap-6">
+                <div class="mt-5 md:col-span-2 md:mt-0">
+                    <div class="overflow-hidden sm:rounded-md">
+                          <div class="px-4 py-5 sm:p-6">
+                                <div class="grid grid-cols-6 gap-6">
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label for="email" class="block text-sm font-medium ">Email</label>
+                                    <input id="new-email" type="email" placeholder="Input email" class="input input-bordered w-full" />
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label for="tenant" class="block text-sm font-medium ">Tenant</label>
+                                    <select id="new-tenant" class="select select-bordered w-full">
+                                      <option value="" selected>No tenant</option>
+                                      {%for tenant in tenants%}
+                                      <option value="{{tenant.id}}">{{tenant.name}}</option>
+                                      {%endfor%}
+                                    </select>
+                                  </div>
+                                </div>
+                          </div>
+                          <div class="px-4 py-3 text-right sm:px-6">
+                                <button class="btn btn-primary save-user-btn">Save</button>
+                          </div>
+                    </div>
+                </div>
+          </div>
+        </div>
+  </label>
+</label>
 {%endblock%}
 
 {%block extrajs%}
 <script>
-  $(document).ready(function() {
-    $('#example').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
-  } );
+  $(document).on('click', '.save-edit-btn', function() {
+    var selectedTenant = getTenant();
+    var id = $(this).data('user-id')
+    var data = {
+      "username": $("#username").val(),
+      "can_user_create_tenants": $("#can-user-create-tenants").is(':checked'),
+      "is_active": $("#active").is(':checked'),
+      "is_super": $("#super").is(':checked')
+    }
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/users/${id}`,
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        toast("Edited user settings")
+        document.getElementById('edit-user-modal').checked = false;
+        loadUserTable()
+        return(data)
+      },
+      error: function(errMsg) {
+        return(errMsg);
+      }
+    })
+  });
+  $(document).on('click', '.edit-user-btn', function() {
+      var id = $(this).data('user-id')
+      $(".save-edit-btn").data("user-id",id)
+      $.ajax({
+        type: "GET",
+        url: `/api/v1/admin/users/${id}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          document.getElementById('edit-user-modal').checked = true;
+          $("#email").val(data.email)
+          $("#username").val(data.username)
+          $("#can-user-create-tenants").prop('checked', data.can_user_create_tenant);
+          $("#active").prop('checked', data.is_active);
+          $("#super").prop('checked', data.super);
+          $("#tenant-div").html('<label class="block text-sm font-medium">Tenants</label>')
+          for(var tenant in data.tenants) {
+            $("#tenant-div").append(`<div class="col-span-1"><div class="badge bg-base-200 border-base-300 text-base-content font-semibold">${data.tenants[tenant]}</div></div>`)
+          }
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })    
+  });
+
+  $(document).on('click', '.add-user-btn', function() {
+      document.getElementById('add-user-modal').checked = true;
+  });
+  $(document).on('click', '.save-user-btn', function() {
+      var data = {
+        "email": $("#new-email").val(),
+        "tenant_id": $("#new-tenant").val()
+      }
+      $.ajax({
+        type: "POST",
+        url: `/api/v1/admin/users`,
+        contentType: "application/json; charset=utf-8",
+        data: JSON.stringify(data),
+        dataType: "json",
+        success: function(data){
+          toast("Invited user")
+          document.getElementById('add-user-modal').checked = false;
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          document.getElementById('add-user-modal').checked = false;
+          return(errMsg);
+        }
+
+      })
+  });
+
+  function loadUserTable() {
+      $("#users").dataTable().fnDestroy();
+      $("#user-body").html('<div class="col-span-9 mx-auto mt-10"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-700 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+      $.ajax({
+        type: "GET",
+        url: `/api/v1/admin/users`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          for (var user in data) {
+            var can_user_create_tenants = (data[user].can_user_create_tenant === true) ? '<p class="font-medium text-xs capitalize text-green-600 bg-green-400/10 rounded-full py-1 px-3 w-fit">True</p>' : '<p class="font-medium text-xs capitalize text-red-600 bg-red-400/10 rounded-full py-1 px-3 w-fit">False</p>';
+            var is_super = (data[user].super === true) ? '<p class="font-medium text-xs capitalize text-green-600 bg-green-400/10 rounded-full py-1 px-3 w-fit">True</p>' : '<p class="font-medium text-xs capitalize text-red-600 bg-red-400/10 rounded-full py-1 px-3 w-fit">False</p>';
+            var is_active = (data[user].is_active === true) ? '<p class="font-medium text-xs capitalize text-green-600 bg-green-400/10 rounded-full py-1 px-3 w-fit">True</p>' : '<p class="font-medium text-xs capitalize text-red-600 bg-red-400/10 rounded-full py-1 px-3 w-fit">False</p>';
+            $("#user-body").append(`<tr><td class="text-sm font-medium ">${clean(data[user].email)}</td><td class="text-sm font-medium ">${clean(data[user].username)}</td><td class="text-sm font-medium  capitalize">${can_user_create_tenants}</td><td class="text-sm font-medium  capitalize">${data[user].tenants.length}</td><td class="text-sm font-medium  capitalize">${is_active}</td><td class="text-sm font-medium ">${is_super}</td><td class="text-sm font-medium ">${data[user].email_confirmed_at}</td><td class="text-center"><button data-user-id="${data[user].id}" class="btn btn-xs edit-user-btn">Edit</button></td></tr>`);
+          }
+          $('#users').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })
+  }
+  loadUserTable()
 </script>
 {% endblock %}

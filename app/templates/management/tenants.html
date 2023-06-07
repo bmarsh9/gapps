@@ -1,0 +1,270 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% block before_head %}
+  {{ super() }}
+  {% import "helpers/src_macros.html" as macro %}
+  {{ macro.filehelper(datatables=True) }}
+{% endblock %}
+
+{%block page_header_title%}Tenants{%endblock%}
+{%block page_header_title_border%}{%endblock%}
+{%block page_header_buttons%}<a href="{{url_for("main.tenant_users")}}" class="btn btn-sm btn-ghost border border-base-300 mr-2">Users</a><button class="btn btn-sm btn-primary add-tenant-btn">Add Tenant</button>{%endblock%}
+{%block tenant_btn%}{%endblock%}
+{%block content%}
+<div class="grid grid-cols-6 gap-4">
+  <div class="col-span-6">
+    <div class="card bg-base-100 border border-base-200">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Tenants</h2>
+              <table class="table table-vcenter" id="tenants" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Owner</th>
+                    <th>Contact</th>
+                    <th class="w-1">Settings</th>
+                    <th class="w-1">Delete</th>
+                  </tr>
+                </thead>
+                <tbody id="tenant-body"></tbody>
+              </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="edit-tenant-modal" class="modal-toggle" />
+<label for="edit-tenant-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">Edit Tenant</h3>
+        <div class="py-4 sm:mt-0">
+          <div class="md:grid md:grid-cols-1 md:gap-6">
+                <div class="mt-5 md:col-span-2 md:mt-0">
+                    <div class="overflow-hidden sm:rounded-md">
+                          <div class="px-4 py-5 sm:p-6">
+                            <div id="edit-tenant-body" class="grid grid-cols-6 gap-6"></div>
+                          </div>
+                          <div class="px-4 py-3 text-right sm:px-6">
+                                <button class="btn btn-primary save-edit-btn">Save</button>
+                          </div>
+                    </div>
+                </div>
+          </div>
+        </div>
+  </label>
+</label>
+
+<input type="checkbox" id="add-tenant-modal" class="modal-toggle" />
+<label for="add-tenant-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <h3 class="text-lg font-bold">Add Tenant</h3>
+        <div class="py-4 sm:mt-0">
+          <div class="md:grid md:grid-cols-1 md:gap-6">
+                <div class="mt-5 md:col-span-2 md:mt-0">
+                    <div class="overflow-hidden sm:rounded-md">
+                          <div class="px-4 py-5 sm:p-6">
+                                <div class="grid grid-cols-6 gap-6">
+                                  <div class="col-span-3 sm:col-span-3">
+                                        <label class="block text-sm font-medium ">Name</label>
+                                        <input placeholder="Enter the name of the tenant" type="text" name="name" id="name" class="mt-3 border block w-full rounded-md input-md">
+                                  </div>
+                                  <div class="col-span-3 sm:col-span-3">
+                                        <label class="block text-sm font-medium ">Contact Email</label>
+                                        <input placeholder="Enter the email contact" type="email" name="contact" id="contact" class="mt-3 border block w-full rounded-md input-md">
+                                  </div>
+                                </div>
+                          </div>
+                          <div class="px-4 py-3 text-right sm:px-6">
+                                <button class="btn btn-primary save-tenant-btn">Save</button>
+                          </div>
+                    </div>
+                </div>
+          </div>
+        </div>
+  </label>
+</label>
+<input type="checkbox" id="delete-modal" class="modal-toggle" />
+<label for="delete-modal" class="modal cursor-pointer">
+  <label class="modal-box relative" for="">
+    <h3 class="text-lg font-bold">Confirm deletion</h3>
+    <p class="py-4">Are you sure you want to delete <b id="delete-tenant-body">?</b>? You will lose all data and progress within the tenant.</p>
+    <div class="modal-action">
+      <label id="delete-tenant-btn" data-id="" @click="deleteTenant;document.getElementById('delete-modal').checked = false;" class="btn btn-error">Yes, Delete</label>
+    </div>
+  </label>
+</label>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+  function deleteTenant(e) {
+    var id = $('#delete-tenant-btn').data('id')
+    toast("Working on it... This may take ~30 seconds", "warning")
+    $.ajax({
+          type: "DELETE",
+          url: `/api/v1/tenants/${id}`,
+          contentType: "application/json; charset=utf-8",
+          success: function(data){
+            toast("Deleted tenant")
+            loadTenantTable()
+            return(data)
+          },
+          error: function(errMsg) {
+            toast(errMsg["responseJSON"]["message"],"error")
+            return(errMsg);
+          }
+    })
+
+  }
+  $(document).on('click', '.save-edit-btn', function() {
+    var id = $(this).data('tenant-id')
+    data = {
+      "contact_email":$(".contact-email").val(),
+      "name":$(".tenant-name").val(),
+      "approved_domains":$(".approved-domains").val(),
+      "magic_link": $(".magic-link-enabled").is(':checked')
+    }
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/tenants/${id}`,
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        toast("Edited tenant settings")
+        document.getElementById('edit-tenant-modal').checked = false;
+        loadTenantTable()
+        return(data)
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+      }
+    })
+  });
+  $(document).on('click', '.edit-tenant-btn', function() {
+      var id = $(this).data('tenant-id')
+      $(".save-edit-btn").data("tenant-id",id)
+      $.ajax({
+        type: "GET",
+        url: `/api/v1/tenants/${id}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          if (data.magic_link_login) {
+            var magicLink = '<input type="checkbox" class="toggle toggle-primary magic-link-enabled" checked />'
+          } else {
+            var magicLink = '<input type="checkbox" class="toggle toggle-primary magic-link-enabled"/>'
+          }
+          $("#edit-tenant-body").html(`
+            <div class="col-span-3 sm:col-span-3">
+              <label class="block text-sm font-medium mb-2">Name</label>
+              <input type="text" placeholder="Tenant name" value="${clean(data.name)}" class="input-md w-full tenant-name border rounded-md" />
+            </div>
+            <div class="col-span-3 sm:col-span-3">
+              <label class="block text-sm font-medium mb-2">Contact Email</label>
+              <input type="text" placeholder="Contact email" value="${clean(data.contact_email)}" class="input-md w-full contact-email border rounded-md" />
+            </div>
+            <div class="col-span-6">
+              <label class="block text-sm font-medium mb-2">Magic Link Login</label>
+              ${magicLink}
+              <p class="text-xs mt-2">When enabled, the user can login at <b class="text-primary">/login/tenants/${data.id}</b></p>
+            </div>
+            <div class="col-span-6">
+              <label class="block text-sm font-medium mb-2">Approved Domains</label>
+              <input type="text" placeholder="Comma separated list of approved domains for users" value="${clean(data.approved_domains)?clean(data.approved_domains):''}" class="input-md w-full approved-domains border rounded-md" />
+            </div>
+          `);
+          document.getElementById('edit-tenant-modal').checked = true;
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })    
+  });
+
+  $(document).on('click', '.delete-tenant-btn', function() {
+    var id = $(this).data('tenant-id')
+    var name = $(this).data('tenant-name')
+
+    $('#delete-tenant-btn').data('id',id); 
+    $('#delete-tenant-body').html(`${name} [${id}]`);
+    document.getElementById('delete-modal').checked = true;
+  });
+  $(document).on('click', '.add-tenant-btn', function() {
+    $(".save-tenant-btn").removeClass("btn-disabled")
+    $(".save-tenant-btn").removeClass("bg-base-300")
+    $(".save-tenant-btn").html("Save");
+    document.getElementById('add-tenant-modal').checked = true;
+  });
+  $(document).on('click', '.save-tenant-btn', function() {
+    var name = $("#name").val();
+    var email = $("#contact").val();
+    var approved_domains = $("#approved-domains").val();
+    if (name == null || name.length === 0){
+      toast("Please provide a name","error")
+      return
+    }
+    if (email == null || email.length === 0 || !email.includes("@")){
+      toast("Please provide a valid email","error")
+      return
+    }
+    toast("This may take a few seconds. Please wait...")
+    $(".save-tenant-btn").html('<div role="status"><svg aria-hidden="true" class="w-6 h-6 text-gray-200 animate-spin dark:text-gray-700 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div>');
+    $(".save-tenant-btn").addClass("btn-disabled")
+    $(".save-tenant-btn").addClass("bg-base-300")
+
+    data = {
+      "name":name,
+      "contact_email":email,
+      "approved_domains":approved_domains,
+    }
+    $.ajax({
+      type: "POST",
+      url: `/api/v1/tenants`,
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        toast("Added tenant. Now let's create a project for your tenant <a href='/projects' class='float-right btn btn-xs toggle-fa hover:bg-primary hover:border-primary ml-3 reload-button'>Begin</a>")
+        document.getElementById('add-tenant-modal').checked = false;
+        loadTenantTable()
+        return(data)
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        document.getElementById('add-tenant-modal').checked = false;
+        return(errMsg);
+      }
+    })
+    document.getElementById('add-tenant-modal').checked = true;
+  });
+
+  function loadTenantTable() {
+      $("#tenants").dataTable().fnDestroy();
+      $("#tenant-body").html('<div class="col-span-9 mx-auto mt-10"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-700 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+      $.ajax({
+        type: "GET",
+        url: `/api/v1/tenants`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+          for (var tenant in data) {
+            var obj = data[tenant];
+            $("#tenant-body").append(`<tr><td class="text-sm font-medium  capitalize">${clean(data[tenant].name)}</td><td class="text-sm font-medium">${clean(data[tenant].owner_email)}</td><td class="text-sm font-medium ">${clean(data[tenant].contact_email)}</td><td class="text-center"><button data-tenant-id="${data[tenant].id}" class="btn btn-xs btn-ghost border border-base-300 edit-tenant-btn">Edit</button></td><td class="text-center"><div class="avatar placeholder"><button data-tenant-name="${clean(data[tenant].name)}" data-tenant-id="${data[tenant].id}" class="rounded-full w-6 hover:cursor-pointer text-red-700 delete-tenant-btn"><span class="text-xs"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></span></button></div></td></tr>`);
+          }
+          $('#tenants').DataTable({pageLength:25})
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })
+
+  }
+  loadTenantTable()
+</script>
+{% endblock %}

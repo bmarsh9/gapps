@@ -1,171 +1,147 @@
 from flask import render_template, redirect, url_for, abort, flash, request, \
-    current_app, jsonify
+    current_app, jsonify, session, send_from_directory
 from . import main
 from app.models import *
-from flask_login import login_required,current_user
-from app.utils.decorators import roles_required,roles_accepted
+from flask_login import current_user
+from app.utils.decorators import *
+from app.utils.bg_worker import bg_app
+from app.utils.bg_helper import BgHelper
+from app.utils.misc import generate_layout
+from app.utils.authorizer import Authorizer
 import arrow
 import uuid
+import os
+
 
 @main.route('/', methods=['GET'])
 @login_required
 def home():
-    tenant = Tenant.query.first()
-    return render_template("home.html",tenant=tenant)
+    return render_template("home.html")
 
-@main.route('/controls-dashboard', methods=['GET'])
+@main.route('/projects/<int:pid>/reports/<path:filename>', methods=['GET'])
 @login_required
-def controls_dashboard():
-    return render_template("controls_dashboard.html")
+def download_report(pid, filename):
+    result = Authorizer(current_user).can_user_access_project(pid)
+    uploads = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'])
+    return send_from_directory(directory=uploads,
+        path=filename, as_attachment=True)
+
+@main.route('/questionnaires', methods=['GET'])
+@login_required
+def questionnaires():
+    return render_template("forms/questionnaires.html")
+
+@main.route('/questionnaires/<int:qid>', methods=['GET'])
+@login_required
+def view_questionnaire(qid):
+    result = Authorizer(current_user).can_user_manage_questionnaire(qid)
+    questionnaire = result["extra"]["questionnaire"]
+    template = "forms/build_form.html"
+    if questionnaire.published:
+        template = "forms/review_form.html"
+    return render_template(template, questionnaire=questionnaire)
+
+@main.route('/questionnaires/<int:qid>/render', methods=['GET'])
+@login_required
+def render_questionnaire(qid):
+    result = Authorizer(current_user).can_user_render_questionnaire(qid)
+    return render_template("forms/render_form.html", questionnaire=result["extra"]["questionnaire"])
+
+@main.route('/frameworks', methods=['GET'])
+@login_required
+def frameworks():
+    return render_template("frameworks.html")
+
+@main.route('/frameworks/<string:name>', methods=['GET'])
+@login_required
+def view_framework(name):
+    if not Tenant.query.first():
+        flash("Please create a tenant")
+        return redirect(url_for("main.tenants"))
+    framework = Framework.query.filter(func.lower(Framework.name) == func.lower(name)).first()
+    return render_template("view_framework.html",
+        framework=framework)
 
 @main.route('/evidence', methods=['GET'])
 @login_required
 def evidence():
-    projects = Project.query.all()
-    evidence = Evidence.query.all()
-    return render_template("evidence.html",
-        evidence=evidence, projects=projects)
+    return render_template("evidence.html")
 
 @main.route('/policies', methods=['GET'])
 @login_required
 def policies():
-    projects = Project.query.all()
-    policies = Policy.query.filter(Policy.visible == True).all()
-    return render_template("policies.html",
-        projects=projects, policies=policies)
+    return render_template("policies.html")
 
-@main.route('/policies/<int:id>', methods=['GET'])
+@main.route('/policies/<int:pid>', methods=['GET'])
 @login_required
-def view_policy(id):
-    policy = Policy.query.get(id)
+def view_policy(pid):
+    result = Authorizer(current_user).can_user_read_policy(pid)
+    policy = result["extra"]["policy"]
     labels = policy.get_template_variables()
-    controls = Control.query.all()
-    return render_template("view_policy.html", policy=policy,labels=labels,controls=controls)
+    controls = policy.tenant.controls.all()
+    return render_template("view_policy.html",
+        policy=policy,labels=labels,
+        controls=controls)
 
 @main.route('/controls', methods=['GET'])
 @login_required
 def controls():
-    projects = Project.query.all()
-    controls = Control.query.filter(Control.visible == True).all()
-    frameworks = Framework.query.all()
-    return render_template("controls.html",
-        projects=projects, controls=controls,
-        frameworks=frameworks)
+    return render_template("controls.html")
 
 @main.route('/projects', methods=['GET'])
 @login_required
 def projects():
-    projects = Project.query.all()
-    frameworks = Framework.query.all()
-    return render_template("projects.html", projects=projects, frameworks=frameworks)
+    return render_template("projects.html")
 
-@main.route('/projects/<int:id>', methods=['GET'])
+@main.route('/projects/<int:pid>', methods=['GET'])
 @login_required
-def view_project(id):
-    project = Project.query.get(id)
-    return render_template("view_project.html", project=project)
+def view_project(pid):
+    result = Authorizer(current_user).can_user_access_project(pid)
+    return render_template("view_project.html", project=result["extra"]["project"])
 
-@main.route('/projects/<int:id>/settings', methods=['GET'])
+@main.route('/projects/<int:pid>/controls/<int:cid>', methods=['GET'])
 @login_required
-def view_settings_in_project(id):
-    project = Project.query.get(id)
-    return render_template("view_settings_in_project.html",
-        project=project)
-
-@main.route('/projects/<int:id>/settings', methods=['POST'])
-@roles_required("admin")
-def update_settings_in_project(id):
-    project = Project.query.get(id)
-    project.name = request.form["name"]
-    project.description = request.form["description"]
-    db.session.commit()
-    return redirect(url_for("main.view_settings_in_project",id=project.id))
-
-@main.route('/projects/<int:id>/controls', methods=['GET'])
-@login_required
-def view_controls_in_project(id):
-    project = Project.query.get(id)
-    controls = project.controls.all()
-    return render_template("view_controls_in_project.html",
-        project=project, controls=controls)
-
-@main.route('/projects/<int:id>/controls/<int:cid>', methods=['GET'])
-@login_required
-def view_control_in_project(id, cid):
-    project = Project.query.get(id)
-    project_control = project.controls.filter(ProjectControl.id == cid).first()
-    subcontrols = project_control.subcontrols.order_by(ProjectSubControl.id.desc()).all()
-    evidence = Evidence.query.all()
+def view_control_in_project(pid, cid):
+    result = Authorizer(current_user).can_user_read_project_control(cid)
     return render_template("view_control_in_project.html",
-        project=project, project_control=project_control, subcontrols=subcontrols,
-        evidence=evidence)
+        project=result["extra"]["control"].project, project_control=result["extra"]["control"])
 
-@main.route('/projects/<int:id>/policies', methods=['GET'])
+@main.route('/projects/<int:pid>/controls/<int:cid>/subcontrols/<int:sid>', methods=['GET'])
 @login_required
-def view_policies_in_project(id):
-    project = Project.query.get(id)
-    policies = project.policies.all()
-    return render_template("view_policies_in_project.html",
-        project=project, policies=policies)
+def view_subcontrol_in_project(pid, cid, sid):
+    result = Authorizer(current_user).can_user_read_project_subcontrol(sid)
+    subcontrol = result["extra"]["subcontrol"]
+    layout = generate_layout({"header":True,"container":False,
+        "sidebar":False,"sidebar-open":False,"x-padding":"px-8","y-padding":"pt-2"
+    })
+    return render_template("view_subcontrol_in_project.html",
+        project=subcontrol.p_control.project, project_subcontrol=subcontrol,
+        layout=layout)
 
-@main.route('/projects/<int:id>/policies/<int:cid>', methods=['GET'])
+@main.route('/projects/<int:pid>/policies/<int:ppid>', methods=['GET'])
 @login_required
-def view_policy_in_project(id, cid):
-    project = Project.query.get(id)
-    policy = project.policies.filter(ProjectPolicy.id == cid).first()
+def view_policy_in_project(pid, ppid):
+    result = Authorizer(current_user).can_user_read_project_policy(ppid)
+    policy = result["extra"]["policy"]
     labels = policy.get_template_variables()
     return render_template("view_policy_in_project.html",
-        project=project, policy=policy,labels=labels)
+        project=policy.project, policy=policy, labels=labels)
 
-@main.route('/policies/external/<string:uuid>', methods=['GET'])
-def view_rendered_policy(uuid):
-    policy = ProjectPolicy.query.filter(ProjectPolicy.uuid == uuid).first()
-    if not policy.public_viewable:
-        if not current_user.is_authenticated:
-            abort(404)
-    tenant = Tenant.query.first()
+@main.route('/policies/<int:pid>/view', methods=['GET'])
+@login_required
+def view_rendered_policy(pid):
+    result = Authorizer(current_user).can_user_read_project_policy(pid)
+    policy = result["extra"]["policy"]
     content = policy.translate_to_html()
-    return render_template("view_rendered_policy.html", policy=policy, content=content, tenant=tenant)
+    return render_template("view_rendered_policy.html",
+        policy=policy, content=content)
 
-@main.route('/labels', methods=['GET','POST'])
+@main.route('/labels', methods=['GET'])
 @login_required
 def labels():
-    if request.method == "POST":
-        if not current_user.has_role("admin"):
-            abort(401)
-        key = request.form["key"]
-        value = request.form["value"]
-        pl = PolicyLabel(key=key,value=value,tenant_id=current_user.tenant_id)
-        db.session.add(pl)
-        db.session.commit()
-        flash("Created new label", "success")
-        return redirect(url_for("main.labels"))
-    labels = PolicyLabel.query.all()
-    return render_template("labels.html", labels=labels)
+    return render_template("labels.html")
 
-@main.route('/tags', methods=['GET','POST'])
+@main.route('/tags', methods=['GET'])
 @login_required
 def tags():
-    if request.method == "POST":
-        if not current_user.has_role("admin"):
-            abort(401)
-        name = request.form["name"]
-        Tag.add(current_user.tenant_id, name)
-        flash("Created new tag", "success")
-        return redirect(url_for("main.tags"))
-    tags = Tag.query.all()
-    return render_template("tags.html", tags=tags)
-
-@main.route('/settings', methods=['GET', 'POST'])
-@login_required
-def settings():
-    tenant = Tenant.query.first()
-    if request.method == "POST":
-        if not current_user.has_role("admin"):
-            abort(401)
-        tenant.name = request.form.get("name")
-        tenant.contact_email = request.form.get("email")
-        db.session.commit()
-        flash("Edited tenant settings","success")
-        return redirect(url_for("main.settings"))
-    return render_template("management/settings.html", tenant=tenant)
+    return render_template("tags.html")

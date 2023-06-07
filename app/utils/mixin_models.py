@@ -14,18 +14,44 @@ class ControlMixin(object):
     def __tablename__(cls):
         return cls.__name__.lower()
 
-    def as_dict(self, include_subcontrols=False):
+    def as_dict(self, include_subcontrols=False, stats=False):
         parent_fields = ["name","ref_code","system_level",
             "category","subcategory","dtc","dti"]
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         for field in parent_fields:
             data[field] = getattr(self.control, field)
         data["status"] = self.status()
-        data["progress"] = self.progress("implemented")
+        data["progress_completed"] = self.progress("complete")
+        data["progress_implemented"] = self.implemented_progress()
+        data["progress_evidence"] = self.progress("with_evidence")
         data["is_complete"] = self.is_complete()
         data["is_applicable"] = self.is_applicable()
+        data["description"] = self.control.description
+        data["guidance"] = self.control.guidance
+        data["subcontrol_count"] = self.subcontrols.count()
+        subcontrols = []
+        if include_subcontrols or stats:
+            subcontrols = [x.as_dict() for x in self.query_subcontrols(only_applicable=False)]
+
         if include_subcontrols:
-            data["subcontrols"] = [x.as_dict() for x in self.query_subcontrols(only_applicable=False)]
+            data["subcontrols"] = subcontrols
+        if stats:
+            data["stats"] = {
+                "feedback":0,
+                "comments":0,
+                "evidence":0,
+                "subcontrols":data["subcontrol_count"],
+                "subcontrols_complete":0,
+                "inapplicable_subcontrols":0
+            }
+            for sub in subcontrols:
+                if sub["is_complete"]:
+                    data["stats"]["subcontrols_complete"] += 1
+                if not sub["is_applicable"]:
+                    data["stats"]["inapplicable_subcontrols"] += 1
+#                data["stats"]["feedback"] += sub.feedback.count()
+#                data["stats"]["comments"] += sub.comments.count()
+#                data["stats"]["evidence"] += sub.evidence.count()
         return data
 
     def framework(self):
@@ -87,7 +113,7 @@ class ControlMixin(object):
         if not subcontrols:
             return total
         for control in subcontrols:
-            total += control.implemented
+            total += control.implemented or 0
         return round((total/len(subcontrols)),2)
 
     def query_subcontrols(self, filter=None, only_applicable=True):
@@ -136,6 +162,7 @@ class SubControlMixin(object):
         return cls.__name__.lower()
 
     def as_dict(self, include_evidence=False):
+        User = get_class_by_tablename("User")
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         data["implementation_status"] = self.implementation_status()
         data["has_evidence"] = self.has_evidence()
@@ -144,10 +171,36 @@ class SubControlMixin(object):
         data["project"] = self.p_control.project.name
         data["parent_control"] = self.p_control.control.name
         data["name"] = self.subcontrol.name
+        data["description"] = self.subcontrol.description
+        data["mitigation"] = self.subcontrol.mitigation
         data["ref_code"] = self.subcontrol.ref_code
+        data["comments"] = self.comments.count()
+        data["evidence"] = self.evidence.count()
+        data["feedback"] = self.feedback.count()
+        data["owner"] = User.query.get(self.owner_id).email if self.owner_id else "Missing Owner"
+        data["operator"] = User.query.get(self.operator_id).email if self.operator_id else "Missing Operator"
+        data["complete_feedback"] = len(self.complete_feedback())
         if include_evidence:
             data["evidence"] = [x.as_dict() for x in self.evidence.all()]
         return data
+
+    def complete_feedback(self):
+        data = []
+        for feedback in self.feedback.all():
+            if feedback.complete():
+                data.append(feedback)
+        return data
+
+    def completion_description(self):
+        text = ""
+        if not self.is_applicable:
+            return "Control is not applicable"
+        text += f"Control is {str(self.implementation_status())}"
+        if self.has_evidence():
+            text += " and has evidence attached."
+        else:
+            text += " and is missing evidence."
+        return text
 
     def framework(self):
         return self.p_control.control.framework
@@ -182,10 +235,10 @@ class SubControlMixin(object):
     def implementation_status(self):
         if not self.is_applicable:
             return "not applicable"
+        if not self.implemented or self.implemented == 0:
+            return "not implemented"
         if self.implemented == 100:
             return "fully implemented"
-        if self.implemented == 0:
-            return "not implemented"
         if self.implemented >= 50:
             return "mostly implemented"
         return "partially implemented"
@@ -206,7 +259,81 @@ class SubControlMixin(object):
         if self.has_feature("feature_evidence"):
             if not self.has_evidence():
                 return False
-        return True
+
+        if framework.name == "soc2":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
+        elif framework.name == "cmmc":
+            """
+            control must be implemented, have evidence
+            attached and based on the level
+            """
+            #self.p_control.control.level
+            return True
+        elif framework.name == "cmmc_v2":
+            """
+            control must be implemented, have evidence
+            attached and based on the level
+            """
+            return True
+        elif framework.name == "iso27001":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
+        elif framework.name == "hipaa":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
+        elif framework.name == "nist_800_53_v4":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
+        elif framework.name == "nist_csf_v1.1":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
+        elif framework.name == "asvs_v4.0.1":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
+        elif framework.name == "ssf":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
+        elif framework.name == "cisv8":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
+        elif framework.name == "pci_3.1":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
+        elif framework.name == "custom":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
+        return False
 
     def has_evidence(self, id=None):
         if not id:
@@ -263,5 +390,8 @@ class LogMixin(object):
 class DateMixin(object):
     __table_args__ = {'extend_existing': True}
 
-    def humanize_date(self,date):
+    def humanize_date(self, date):
         return arrow.get(date).humanize()
+
+    def simple(self, date):
+        return arrow.get(date).format("M/D/YYYY")

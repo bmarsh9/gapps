@@ -1,139 +1,250 @@
-{% extends "layouts/basic.html" %}
+{% extends "layouts/sidebar-nav.html" %}
 
 {% import "helpers/snippets.html" as snippet with context %}
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True) }}
+  {{ macro.filehelper(datatables=True,select2=True,apex=True) }}
 {% endblock %}
 
-{%block header_title%}Projects<p class="text-sm text-gray-500 font-medium">Projects contain your policies and controls</p>{%endblock%}
-{%block header_actions%}<button class="btn btn-sm modal-button">New</button>{%endblock%}
+{%block header%}{%endblock%}
+{%block page_header%}{%endblock%}
 
 {%block content%}
+<div class="grid grid-cols-9 gap-8">
+  <div class="col-span-9">
 
-<div class="grid grid-cols-6 gap-4 mt-2">
-  <div class="col-span-6">
-    <div class="card bg-base-100">
-      <div class="card-body">
-        <h2 class="card-title mb-4">Projects</h2>
-        <table class="table table-vcenter table-bordered" id="project-table" style="width:100%">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th class="w-1">Controls</th>
-              <th class="w-1">Policies</th>
-              <th class="w-1">Complete</th>
-              <th class="w-1">Implemented</th>
-              <th class="w-1">Evidence</th>
-              <th class="w-1">Manage</th>
-            </tr>
-          </thead>
-          <tbody>
-            {%for project in projects%}
-            {%set complete=project.progress("complete")%}
-            {%set implemented=project.progress("implemented")%}
-            {%set evidence=project.progress("with_evidence")%}
-            <tr>
-              <td class="text-sm font-medium text-gray-500">{{project.name}}</td>
-              <td class="text-sm font-medium text-gray-500">{{project.controls.count()}}</td>
-              <td class="text-sm font-medium text-gray-500">{{project.policies.count()}}</td>
-              <td>
-                <div class="flex flex-col">
-                  <b class="text-xs font-medium text-gray-500">{{complete}}</b><progress class="progress w-28" value="{{complete}}" max="100"></progress>                
-                </div>
-              </td>
-              <td>
-                <div class="flex flex-col">
-                  <b class="text-xs font-medium text-gray-500">{{implemented}}</b><progress class="progress w-28" value="{{implemented}}" max="100"></progress>                
-                </div>
-              </td>
-              <td>
-                <div class="flex flex-col">
-                  <b class="text-xs font-medium text-gray-500">{{evidence}}</b><progress class="progress w-28" value="{{evidence}}" max="100"></progress>                
-                </div>
-              </td>
-              <td class="">
-                <a class="btn btn-xs" href="{{url_for("main.view_project",id=project.id)}}">Edit</a>
-              </td> 
-            </tr>
-            {%endfor%}
-          </tbody>
-        </table>
+<div class="lg:flex lg:items-center lg:justify-between">
+  <div class="min-w-0 flex-1">
+    <h2 class="text-2xl font-bold leading-7 sm:text-3xl sm:tracking-tight">Projects</h2>
+    <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6"></div>
+  </div>
+  <div class="mt-5 flex lg:mt-0 lg:ml-4">
+    <span class="ml-3 hidden sm:block">
+      <button type="button" class="format-btn inline-flex items-center rounded-md border border-base-300 hover:bg-base-200 px-4 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2">Card Format</button>
+    </span>
+
+    <span class="sm:ml-3">
+      <button class="modal-button inline-flex items-center rounded-md btn-primary px-4 py-2 text-sm font-medium shadow-sm">
+        <!-- Heroicon name: mini/check -->
+        <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+        </svg>
+        Create
+      </button>
+    </span>
+
+    <!-- Dropdown -->
+    <div class="relative ml-3 sm:hidden">
+      <button type="button" class="inline-flex items-center rounded-md border border-neutral-content px-4 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2" id="mobile-menu-button" aria-expanded="false" aria-haspopup="true">
+        More
+        <!-- Heroicon name: mini/chevron-down -->
+        <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+        </svg>
+      </button>
+      <div class="absolute right-0 z-10 mt-2 -mr-1 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="mobile-menu-button" tabindex="-1">
+        <!-- Active: "bg-gray-100", Not Active: "" -->
+        <a href="#" class="block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="mobile-menu-item-0">Edit</a>
+        <a href="#" class="block px-4 py-2 text-sm" role="menuitem" tabindex="-1" id="mobile-menu-item-1">View</a>
       </div>
     </div>
   </div>
 </div>
 
+
+
+  </div>
+  </div>
+  <div class="grid grid-cols-9 gap-8 mt-8" id="card-div">
+    <div class="col-span-9 mx-auto mt-10"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>
+  </div>
+</div>
+
+<!--
+<input type="checkbox" id="filter-modal" class="modal-toggle" />
+<label for="filter-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <h2 class="card-title mb-5">Filter your Homepage</h2>
+      </div>
+    </div>
+    <div class="">
+      <div class="grid grid-cols-6 gap-6">
+        <div class="col-span-6 sm:col-span-3">
+          <label class="block text-sm font-medium mb-2">Filter on Tenant</label>
+          <span id="tenant-select-div" class=""></span>
+        </div>
+        <div class="col-span-6 sm:col-span-3">
+          <label class="block text-sm font-medium mb-2">Filter on Framework</label>
+          <span id="framework-select-div" class=""></span>
+        </div>
+      </div>
+    <div class="modal-action">
+      <a href="#" class="btn clear-filters">Clear Filters</a>
+    </div>
+    </div>
+  </label>
+</label>
+-->
+
+<input type="checkbox" id="data-modal" class="modal-toggle" />
+<label for="data-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <h2 id="modal-title" class="card-title mb-5 capitalize"></h2>
+      </div>
+      <div>
+        <span id="modal-date" class="text-xs">?</span>
+      </div>
+    </div>
+    <div class="grid grid-cols-6">
+      <div class="col-span-3">
+        <div class="overflow-hidden shadow sm:rounded-lg"><div class="px-4 py-5 sm:px-6 bg-base-200"><h3 class="text-lg font-medium leading-6">Project Details</h3></div><div class="border-t border-base-300"><dl id="modal-details"></dl></div></div>
+      </div>
+      <div class="col-span-3 m-auto flex flex-col">
+        <div class="mx-auto" id="modal-completion"></div>
+        <div class="mx-auto mt-2 text-sm font-semibold">Completion progress of project</div>
+      </div>
+    </div>
+    <div class="modal-action">
+      <a id="view-project" href="" class="btn btn-primary">View</a>
+    </div>
+  </label>
+</label>
+
 <input type="checkbox" id="project-modal" class="modal-toggle" />
 <label for="project-modal" class="modal cursor-pointer">
   <label class="modal-box relative w-11/12 max-w-5xl" for="">
     <h3 class="text-lg font-bold">New Project</h3>
-	<div class="py-4 sm:mt-0">
-	  <div class="md:grid md:grid-cols-1 md:gap-6">
-		<div class="mt-5 md:col-span-2 md:mt-0">
-			<div class="overflow-hidden sm:rounded-md">
-			  <div class="bg-white px-4 py-5 sm:p-6">
-				<div class="grid grid-cols-6 gap-6">
-				  <div class="col-span-6 sm:col-span-3">
-					<label for="name" class="block text-sm font-medium text-gray-700">Project Name</label>
-					<input type="text" name="name" id="name" placeholder="Give your project a name" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
-				  </div>
-				  <div class="col-span-6 sm:col-span-3">
-					<label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-					<input type="text" name="description" id="description" placeholder="Short description of the project" class="mt-3 border block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
-				  </div>
-				  <div class="col-span-6 sm:col-span-6">
-					<label class="block text-sm font-medium text-gray-700 mb-2">Select Framework (you can always add additional controls later)</label>
-                                        <select id="select-framework" class="select select-bordered w-full max-w-xs">
-                                          <option value="n/a" selected>Select framework</option>
-                                          {%for framework in frameworks%}
-                                          <option value="{{framework.name}}">{{framework.name|upper}}</option>
-                                          {%endfor%}
-                                          <option value="empty">Empty project</option>
-                                        </select>
+        <div class="py-4 sm:mt-0">
+          <div class="md:grid md:grid-cols-1 md:gap-6">
+                <div class="mt-5 md:col-span-2 md:mt-0">
+                        <div class="overflow-hidden sm:rounded-md">
+                          <div class=" px-4 py-5 sm:p-6">
+                                <div class="grid grid-cols-6 gap-6">
+                                  <div class="col-span-6 sm:col-span-3">
+                                        <label for="name" class="block text-sm font-medium">Project Name</label>
+                                        <input type="text" name="name" id="name" placeholder="Give your project a name" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
                                   </div>
-				  <div id="form-content" class="col-span-6 sm:col-span-6"></div>
-				</div>
-			  </div>
-			  <div class="px-4 py-3 text-right sm:px-6">
-				<button class="create-project inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save</button>
-			  </div>
-			</div>
-		</div>
-	  </div>
-	</div>
+                                  <div class="col-span-6 sm:col-span-3">
+                                        <label for="description" class="block text-sm font-medium">Description</label>
+                                        <input type="text" name="description" id="description" placeholder="Short description of the project" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md">
+                                  </div>
+                                  <div class="col-span-3 sm:col-span-3">
+                                        <label class="block text-sm font-medium mb-2">Select Framework (you can always add additional controls later)</label>
+                                        <select id="select-framework" class="select select-bordered w-full"></select>
+                                  </div>
+                                  <div class="col-span-3 sm:col-span-3">
+                                        <label class="block text-sm font-medium">Tenant</label>
+                                        <input type="text" name="tenant" id="tenant" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 input-md capitalize" disabled>
+                                  </div>
+                                  <div id="form-content" class="col-span-6 sm:col-span-6"></div>
+                                </div>
+                          </div>
+                          <div class="px-4 py-3 text-right sm:px-6">
+                                <button class="create-project btn btn-primary">Save</button>
+                          </div>
+                        </div>
+                </div>
+          </div>
+        </div>
+  </label>
+</label>
+
+<input type="checkbox" id="delete-modal" class="modal-toggle" />
+<label for="delete-modal" class="modal cursor-pointer">
+  <label class="modal-box relative" for="">
+    <h3 class="text-lg font-bold">Confirm deletion</h3>
+    <p class="py-4">Are you sure you want to delete <b id="delete-project-body">?</b>? You will lose all data and progress within the project.</p>
+    <div class="modal-action">
+      <label id="delete-project-btn" data-id="" @click="deleteProject;document.getElementById('delete-modal').checked = false;" class="btn btn-error">Yes, Delete</label>
+    </div>
   </label>
 </label>
 {%endblock%}
-
 {%block extrajs%}
 <script>
-  $(document).ready(function() {
-    $(document).on('click', '.modal-button', function() {
-      document.getElementById('project-modal').checked = true;
-    });
-    $("#project-table").DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+
+function deleteProject(e) {
+    var id = $('#delete-project-btn').data('id')
+    toast("Working on it...", "warning")
+    $.ajax({
+          type: "DELETE",
+          url: `/api/v1/projects/${id}`,
+          contentType: "application/json; charset=utf-8",
+          success: function(data){
+            toast("Deleted project")
+            loadCards()
+            return(data)
+          },
+          error: function(errMsg) {
+            toast("Hmm.. we were unable to delete the project","error")
+            return(errMsg);
+          }
+    })
+
+}
+
+$(document).on('click', '.modal-button', function() {
+       var selectedTenant = getTenant();
+       if (!selectedTenant.id) {
+         toast("Please create a tenant <a href='/tenants' class='float-right btn btn-xs toggle-fa hover:bg-primary hover:border-primary ml-3 reload-button'>Begin</a>","warning")
+       } else {
+       $(".create-project").html('Save');
+       document.getElementById('project-modal').checked = true;
+       $.ajax({
+         type: "GET",
+         url: `/api/v1/tenants/${selectedTenant.id}/frameworks`,
+         contentType: "application/json; charset=utf-8",
+         dataType: "json",
+         success: function(data){
+             $("#select-framework").html("");
+             $("#select-framework").append(`<option value="n/a" selected>Select framework</option>`)
+             for (var framework in data) {
+               $("#select-framework").append(`<option value="${data[framework].name}">${data[framework].name.toUpperCase()}</option>`)
+             }
+             //$("#select-framework").append(`<option value="empty" selected>Empty</option>`)
+             $("#tenant").val(selectedTenant.name)
+             return(data)
+         },
+         error: function(errMsg) {
+             return(errMsg);
+         }
+       })
+       }
+});
 
     $(document).on('change', '#select-framework', function() {
       var divHolder = $("#form-content")
       divHolder.html("")
       var framework = $("#select-framework").val();
       if (framework === "soc2") {
-        divHolder.append(`<div class="col-span-6 sm:col-span-6"><label for="label" class="block text-sm font-medium text-gray-700">Included Criteria Categories</label><p class="text-xs text-gray-500 font-medium mb-3">Security (Common criteria) is required for all SOC 2 projects. Have a question about selection?<a href="{{config.DOC_LINK}}" class="text-primary">Click here</a></p><div class="flex flex-col"><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Security</span><input id="criteria-1" type="checkbox" class="toggle toggle-primary" checked disabled/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Availability</span><input id="criteria-2" type="checkbox" class="toggle toggle-accent"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Confidentiality</span><input id="criteria-3" type="checkbox" class="toggle toggle-accent"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Integrity</span><input id="criteria-4" type="checkbox" class="toggle toggle-accent"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Privacy</span><input id="criteria-5" type="checkbox" class="toggle toggle-accent"/></label></div></div></div>`)
+        divHolder.append(`<div class="col-span-6 sm:col-span-6"><label for="label" class="block text-sm font-medium">Included Criteria Categories</label><p class="text-xs font-medium mb-3">Security (Common criteria) is required for all SOC 2 projects. Have a question about selection?<a href="{{config.DOC_LINK}}" class="text-primary"> Click here</a></p><div class="flex flex-col"><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Security</span><input id="criteria-1" type="checkbox" class="toggle toggle-primary" checked disabled/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Availability</span><input id="criteria-2" type="checkbox" class="toggle toggle-primary"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Confidentiality</span><input id="criteria-3" type="checkbox" class="toggle toggle-primary"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Integrity</span><input id="criteria-4" type="checkbox" class="toggle toggle-primary"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Privacy</span><input id="criteria-5" type="checkbox" class="toggle toggle-primary"/></label></div></div></div>`)
+      }
+      if (framework === "cmmc") {
+        divHolder.append(`<div class="col-span-6 sm:col-span-6"><label for="label" class="block text-sm font-medium">Included CMMC Levels</label><p class="text-xs font-medium mb-3">Are you sure you want v1? CMMC v2 is available. Have a question about selection?<a href="{{config.DOC_LINK}}" class="text-primary"> Click here</a></p><div class="flex flex-col"><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Level 1</span><input id="level-1" type="checkbox" class="toggle toggle-primary"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Level 2</span><input id="level-2" type="checkbox" class="toggle toggle-primary"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Level 3</span><input id="level-3" type="checkbox" class="toggle toggle-primary"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Level 4</span><input id="level-4" type="checkbox" class="toggle toggle-primary"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Level 5</span><input id="level-5" type="checkbox" class="toggle toggle-primary"/></label></div></div></div>`)
+      }
+      if (framework === "cmmc_v2") {
+        divHolder.append(`<div class="col-span-6 sm:col-span-6"><label for="label" class="block text-sm font-medium">Included CMMC Levels</label><p class="text-xs font-medium mb-3">CMMC v2, level 3 is not yet available. Have a question about selection?<a href="{{config.DOC_LINK}}" class="text-primary"> Click here</a></p><div class="flex flex-col"><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Level 1</span><input id="level-1" type="checkbox" class="toggle toggle-primary"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Level 2</span><input id="level-2" type="checkbox" class="toggle toggle-primary"/></label></div><div class="form-control w-52"><label class="cursor-pointer label"><span class="label-text">Level 3</span><input id="level-3" type="checkbox" class="toggle toggle-primary"/></label></div></div></div>`)
       }
     });
     $(document).on('click', '.create-project', function() {
+      var selectedTenant = getTenant();
       var framework = $("#select-framework").val();
       var name = $("#name").val();
       if (name == null || name.length === 0){
-        createToast("error","Please provide a name")
+        toast("Please provide a name","error")
         return
       }
       if (framework === "n/a") {
-        createToast("error","Please select a framework")
+        toast("Please select a framework","error")
         return
       }
+      toast("This may take a few seconds. Please wait...")
+      $(".create-project").html('<div role="status"><svg aria-hidden="true" class="w-6 h-6 text-gray-200 animate-spin dark:text-gray-700 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div>');
       if (framework === "soc2") {
         var data = {
           "name":$("#name").val(),
@@ -143,33 +254,253 @@
           "criteria-2":$("#criteria-2").is(':checked'),
           "criteria-3":$("#criteria-3").is(':checked'),
           "criteria-4":$("#criteria-4").is(':checked'),
-          "criteria-5":$("#criteria-5").is(':checked'),
+          "criteria-5":$("#criteria-5").is(':checked')
+        };
+      } else if (framework === "cmmc") {
+        var data = {
+          "name":$("#name").val(),
+          "description":$("#description").val(),
+          "framework":framework,
+          "level-1":$("#level-1").is(':checked'),
+          "level-2":$("#level-2").is(':checked'),
+          "level-3":$("#level-3").is(':checked'),
+          "level-4":$("#level-4").is(':checked'),
+          "level-5":$("#level-5").is(':checked')
+        };
+      } else if (framework === "cmmc_v2") {
+        var data = {
+          "name":$("#name").val(),
+          "description":$("#description").val(),
+          "framework":framework,
+          "level-1":$("#level-1").is(':checked'),
+          "level-2":$("#level-2").is(':checked'),
+          "level-3":$("#level-3").is(':checked')
         };
       } else {
         var data = {
           "name":$("#name").val(),
           "description":$("#description").val(),
-          "framework":framework
+          "framework":framework,
         }
       }
       $.ajax({
         type: "POST",
-        url: "/api/v1/projects",
+        url: `/api/v1/tenants/${selectedTenant.id}/projects`,
         data: JSON.stringify(data),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function(data){
-          createToast("info", "Created project")
+          toast("Created project")
           document.getElementById('project-modal').checked = false;
-          setTimeout(function() {location.reload();}, 500);
+          //setTimeout(function() {location.reload();}, 500);
+          loadCards()
           return(data)
         },
         error: function(errMsg) {
-          createToast("error",errMsg["responseJSON"]["message"])
+          toast(errMsg["responseJSON"]["message"],"error")
           return(errMsg);
         }
       })
     });
-  });
+
+function getCardData() {
+  return JSON.parse(localStorage.getItem("cardData"))
+}
+
+function setCardData(data) {
+  localStorage.setItem('cardData', JSON.stringify(data));
+}
+
+function loadCards(format="cards") {
+  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+  var filter = {};
+  var selectedTenant = getTenant();
+  $.ajax({
+    type: "GET",
+    url:`/api/v1/tenants/${selectedTenant.id}/projects`,
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
+      console.log(data)
+      setCardData(data)
+      $("#card-div").html("");
+      if (format === "table") {
+        $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-200"><div class=""><h2 class="card-title mb-4">Projects</h2><table class="table table-vcenter" id="project-table" style="width:100%"><thead><tr><th>Name</th><th class="w-1">Framework</th><th class="w-1">Controls</th><th class="w-1">Policies</th><th class="w-1">Complete</th><th class="w-1">More</th></tr></thead><tbody id="project-table-body"></tbody></table></div></div></div>`);
+      };
+
+      for (var card in data) {
+        var obj = data[card]
+        if (format === "table") {
+          $("#project-table-body").append(`<tr><td class="text-sm font-medium capitalize">${obj.name}</td><td class="text-sm uppercase"><p class="badge badge-primary badge-md">${obj.framework}</p></td><td class="text-sm font-medium">${obj.total_controls}</td><td class="text-sm font-medium">${obj.total_policies}</td><td><div class="flex flex-col"><b class="text-xs font-medium">${obj.completion_progress}</b><progress class="progress w-100" value="${obj.completion_progress}" max="100"/></div></td><td class=""><a data-id="${obj.id}" class="btn btn-xs my-card" href="#">+</a></td></tr>`);
+        } else {
+	  var options = {
+            series: [100-obj.completion_progress,obj.completion_progress],
+            legend: {
+	      show: false
+	    },
+            dataLabels: {
+              enabled: false
+            },
+	    chart: {
+	      type: 'donut',
+              height:250
+	    },
+plotOptions: {
+    pie: {
+      donut: {
+        labels: {
+          show: true,
+        value:{
+          offsetY: -8,
+          color:'#6b6a6e'
+        },
+          total: {
+            show: true,
+            label: '',
+            formatter: () => `${obj.completion_progress}%`
+          }
+        }
+      }
+    }
+  },
+            labels: ['Uncomplete', 'Complete'],
+            fill:{colors:['#f3f4f6', '#4ade80']},
+            responsive: [{
+	      breakpoint: 300,
+	      options: {
+	        chart: {
+	          width: 100
+	        }
+	      }
+  	    }]
+	  };
+          $("#card-div").append(`<div class="col-span-3">
+    <div class="card shadow-md border border-base-300">
+      <div class="p-5">
+        <div class="flex justify-between my-auto">
+          <div><p class="font-medium text-xs uppercase text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${obj.framework}</p></div>
+          <div class="flex flex-row gap-x-2">
+            <div class="avatar placeholder">
+              <a @click="$('#delete-project-btn').data('id',${obj.id}); $('#delete-project-body').html('${obj.name} [${obj.id}]');document.getElementById('delete-modal').checked = true;" class="rounded-full w-6 hover:cursor-pointer text-red-700"><span class="text-xs"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></span>
+              </a>
+            </div>
+            <div class="avatar placeholder">
+              <a href="/frameworks/${obj.framework}" class="rounded-full w-6 hover:cursor-pointer"><span class="text-xs"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"></path></svg></span>
+              </a>
+            </div>
+            <div class="avatar placeholder"><div data-id="${obj.id}" class="my-card bg-primary text-primary-content rounded-full w-6 hover:cursor-pointer"><span class="text-xs"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    <h2 class="card-title capitalize">${obj.name}</h2><div class="flex justify-center"><div id="completion-progress-${obj.id}"></div></div><div class="text-center flex justify-center mt-4">
+<span class="font-medium text-sm px-4 tooltip" data-tip="Controls"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mx-auto"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 11-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 016.336-4.486l-3.276 3.276a3.004 3.004 0 002.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852z" /><path stroke-linecap="round" stroke-linejoin="round" d="M4.867 19.125h.008v.008h-.008v-.008z" /></svg>${obj.total_controls}</span>
+<span class="font-medium text-sm px-4 tooltip" data-tip="Policies"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mx-auto"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>${obj.total_policies}</span>
+
+
+
+<span class="font-medium text-sm px-4 tooltip" data-tip="Controls waiting on InfoSec"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mx-auto"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>${obj.review_summary["not started"]||0+obj.review_summary["infosec action"]||0+obj.review_summary["action required"]||0}</span>
+<span class="font-medium text-sm px-4 tooltip" data-tip="Controls waiting on Auditor"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mx-auto"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>${obj.review_summary["ready for auditor"]||0}</span>
+
+
+</div><div class="card-actions justify-start mt-2"><div class="grid grid-rows-2 grid-flow-col gap-x-2"><div class="row-span-2"><div class="avatar placeholder"><div class="bg-neutral-focus text-neutral-content rounded-full w-8"><span class="text-xs uppercase">${obj.tenant[0]}</span></div></div></div><div class="col-span-2"><p class="font-medium text-secondary text-sm capitalize">Tenant: ${obj.tenant}</p></div><div class="row-span-1 col-span-2"><p class="text-xs">${obj.date_added}</p></div></div></div></div></div></div></div>`);
+          new ApexCharts(document.querySelector(`#completion-progress-${obj.id}`), options).render()
+        }
+      }
+      $("#project-table").DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
+      if (data === undefined || data.length == 0) {
+        $("#card-div").html('<div class="col-span-9 mx-auto mt-48"><p class="text-2xl font-medium">Please create a project to get started (or switch tenants)</p><div class="text-center mt-4"><button class="modal-button btn btn-primary">Create</button></div></div>')
+      }
+
+      return(data)
+    },
+    error: function(errMsg) {
+        $("#card-div").html('<div class="col-span-9 mx-auto mt-48"><p class="text-2xl font-medium">Please create a project to get started (or switch tenants)</p><div class="text-center mt-4"><button class="modal-button btn btn-primary">Create</button></div></div>')
+        return(errMsg);
+    }
+  })
+}
+
+function setFormatBtn() {
+  if ($(".format-btn").html() === "Card Format") {
+    $(".format-btn").html("Table Format")
+    loadCards(format="table")
+  } else {
+    $(".format-btn").html("Card Format")
+    loadCards(format="cards")
+  };
+}
+$(document).on('click', '.format-btn', function() {
+  setFormatBtn()
+});
+
+$(document).on('click', '.my-card', function() {
+  var id = $(this).data('id')
+  $("#view-project").attr("href",`/projects/${id}`)
+
+  var data = getCardData();
+  for (var item in data) {
+    if (id === data[item].id) {
+     $("#modal-completion").html(`<div id="modal-completion-${id}"></div>`)
+      $("#modal-details").html("")
+      $("#modal-title").html(data[item].name);
+
+      var options = {
+            series: [100-data[item].completion_progress,data[item].completion_progress],
+            legend: {
+              show: false
+            },
+            dataLabels: {
+              enabled: false
+            },
+            chart: {
+              type: 'donut',
+            },
+plotOptions: {
+    pie: {
+      donut: {
+        labels: {
+          show: true,
+        value:{
+          offsetY: -8,
+          color:'#6b6a6e'
+        },
+          total: {
+            show: true,
+            label: '',
+            formatter: () => `${data[item].completion_progress}%`
+          }
+        }
+      }
+    }
+  },
+            labels: ['Uncomplete', 'Complete'],
+            fill:{colors:['#f3f4f6', '#4ade80']},
+            responsive: [{
+              breakpoint: 300,
+              options: {
+                chart: {
+                  width: 100
+                }
+              }
+            }]
+      };
+      new ApexCharts(document.querySelector(`#modal-completion-${id}`), options).render()
+      $("#modal-date").html(data[item].date_added);
+      $("#modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Name</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize">${data[item].name}</dd></div>`)
+      $("#modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Description</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data[item].description}</dd></div>`)
+      $("#modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Framework</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize badge badge-primary badge-md">${data[item].framework}</dd></div>`)
+      $("#modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Owner</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data[item].owner}</dd></div>`)
+      $("#modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Total Controls</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data[item].total_controls}</dd></div>`)
+      $("#modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Total Policies</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data[item].total_policies}</dd></div>`)
+    }
+  };
+  // set data-id
+  //$(".my-button").data("id","new value")
+  document.getElementById('data-modal').checked = true;
+});
+
+// on load of page
+loadCards();
 </script>
 {%endblock%}

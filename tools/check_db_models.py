@@ -1,23 +1,40 @@
 import sys
-sys.path.append("..") # Adds higher directory to python modules path.
+import os
+from sqlalchemy import exc
+from flask_sqlalchemy import inspect
+
+# improve this hack
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from app import create_app
 from app.models import *
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 
-def can_we_query_model():
+def should_we_create_models():
+    """
+    checks if the tables are defined in the database
+    and if we should create the models
+    will return 3 possible values: Yes, No, Error
+    """
     with app.app_context():
         try:
-            User.query.count()
-            return True
-        except Exception as e:
-            print(f"[ERROR] Traceback while querying db model: {e}")
-            return False
-    return False
+            inspector = inspect(db.engine)
 
-print(f"[INFO] Checking if we can query the database models")
-if not can_we_query_model():
-    print(f"[ERROR] Unable to query the database models")
+            # tables have not been created
+            if not inspector.get_table_names():
+                return "Yes"
+            return "No"
+        except exc.SQLAlchemyError as e:
+            print(f"[ERROR] Traceback while querying db model: {e}")
+            return "Error"
+    return "Error"
+
+print(f"[INFO] Checking if we should create the models")
+result = should_we_create_models()
+if result == "Yes":
+    print(f"[WARNING] Unable to query the database models. They need to be created.")
     exit(1)
-print(f"[INFO] Successfully queried the database models")
+elif result == "No":
+    print(f"[INFO] Successfully queried the database models")
 exit(0)

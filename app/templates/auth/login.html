@@ -11,17 +11,17 @@
       <form action="{{url_for("auth.login")}}" method="POST">
         <div class="form-control">
           <label class="label">
-            <span class="label-text">Email</span>
+            <span class="label-text font-semibold">Email</span>
           </label>
           <input type="text" id="email" name="email" placeholder="{{ _('Email') }}" class="input input-bordered" required/>
         </div>
         <div class="form-control">
           <label class="label">
-            <span class="label-text">Password</span>
+            <span class="label-text font-semibold">Password</span>
           </label>
           <input class="input input-bordered" placeholder="{{ _('Password') }}" id="password" name="password" type="password" required/>
           <label class="label">
-            <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
+            <a href="{{url_for("auth.reset_password_request")}}" class="label-text-alt link link-hover">Forgot password?</a>
           </label>
           {%if config.ENABLE_SELF_REGISTRATION == "1"%}
           <p class="text-primary text-xs font-medium ml-1 link link-hover"><a href="{{url_for("auth.register")}}">Don't have an account? Sign up here</a></p>

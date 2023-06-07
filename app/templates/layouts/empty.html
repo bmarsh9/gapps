@@ -17,11 +17,48 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@2.24.0/dist/full.css" rel="stylesheet" type="text/css"/>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     {% block head %}
     {% endblock %}
 </head>
 {%block body%}
 {%endblock%}
 {%block extrajs%}
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+      function toast(message,level="info") {
+        var bg = "#367ff5"
+        if (level === "success") {
+          var bg = "#4ade80"
+        } else if (level === "warning") {
+          var bg = "#ffa929"
+        } else if (level === "error") {
+          var bg = "#f5584c"
+        }
+        Toastify({
+          text: message,
+          escapeMarkup: false,
+          duration: 5000,
+          close: true,
+          gravity: "top",
+          position: "right",
+          stopOnFocus: true,
+          style: {
+            background: bg,
+          },
+          onClick: function(){} // Callback after click
+        }).showToast();
+      }
+  </script>
+  <script>
+  $( document ).ready(function() {
+    {% for level,message in get_flashed_messages(with_categories=True)[:5] %}
+      {% if level == "message" %}
+        {% set level = "success" %}
+      {% endif %}
+      toast("{{message}}","{{level}}")
+    {% endfor %}
+  });
+  </script>
 {%endblock%}
 </html>

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en" class="h-full bg-gray-100">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <link rel="icon" href="">
+    <title>{%block title%}{{config["APP_NAME"]|capitalize}}{%endblock%}</title>
+    {% block include_jquery %}
+    {% import "helpers/src_macros.html" as macro %}
+    {{ macro.filehelper(toasts=True) }}
+    {% endblock %}
+    {% block before_head %}
+    {% endblock %}
+    {% block head %}
+    {% endblock %}
+</head>
+{%block content%}
+{%endblock%}
+{%block extrajs%}
+{%endblock%}
+</html>

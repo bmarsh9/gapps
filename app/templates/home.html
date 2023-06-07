@@ -1,157 +1,144 @@
-{% extends "layouts/basic.html" %}
+{% extends "layouts/sidebar-nav.html" %}
 
-{% import "helpers/snippets.html" as snippet with context %}
-{% block before_head %}
-  {{ super() }}
-  {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True,query=True,apex=True) }}
-{% endblock %}
-
+{%block head%}
+<style>
+#main {
+  background-image: url("https://www.gstatic.com/pantheon/images/welcome/background_illustration_v2.svg");
+  background-repeat: no-repeat;
+}
+</style>
+{%endblock%}
 {%block header%}{%endblock%}
 {%block header_title%}Home{%endblock%}
+{%block page_header%}{%endblock%}
 
 {%block content%}
-<div class="grid grid-rows-1 grid-flow-col gap-4">
-  <div class="card bg-base-100">
-    <div class="card-body">
-      <h2 class="card-title">Welcome to {{config.APP_NAME}}</h2>
-      <div class="grid grid-cols-6">
-        <div class="col-span-3">
-          <p class="text-sm font-medium text-gray-500">{{config.APP_NAME}} is a tool to assist you with SOC2 - Type 2 readiness and the attestation process. <a class="text-primary" href="{{config.DOC_LINK}}">Please check here</a> for more information and/or questions</p>
-        </div>
-        <div class="col-span-3 text-end gap-x-2">
-          <a href="{{url_for("main.projects")}}" class="btn btn-sm btn-primary">Projects</a>
-          <a href="{{url_for("main.settings")}}" class="btn btn-sm">Settings</a>
-          {%if config.DOC_LINK%}<a href="{{config.DOC_LINK}}" class="btn btn-sm">Docs</a>{%endif%}
-        </div>
+<div class="alert alert-warning w-96 float-right animate-pulse">
+  <span class="font-medium ml-5">Join our discord to stay connected on updates & new features!</span>
+  <div>
+    <a href="https://discord.gg/9unhWAqadg" class="btn btn-sm btn-primary">Join</a>
+  </div>
+</div>
+<div class="mt-12">
+  <div class="flex-col">
+    <div>
+      <div class="flex flex-row">
+        <div><span class="text-3xl" id="emoji">👋</span></div>
+        <div class="text-4xl font-medium  ml-2">Welcome</div>
       </div>
+      <p class="py-6 w-1/2 font-medium ">{{config.APP_NAME}} is a governance risk and compliance platform. <a class="text-primary underline underline-offset-4 hover:text-secondary" href="{{config.DOC_LINK}}">Please check here</a> for more information and/or questions.</p>
+      <div class="flex flex-row gap-x-6 mb-14">
+        <a class="text-primary font-semibold underline underline-offset-4 hover:text-secondary" href="https://discord.gg/9unhWAqadg">Discord</a>
+        <a class="text-primary font-semibold underline underline-offset-4 hover:text-secondary" href="https://github.com/bmarsh9/gapps">Github</a>
+      </div>
+<div class="flex flex-row gap-x-4">
+{%if "vendor" in user_roles%}
+  <a href="{{url_for("main.questionnaires")}}" class="btn gap-2 btn-sm  shadow-lg btn-ghost font-semibold text-sm capitalize">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 bg-primary text-white rounded-md"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" /></svg>
+    View Questionnaires
+  </a>
+{%else%}
+  <a href="{{url_for("main.tenants")}}" class="btn gap-2 btn-sm shadow-lg btn-ghost font-semibold text-sm capitalize">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 bg-primary text-white rounded-md"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" /></svg>
+    Create Tenant
+  </a>
+  <a href="{{url_for("main.projects")}}" class="btn gap-2 btn-sm  shadow-lg btn-ghost font-semibold text-sm capitalize">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 bg-primary text-white rounded-md"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" /></svg>
+    View Projects
+  </a>
+  <a href="{{url_for("main.controls")}}" class="btn gap-2 btn-sm  shadow-lg btn-ghost font-semibold text-sm capitalize">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 bg-primary text-white rounded-md"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" /></svg>
+    View Controls
+  </a>
+  <a href="{{url_for("main.policies")}}" class="btn gap-2 btn-sm  shadow-lg btn-ghost font-semibold text-sm capitalize">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 bg-primary text-white rounded-md"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" /></svg>
+    View Policies
+  </a>
+{%endif%}
+</div>
+      <div class="text-2xl font-medium  mt-10">Quick Access</div>
+      <div class="grid grid-cols-8 gap-4 mt-4">
+{%if "vendor" in user_roles%}
+        <a class="col-span-2 rounded-md" href="{{url_for("main.questionnaires")}}">
+          <div class="p-7 border  text-sm font-semibold border hover:bg-base-200 border-base-200">
+            <div class="flex flex-row gap-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+              <p>Questionnaires</p>
+            </div>
+          </div>
+        </a>
+{%else%}
+        <a class="col-span-2 rounded-md" href="{{url_for("main.tenants")}}">
+          <div class="p-7 border  text-sm font-semibold border hover:bg-base-200 border-base-200">
+            <div class="flex flex-row gap-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"></path></svg>
+              <p>Tenant</p>
+            </div>
+          </div>
+        </a>
+        <a class="col-span-2 rounded-md" href="{{url_for("main.projects")}}">
+          <div class="p-7 border  text-sm font-semibold border hover:bg-base-200 border-base-200">
+            <div class="flex flex-row gap-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"></path></svg>
+              <p>Projects</p>
+            </div>
+          </div>
+        </a>
+        <a class="col-span-2 rounded-md" href="{{url_for("main.controls")}}">
+          <div class="p-7 border  text-sm font-semibold border hover:bg-base-200 border-base-200">
+            <div class="flex flex-row gap-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 11-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 016.336-4.486l-3.276 3.276a3.004 3.004 0 002.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M4.867 19.125h.008v.008h-.008v-.008z"></path></svg>
+              <p>Controls</p>
+            </div>
+          </div>
+        </a>
+        <a class="col-span-2 rounded-md" href="{{url_for("main.policies")}}">
+          <div class="p-7 border  text-sm font-semibold border hover:bg-base-200 border-base-200">
+            <div class="flex flex-row gap-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"></path></svg>
+              <p>Policies</p>
+            </div>
+          </div>
+        </a>
+        <a class="col-span-2 rounded-md" href="{{url_for("main.tenant_users")}}">
+          <div class="p-7 border  text-sm font-semibold border hover:bg-base-200 border-base-200">
+            <div class="flex flex-row gap-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"></path></svg>
+              <p>Tenant Users</p>
+            </div>
+          </div>
+        </a>
+        <a class="col-span-2 rounded-md" href="{{url_for("main.questionnaires")}}">
+          <div class="p-7 border  text-sm font-semibold border hover:bg-base-200 border-base-200">
+            <div class="flex flex-row gap-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+              <p>Questionnaires</p>
+            </div>
+          </div>
+        </a>
+        <a class="col-span-2 rounded-md" href="{{url_for("main.settings")}}">
+          <div class="p-7 border  text-sm font-semibold border hover:bg-base-200 border-base-200">
+            <div class="flex flex-row gap-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              <p>Settings</p>
+            </div>
+          </div>
+        </a>
+        <a class="col-span-2 rounded-md" href="{{url_for("main.frameworks")}}">
+          <div class="p-7 border  text-sm font-semibold border hover:bg-base-200 border-base-200">
+            <div class="flex flex-row gap-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <p>Frameworks</p>
+            </div>
+          </div>
+        </a>
+      </div>
+{%endif%}
     </div>
   </div>
 </div>
-<div class="grid grid-cols-8 gap-4 mt-5">
-  <div class="col-span-5">
-    <div class="card bg-base-100">
-      <div class="card-body">
-        <h2 class="card-title">Summary of Projects</h2>
-        <div id="chart"></div>
-      </div>
-    </div>
-  </div>
-  <div class="col-span-3">
-    <div class="card bg-base-100">
-      <div class="card-body">
-        <h2 class="card-title">Summary of Tenant</h2>
-        <div id="chart2"></div>
-      </div>
-    </div>
-  </div>
-</div>
+
 {%endblock%}
 
 {%block extrajs%}
-<script>
-  $(document).ready(function() {
-  $.ajax({
-    type: "GET",
-    url: "/api/v1/charts/tenant-summary",
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-        var series = [
-          {
-            "name":"Summary",
-            "data":data.data
-          }
-        ];
-        var options = {
-          series:series,
-          chart: {
-            type: 'radar',
-            height: 350
-          },
-          xaxis: {
-            categories: data.categories,
-          },
-        };
-        var chart = new ApexCharts(document.querySelector("#chart2"), options);
-        chart.render();
-    
-        return(data)
-    },
-    error: function(errMsg) {
-        return(errMsg);
-    }
-  })
-  $.ajax({
-    type: "GET",
-    url: "/api/v1/charts/project-summaries",
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-        var series = [
-          {
-            "name":"Controls",
-            "data":data.controls
-          },
-          {
-            "name":"Policies",
-            "data":data.policies
-          },
-          {
-            "name":"Complete",
-            "data":data.complete
-          },
-          {
-            "name":"Missing Evidence",
-            "data":data.missing_evidence
-          },
-          {
-            "name":"Not Implemented",
-            "data":data.not_implemented
-          }
-        ];
-        var options = {
-          series:series,
-          chart: {
-            type: 'bar',
-            height: 350
-          },
-          plotOptions: {
-            bar: {
-              horizontal: false,
-              columnWidth: '55%',
-              endingShape: 'rounded'
-            },
-          },
-          dataLabels: {
-            enabled: false
-          },
-          stroke: {
-            show: true,
-            width: 2,
-            colors: ['transparent']
-          },
-          xaxis: {
-            categories: data.categories,
-          },
-          yaxis: {
-            title: {
-              text: 'Amount'
-            }
-          },
-          fill: {
-            opacity: 1
-          }
-        };
-        var chart = new ApexCharts(document.querySelector("#chart"), options);
-        chart.render();
-    
-        return(data)
-    },
-    error: function(errMsg) {
-        return(errMsg);
-    }
-  })
-  });
-</script>
 {%endblock%}

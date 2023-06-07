@@ -1,0 +1,21 @@
+Sure, here is a mapping between the CIS v8 and CMMC frameworks:
+
+| CIS v8 Control | CMMC Level |
+|---|---|
+| 1. Inventory and Control of Enterprise Assets | 1.1, 1.2, 1.3 |
+| 2. Inventory and Control of Software Assets | 1.4 |
+| 3. Data Protection | 2.1, 2.2, 2.3 |
+| 4. Secure Configuration of Enterprise Assets and Software | 3.1, 3.2, 3.3 |
+| 5. Account Management | 4.1, 4.2, 4.3 |
+| 6. Access Control Management | 5.1, 5.2, 5.3 |
+| 7. Continuous Vulnerability Management | 6.1, 6.2 |
+| 8. Audit Log Management | 7.1, 7.2 |
+| 9. Email and Web Browser Protections | 8.1, 8.2 |
+| 10. Malware Defenses | 9.1, 9.2 |
+| 11. Data Recovery | 10.1, 10.2 |
+| 12. Network Infrastructure Management | 11.1, 11.2 |
+| 13. Network Monitoring and Defense | 12.1, 12.2 |
+| 14. Incident Response and Management | 13.1, 13.2 |
+| 15. Security Assessment and Authorization | 14.1, 14.2 |
+
+This mapping is not exhaustive, and there may be some controls in the CIS v8 framework that do not have a corresponding control in the CMMC framework. Additionally, some controls in the CMMC framework may be satisfied by multiple controls in the CIS v8 framework.
