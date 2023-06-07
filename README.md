@@ -163,6 +163,7 @@ docker exec -e ONESHOT=yes gapps env
 ```
 docker exec -e INIT_MIGRATE=yes -e MIGRATE=yes -e ONESHOT=yes gapps bash run.sh
 ```
+**OR**
 ```
 docker-compose up -d
 docker exec -it gapps bash
