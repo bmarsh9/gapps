@@ -137,6 +137,16 @@ python3 manage.py db upgrade
 exit
 ```
 
+##### Creating database manually
+
+Warning - this will delete all data in the database!  
+```
+docker exec -it gapps bash
+python3 tools/check_db_connection.py
+python3 tools/check_db_models.py
+python3 manage.py init_db
+```
+
 ##### Upgrading versions
 1.) Edit `docker-compose.yml` file with the desired version from [Docker Hub](https://hub.docker.com/r/bmarsh13/gapps/tags). Anywhere you see the old version in the compose file (should be 4 instances), update it with the desired version. (e.g. bmarsh13/gapps:3.3.9 -> bmarsh13/gapps:3.4.0)  
 2.) `docker-compose up -d`  
