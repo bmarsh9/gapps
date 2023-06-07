@@ -1,5 +1,7 @@
 from flask import current_app
 from flask_script import Command
+from flask_migrate import Migrate
+from alembic import command
 from app.models import *
 from app import db
 import datetime, os
@@ -11,12 +13,40 @@ class InitDbCommand(Command):
         init_db()
         print('[INFO] Database has been initialized.')
 
+class CreateDbCommand(Command):
+    """ Migrate the database."""
+
+    def run(self):
+        create_db()
+        print('[INFO] Database has been created.')
+
+class MigrateDbCommand(Command):
+    """ Migrate the database."""
+
+    def run(self):
+        migrate_db()
+        print('[INFO] Database has been migrated.')
+
 def init_db():
-    """ Initialize the database."""
+    """ Initialize the database. Will delete and recreate"""
     db.drop_all()
     db.create_all()
     create_default_users()
     create_default_roles()
+
+def create_db():
+    """ Create the database. Will not update models if they already exist"""
+    db.create_all()
+    create_default_users()
+    create_default_roles()
+
+def migrate_db():
+    """ Migrate the database."""
+    config = Migrate(current_app, db).get_config()
+    print(config)
+    command.upgrade(config, 'head')
+#    migrate = Migrate()
+#    migrate.init_app(current_app, db)
 
 def create_default_users():
     """ Create users """

@@ -8,10 +8,15 @@
 # Use SKIP_INI_CHECKS to start the service without checks
 
 check_migration() {
+  if [ "$INIT_MIGRATE" == "yes" ]; then
+    echo "[INFO] Setting up migrations"
+    python3 manage.py db init
+  fi
   if [ "$MIGRATE" == "yes" ]; then
     echo "[INFO] Performing database migration"
     python3 manage.py db migrate
     python3 manage.py db stamp head
+    python3 manage.py db migrate
     python3 manage.py db upgrade
   fi
 }
@@ -51,6 +56,9 @@ else
     # check for migration
     check_migration
 
+    if [ "$ONESHOT" == "yes" ]; then
+      exit
+    fi
     # start the app with gunicorn
     echo "[INFO] Starting the server with ${GUNICORN_WORKERS:-1} workers"
     gunicorn --bind 0.0.0.0:5000 flask_app:app --access-logfile '-' --error-logfile "-" --workers="${GUNICORN_WORKERS:-1}" --threads="${GUNICORN_THREADS:-0}"

@@ -22,7 +22,8 @@ def should_we_create_models():
             inspector = inspect(db.engine)
 
             # tables have not been created
-            if not inspector.get_table_names():
+            created_tables = inspector.get_table_names()
+            if len(created_tables) < 5:
                 return "Yes"
             return "No"
         except exc.SQLAlchemyError as e:
