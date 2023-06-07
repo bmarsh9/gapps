@@ -38,10 +38,6 @@ Gapps is an Security compliance platform that makes it easy to track your progre
 - WYSIWYG content editor  
 - Vendor questionnaires
 
-#### Check out the intro video below!
-
-https://user-images.githubusercontent.com/26391921/203190627-84abcaa8-70ba-47f1-a957-dae7129299a6.mp4
-
 #### Captures from the platform
 
 Control Dashboard          |
