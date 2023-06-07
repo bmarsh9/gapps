@@ -2,7 +2,7 @@ version: '3'
 services:
   gapps:
     container_name: gapps
-    image: gapps:3.4.3
+    image: bmarsh13/gapps:3.4.3
     depends_on:
       - postgres
     networks:
@@ -19,7 +19,6 @@ services:
       - DOC_LINK=https://github.com/bmarsh9/gapps
       - VERSION=${VERSION:-3.4.3}
       - APP_NAME=Gapps
-      - MIGRATE=no
       - POSTGRES_USER=${POSTGRES_USER:-db1}
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
@@ -27,7 +26,7 @@ services:
       - GUNICORN_WORKERS=2
   gapps-worker:
     container_name: gapps-worker
-    image: gapps:3.4.3
+    image: bmarsh13/gapps:3.4.3
     depends_on:
       - postgres
     networks:
@@ -57,8 +56,8 @@ services:
       PGDATA: /data/postgres
     #volumes:
     #   - postgres:/data/postgres
-    ports:
-      - "5432:5432"
+    #ports:
+    #  - "5432:5432"
     networks:
       - db_nw
     restart: unless-stopped
