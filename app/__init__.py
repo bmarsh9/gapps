@@ -1,5 +1,6 @@
 from flask import Flask,request,render_template,jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import exc
 from flask_mail import Mail
 from config import config
 from flask_migrate import Migrate
@@ -55,6 +56,11 @@ def create_app(config_name="default"):
                 return jsonify(e.description), e.code
             return jsonify({"ok":False, "message":e.description, "code":e.code}), e.code
         return render_template("layouts/errors/default.html", title="Internal error"), e.code
+
+    @app.errorhandler(exc.SQLAlchemyError)
+    def handle_db_exceptions(error):
+        app.logger.warning("Rolling back database session in app")
+        db.session.rollback()
 
     def to_pretty_json(value):
         return json.dumps(value, sort_keys=True,

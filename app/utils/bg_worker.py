@@ -1,6 +1,7 @@
 from typing import Type
 import procrastinate
 import os
+import logging
 
 
 connector_class: Type[procrastinate.BaseConnector]

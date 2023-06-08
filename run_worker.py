@@ -17,5 +17,4 @@ with bg_app.open():
         options["wait"] = True
 
     with app.app_context():
-        #app.db.session.rollback()
         bg_app.run_worker(**options)

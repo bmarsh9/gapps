@@ -21,7 +21,7 @@ def should_we_create_models():
         try:
             inspector = inspect(db.engine)
 
-            # tables have not been created
+            # check if we have tables created
             created_tables = inspector.get_table_names()
             if len(created_tables) < 5:
                 return "Yes"
@@ -31,10 +31,13 @@ def should_we_create_models():
             return "Error"
     return "Error"
 
-print(f"[INFO] Checking if we should create the models")
+print(f"[INFO] Checking if database models require creation")
 result = should_we_create_models()
 if result == "Yes":
-    print(f"[WARNING] Unable to query the database models. They need to be created.")
+    print(f"[WARNING] Unable to query the database models. They need to be created")
+    exit(1)
+elif result == "Error":
+    print("[ERROR] Error while querying database models")
     exit(1)
 elif result == "No":
     print(f"[INFO] Successfully queried the database models")

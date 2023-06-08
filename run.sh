@@ -22,11 +22,15 @@ check_migration() {
 }
 
 if [ "$AS_WORKER" == "yes" ]; then
-  echo "[INFO] Running as a worker"
+  echo "[INFO] Running as a worker. Trying to start..."
   if python3 tools/check_db_models.py; then
     export PYTHONPATH=.
     procrastinate --app=app.utils.bg_worker.bg_app schema --apply
+    echo "[INFO] Worker is ready. Starting..."
     python3 run_worker.py
+  else
+    echo "[ERROR] Unable to query the database models. Worker is exiting..."
+    exit 1
   fi
 else
   if [ "$SKIP_INI_CHECKS" == "yes" ]; then
