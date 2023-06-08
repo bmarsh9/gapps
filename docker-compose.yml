@@ -17,7 +17,7 @@ services:
       - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-admin}
       - RESET_DB=${RESET_DB:-no}
       - DOC_LINK=https://github.com/bmarsh9/gapps
-      - VERSION=${VERSION:-3.4.3}
+      - VERSION=${VERSION:-3.4.4}
       - APP_NAME=Gapps
       - POSTGRES_USER=${POSTGRES_USER:-db1}
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
-      - VERSION=${VERSION:-3.4.3}
+      - VERSION=${VERSION:-3.4.4}
       - APP_NAME=Gapps
       - AS_WORKER=yes
       - POSTGRES_USER=${POSTGRES_USER:-db1}
