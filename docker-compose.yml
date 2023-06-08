@@ -2,7 +2,9 @@ version: '3'
 services:
   gapps:
     container_name: gapps
-    image: bmarsh13/gapps:3.4.3
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       - postgres
     networks:
@@ -26,7 +28,9 @@ services:
       - GUNICORN_WORKERS=2
   gapps-worker:
     container_name: gapps-worker
-    image: bmarsh13/gapps:3.4.3
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       - postgres
     networks:

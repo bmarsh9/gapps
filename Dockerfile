@@ -27,4 +27,6 @@ RUN apt-get update && apt-get install -y libpq5 python3.8 weasyprint=51-2 \
   && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/local /usr/local/
 COPY . .
-CMD ["/bin/bash", "run.sh"]
+ENV SETUP_DB=yes
+
+CMD ["/bin/bash","run.sh"]
