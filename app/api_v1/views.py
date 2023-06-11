@@ -521,6 +521,20 @@ def update_tenant(tid):
     db.session.commit()
     return jsonify(result["extra"]["tenant"].as_dict())
 
+@api.route('/tenants/<int:tid>/load-frameworks', methods=['PUT'])
+@login_required
+def reload_tenant_frameworks(tid):
+    result = Authorizer(current_user).can_user_admin_tenant(tid)
+    result["extra"]["tenant"].create_base_frameworks()
+    return jsonify({"message": "ok"})
+
+@api.route('/tenants/<int:tid>/load-policies', methods=['PUT'])
+@login_required
+def reload_tenant_policies(tid):
+    result = Authorizer(current_user).can_user_admin_tenant(tid)
+    result["extra"]["tenant"].create_base_policies()
+    return jsonify({"message": "ok"})
+
 @api.route('/tenants', methods=['POST'])
 @login_required
 def add_tenant():
@@ -528,13 +542,8 @@ def add_tenant():
     data = request.get_json()
     try:
         tenant = models.Tenant.create(current_user, data.get("name"),
-            data.get("contact_email"), approved_domains=data.get("approved_domains"))
-        # TODO - clean up, we only need to add policies once
-        for framework in tenant.get_valid_frameworks():
-            if framework == "soc2":
-                tenant.create_framework(framework,add_controls=True, add_policies=True)
-            else:
-                tenant.create_framework(framework,add_controls=True)
+            data.get("contact_email"), approved_domains=data.get("approved_domains"),
+            init=True)
         return jsonify(tenant.as_dict())
     except:
         abort(500)

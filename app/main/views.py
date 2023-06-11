@@ -22,8 +22,7 @@ def home():
 @login_required
 def download_report(pid, filename):
     result = Authorizer(current_user).can_user_access_project(pid)
-    uploads = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'])
-    return send_from_directory(directory=uploads,
+    return send_from_directory(directory=current_app.config['UPLOAD_FOLDER'],
         path=filename, as_attachment=True)
 
 @main.route('/questionnaires', methods=['GET'])

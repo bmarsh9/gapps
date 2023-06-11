@@ -1,13 +1,13 @@
 from app.utils.bg_worker import bg_app
 from app.utils.misc import get_class_by_tablename
 from app.utils.bg_helper import BgHelper
+from app.integrations.utils.decorators import task
 from app import db
 from flask import current_app
 from croniter import croniter
 from datetime import datetime
 import arrow
 import os
-
 
 @bg_app.periodic(cron="* * * * *")
 @bg_app.task(name="scheduler", queue="scheduler")
