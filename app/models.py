@@ -20,6 +20,7 @@ from app.utils.authorizer import Authorizer
 import email_validator
 import logging
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -92,12 +93,16 @@ class Tenant(LogMixin, db.Model):
         return Role.query.all()
 
     def get_valid_frameworks(self):
-        return ["soc2","cmmc","iso27001","hipaa",
-            "nist_800_53_v4","nist_csf_v1.1","asvs_v4.0.1",
-            "ssf","cisv8","pci_3.1","cmmc_v2","custom"]
+        frameworks = []
+        folder = current_app.config['FRAMEWORK_FOLDER']
+        for file in os.listdir(folder):
+            if file.endswith(".json"):
+                name = file.split(".json")[0]
+                frameworks.append(name.lower())
+        return frameworks
 
     def check_valid_framework(self, name):
-        if name not in self.get_valid_frameworks():
+        if name.lower() not in self.get_valid_frameworks():
             raise ValueError("framework is not implemented")
         return True
 
@@ -111,17 +116,20 @@ class Tenant(LogMixin, db.Model):
         return True
 
     def create_base_controls(self, name):
+        if not name:
+            raise ValueError("name is required")
+        name = name.lower()
         self.check_valid_framework(name)
-        with open(f"app/files/base_controls/{name}_controls.json") as f:
+        with open(os.path.join(current_app.config["FRAMEWORK_FOLDER"], f"{name}.json")) as f:
             controls=json.load(f)
             Control.create({"controls":controls,"framework":name}, self.id)
         return True
 
     def create_base_policies(self):
-        for filename in os.listdir("app/files/base_policies/"):
+        for filename in os.listdir(current_app.config["POLICY_FOLDER"]):
             if filename.endswith(".html"):
-                with open(f"app/files/base_policies/{filename}") as f:
-                    name = filename.split(".")[0]
+                with open(os.path.join(current_app.config["POLICY_FOLDER"], filename)) as f:
+                    name = filename.split(".html")[0].lower()
                     p = Policy(name=name,
                         description=f"Content for the {name} policy",
                         content=f.read(),

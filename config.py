@@ -37,7 +37,9 @@ class Config:
     GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
     GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
 
-    UPLOAD_FOLDER = "files/reports"
+    UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", os.path.join(basedir, "app/files/reports"))
+    FRAMEWORK_FOLDER = os.environ.get("FRAMEWORK_FOLDER", os.path.join(basedir, "app/files/base_controls"))
+    POLICY_FOLDER = os.environ.get("POLICY_FOLDER", os.path.join(basedir, "app/files/base_policies"))
 
     LAYOUT = {
       "header": True,
