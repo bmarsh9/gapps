@@ -56,8 +56,8 @@ services:
       PGDATA: /data/postgres
     #volumes:
     #   - postgres:/data/postgres
-    ports:
-      - "5432:5432"
+    #ports:
+    #  - "5432:5432"
     networks:
       - db_nw
     restart: unless-stopped
