@@ -44,7 +44,9 @@
                           <div class="px-4 py-5 sm:p-6">
                             <div id="edit-tenant-body" class="grid grid-cols-6 gap-6"></div>
                           </div>
-                          <div class="px-4 py-3 text-right sm:px-6">
+                          <div class="px-4 py-3 text-right sm:px-6 gap-4">
+                                <button class="btn btn-primary reload-frameworks-btn">Reload Frameworks</button>
+                                <button class="btn btn-primary reload-policies-btn">Reload Policies</button>
                                 <button class="btn btn-primary save-edit-btn">Save</button>
                           </div>
                     </div>
@@ -116,6 +118,40 @@
     })
 
   }
+  $(document).on('click', '.reload-frameworks-btn', function() {
+    var id = $(".save-edit-btn").data('tenant-id')
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/tenants/${id}/load-frameworks`,
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        toast("Reloaded the frameworks")
+        return(data)
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+      }
+    })
+  });
+  $(document).on('click', '.reload-policies-btn', function() {
+    var id = $(".save-edit-btn").data('tenant-id')
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/tenants/${id}/load-policies`,
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        toast("Reloaded the policies")
+        return(data)
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"],"error")
+        return(errMsg);
+      }
+    })
+  });
   $(document).on('click', '.save-edit-btn', function() {
     var id = $(this).data('tenant-id')
     data = {
@@ -228,6 +264,7 @@
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data){
+        loadTenantSelections()
         toast("Added tenant. Now let's create a project for your tenant <a href='/projects' class='float-right btn btn-xs toggle-fa hover:bg-primary hover:border-primary ml-3 reload-button'>Begin</a>")
         document.getElementById('add-tenant-modal').checked = false;
         loadTenantTable()

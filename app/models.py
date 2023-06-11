@@ -107,36 +107,44 @@ class Tenant(LogMixin, db.Model):
         return True
 
     def create_framework(self, name, add_controls=False, add_policies=False):
-        self.check_valid_framework(name)
+        if Framework.find_by_name(name, self.id):
+            return False
         Framework.create(name, self)
         if add_controls:
-            self.create_base_controls(name)
+            self.create_base_controls_for_framework(name)
         if add_policies:
             self.create_base_policies()
         return True
 
-    def create_base_controls(self, name):
-        if not name:
-            raise ValueError("name is required")
+    def create_base_controls_for_framework(self, name):
         name = name.lower()
-        self.check_valid_framework(name)
         with open(os.path.join(current_app.config["FRAMEWORK_FOLDER"], f"{name}.json")) as f:
             controls=json.load(f)
             Control.create({"controls":controls,"framework":name}, self.id)
         return True
 
+    def create_base_frameworks(self):
+        for file in os.listdir(current_app.config['FRAMEWORK_FOLDER']):
+            if file.endswith(".json"):
+                name = file.split(".json")[0]
+                if not Framework.find_by_name(name, self.id):
+                    Framework.create(name, self)
+                    self.create_base_controls_for_framework(name)
+        return True
+
     def create_base_policies(self):
         for filename in os.listdir(current_app.config["POLICY_FOLDER"]):
             if filename.endswith(".html"):
-                with open(os.path.join(current_app.config["POLICY_FOLDER"], filename)) as f:
-                    name = filename.split(".html")[0].lower()
-                    p = Policy(name=name,
-                        description=f"Content for the {name} policy",
-                        content=f.read(),
-                        template=f.read(),
-                        tenant_id=self.id
-                    )
-                    db.session.add(p)
+                name = filename.split(".html")[0].lower()
+                if not Policy.find_by_name(name, self.id):
+                    with open(os.path.join(current_app.config["POLICY_FOLDER"], filename)) as f:
+                        p = Policy(name=name,
+                            description=f"Content for the {name} policy",
+                            content=f.read(),
+                            template=f.read(),
+                            tenant_id=self.id
+                        )
+                        db.session.add(p)
         db.session.commit()
         return True
 
@@ -262,7 +270,7 @@ class Tenant(LogMixin, db.Model):
         return False
 
     @staticmethod
-    def create(user, name, email, approved_domains):
+    def create(user, name, email, approved_domains, init=False):
         if exists := Tenant.find_by_name(name):
             return exists
         tenant = Tenant(owner_id=user.id, name=name.lower(),
@@ -274,6 +282,9 @@ class Tenant(LogMixin, db.Model):
         db.session.commit()
         # add user as Admin to the tenant
         tenant.add_user(user, roles=["admin"])
+        if init:
+            tenant.create_base_frameworks()
+            tenant.create_base_policies()
         return tenant
 
     def create_project(self, name, owner, framework=None, description=None, controls=[]):
@@ -389,10 +400,9 @@ class Framework(LogMixin, db.Model):
 
     @staticmethod
     def create(name, tenant):
-        tenant.check_valid_framework(name)
         data = {
-            "name":name,
-            "description":f"Framework for {name.upper()}",
+            "name":name.lower(),
+            "description":f"Framework for {name.capitalize()}",
             "feature_evidence":True,
             "tenant_id":tenant.id
         }
@@ -454,6 +464,13 @@ class Policy(LogMixin, db.Model):
                 data[c.name] = getattr(self, c.name)
         return data
 
+    @staticmethod
+    def find_by_name(name, tenant_id):
+        policy_exists = Policy.query.filter(Policy.tenant_id == tenant_id).filter(func.lower(Policy.name) == func.lower(name)).first()
+        if policy_exists:
+            return policy_exists
+        return False
+
     def controls(self, as_id_list=False):
         control_id_list = []
         for assoc in PolicyAssociation.query.filter(PolicyAssociation.policy_id == self.id).all():
@@ -486,6 +503,7 @@ class Control(LogMixin, db.Model):
     name = db.Column(db.String(), nullable=False)
     description = db.Column(db.String())
     ref_code = db.Column(db.String())
+    abs_ref_code = db.Column(db.String())
     visible = db.Column(db.Boolean(), default=True)
     system_level = db.Column(db.Boolean(), default=True)
     category = db.Column(db.String())
@@ -528,6 +546,13 @@ class Control(LogMixin, db.Model):
                 data[c.name] = getattr(self, c.name)
         return data
 
+    @staticmethod
+    def find_by_abs_ref_code(framework, ref_code):
+        if not framework or not ref_code:
+            raise ValueError("framework and ref_code is required")
+        abs_ref_code = f"{framework.lower()}__{ref_code}"
+        return Control.query.filter(func.lower(Control.abs_ref_code) == func.lower(abs_ref_code)).first()
+
     def policies(self, as_id_list=False):
         policy_id_list = []
         for assoc in PolicyAssociation.query.filter(PolicyAssociation.policy_id == self.id).all():
@@ -557,6 +582,7 @@ class Control(LogMixin, db.Model):
                 name=control.get("name"),
                 description=control.get("description"),
                 ref_code=control.get("ref_code"),
+                abs_ref_code=f"{framework.lower()}__{control.get('ref_code')}",
                 system_level=control.get("system_level"),
                 category=control.get("category"),
                 subcategory=control.get("subcategory"),
