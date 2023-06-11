@@ -188,7 +188,9 @@ python3 manage.py init_db
 2.) `docker-compose up -d`  
 3.) [Perform database migration](https://github.com/bmarsh9/gapps#perform-database-migration) if neccesary 
 
-##### JSON format for programmically adding controls
+##### Loading new frameworks into Gapps
+
+You can always create a new Framework and controls within the UI - but this would take a long time. Instead, you can load a JSON file into Gapps. 
 
 The format consists of controls and subcontrols. The snippet below shows an example of a control having one (1) subcontrol however you can add as many as you like. It is not a requirement to have subcontrols for a control (you can have zero). However it may make sense if you want to break down a control into specific actions that are trackable. Let's take the CIS 18 framework as an example. You could place all 18 "domains" as controls and the controls within each domain would be a subcontrol within Gapps.
 
@@ -216,6 +218,8 @@ The format consists of controls and subcontrols. The snippet below shows an exam
     }
 }
 ```
+
+Next, save the above JSON format into a file (such as `my_framework.json` but it must end with `.json`). The name of your framework will be taken from the filename when Gapps loads it (`my_framework` in this case). Save the file in the `app/files/base_controls/` directory. You can also change the load directory by setting the `FRAMEWORK_FOLDER` env variable. Once your new framework is saved to a file and sitting in the framework directory, you can go ahead and create a new Tenant within the UI. Gapps will load your framework automatically. If you want to add a framework to a existing Tenant, go to the "Tenants" page, edit the Tenant and click the "Reload Frameworks" button.
 
 ##### Building and pushing
 ```
