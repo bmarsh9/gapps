@@ -34,6 +34,7 @@ AS_WORKER=yes WORKER_QUEUES=1 bash run.sh
 procrastinate --app=app.utils.bg_worker.bg_app shell
 procrastinate --verbose --app=app.utils.bg_worker.bg_app worker
 procrastinate --verbose --app=app.utils.bg_worker.bg_app healthchecks
+```
 
 ###### Add task
 ```
@@ -43,9 +44,12 @@ from app.models import *
 user = User.query.get(1)
 tenant = Tenant.create(user, "demo", user.email)
 
-# create task
+# create integration and task
 integration = Integration(name="github", tenant_id=tenant.id)
 integration.add_task(name="get_users", cron="* * * * *")
+
+# create locker
+Locker.add("test","value", tenant.id)
 ```
 
 ###### View tasks
