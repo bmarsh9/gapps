@@ -12,7 +12,6 @@ import os
 @bg_app.periodic(cron="* * * * *")
 @bg_app.task(name="scheduler", queue="scheduler")
 async def scheduler(timestamp: int):
-    tenant_id = "12345"
     Task = get_class_by_tablename("Task")
     tasks = Task.query.all()
     if not tasks:
@@ -20,14 +19,15 @@ async def scheduler(timestamp: int):
         return True
     current_app.logger.debug(f"Found {len(tasks)} periodic tasks")
     for task in tasks:
-        now = datetime.now()
-        not_before = croniter(task.cron, task.last_run).get_next(datetime)
-        if not task.last_run or now > not_before:
-            current_app.logger.debug(f"Executing periodic task: {task.name}")
-            await BgHelper().run_async_task()
-            task.last_run = now
-            task.not_before = croniter(task.cron, now).get_next(datetime)
-            db.session.commit()
-        else:
-            current_app.logger.debug(f"Periodic task: {task.name} is not ready... skipping")
+        if not task.disabled:
+            now = datetime.now()
+            not_before = croniter(task.cron, task.last_run).get_next(datetime)
+            if not task.last_run or now > not_before:
+                current_app.logger.debug(f"Executing periodic task: {task.name}. Time: {str(now)}")
+                await BgHelper().run_async_task(task)
+                task.last_run = now
+                task.not_before = croniter(task.cron, now).get_next(datetime)
+                db.session.commit()
+            else:
+                current_app.logger.debug(f"Periodic task: {task.name} is not ready... skipping")
     return True

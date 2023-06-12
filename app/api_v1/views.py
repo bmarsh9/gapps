@@ -29,7 +29,7 @@ def set_session(id):
     result = Authorizer(current_user).can_user_access_tenant(id)
     session["tenant-id"] = result["extra"]["tenant"].id
     session["tenant-uuid"] = result["extra"]["tenant"].uuid
-    return jsonify({"message":"ok"})
+    return jsonify({"message": "ok"})
 
 @api.route('/tenants/<int:id>', methods=['DELETE'])
 @login_required
@@ -37,7 +37,7 @@ def delete_tenant(id):
     result = Authorizer(current_user).can_user_admin_tenant(id)
     db.session.delete(result["extra"]["tenant"])
     db.session.commit()
-    return jsonify({"message":"ok"})
+    return jsonify({"message": "ok"})
 
 @api.route('/questionnaires/<int:qid>', methods=['GET'])
 @login_required
@@ -157,26 +157,19 @@ def get_bg_job_by_id(id):
 @login_required
 def get_bg_jobs(id):
     Authorizer(current_user).can_user_read_tenant(id)
-    id = request.args.get("id",None)
-    name = request.args.get("name",None)
-    status = request.args.get("status",None)
-    queue = request.args.get("queue",None)
-    if exclude_scheduler := request.args.get("exclude-scheduler",None):
+    id = request.args.get("id")
+    name = request.args.get("name")
+    status = request.args.get("status")
+    queue = request.args.get("queue")
+    if exclude_scheduler := request.args.get("exclude-scheduler"):
         exclude_scheduler = True
     with bg_app.open():
-        r = BgHelper().list_jobs(id=id, name=name,
+        jobs = BgHelper().list_jobs(id=id, name=name,
             status=status,
             queue=queue,
             exclude_scheduler=exclude_scheduler
         )
-        return jsonify(r)
-
-@api.route('/task')
-@login_required
-def task():
-    with bg_app.open():
-        BgHelper().run_task()
-    return jsonify({"message":"ok"})
+        return jsonify(jobs)
 
 @api.route('/tenants/<int:id>/frameworks', methods=['GET'])
 @login_required
@@ -216,7 +209,8 @@ def add_comment_for_project(id):
     data = request.get_json()
     if not data.get("data"):
         return jsonify({"message": "empty comment"}), 400
-    tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["project"].tenant)
+    tagged_users = get_users_from_text(data["data"], resolve_users=True,
+        tenant=result["extra"]["project"].tenant)
     comment = models.ProjectComment(message=data["data"], owner_id=current_user.id)
     result["extra"]["project"].comments.append(comment)
     db.session.commit()
@@ -375,13 +369,12 @@ def create_user():
             button_link=link
         )
     )
-    return jsonify({"message":"invited user"})
+    return jsonify({"message": "invited user"})
 
 @api.route('/admin/users/<int:id>', methods=['GET'])
 @login_required
 def get_user(id):
     result = Authorizer(current_user).can_user_manage_platform()
-    data = []
     user = models.User.query.get(id)
     return jsonify(user.as_dict())
 
@@ -1158,7 +1151,6 @@ def add_feedback_for_subcontrol(pid, sid):
 @login_required
 def update_feedback_for_subcontrol(pid, sid, fid):
     result = Authorizer(current_user).can_user_read_project_subcontrol(sid)
-
     data = request.get_json()
     control = models.ProjectSubControl.query.get(sid)
     feedback = models.AuditorFeedback.query.get(fid)

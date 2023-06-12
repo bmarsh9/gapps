@@ -18,20 +18,161 @@ from app.email import send_email
 from random import randrange
 from app.utils.authorizer import Authorizer
 import email_validator
+from app.utils.bg_worker import bg_app
+from app.utils.bg_helper import BgHelper
 import logging
-
 
 logger = logging.getLogger(__name__)
 
+
+class Finding(LogMixin, db.Model):
+    __tablename__ = 'findings'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    title = db.Column(db.String())
+    description = db.Column(db.String())
+    mitigation = db.Column(db.String())
+    risk = db.Column(db.Integer())
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+class Locker(LogMixin, db.Model):
+    __tablename__ = 'lockers'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    name = db.Column(db.String())
+    value = db.Column(db.JSON(), default={})
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    def as_dict(self):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return data
+
+    @staticmethod
+    def find_by_name(name, tenant_id):
+        return Locker.query.filter(Locker.tenant_id == tenant_id).filter(func.lower(Locker.name) == func.lower(name)).first()
+
+    @staticmethod
+    def add(name, value, tenant_id):
+        if Locker.find_by_name(name, tenant_id):
+            raise ValueError("name already exists for tenant")
+        locker = Locker(name=name, value=value, tenant_id=tenant_id)
+        db.session.add(locker)
+        db.session.commit()
+        return True
+
+    def has_integration(self, integration_id):
+        return LockerAssociation.query.filter(LockerAssociation.locker_id==self.id).filter(LockerAssociation.integration_id==integration_id).first()
+
+    def add_integration(self, integration_id):
+        if self.has_integration(integration_id):
+            return True
+        assoc = LockerAssociation(locker_id=self.id, integration_id=integration_id)
+        db.session.add(assoc)
+        db.session.commit()
+        return True
+
+    def remove_integration(self, integration_id):
+        if assoc := self.has_integration(integration_id):
+            db.session.delete(assoc)
+            db.session.commit()
+        return True
+
+class LockerAssociation(db.Model):
+    __tablename__ = 'locker_association'
+    id = db.Column(db.Integer(), primary_key=True)
+    locker_id = db.Column(db.Integer(), db.ForeignKey('lockers.id', ondelete='CASCADE'))
+    integration_id = db.Column(db.Integer(), db.ForeignKey('integrations.id', ondelete='CASCADE'))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+class Integration(LogMixin, db.Model):
+    __tablename__ = 'integrations'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    name = db.Column(db.String())
+    url = db.Column(db.String())
+    tasks = db.relationship('Task', backref='integration',lazy='dynamic', cascade="all, delete-orphan")
+    lockers = db.relationship('Locker', secondary='locker_association', lazy='dynamic',
+        backref=db.backref('integration', lazy='dynamic'))
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    @staticmethod
+    def find_by_name(name, tenant_id):
+        return Task.query.filter(Task.tenant_id == tenant_id).filter(func.lower(Task.name) == func.lower(name)).first()
+
+    @staticmethod
+    def add(name, tenant_id):
+        if Integration.find_by_name(name, tenant_id):
+            raise ValueError("integration already exists for tenant")
+        integration = Integration(name=name, tenant_id=tenant_id)
+        db.session.add(integration)
+        db.session.commit()
+        return integration
+
+    def add_task(self, name, cron, disabled=False):
+        if Task.find_by_name(name, self.tenant_id):
+            raise ValueError("task already exists")
+        task = Task(name=name, cron=cron, disabled=disabled,
+            queue=self.tenant_id, integration_id=self.id, tenant_id=self.tenant_id)
+        db.session.add(task)
+        db.session.commit()
+        return task
+
+    def get_lockers(self):
+        data = {}
+        for locker in self.lockers.all():
+            data[locker.name] = locker
+        return data
+
+    def get_locker_by_name(self, name):
+        return self.lockers.filter(Locker.name == name).first()
 
 class Task(LogMixin, db.Model):
     __tablename__ = 'tasks'
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
     name = db.Column(db.String())
+    queue = db.Column(db.String())
+    disabled = db.Column(db.Boolean(), default=False)
     last_run = db.Column(db.DateTime)
     not_before = db.Column(db.DateTime)
     cron = db.Column(db.String())
+    results = db.relationship('TaskResult', backref='task',lazy='dynamic', cascade="all, delete-orphan")
+    integration_id = db.Column(db.Integer, db.ForeignKey('integrations.id'))
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    @staticmethod
+    def find_by_name(name, tenant_id):
+        return Task.query.filter(Task.tenant_id == tenant_id).filter(func.lower(Task.name) == func.lower(name)).first()
+
+    def get_lock(self):
+        """
+        the lock will be namespaced by tenant_id:integration_name:task_name
+        """
+        return f"{self.tenant_id}:{self.integration.name}:{self.name}"
+
+    def get_executions(self):
+        with bg_app.open():
+            return BgHelper().list_jobs(lock=self.get_lock())
+
+    def get_summary(self):
+        with bg_app.open():
+            return BgHelper().list_tasks(name=self.get_lock())
+
+
+class TaskResult(LogMixin, db.Model):
+    __tablename__ = 'task_results'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    data = db.Column(db.JSON(), default={})
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -64,6 +205,7 @@ class Tenant(LogMixin, db.Model):
     tags = db.relationship('Tag', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     questionnaires = db.relationship('Questionnaire', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    tasks = db.relationship('Task', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     labels = db.relationship('PolicyLabel', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -270,7 +412,7 @@ class Tenant(LogMixin, db.Model):
         return False
 
     @staticmethod
-    def create(user, name, email, approved_domains, init=False):
+    def create(user, name, email, approved_domains=None, init=False):
         if exists := Tenant.find_by_name(name):
             return exists
         tenant = Tenant(owner_id=user.id, name=name.lower(),

@@ -54,9 +54,6 @@ def frameworks():
 @main.route('/frameworks/<string:name>', methods=['GET'])
 @login_required
 def view_framework(name):
-    if not Tenant.query.first():
-        flash("Please create a tenant")
-        return redirect(url_for("main.tenants"))
     framework = Framework.query.filter(func.lower(Framework.name) == func.lower(name)).first()
     return render_template("view_framework.html",
         framework=framework)

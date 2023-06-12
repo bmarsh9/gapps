@@ -8,7 +8,7 @@ class Config:
     VERSION = os.environ.get("VERSION","1.0.0")
 
     LOG_TYPE = os.environ.get("LOG_TYPE", "stream")
-    LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
+    LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
     WORKER_LOG_LEVEL = os.environ.get("WORKER_LOG_LEVEL", LOG_LEVEL)
 
     SECRET_KEY = os.environ.get('SECRET_KEY', 'change_secret_key')

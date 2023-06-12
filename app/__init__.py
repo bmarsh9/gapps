@@ -6,6 +6,7 @@ from config import config
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_babel import Babel, lazy_gettext as _l
+import logging
 import json
 
 
@@ -20,6 +21,12 @@ def create_app(config_name="default"):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
+
+    logging.basicConfig(
+        format='%(asctime)s %(levelname)-8s %(message)s',
+        level=app.config["LOG_LEVEL"] or app.config["WORKER_LOG_LEVEL"],
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
 
     configure_models(app)
     registering_blueprints(app)

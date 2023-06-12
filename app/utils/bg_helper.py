@@ -29,13 +29,20 @@ class BgHelper:
         col_names = [i[0] for i in cursor.description]
         return [dict(zip(col_names, row)) for row in cursor]
 
-    def list_jobs(self, id=None, name=None, status=None, queue=None, exclude_scheduler=False):
+    def resolve_queue_to_tenant(self, id):
+        try:
+            if id.isdigit():
+                return Tenant.query.get(id)
+        except Exception as e:
+            return None
+
+    def list_jobs(self, id=None, name=None, status=None, queue=None, lock=None, exclude_scheduler=False):
         '''
         status = ["failed","todo","doing","succeeded"]
         queue = ID of the tenant
         '''
         jobs = []
-        for job in self.manager.list_jobs(id=id,task=name,status=status,queue=queue):
+        for job in self.manager.list_jobs(id=id,task=name,status=status,queue=queue,lock=lock):
             job = job.asdict()
             job["context"] = {}
             '''
@@ -49,18 +56,21 @@ class BgHelper:
             if job["scheduled_at"]:
                 job["context"]["scheduled_at_humanize"] = arrow.get(job["scheduled_at"]).humanize()
 
-            try:
-                if tenant := Tenant.query.get(job["queue"]):
-                    job["context"]["tenant"] = tenant.name
-                    job["context"]["tenant_id"] = tenant.id
-                    job["context"]["tenant_uuid"] = tenant.uuid
-            except:
-                pass
+            if tenant := self.resolve_queue_to_tenant(job["queue"]):
+                job["context"]["tenant"] = tenant.name
+                job["context"]["tenant_id"] = tenant.id
+                job["context"]["tenant_uuid"] = tenant.uuid
             jobs.append(job)
         return jobs
 
-    def list_tasks(self):
-        return [x for x in self.manager.list_tasks()]
+    def list_tasks(self, name):
+        tasks = self.manager.list_tasks()
+        if name:
+            for task in tasks:
+                if task.get("name") == name.lower():
+                    return task
+            return {}
+        return tasks
 
     def list_queues(self):
         return [x for x in self.manager.list_queues()]
@@ -81,13 +91,10 @@ class BgHelper:
                 if job["scheduled_at"]:
                     job["context"]["scheduled_at_humanize"] = arrow.get(job["scheduled_at"]).humanize()
 
-                try:
-                    if tenant := Tenant.query.get(job["queue"]):
-                        job["context"]["tenant"] = tenant.name
-                        job["context"]["tenant_id"] = tenant.id
-                        job["context"]["tenant_uuid"] = tenant.uuid
-                except:
-                    pass
+                if tenant := self.resolve_queue_to_tenant(job["queue"]):
+                    job["context"]["tenant"] = tenant.name
+                    job["context"]["tenant_id"] = tenant.id
+                    job["context"]["tenant_uuid"] = tenant.uuid
                 job["events"] = [{"status":x["type"],"timestamp":x["at"],"ts_humanize":arrow.get(x["at"]).humanize()} for x in results]
             return job
         except Exception as e:
@@ -97,20 +104,30 @@ class BgHelper:
             current_app.db.session.close()
         return job
 
-    def delete_old_jobs(self, hours=8, include_error=False):
-        return self.manager.delete_old_jobs(
-            nb_hours=int(hours),
-            include_error=include_error
-        )
+    def delete_old_jobs(self, hours=8, include_error=False, queue=None):
+        filter = {
+            "nb_hours":int(hours),
+            "include_error":include_error
+        }
+        if queue:
+            filter["queue"] = queue
+        return self.manager.delete_old_jobs(**filter)
 
-    async def run_async_task(self, name=None, tenant_id=1):
+    async def run_async_task(self, task, lock=None, seconds=10, args={}):
         """
         start async task
-        returns job ID
+        returns task ID
         """
-        job_id = await bg_app.configure_task(name='add-sum',lock="my lock",schedule_in={"seconds":10},queue="test").defer_async(a=5,b=7)
-#        current_app.logger.info(f"got {job_id}")
+        if not lock:
+            lock = task.get_lock()
+        task_id = await bg_app.configure_task(
+            name=f"{task.integration.name}:{task.name}",
+            lock=lock,
+            queueing_lock=lock,
+            schedule_in={"seconds":seconds},
+            queue=task.queue).defer_async(**args)
+        current_app.logger.info(f"Placed {lock} in the queue:{task.queue}. Task_ID:{task_id} scheduled in {seconds} seconds.")
 
-    def run_task(self, name=None, tenant_id=1):
-#        bg_app.configure_task(name='add-sum',lock="my lock",schedule_in={"seconds":10},queue="test").defer(a=5,b=7)
+    def run_task(self, name, tenant):
+        raise ValueError("Not implemented")
         bg_app.configure_task(name='github-get-users',lock="my lock",schedule_in={"seconds":10},queue="test").defer()
