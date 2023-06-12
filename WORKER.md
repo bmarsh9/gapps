@@ -31,6 +31,7 @@ AS_WORKER=yes WORKER_QUEUES=1 bash run.sh
 ###### Procrastinate help  
 
 ```
+export PYTHONPATH=.
 procrastinate --app=app.utils.bg_worker.bg_app shell
 procrastinate --verbose --app=app.utils.bg_worker.bg_app worker
 procrastinate --verbose --app=app.utils.bg_worker.bg_app healthchecks
