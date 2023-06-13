@@ -93,7 +93,7 @@
       <!-- sidebar header -->
       <div :class="{'lg:justify-center': !isSidebarOpen}" class="flex items-center justify-center flex-shrink-0 p-2 lg:justify-center">
         <span class="p-2 text-xl font-semibold leading-8 tracking-wider uppercase whitespace-nowrap cursor-pointer"><span>
-          {%if app_logo_url%}<img :class="{'w-12 h-12': isSidebarOpen}" class="object-cover w-10 h-10 rounded-full" src="{%block app_logo%}{{app_logo_url}}{%endblock%}">{%else%}<b :class="{'w-12 h-12': isSidebarOpen}" class="object-cover w-10 h-10 text-neutral-content text-5xl font-semibold uppercase hover:text-primary-focus" @click="toggleSidebarMenu()">{{config.APP_NAME[0]}}</b>{%endif%}</span>
+          {%if app_logo_url%}<img :class="{'w-12 h-12': isSidebarOpen}" class="object-cover w-10 h-10 rounded-full" src="{%block app_logo%}{{app_logo_url}}{%endblock%}">{%else%}<b :class="{'w-12 h-12': isSidebarOpen}" class="object-cover w-10 h-10 text-neutral-content text-5xl font-semibold uppercase hover:text-primary-focus" @click="toggleSidebarMenu()">SS</b>{%endif%}</span>
         </span>
         <button @click="toggleSidebarMenu()" class="p-2 rounded-md lg:hidden">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -215,7 +215,7 @@
           </div>
           <nav aria-label="Main" class="flex-1 w-100 px-2 py-4 space-y-2 overflow-y-hidden hover:overflow-y-auto">
   <form x-data="ContactForm()" @click.outside="hidden = true" @submit.prevent="submitForm" class="grid sm:grid-cols-2 gap-4 mx-auto p-4">
-    <p class="font-medium text-sm col-span-2">You can submit a issue on <a href="https://github.com/bmarsh9/gapps/issues" class="text-primary underline">Github</a> and/or submit your question/bug/issue below. You are on version {{config.VERSION}}</p>
+    <!-- <p class="font-medium text-sm col-span-2">You can submit a issue on <a href="https://github.com/bmarsh9/gapps/issues" class="text-primary underline">Github</a> and/or submit your question/bug/issue below. You are on version {{config.VERSION}}</p> -->
     <div class="sm:col-span-2">
       <label for="email" class="inline-block font-semibold text-sm sm:text-base mb-2">Email</label>
       <input name="email" type="email" class="input w-full input-bordered" required x-model="formData.email">
@@ -240,7 +240,7 @@
           <div class="flex items-center justify-between py-{{layout["header-padding"]}} mx-auto {{layout["x-padding"]}} {%if layout["container"]%}container{%endif%} {%if layout["2xl-breakpoint"]%}max-w-screen-2xl{%elif layout["xl-breakpoint"]%}max-w-screen-xl{%elif layout["xl-breakpoint"]%}max-w-screen-lg{%endif%}">
             <!-- Navbar left -->
             <div class="flex items-center space-x-3">
-              <span class="text-xl font-bold capitalize {%if layout["hide-app-name"]%}lg:hidden{%endif%}"><a href="/">{{config.APP_NAME}}</a></span>
+              <!-- <span class="text-xl font-bold capitalize {%if layout["hide-app-name"]%}lg:hidden{%endif%}"><a href="/">{{config.APP_NAME}}</a></span> -->
               <!-- Toggle sidebar button -->
               <button @click="toggleSidebarMenu()" id="toggle-sidebar-btn" class="p-2 rounded-md btn btn-ghost hover:bg-base-200 btn-sm">
                 <svg :class="{'transform transition-transform -rotate-180': isSidebarOpen}" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

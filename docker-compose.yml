@@ -6,7 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - postgres
+      postgres:
+        condition: "service_healthy"
     networks:
       - db_nw
       - web_nw
@@ -18,21 +19,24 @@ services:
       - DEFAULT_EMAIL=${DEFAULT_EMAIL:-admin@example.com}
       - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-admin}
       - RESET_DB=${RESET_DB:-no}
-      - DOC_LINK=https://github.com/bmarsh9/gapps
+      # - DOC_LINK=https://github.com/bmarsh9/gapps
       - VERSION=${VERSION:-3.4.3}
-      - APP_NAME=Gapps
+      - APP_NAME=GRC
       - POSTGRES_USER=${POSTGRES_USER:-db1}
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
       - POSTGRES_DB=${POSTGRES_DB:-db1}
       - GUNICORN_WORKERS=2
+    volumes:
+      - .:/app
   gapps-worker:
     container_name: gapps-worker
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - postgres
+      postgres:
+        condition: "service_healthy"
     networks:
       - db_nw
       - web_nw
@@ -42,7 +46,7 @@ services:
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
       - VERSION=${VERSION:-3.4.3}
-      - APP_NAME=Gapps
+      - APP_NAME=GRC
       - AS_WORKER=yes
       - POSTGRES_USER=${POSTGRES_USER:-db1}
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
@@ -50,6 +54,8 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-db1}
       - WORKER_CONCURRENCY=${WORKER_CONCURRENCY:-1}
       - WORKER_LOG_LEVEL=DEBUG
+    volumes:
+      - .:/app
   postgres:
     container_name: postgres
     image: postgres
@@ -58,13 +64,18 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-db1}
       POSTGRES_DB: ${POSTGRES_DB:-db1}
       PGDATA: /data/postgres
-    #volumes:
-    #   - postgres:/data/postgres
-    #ports:
-    #  - "5432:5432"
+    volumes:
+      - dbdata:/data/postgres
+    ports:
+     - "5432:5432"
     networks:
       - db_nw
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 120
 
 networks:
   db_nw:
