@@ -1,17 +1,15 @@
-from app.utils.bg_worker import bg_app
-from app.utils.misc import get_class_by_tablename
-from app.utils.bg_helper import BgHelper
-from app.models import Finding
+from app.integrations.utils.decorators import task
+from app.integrations.utils import shared
 from flask import current_app
+from app.models import Finding
 from app import db
-import arrow
 
 # integration imports
 from app.integrations.github.src.utils import github_test
 
-@bg_app.task(name="github:get_users", queue="github")
-def github_get_users(**kwargs):
-    r = github_test()
-    print(r)
-    print(Finding.query.all())
+@task(name="github:get_users", queue="github")
+def github_get_users(task, lockers, *args, **kwargs):
+    data = github_test()
+    result = task.save_results(data, version="1.1.1", update=True)
+    #latest = shared.get_latest_result(task.id)
     return True

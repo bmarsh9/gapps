@@ -18,6 +18,13 @@ source venv/bin/activate
 bash run.sh
 ```
 
+###### (Recommended) Run two workers
+```
+# run a worker for scheduler and a worker for the tenants
+AS_WORKER=yes WORKER_QUEUES=scheduler bash run.sh
+AS_WORKER=yes WORKER_QUEUES=1 bash run.sh
+```
+
 ###### Run worker
 ```
 AS_WORKER=yes bash run.sh

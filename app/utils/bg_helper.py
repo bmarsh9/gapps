@@ -1,6 +1,6 @@
 from app.utils.bg_worker import bg_app
 from flask import current_app
-from app.models import *
+from app import models
 import arrow
 
 
@@ -32,7 +32,7 @@ class BgHelper:
     def resolve_queue_to_tenant(self, id):
         try:
             if id.isdigit():
-                return Tenant.query.get(id)
+                return models.Tenant.query.get(id)
         except Exception as e:
             return None
 
@@ -63,7 +63,7 @@ class BgHelper:
             jobs.append(job)
         return jobs
 
-    def list_tasks(self, name):
+    def list_tasks(self, name=None):
         tasks = self.manager.list_tasks()
         if name:
             for task in tasks:
@@ -113,7 +113,7 @@ class BgHelper:
             filter["queue"] = queue
         return self.manager.delete_old_jobs(**filter)
 
-    async def run_async_task(self, task, lock=None, seconds=10, args={}):
+    async def run_async_task(self, task, lock=None, seconds=10):
         """
         start async task
         returns task ID
@@ -125,7 +125,7 @@ class BgHelper:
             lock=lock,
             queueing_lock=lock,
             schedule_in={"seconds":seconds},
-            queue=task.queue).defer_async(**args)
+            queue=task.queue).defer_async(id=task.id)
         current_app.logger.info(f"Placed {lock} in the queue:{task.queue}. Task_ID:{task_id} scheduled in {seconds} seconds.")
 
     def run_task(self, name, tenant):

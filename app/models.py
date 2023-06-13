@@ -1,5 +1,5 @@
-from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy import func,and_,or_,not_
+from sqlalchemy.dialects.postgresql import JSON, ARRAY
+from sqlalchemy import func, and_, or_, not_, Integer, cast, desc, asc, exc
 from sqlalchemy.orm import validates
 from app.utils.mixin_models import LogMixin,DateMixin,SubControlMixin,ControlMixin
 from flask_login import UserMixin
@@ -48,6 +48,8 @@ class Locker(LogMixin, db.Model):
 
     def as_dict(self):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        for field in ["date_added", "date_updated"]:
+            data[field] = str(getattr(self, field)) if getattr(self, field) else None
         return data
 
     @staticmethod
@@ -123,10 +125,13 @@ class Integration(LogMixin, db.Model):
         db.session.commit()
         return task
 
-    def get_lockers(self):
+    def get_lockers(self, as_dict=False):
         data = {}
         for locker in self.lockers.all():
-            data[locker.name] = locker
+            if as_dict:
+                data[locker.name] = locker.as_dict()
+            else:
+                data[locker.name] = locker
         return data
 
     def get_locker_by_name(self, name):
@@ -148,9 +153,24 @@ class Task(LogMixin, db.Model):
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
+    def as_dict(self, with_lockers=False):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        data["integration"] = self.integration.name
+        data["tenant"] = self.tenant.name
+        data["lock"] = self.get_lock()
+        data["full_name"] = self.get_full_name()
+        for field in ["last_run", "not_before", "date_added", "date_updated"]:
+            data[field] = str(getattr(self, field)) if getattr(self, field) else None
+        if with_lockers:
+            data["lockers"] = self.integration.get_lockers(as_dict=True)
+        return data
+
     @staticmethod
     def find_by_name(name, tenant_id):
         return Task.query.filter(Task.tenant_id == tenant_id).filter(func.lower(Task.name) == func.lower(name)).first()
+
+    def get_full_name(self):
+        return f"{self.integration.name}:{self.name}"
 
     def get_lock(self):
         """
@@ -166,15 +186,63 @@ class Task(LogMixin, db.Model):
         with bg_app.open():
             return BgHelper().list_tasks(name=self.get_lock())
 
+    def save_results(self, data, version=None, update=False):
+        result = None
+        if version:
+            # update data for the version
+            result = self.get_result_by_version(version)
+            if result and update:
+                result.data = data
+        # add new result
+        if not result:
+            result = TaskResult(data=data)
+            if version:
+                result.version = str(version)
+            self.results.append(result)
+        # commit the result
+        try:
+            db.session.commit()
+            return result
+        except exc.SQLAlchemyError as e:
+            db.session.rollback()
+            raise ValueError(e)
+            return None
+
+    def get_first_result(self, sort="id"):
+        if sort == "version":
+            return self.results.order_by(asc(cast(func.string_to_array(TaskResult.version, '.'), ARRAY(Integer)))).first()
+        return self.results.order_by(TaskResult.id.asc()).first()
+
+    def get_latest_result(self, sort="id"):
+        if sort == "version":
+            return self.results.order_by(desc(cast(func.string_to_array(TaskResult.version, '.'), ARRAY(Integer)))).first()
+        return self.results.order_by(TaskResult.id.desc()).first()
+
+    def get_result_by_version(self, version):
+        return self.results.filter(TaskResult.version == str(version)).first()
+
+    def sort_results(self, sort="id"):
+        if sort == "version":
+            return self.results.order_by(desc(cast(func.string_to_array(TaskResult.version, '.'), ARRAY(Integer)))).all()
+        return self.results.order_by(TaskResult.id.desc()).all()
 
 class TaskResult(LogMixin, db.Model):
     __tablename__ = 'task_results'
+    __table_args__ = (db.UniqueConstraint('version', 'task_id'),)
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
     data = db.Column(db.JSON(), default={})
+    version = db.Column(db.String())
     task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    @validates('version')
+    def _validate_version(self, key, version):
+        if not all([c.isdigit() or c == '.' for c in str(version)]):
+            raise ValueError("invalid characters in version")
+        return version
+
 
 class Job(LogMixin, db.Model):
     __tablename__ = 'jobs'
