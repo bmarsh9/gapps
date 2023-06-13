@@ -347,8 +347,8 @@ def get_users():
 @login_required
 def create_user():
     result = Authorizer(current_user).can_user_manage_platform()
-    if not current_app.config["MAIL_USERNAME"] or not current_app.config["MAIL_PASSWORD"]:
-        return jsonify({"message":"MAIL_USERNAME and MAIL_PASSWORD must be set"}),400
+    # if not current_app.config["MAIL_USERNAME"] or not current_app.config["MAIL_PASSWORD"]:
+    #     return jsonify({"message":"MAIL_USERNAME and MAIL_PASSWORD must be set"}),400
     data = request.get_json()
     email = data.get("email")
     if not models.User.validate_email(email):
@@ -356,26 +356,26 @@ def create_user():
     tenant_id = data.get("tenant_id")
     token = models.User.generate_invite_token(email, tenant_id)
     link = "{}{}?token={}".format(request.host_url,"register",token)
-    title = f"{current_app.config['APP_NAME']}: Welcome"
-    content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
-    send_email(
-        title,
-        sender=current_app.config['MAIL_USERNAME'],
-        recipients=[email],
-        text_body=render_template(
-            'email/basic_template.txt',
-            title=title,
-            content=content,
-            button_link=link
-        ),
-        html_body=render_template(
-            'email/basic_template.html',
-            title=title,
-            content=content,
-            button_link=link
-        )
-    )
-    return jsonify({"message":"invited user"})
+    # title = f"{current_app.config['APP_NAME']}: Welcome"
+    # content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
+    # send_email(
+    #     title,
+    #     sender=current_app.config['MAIL_USERNAME'],
+    #     recipients=[email],
+    #     text_body=render_template(
+    #         'email/basic_template.txt',
+    #         title=title,
+    #         content=content,
+    #         button_link=link
+    #     ),
+    #     html_body=render_template(
+    #         'email/basic_template.html',
+    #         title=title,
+    #         content=content,
+    #         button_link=link
+    #     )
+    # )
+    return jsonify({"message":"invited user", "url": link})
 
 @api.route('/admin/users/<int:id>', methods=['GET'])
 @login_required
@@ -463,9 +463,9 @@ def create_policy_for_tenant(tid):
 @login_required
 def invite_user_to_tenant(tid):
     result = Authorizer(current_user).can_user_admin_tenant(tid)
-    email_configured = False
-    if current_app.config["MAIL_USERNAME"] and current_app.config["MAIL_PASSWORD"]:
-        email_configured = True
+    # email_configured = False
+    # if current_app.config["MAIL_USERNAME"] and current_app.config["MAIL_PASSWORD"]:
+    #     email_configured = True
     data = request.get_json()
     email = data.get("email")
     roles = data.get("roles",[])
@@ -476,32 +476,32 @@ def invite_user_to_tenant(tid):
     if user := models.User.find_by_email(email):
         result["extra"]["tenant"].add_user(user, roles=roles)
         link = request.host_url
-        title = f"{current_app.config['APP_NAME']}: Tenant invite"
-        content = f"You have been added to a new tenant in {current_app.config['APP_NAME']}"
+        # title = f"{current_app.config['APP_NAME']}: Tenant invite"
+        # content = f"You have been added to a new tenant in {current_app.config['APP_NAME']}"
     else:
         token = models.User.generate_invite_token(email, tid, attributes={"roles":roles})
         link = "{}{}?token={}".format(request.host_url,"register",token)
-        title = f"{current_app.config['APP_NAME']}: Welcome"
-        content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
-    if email_configured:
-        send_email(
-          title,
-          sender=current_app.config['MAIL_USERNAME'],
-          recipients=[email],
-          text_body=render_template(
-            'email/basic_template.txt',
-            title=title,
-            content=content,
-            button_link=link
-          ),
-          html_body=render_template(
-            'email/basic_template.html',
-            title=title,
-            content=content,
-            button_link=link
-          )
-        )
-    return jsonify({"url":link,"email_sent":email_configured})
+        # title = f"{current_app.config['APP_NAME']}: Welcome"
+        # content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
+    # if email_configured:
+    #     send_email(
+    #       title,
+    #       sender=current_app.config['MAIL_USERNAME'],
+    #       recipients=[email],
+    #       text_body=render_template(
+    #         'email/basic_template.txt',
+    #         title=title,
+    #         content=content,
+    #         button_link=link
+    #       ),
+    #       html_body=render_template(
+    #         'email/basic_template.html',
+    #         title=title,
+    #         content=content,
+    #         button_link=link
+    #       )
+    #     )
+    return jsonify({"url":link,"email_sent":True})
 
 @api.route('/tenants/<int:tid>', methods=['GET'])
 @login_required

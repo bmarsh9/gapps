@@ -12,6 +12,7 @@
 {%block tenant_btn%}{%endblock%}
 {%block content%}
 <div class="grid grid-cols-6 gap-4">
+  <div id="invite-user-url" class="col-span-6"></div>
   <div class="col-span-6">
     <div class="card bg-base-100 border border-base-200">
       <div class="card-body">
@@ -189,6 +190,13 @@
         success: function(data){
           toast("Invited user")
           document.getElementById('add-user-modal').checked = false;
+          $("#invite-user-url").html(`
+            <div class="alert bg-neutral text-neutral-content shadow-sm overflow-x-auto text-xs">
+              <div>
+                <span><b>You can also share the sign up link:</b> ${data.url}</span>
+              </div>
+            </div>
+          `)
           return(data)
         },
         error: function(errMsg) {
