@@ -31,3 +31,8 @@ task.sort_results(sort="version")
 # Get result by specific version
 task.get_result_by_version("1.1.1")
 ```
+
+
+#### Creating your own integrations  
+
+Take a look at `/app/integrations/demo` for a tutorial on how to add your own integration
