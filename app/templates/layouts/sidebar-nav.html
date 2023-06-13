@@ -16,6 +16,7 @@
     <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport" />
     <!-- Document Title -->
     <title>{{config.APP_NAME}}</title>
+    <link rel="icon" href="../../static/img/SaltSquare-Favicon.svg" type="image/svg+xml" sizes="any">
     <!-- Search Engine and Browser Meta Tags. -->
     <meta content="{{seo["description"]}}" name="description" />
     <!-- Keep under 500 characters -->
@@ -93,7 +94,7 @@
       <!-- sidebar header -->
       <div :class="{'lg:justify-center': !isSidebarOpen}" class="flex items-center justify-center flex-shrink-0 p-2 lg:justify-center">
         <span class="p-2 text-xl font-semibold leading-8 tracking-wider uppercase whitespace-nowrap cursor-pointer"><span>
-          {%if app_logo_url%}<img :class="{'w-12 h-12': isSidebarOpen}" class="object-cover w-10 h-10 rounded-full" src="{%block app_logo%}{{app_logo_url}}{%endblock%}">{%else%}<b :class="{'w-12 h-12': isSidebarOpen}" class="object-cover w-10 h-10 text-neutral-content text-5xl font-semibold uppercase hover:text-primary-focus" @click="toggleSidebarMenu()">SS</b>{%endif%}</span>
+          {%if app_logo_url%}<img :class="{'w-12 h-12': isSidebarOpen}" class="object-cover w-10 h-10 rounded-full" src="{%block app_logo%}{{app_logo_url}}{%endblock%}">{%else%}<b :class="{'w-12 h-12': isSidebarOpen}" class="object-cover w-10 h-10 text-neutral-content text-5xl font-semibold uppercase hover:text-primary-focus" @click="toggleSidebarMenu()"><img src="../../static/img/SaltSquare-Favicon.svg"/></b>{%endif%}</span>
         </span>
         <button @click="toggleSidebarMenu()" class="p-2 rounded-md lg:hidden">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

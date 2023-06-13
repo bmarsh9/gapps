@@ -25,7 +25,7 @@ class Config:
     ENABLE_SELF_REGISTRATION = os.environ.get("ENABLE_SELF_REGISTRATION",False)
     ENABLE_GOOGLE_AUTH = os.environ.get("ENABLE_GOOGLE_AUTH","0")
     # DOC_LINK = os.environ.get("DOC_LINK","https://github.com/bmarsh9/gapps")
-    CONSOLE_LINK = os.environ.get("CONSOLE_LINK","https://github.com/bmarsh9/gapps")
+    CONSOLE_LINK = os.environ.get("CONSOLE_LINK","https://saltsquare.io/")
 
     DEFAULT_EMAIL = os.environ.get("DEFAULT_EMAIL", "admin@example.com")
     DEFAULT_PASSWORD = os.environ.get("DEFAULT_PASSWORD", "admin")

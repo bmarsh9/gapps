@@ -14,7 +14,7 @@ class Report:
         data = {
             "project_name": project.name,
             "app_name": config["APP_NAME"],
-            "doc_url": config["DOC_LINK"],
+            # "doc_url": config["DOC_LINK"],
             "console_url": config["CONSOLE_LINK"],
             "company": project.tenant.name,
             "contact_email": project.tenant.contact_email,
