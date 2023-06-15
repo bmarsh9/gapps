@@ -342,7 +342,7 @@
       </li>
       {%endif%}
       <li x-show="tab === 'todo'">
-    <div class="mx-auto rounded-lg" x-init="getItems()" @reload.window="todos=[];getItems()">
+    <div class="mx-auto rounded-lg" @reload.window="todos=[];getItems()">
         <div class="mb-4 flex justify-between">
           <div>
             <h1 class="text-2xl font-bold">Feedback<span id="feedback-count" class="ml-2"></span></h1>
@@ -370,18 +370,21 @@
                             </div>
                             <div class="flex-grow max-w-full py-4 ml-4 my-auto">
                                 <div class="w-full leading-none">
-                                    <h3 class="text-md leading-none truncate w-full pr-10 mt-1 font-semibold capitalize" :class="item.title.length?'text-base-content':'text-primary'" x-text="item.title||'Add Feedback...'" x-show="!item.open"></h3>
+                                    <h3 class="text-sm w-full  mt-1 font-semibold capitalize text-base-content" :class="item.title.length?'text-base-content':'text-primary'" x-text="item.title||'Add Feedback...'" x-show="!item.open"></h3>
                                     <input type="text" x-show="item.open" class="text-md w-full bg-transparent leading-none focus:outline-none mb-2" x-model="item.title" :id="`titleField${index}`" placeholder="Add Feedback..." {%if not is_auditor%}disabled{%endif%}/>
                                 </div>
                                 <div class="w-full" x-show="item.open">
                                     <textarea class="textarea bg-base-200 w-full leading-tight my-4" rows="3" x-model="item.description" placeholder="Enter notes or supporting items to help the team" {%if not is_auditor%}disabled{%endif%}></textarea>
                                 </div>
-                                {%if is_auditor%}
+                                <div class="w-full" x-show="item.open">
+                                    <textarea class="textarea bg-base-200 w-full leading-tight my-4" rows="3" x-model="item.response" placeholder="Enter response for the Auditor" {%if is_auditor%}disabled{%endif%}></textarea>
+                                </div>
                                 <div class="w-full flex justify-end" x-show="item.open">
                                     <button class="btn btn-primary mr-2" @click="saveItem(index)">Save</button>
+                                    {%if is_auditor%}
                                     <button class="btn btn-error" @click="removeItem(index)">Delete</button>
+                                    {%endif%}
                                 </div>
-                                {%endif%}
                             </div>
                         </li>
                         </div>
@@ -860,7 +863,8 @@ function app(){
             "title":item.title,
             "description":item.description,
             "is_complete":item.is_complete,
-            "auditor_complete":item.auditor_complete
+            "auditor_complete":item.auditor_complete,
+            "response":item.response
           }
           $.ajax({
             type: "PUT",
@@ -892,7 +896,8 @@ function app(){
             "title":item.title,
             "description":item.description,
             "is_complete":item.is_complete,
-            "auditor_complete":item.auditor_complete
+            "auditor_complete":item.auditor_complete,
+            "response":item.response
           }
           $.ajax({
             type: "POST",
@@ -1125,9 +1130,6 @@ function saveComment(e) {
             return(errMsg);
         }
     })
-}
-
-function getFeedback() {
 }
 
 function saveFeedback(data) {

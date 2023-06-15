@@ -722,7 +722,6 @@ class Control(LogMixin, db.Model):
     references = db.Column(db.String())
     mapping = db.Column(db.JSON(),default={})
     vendor_recommendations = db.Column(db.JSON(),default={})
-
     """framework specific fields"""
     # CMMC
     level = db.Column(db.Integer, default=1)
@@ -812,10 +811,13 @@ class Control(LogMixin, db.Model):
             """
             subcontrols = control.get("subcontrols",[])
             if not subcontrols:
-                subcontrols = [{"name":c.name,
-                    "description":c.description, "ref_code":c.ref_code,
+                subcontrols = [{
+                    "name":c.name,
+                    "description":c.description,
+                    "ref_code":c.ref_code,
                     "mitigation":control.get("mitigation","The mitigation has not been documented"),
-                    "guidance":control.get("guidance")
+                    "guidance":control.get("guidance"),
+                    "tasks":control.get("tasks")
                 }]
             for sub in subcontrols:
                 fa = SubControl(
@@ -825,7 +827,8 @@ class Control(LogMixin, db.Model):
                     mitigation=sub.get("mitigation"),
                     guidance=sub.get("guidance"),
                     implementation_group=sub.get("implementation_group"),
-                    meta=sub.get("meta",{})
+                    meta=sub.get("meta",{}),
+                    tasks=sub.get("tasks",[])
                 )
                 c.subcontrols.append(fa)
             f.controls.append(c)
@@ -841,7 +844,8 @@ class SubControl(LogMixin, db.Model):
     ref_code = db.Column(db.String())
     mitigation = db.Column(db.String())
     guidance = db.Column(db.String)
-    meta = db.Column(db.JSON(),default="{}")
+    meta = db.Column(db.JSON(), default={})
+    tasks = db.Column(db.JSON(), default={})
     """framework specific fields"""
     # CSC
     implementation_group = db.Column(db.Integer)
@@ -1065,6 +1069,13 @@ class Project(LogMixin, db.Model, DateMixin):
         for sub in control.subcontrols.all():
             control_sub = ProjectSubControl(subcontrol_id=sub.id, project_id=self.id)
             project_control.subcontrols.append(control_sub)
+            # Add tasks (e.g. AuditorFeedback)
+            for task in sub.tasks:
+                control_sub.feedback.append(AuditorFeedback(
+                    title=task.get("title"), description=task.get("description"),
+                    owner_id=self.owner_id
+                ))
+
         self.controls.append(project_control)
         if commit:
             db.session.commit()
@@ -1232,6 +1243,7 @@ class AuditorFeedback(LogMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     title = db.Column(db.String())
     description = db.Column(db.String())
+    response = db.Column(db.String())
     is_complete = db.Column(db.Boolean(), default=False)
     auditor_complete = db.Column(db.Boolean(), default=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -1843,7 +1855,7 @@ class Questionnaire(LogMixin, db.Model):
     def set_guests(self, guests, send_notification=False):
         '''
         user must already be a member of the tenant
-        expects [1,2,3]
+        expects [1,2, 3]
         '''
         guests_to_notify = []
         current_guests = [x.user_id for x in self.guests.all()]

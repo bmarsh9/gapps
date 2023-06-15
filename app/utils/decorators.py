@@ -206,7 +206,7 @@ def login_required(view_function):
             login_user(current_user)
         else:
             if not current_user.is_authenticated:
-                return redirect(url_for("auth.login"))
+                return redirect(url_for("auth.login", next=request.full_path))
 
         # It's OK to call the view
         return view_function(*args, **kwargs)

@@ -1032,7 +1032,7 @@ def add_comment_for_control(pid, cid):
     db.session.commit()
     tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["control"].project.tenant)
     if tagged_users:
-        link = f"{request.host_url}projects/{id}/controls/{cid}?tab=comments"
+        link = f"{request.host_url}projects/{pid}/controls/{cid}?tab=comments"
         title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
         content = f"{current_user.get_username()} mentioned you in a comment for a control. Please click the button to begin."
         send_email(
@@ -1053,7 +1053,7 @@ def add_comment_for_control(pid, cid):
             )
         )
     models.Logs.add("Added comment for control",
-        namespace=f"projects:{id}.controls:{result['extra']['control'].id}.comments:{comment.id}",
+        namespace=f"projects:{pid}.controls:{result['extra']['control'].id}.comments:{comment.id}",
         action="create",
         user_id=current_user.id
     )
@@ -1084,9 +1084,10 @@ def add_comment_for_subcontrol(pid, sid):
     comment = models.SubControlComment(message=data["data"], owner_id=current_user.id)
     result["extra"]["subcontrol"].comments.append(comment)
     db.session.commit()
+
     tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["subcontrol"].p_control.project.tenant)
     if tagged_users:
-        link = f"{request.host_url}projects/{id}/controls/{control.project_control_id}/subcontrols/{sid}?tab=comments"
+        link = f"{request.host_url}projects/{pid}/controls/{result['extra']['subcontrol'].project_control_id}/subcontrols/{sid}?tab=comments"
         title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
         content = f"{current_user.get_username()} mentioned you in a comment for a subcontrol. Please click the button to begin."
         send_email(
@@ -1107,7 +1108,7 @@ def add_comment_for_subcontrol(pid, sid):
             )
         )
     models.Logs.add("Added comment for subcontrol",
-        namespace=f"projects:{id}.subcontrols:{result['extra']['subcontrol'].id}.comments:{comment.id}",
+        namespace=f"projects:{pid}.subcontrols:{result['extra']['subcontrol'].id}.comments:{comment.id}",
         action="create",
         user_id=current_user.id
     )
@@ -1140,9 +1141,10 @@ def get_feedback_for_subcontrol(pid, sid):
 def add_feedback_for_subcontrol(pid, sid):
     result = Authorizer(current_user).can_user_add_project_subcontrol_feedback(sid)
     data = request.get_json()
-    feedback = models.AuditorFeedback(owner_id_id=current_user.id,
+    feedback = models.AuditorFeedback(owner_id=current_user.id,
         title=data["title"],description=data["description"],
-        is_complete=data["is_complete"],auditor_complete=data["auditor_complete"])
+        is_complete=data["is_complete"],auditor_complete=data["auditor_complete"],
+        response=data.get("response"))
     result["extra"]["subcontrol"].feedback.append(feedback)
     db.session.commit()
     return jsonify(feedback.as_dict())
@@ -1158,6 +1160,7 @@ def update_feedback_for_subcontrol(pid, sid, fid):
     feedback.description = data["description"]
     feedback.is_complete = data["is_complete"]
     feedback.auditor_complete = data["auditor_complete"]
+    feedback.response = data["response"]
     db.session.commit()
     return jsonify(feedback.as_dict())
 

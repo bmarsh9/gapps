@@ -459,6 +459,8 @@ function loadSubControls() {
     dataType: "json",
     success: function(data){
       $("#subcontrols-div").html("");
+      $("#subcontrols-title").html(`(${data.length})`)
+
       $("#subcontrols-div").html(`
 <div class="col-span-6">
   <div class="card bg-base-100 border border-base-200 shadow p-5">
