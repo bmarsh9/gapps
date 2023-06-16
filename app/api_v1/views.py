@@ -850,7 +850,7 @@ def delete_policy_controls_for_project(pid, ppid, cid):
 @login_required
 def get_control_for_project(pid, cid):
     result = Authorizer(current_user).can_user_read_project_control(cid)
-    return jsonify(result["extra"]["control"].as_dict())
+    return jsonify(result["extra"]["control"].as_dict(stats=True))
 
 @api.route('/projects/<int:pid>/controls/<int:cid>/subcontrols', methods=['GET'])
 @login_required

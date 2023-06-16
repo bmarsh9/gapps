@@ -42,16 +42,22 @@ class ControlMixin(object):
                 "evidence":0,
                 "subcontrols":data["subcontrol_count"],
                 "subcontrols_complete":0,
-                "inapplicable_subcontrols":0
+                "inapplicable_subcontrols":0,
+                "complete_feedback":0,
+                "infosec_status":0,
+                "auditor_status":0
             }
             for sub in subcontrols:
                 if sub["is_complete"]:
                     data["stats"]["subcontrols_complete"] += 1
                 if not sub["is_applicable"]:
                     data["stats"]["inapplicable_subcontrols"] += 1
-#                data["stats"]["feedback"] += sub.feedback.count()
-#                data["stats"]["comments"] += sub.comments.count()
-#                data["stats"]["evidence"] += sub.evidence.count()
+                data["stats"]["feedback"] += sub.get("feedback", 0)
+                data["stats"]["comments"] += sub.get("comments", 0)
+                data["stats"]["evidence"] += sub.get("evidence", 0)
+                data["stats"]["complete_feedback"] += sub.get("complete_feedback", 0)
+                data["stats"]["infosec_status"] += sub.get("infosec_status", 0)
+                data["stats"]["auditor_status"] += sub.get("auditor_status", 0)
         return data
 
     def framework(self):
@@ -180,9 +186,27 @@ class SubControlMixin(object):
         data["owner"] = User.query.get(self.owner_id).email if self.owner_id else "Missing Owner"
         data["operator"] = User.query.get(self.operator_id).email if self.operator_id else "Missing Operator"
         data["complete_feedback"] = len(self.complete_feedback())
+        data["review_complete"] = self.review_complete()
+        data["infosec_status"] = self.action_required_from_infosec()
+        data["auditor_status"] = self.action_required_from_auditor()
         if include_evidence:
             data["evidence"] = [x.as_dict() for x in self.evidence.all()]
         return data
+
+    def review_complete(self):
+        if self.review_status in ["complete"]:
+            return True
+        return False
+
+    def action_required_from_auditor(self):
+        if self.review_status in ["ready for auditor"]:
+            return True
+        return False
+
+    def action_required_from_infosec(self):
+        if self.review_status in ["not started","infosec action", "action required"]:
+            return True
+        return False
 
     def complete_feedback(self):
         data = []

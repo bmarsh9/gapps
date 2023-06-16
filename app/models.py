@@ -32,9 +32,20 @@ class Finding(LogMixin, db.Model):
     title = db.Column(db.String())
     description = db.Column(db.String())
     mitigation = db.Column(db.String())
+    status = db.Column(db.String())
     risk = db.Column(db.Integer())
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    @validates('status')
+    def _validate_status(self, key, status):
+        if not status or status.lower() not in ["open", "in progress", "closed"]:
+            raise ValueError("invalid status")
+        return status
+
+    @staticmethod
+    def create(**kwargs):
+        pass
 
 class Locker(LogMixin, db.Model):
     __tablename__ = 'lockers'
@@ -242,7 +253,6 @@ class TaskResult(LogMixin, db.Model):
         if not all([c.isdigit() or c == '.' for c in str(version)]):
             raise ValueError("invalid characters in version")
         return version
-
 
 class Job(LogMixin, db.Model):
     __tablename__ = 'jobs'
