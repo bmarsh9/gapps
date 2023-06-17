@@ -1080,11 +1080,12 @@ class Project(LogMixin, db.Model, DateMixin):
             control_sub = ProjectSubControl(subcontrol_id=sub.id, project_id=self.id)
             project_control.subcontrols.append(control_sub)
             # Add tasks (e.g. AuditorFeedback)
-            for task in sub.tasks:
-                control_sub.feedback.append(AuditorFeedback(
-                    title=task.get("title"), description=task.get("description"),
-                    owner_id=self.owner_id
-                ))
+            if sub.tasks:
+                for task in sub.tasks:
+                    control_sub.feedback.append(AuditorFeedback(
+                        title=task.get("title"), description=task.get("description"),
+                        owner_id=self.owner_id
+                    ))
 
         self.controls.append(project_control)
         if commit:
