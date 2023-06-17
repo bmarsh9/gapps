@@ -1129,6 +1129,15 @@ def get_comments_for_subcontrol(pid, sid):
     data = [comment.as_dict() for comment in result["extra"]["subcontrol"].comments.order_by(models.SubControlComment.id.asc()).all()]
     return jsonify(data)
 
+@api.route('/projects/<int:pid>/controls/<int:cid>/feedback', methods=["GET"])
+@login_required
+def get_feedback_for_control(pid, cid):
+    result = Authorizer(current_user).can_user_read_project_control(cid)
+    data = []
+    for subcontrol in result["extra"]["control"].query_subcontrols():
+        [data.append(item.as_dict()) for item in subcontrol.feedback.order_by(models.AuditorFeedback.id.asc()).all()]
+    return jsonify(data)
+
 @api.route('/projects/<int:pid>/subcontrols/<int:sid>/feedback', methods=["GET"])
 @login_required
 def get_feedback_for_subcontrol(pid, sid):

@@ -63,7 +63,7 @@
         <span class="text-sm font-medium">Auditor</span>
       </div>
       {%endif%}
-      <div class="divider divider-horizontal"></div>
+      <div class="divider divider-horizontal mx-0"></div>
       <div class="flex gap-x-6 tabs">
         <button
           x-on:click="changeTab('overview')"
@@ -496,7 +496,7 @@ function app(){
           todos = this.todos
           $.ajax({
             type: "GET",
-            url: `/api/v1/projects/{{project.id}}/subcontrols/1/feedback`,
+            url: `/api/v1/projects/{{project.id}}/controls/{{project_control.id}}/feedback`,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function(data){
