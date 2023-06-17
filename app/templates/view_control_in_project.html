@@ -38,6 +38,9 @@
     <span class="ml-3 hidden sm:block">
       <button class="btn format-btn reload-button btn-ghost border border-base-300 btn-sm">Reload<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2 svg-reload"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg></button>
     </span>
+    <span class="ml-3 hidden sm:block">
+      <button class="btn btn-ghost border border-base-300 btn-sm" @click="document.getElementById('help-modal').checked = true">Help<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg></button>
+    </span>
   </div>
 </div>
 
@@ -242,6 +245,18 @@
     {%else%}
     There is no guidance for this control at this time. Please see the <a class="text-primary font-semibold underline" href="https://github.com/bmarsh9/gapps/issues/31">Github issue</a> for more information.
     {%endif%}
+  </label>
+</label>
+
+<input type="checkbox" id="help-modal" class="modal-toggle" />
+<label for="help-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <h2 class="card-title mb-5">Help</h2>
+      </div>
+    </div>
+    You are currently viewing a single control within your project. Each control will have subcontrols. So for example, the current control has {{project_control.subcontrols.count()}} subcontrol(s). In order to complete the control, you must complete all of the subcontrols. For each subcontrol, you can click into the "Auditor Collab" page. This page allows you to converse with the Auditor/Reviewer about the subcontrol.<br><br>If you do not believe the control is Applicable, you can mark the control as "Non-Applicable" and it will be excluded from your project. You can also mark individual subcontrols as "Non-Applicable".
   </label>
 </label>
 {%endblock%}
@@ -752,7 +767,7 @@ function loadSubControls() {
 							<div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
 								<dt class="text-sm font-medium text-primary my-auto">Applicable</dt>
 								<dd class="mt-1 text-sm  sm:col-span-5 sm:mt-0">
-						                  <input type="checkbox" class="toggle toggle-secondary input-${obj.id}-applicable" ${applicable}/>
+						                  <input type="checkbox" class="toggle toggle-primary input-${obj.id}-applicable" ${applicable}/>
 								</dd>
 							</div>
 						</dl>
@@ -760,7 +775,7 @@ function loadSubControls() {
 							<div class=" px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
 								<dt class="text-sm font-medium text-primary my-auto">Implemented</dt>
 								<dd class="mt-1 text-sm  sm:col-span-5 sm:mt-0">
-									<input data-name="status" type="range" min="0" max="100" value="${obj.implemented}" class="range range-secondary input-${obj.id}-implemented" step="25"/>
+									<input data-name="status" type="range" min="0" max="100" value="${obj.implemented}" class="range range-primary input-${obj.id}-implemented" step="25"/>
 									<div class="w-full flex justify-between text-xs px-2">
 										<span>0%</span>
 										<span>25%</span>
@@ -774,15 +789,15 @@ function loadSubControls() {
 						<dl>
 							<div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
 								<dt class="text-sm font-medium text-primary my-auto">Ref Code</dt>
-								<dd class="mt-1 text-sm sm:col-span-5 sm:mt-0 text-secondary bg-base-200 rounded-full py-1 px-3 w-fit uppercase">${obj.ref_code}</dd>
+								<dd class="mt-1 text-sm sm:col-span-5 sm:mt-0 text-primary bg-base-200 rounded-full py-1 px-3 w-fit uppercase">${obj.ref_code}</dd>
 							</div>
 						</dl>
 						<dl>
 							<div class=" px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
 								<dt class="text-sm font-medium text-primary my-auto">Description</dt>
                                                                 <dd x-data="{truncated:true,msg:&quot;${obj.description}&quot;}" class="mt-1 text-sm sm:col-span-5 sm:mt-0">
-                                                                  <span x-show="truncated" x-html="msg.substring(0,50)+'<span @click=&quot;truncated=false&quot; class=&quot;text-secondary underline cursor-pointer&quot;> ... Show more</span>'"></span>
-                                                                  <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-secondary underline cursor-pointer&quot;> ... Show less</span>'"></span>
+                                                                  <span x-show="truncated" x-html="msg.substring(0,50)+'<span @click=&quot;truncated=false&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show more</span>'"></span>
+                                                                  <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show less</span>'"></span>
                                                                 </dd>
 
 							</div>
@@ -791,8 +806,8 @@ function loadSubControls() {
 							<div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
 								<dt class="text-sm font-medium text-primary my-auto">Mitigation</dt>
                                                                 <dd x-data="{truncated:true,msg:&quot;${mitigation}&quot;}" class="mt-1 text-sm sm:col-span-5 sm:mt-0">
-                                                                  <span x-show="truncated" x-html="msg.substring(0,50)+'<span @click=&quot;truncated=false&quot; class=&quot;text-secondary underline cursor-pointer&quot;> ... Show more</span>'"></span>
-                                                                  <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-secondary underline cursor-pointer&quot;> ... Show less</span>'"></span>
+                                                                  <span x-show="truncated" x-html="msg.substring(0,50)+'<span @click=&quot;truncated=false&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show more</span>'"></span>
+                                                                  <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show less</span>'"></span>
                                                                 </dd>
 							</div>
 						</dl>
@@ -804,24 +819,6 @@ function loadSubControls() {
 								</dd>
 							</div>
 						</dl>
-                                                <!--
-						<dl>
-							<div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
-								<dt class="text-sm font-medium text-primary my-auto">Internal Notes</dt>
-								<dd class="mt-1 text-sm  sm:col-span-5 sm:mt-0">
-									<textarea data-name="notes" class="textarea textarea-bordered w-full input-${obj.id}-notes" placeholder="Document any notes here. Users with the Audit role will not be able to view these notes">${notes}</textarea>
-								</dd>
-							</div>
-						</dl>
-						<dl>
-							<div class=" px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
-								<dt class="text-sm font-medium text-primary my-auto">Auditor Feedback</dt>
-								<dd class="mt-1 text-sm  sm:col-span-5 sm:mt-0">
-									<textarea data-name="feedback" class="textarea textarea-bordered w-full input-${obj.id}-feedback" placeholder="Feedback from the auditor can be placed here">${auditor_feedback}</textarea>
-								</dd>
-							</div>
-						</dl>
-                                                -->
 					</div>
 					<button data-id=${obj.id} class="save-fa float-right btn btn-primary m-4 w-20">Save</button>
 					<a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}/controls/{{project_control.id}}/subcontrols/${obj.id}" class="float-right btn btn-ghost m-4 mr-4">Auditor Collab</a>
@@ -906,10 +903,10 @@ function loadSummary() {
       $("#summary-div").html("");
       $("#stats-div").html(`
         <div class="grid grid-cols-8 gap-4">
-          <div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg></div><div class="ml-4"><h2 class="font-semibold">Subcontrols Complete</h2><p class="mt-2 text-sm">${data.stats.subcontrols_complete}/${data.stats.subcontrols} complete</p></div></div></div>
-          <div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"></path></svg></div><div class="ml-4"><h2 class="font-semibold">Auditor Feedback</h2><p class="mt-2 text-sm">${data.stats["complete_feedback"]}/${data.stats["feedback"]} complete</p></div></div></div>
-          <div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg></div><div class="ml-4"><h2 class="font-semibold">InfoSec Control Status</h2><p class="mt-2 text-sm">${data.stats["infosec_status"]} waiting on InfoSec</p></div></div></div>
-          <div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg></div><div class="ml-4"><h2 class="font-semibold">Auditor Control Status</h2><p class="mt-2 text-sm">${data.stats["auditor_status"]} waiting on Auditor</p></div></div></div>
+          <div class="col-span-2 cursor-pointer hover:bg-base-200 hover:shadow-sm" @click="changeTab('subcontrols')"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg></div><div class="ml-4"><h2 class="font-semibold">Subcontrols Complete</h2><p class="mt-2 text-sm">${data.stats.subcontrols_complete}/${data.stats.subcontrols} complete</p></div></div></div>
+          <div class="col-span-2 cursor-pointer hover:bg-base-200 hover:shadow-sm" @click="changeTab('todo')"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"></path></svg></div><div class="ml-4"><h2 class="font-semibold">Auditor Feedback</h2><p class="mt-2 text-sm">${data.stats["complete_feedback"]}/${data.stats["feedback"]} complete</p></div></div></div>
+          <div class="col-span-2 cursor-pointer hover:bg-base-200 hover:shadow-sm" @click="changeTab('subcontrols')"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg></div><div class="ml-4"><h2 class="font-semibold">InfoSec Control Status</h2><p class="mt-2 text-sm">${data.stats["infosec_status"]} waiting on InfoSec</p></div></div></div>
+          <div class="col-span-2 cursor-pointer hover:bg-base-200 hover:shadow-sm" @click="changeTab('subcontrols')"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg></div><div class="ml-4"><h2 class="font-semibold">Auditor Control Status</h2><p class="mt-2 text-sm">${data.stats["auditor_status"]} waiting on Auditor</p></div></div></div>
         </div>
       `)
       $("#summary-div").append(`<div class="col-span-6"><div class="overflow-hidden  shadow sm:rounded-lg border border-base-200"><div class="px-4 py-6 sm:px-6 flex justify-between"><div><h3 class="text-lg font-medium leading-6 ">${data.id} - Control Details</h3><p class="mt-1 max-w-2xl text-sm ">Overview of your control details and status</p></div><div><button class="btn btn-ghost border border-base-300 btn-sm guidance-btn">View Guidance</button></div></div><div class="border-t border-base-200"><div class="grid grid-cols-9 px-6 py-5 gap-y-4">
