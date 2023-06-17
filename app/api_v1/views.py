@@ -29,7 +29,7 @@ def set_session(id):
     result = Authorizer(current_user).can_user_access_tenant(id)
     session["tenant-id"] = result["extra"]["tenant"].id
     session["tenant-uuid"] = result["extra"]["tenant"].uuid
-    return jsonify({"message":"ok"})
+    return jsonify({"message": "ok"})
 
 @api.route('/tenants/<int:id>', methods=['DELETE'])
 @login_required
@@ -37,7 +37,7 @@ def delete_tenant(id):
     result = Authorizer(current_user).can_user_admin_tenant(id)
     db.session.delete(result["extra"]["tenant"])
     db.session.commit()
-    return jsonify({"message":"ok"})
+    return jsonify({"message": "ok"})
 
 @api.route('/questionnaires/<int:qid>', methods=['GET'])
 @login_required
@@ -157,26 +157,19 @@ def get_bg_job_by_id(id):
 @login_required
 def get_bg_jobs(id):
     Authorizer(current_user).can_user_read_tenant(id)
-    id = request.args.get("id",None)
-    name = request.args.get("name",None)
-    status = request.args.get("status",None)
-    queue = request.args.get("queue",None)
-    if exclude_scheduler := request.args.get("exclude-scheduler",None):
+    id = request.args.get("id")
+    name = request.args.get("name")
+    status = request.args.get("status")
+    queue = request.args.get("queue")
+    if exclude_scheduler := request.args.get("exclude-scheduler"):
         exclude_scheduler = True
     with bg_app.open():
-        r = BgHelper().list_jobs(id=id, name=name,
+        jobs = BgHelper().list_jobs(id=id, name=name,
             status=status,
             queue=queue,
             exclude_scheduler=exclude_scheduler
         )
-        return jsonify(r)
-
-@api.route('/task')
-@login_required
-def task():
-    with bg_app.open():
-        BgHelper().run_task()
-    return jsonify({"message":"ok"})
+        return jsonify(jobs)
 
 @api.route('/tenants/<int:id>/frameworks', methods=['GET'])
 @login_required
@@ -216,7 +209,8 @@ def add_comment_for_project(id):
     data = request.get_json()
     if not data.get("data"):
         return jsonify({"message": "empty comment"}), 400
-    tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["project"].tenant)
+    tagged_users = get_users_from_text(data["data"], resolve_users=True,
+        tenant=result["extra"]["project"].tenant)
     comment = models.ProjectComment(message=data["data"], owner_id=current_user.id)
     result["extra"]["project"].comments.append(comment)
     db.session.commit()
@@ -375,13 +369,12 @@ def create_user():
             button_link=link
         )
     )
-    return jsonify({"message":"invited user"})
+    return jsonify({"message": "invited user"})
 
 @api.route('/admin/users/<int:id>', methods=['GET'])
 @login_required
 def get_user(id):
     result = Authorizer(current_user).can_user_manage_platform()
-    data = []
     user = models.User.query.get(id)
     return jsonify(user.as_dict())
 
@@ -857,7 +850,7 @@ def delete_policy_controls_for_project(pid, ppid, cid):
 @login_required
 def get_control_for_project(pid, cid):
     result = Authorizer(current_user).can_user_read_project_control(cid)
-    return jsonify(result["extra"]["control"].as_dict())
+    return jsonify(result["extra"]["control"].as_dict(stats=True))
 
 @api.route('/projects/<int:pid>/controls/<int:cid>/subcontrols', methods=['GET'])
 @login_required
@@ -1039,7 +1032,7 @@ def add_comment_for_control(pid, cid):
     db.session.commit()
     tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["control"].project.tenant)
     if tagged_users:
-        link = f"{request.host_url}projects/{id}/controls/{cid}?tab=comments"
+        link = f"{request.host_url}projects/{pid}/controls/{cid}?tab=comments"
         title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
         content = f"{current_user.get_username()} mentioned you in a comment for a control. Please click the button to begin."
         send_email(
@@ -1060,7 +1053,7 @@ def add_comment_for_control(pid, cid):
             )
         )
     models.Logs.add("Added comment for control",
-        namespace=f"projects:{id}.controls:{result['extra']['control'].id}.comments:{comment.id}",
+        namespace=f"projects:{pid}.controls:{result['extra']['control'].id}.comments:{comment.id}",
         action="create",
         user_id=current_user.id
     )
@@ -1091,9 +1084,10 @@ def add_comment_for_subcontrol(pid, sid):
     comment = models.SubControlComment(message=data["data"], owner_id=current_user.id)
     result["extra"]["subcontrol"].comments.append(comment)
     db.session.commit()
+
     tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["subcontrol"].p_control.project.tenant)
     if tagged_users:
-        link = f"{request.host_url}projects/{id}/controls/{control.project_control_id}/subcontrols/{sid}?tab=comments"
+        link = f"{request.host_url}projects/{pid}/controls/{result['extra']['subcontrol'].project_control_id}/subcontrols/{sid}?tab=comments"
         title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
         content = f"{current_user.get_username()} mentioned you in a comment for a subcontrol. Please click the button to begin."
         send_email(
@@ -1114,7 +1108,7 @@ def add_comment_for_subcontrol(pid, sid):
             )
         )
     models.Logs.add("Added comment for subcontrol",
-        namespace=f"projects:{id}.subcontrols:{result['extra']['subcontrol'].id}.comments:{comment.id}",
+        namespace=f"projects:{pid}.subcontrols:{result['extra']['subcontrol'].id}.comments:{comment.id}",
         action="create",
         user_id=current_user.id
     )
@@ -1147,9 +1141,10 @@ def get_feedback_for_subcontrol(pid, sid):
 def add_feedback_for_subcontrol(pid, sid):
     result = Authorizer(current_user).can_user_add_project_subcontrol_feedback(sid)
     data = request.get_json()
-    feedback = models.AuditorFeedback(owner_id_id=current_user.id,
+    feedback = models.AuditorFeedback(owner_id=current_user.id,
         title=data["title"],description=data["description"],
-        is_complete=data["is_complete"],auditor_complete=data["auditor_complete"])
+        is_complete=data["is_complete"],auditor_complete=data["auditor_complete"],
+        response=data.get("response"))
     result["extra"]["subcontrol"].feedback.append(feedback)
     db.session.commit()
     return jsonify(feedback.as_dict())
@@ -1158,7 +1153,6 @@ def add_feedback_for_subcontrol(pid, sid):
 @login_required
 def update_feedback_for_subcontrol(pid, sid, fid):
     result = Authorizer(current_user).can_user_read_project_subcontrol(sid)
-
     data = request.get_json()
     control = models.ProjectSubControl.query.get(sid)
     feedback = models.AuditorFeedback.query.get(fid)
@@ -1166,6 +1160,7 @@ def update_feedback_for_subcontrol(pid, sid, fid):
     feedback.description = data["description"]
     feedback.is_complete = data["is_complete"]
     feedback.auditor_complete = data["auditor_complete"]
+    feedback.response = data["response"]
     db.session.commit()
     return jsonify(feedback.as_dict())
 

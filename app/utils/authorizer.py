@@ -403,7 +403,7 @@ class Authorizer:
     def can_user_manage_project_subcontrol_feedback(self, feedback):
         if not (feedback := self.id_to_obj("AuditorFeedback", feedback)):
             return self.return_response(False, "feedback not found", 404)
-        if self._can_user_edit_project(subcontrol.p_control.project):
+        if self._can_user_edit_project(feedback.subcontrol.p_control.project):
             return self.return_response(True, AUTHORIZED_MSG, 200, feedback=feedback)
         return self.return_response(False, UNAUTHORIZED_MSG, 403)
 

@@ -70,7 +70,7 @@
     </span>
     {%if is_auditor%}
     <span class="sm:block ml-3">
-      <button class="btn btn-sm btn-error no-animation cursor-auto">Auditor</span>
+      <button class="btn btn-sm btn-error no-animation cursor-auto animate-pulse">Auditor</span>
     </span>
     {%endif%}
 
@@ -342,11 +342,11 @@
       </li>
       {%endif%}
       <li x-show="tab === 'todo'">
-    <div class="mx-auto rounded-lg" x-init="getItems()" @reload.window="todos=[];getItems()">
+    <div class="mx-auto rounded-lg" @reload.window="todos=[];getItems()">
         <div class="mb-4 flex justify-between">
           <div>
             <h1 class="text-2xl font-bold">Feedback<span id="feedback-count" class="ml-2"></span></h1>
-            <p class="text-sm">Feedback is used by the Auditor to list specific action items for the InfoSec team to complete. Mark the checkbox once the feedback is complete.</p>
+            <p class="text-sm">Feedback is used by the Auditor to list action items and/or questions for the InfoSec team to complete. The Auditor and InfoSec team should mark completion.</p>
           </div>
           {%if is_auditor%}<button class="btn btn-primary btn-sm" @click="addItem()">Create</button>{%endif%}
         </div>
@@ -355,12 +355,12 @@
                 <ul @click.away="defocusItems()" class="">
                     <template x-for="(item,index) in todos">
                         <div class="tooltip tooltip-bottom w-full text-left" data-tip="Double click to view">
-                        <li @click="focusItem(index)" @dblclick="openItem(index)" class="px-4 py-2 rounded-lg transition-all flex text-md hover:bg-base-300" :class="{'bg-base-200':item.focused,'shadow-lg py-4 my-5 border':item.open,'mb-1 border border-base-300 cursor-pointer':!item.open}" :key="index">
+                        <li @click="focusItem(index)" @mousedown="if ($event.detail>1){$event.preventDefault()}" @dblclick="openItem(index)" class="px-4 py-2 rounded-lg transition-all flex text-md hover:bg-base-300" :class="{'bg-base-200':item.focused,'shadow-lg py-4 my-5 border':item.open,'mb-1 border border-base-300 cursor-pointer':!item.open}" :key="index">
                             <div class="flex-none leading-none py-2">
 				<div class="flex flex-row gap-x-2 text-xs leading-none font-semibold text-base-content">
 					<div class="flex flex-col gap-y-2">
 					  <p class="mx-auto">Team</p>
-					  <input class="checkbox border-2 mx-auto" type="checkbox" :checked="item.is_complete" @click="checkItem(index)" {%if is_auditor%}disabled{%endif%}>
+					  <input class="checkbox border-2 mx-auto" :id="`feedback-${item.id}`" type="checkbox" :checked="item.is_complete" @click="checkItem(index)" {%if is_auditor%}disabled{%endif%}>
 					</div>
 					<div class="flex flex-col gap-y-2">
 					  <p class="mx-auto">Auditor</p>
@@ -370,18 +370,23 @@
                             </div>
                             <div class="flex-grow max-w-full py-4 ml-4 my-auto">
                                 <div class="w-full leading-none">
-                                    <h3 class="text-md leading-none truncate w-full pr-10 mt-1 font-semibold capitalize" :class="item.title.length?'text-base-content':'text-primary'" x-text="item.title||'Add Feedback...'" x-show="!item.open"></h3>
+                                    <h3 class="text-sm w-full  mt-1 font-semibold capitalize text-base-content" :class="item.title.length?'text-base-content':'text-primary'" x-text="item.title||'Add Feedback...'" x-show="!item.open"></h3>
                                     <input type="text" x-show="item.open" class="text-md w-full bg-transparent leading-none focus:outline-none mb-2" x-model="item.title" :id="`titleField${index}`" placeholder="Add Feedback..." {%if not is_auditor%}disabled{%endif%}/>
                                 </div>
                                 <div class="w-full" x-show="item.open">
-                                    <textarea class="textarea bg-base-200 w-full leading-tight my-4" rows="3" x-model="item.description" placeholder="Enter notes or supporting items to help the team" {%if not is_auditor%}disabled{%endif%}></textarea>
+                                    <label class="block text-sm font-medium">Auditor Description</label>
+                                    <textarea class="textarea bg-base-200 w-full leading-tight my-2" rows="3" x-model="item.description" placeholder="Enter notes or supporting items to help the team" {%if not is_auditor%}disabled{%endif%}></textarea>
                                 </div>
-                                {%if is_auditor%}
+                                <div class="w-full" x-show="item.open">
+                                    <label class="block text-sm font-medium">InfoSec Response</label>
+                                    <textarea class="textarea bg-base-200 w-full leading-tight my-2" rows="3" @change="updateItem(index)" x-model="item.response" placeholder="Provide a explanation to the Auditors action item or question." {%if is_auditor%}disabled{%endif%}></textarea>
+                                </div>
                                 <div class="w-full flex justify-end" x-show="item.open">
                                     <button class="btn btn-primary mr-2" @click="saveItem(index)">Save</button>
+                                    {%if is_auditor%}
                                     <button class="btn btn-error" @click="removeItem(index)">Delete</button>
+                                    {%endif%}
                                 </div>
-                                {%endif%}
                             </div>
                         </li>
                         </div>
@@ -478,6 +483,23 @@
 
 {%endblock%}
 {%block extrajs%}
+{%if is_auditor%}
+<script>
+    Toastify({
+      text: "Reminder: You are in the Auditor view",
+      escapeMarkup: false,
+      duration: 8000,
+      close: true,
+      gravity: "top",
+      position: "center",
+      stopOnFocus: true,
+      style: {
+        background: "#ffa929",
+      },
+      onClick: function(){} // Callback after click
+    }).showToast();
+</script>
+{%endif%}
 <script>
   function saveSubControl() {
     var applicable = $(`#input-applicable`).is(':checked');
@@ -840,6 +862,11 @@ function app(){
         },
         checkItem: function(index) {
           var item = this.todos[index];
+          if (!item.response) {
+            toast("Please provide a response", "warning")
+            document.getElementById(`feedback-${item.id}`).checked = false;
+            return
+          }
           item.is_complete=!item.is_complete
           if (item.is_complete) {
             confetti({particleCount: 200,spread: 300,origin: { y: .6 }});
@@ -860,7 +887,8 @@ function app(){
             "title":item.title,
             "description":item.description,
             "is_complete":item.is_complete,
-            "auditor_complete":item.auditor_complete
+            "auditor_complete":item.auditor_complete,
+            "response":item.response
           }
           $.ajax({
             type: "PUT",
@@ -892,7 +920,8 @@ function app(){
             "title":item.title,
             "description":item.description,
             "is_complete":item.is_complete,
-            "auditor_complete":item.auditor_complete
+            "auditor_complete":item.auditor_complete,
+            "response":item.response
           }
           $.ajax({
             type: "POST",
@@ -1125,9 +1154,6 @@ function saveComment(e) {
             return(errMsg);
         }
     })
-}
-
-function getFeedback() {
 }
 
 function saveFeedback(data) {

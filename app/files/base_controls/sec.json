@@ -1,0 +1,840 @@
+[
+    {
+        "name": "Organization chart showing ownership percentages, and a schedule or chart of all affiliated entities.",
+        "description": "Organization chart showing ownership percentages, and a schedule or chart of all affiliated entities.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_1",
+        "mitigation": "Organization chart showing ownership percentages, and a schedule or chart of all affiliated entities.",
+        "guidance": "Organization chart showing ownership percentages, and a schedule or chart of all affiliated entities.",
+        "tasks": [
+            {
+                "title": "A copy of the Adviser's organization chart showing ownership percentages of the Adviser and control persons, and a schedule or chart of all affiliated entities. Include all entities that are commonly controlled by, or under common control with, the Adviser.",
+                "description": "A copy of the Adviser's organization chart showing ownership percentages of the Adviser and control persons, and a schedule or chart of all affiliated entities. Include all entities that are commonly controlled by, or under common control with, the Adviser."
+            }
+        ]
+    },
+    {
+        "name": "List of office locations.",
+        "description": "List of office locations.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_2",
+        "mitigation": "List of office locations.",
+        "guidance": "List of office locations.",
+        "tasks": [
+            {
+                "title": "List of all office locations, including the Adviser's principal office and place of business ('Main Office') and any other locations from which the Adviser routinely conducts investment advisory services ('Branch Offices'). For each location, provide the address, date office opened, and number of employees and investment adviser representatives ('IARs') at the location.",
+                "description": "List of all office locations, including the Adviser's principal office and place of business ('Main Office') and any other locations from which the Adviser routinely conducts investment advisory services ('Branch Offices'). For each location, provide the address, date office opened, and number of employees and investment adviser representatives ('IARs') at the location."
+            }
+        ]
+    },
+    {
+        "name": "Documentation supporting the organization's IT and Cybersecurity governance.",
+        "description": "Documentation supporting the organization's IT and Cybersecurity governance.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_3",
+        "mitigation": "Documentation supporting the organization's IT and Cybersecurity governance.",
+        "guidance": "Documentation supporting the organization's IT and Cybersecurity governance.",
+        "tasks": [
+            {
+                "title": "Organizational charts that illustrate the positions and departments responsible for cybersecurity-related matters and where these individuals and departments fit within the Adviser's organization or hierarchy.",
+                "description": "Organizational charts that illustrate the positions and departments responsible for cybersecurity-related matters and where these individuals and departments fit within the Adviser's organization or hierarchy."
+            },
+            {
+                "title": "Documentation supporting the firm's Information Technology Governance, including:  - Committee structures  - Lines of communication  - Reporting mechanism and frequency",
+                "description": "Documentation supporting the firm's Information Technology Governance, including:  - Committee structures  - Lines of communication  - Reporting mechanism and frequency"
+            }
+        ]
+    },
+    {
+        "name": "Additional documentation supporting the organization's IT and Cybersecurity governance.",
+        "description": "Additional documentation supporting the organization's IT and Cybersecurity governance.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_4",
+        "mitigation": "Additional documentation supporting the organization's IT and Cybersecurity governance.",
+        "guidance": "Additional documentation supporting the organization's IT and Cybersecurity governance.",
+        "tasks": [
+            {
+                "title": "Identify the Chief Information Security Officer or equivalent position. If the role does not exist, explain where the principal responsibility for overseeing cybersecurity resides within the Adviser.",
+                "description": "Identify the Chief Information Security Officer or equivalent position. If the role does not exist, explain where the principal responsibility for overseeing cybersecurity resides within the Adviser."
+            }
+        ]
+    },
+    {
+        "name": "Policies and procedures addressing network and application authentication.",
+        "description": "Policies and procedures addressing network and application authentication.",
+        "category": "Authentication",
+        "subcategory": "Authentication",
+        "ref_code": "sec_5",
+        "mitigation": "Policies and procedures addressing network and application authentication.",
+        "guidance": "Policies and procedures addressing network and application authentication.",
+        "tasks": [
+            {
+                "title": "Policies and procedures addressing network and application authentication, including any configuration requirements, password requirements, lockout threshold, password retention, etc.",
+                "description": "Policies and procedures addressing network and application authentication, including any configuration requirements, password requirements, lockout threshold, password retention, etc."
+            }
+        ]
+    },
+    {
+        "name": "Policies and procedures addressing the protection of NPI and financial assets.",
+        "description": "Policies and procedures addressing the protection of NPI and financial assets.",
+        "category": "Funds Transfer and NPI Access Control",
+        "subcategory": "Funds Transfer and NPI Access Control",
+        "ref_code": "sec_6",
+        "mitigation": "Policies and procedures addressing the protection of NPI and financial assets.",
+        "guidance": "Policies and procedures addressing the protection of NPI and financial assets.",
+        "tasks": [
+            {
+                "title": "Policies and procedures describing how client Nonpublic Personal Information (\"NPI\") and financial assets are protected in the event that client accounts are compromised or accessed by a bad actor",
+                "description": "Policies and procedures describing how client Nonpublic Personal Information (\"NPI\") and financial assets are protected in the event that client accounts are compromised or accessed by a bad actor"
+            }
+        ]
+    },
+    {
+        "name": "Privacy policy.",
+        "description": "Privacy policy.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_7",
+        "mitigation": "Privacy policy.",
+        "guidance": "Privacy policy.",
+        "tasks": [
+            {
+                "title": "A copy of the Adviser's privacy policy provided to clients during the Examination Period.",
+                "description": "A copy of the Adviser's privacy policy provided to clients during the Examination Period."
+            }
+        ]
+    },
+    {
+        "name": "Documenting non-compliance with cybersecurity policies.",
+        "description": "Documenting non-compliance with cybersecurity policies.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_8",
+        "mitigation": "Documenting non-compliance with cybersecurity policies.",
+        "guidance": "Documenting non-compliance with cybersecurity policies.",
+        "tasks": [
+            {
+                "title": "A record of any non-compliance with the Adviser's cybersecurity policies and procedures during the Examination Period and any action taken as a result of such non-compliance.",
+                "description": "A record of any non-compliance with the Adviser's cybersecurity policies and procedures during the Examination Period and any action taken as a result of such non-compliance."
+            },
+            {
+                "title": "Reports covering compliance/noncompliance with authentication policies and procedures for the review period.  Any reporting of non-compliance with the password management policies and procedures, including any reporting submitted to governance forums.",
+                "description": "Reports covering compliance/noncompliance with authentication policies and procedures for the review period.  Any reporting of non-compliance with the password management policies and procedures, including any reporting submitted to governance forums."
+            }
+        ]
+    },
+    {
+        "name": "Documentation of customer complaints.",
+        "description": "Documentation of customer complaints.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_9",
+        "mitigation": "Documentation of customer complaints.",
+        "guidance": "Documentation of customer complaints.",
+        "tasks": [
+            {
+                "title": "A record of any client / investor complaints during the Examination Period involving cybersecurity or privacy. Please include a brief description of the resolution of the complaints and any remediation efforts undertaken in response.",
+                "description": "A record of any client / investor complaints during the Examination Period involving cybersecurity or privacy. Please include a brief description of the resolution of the complaints and any remediation efforts undertaken in response."
+            }
+        ]
+    },
+    {
+        "name": "Documentation of risk assessment process.",
+        "description": "Documentation of risk assessment process.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_10",
+        "mitigation": "Documentation of risk assessment process.",
+        "guidance": "Documentation of risk assessment process.",
+        "tasks": [
+            {
+                "title": "A copy of the Adviser's most recent assessment of its cybersecurity risks.",
+                "description": "A copy of the Adviser's most recent assessment of its cybersecurity risks."
+            },
+            {
+                "title": "The latest risk assessment reporting (including action plans for all identified risk items) related to credential stuffing and business email compromise.",
+                "description": "The latest risk assessment reporting (including action plans for all identified risk items) related to credential stuffing and business email compromise."
+            }
+        ]
+    },
+    {
+        "name": "Reports related to testing and review of compliance towards cybersecurity policies.",
+        "description": "Reports related to testing and review of compliance towards cybersecurity policies.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_11",
+        "mitigation": "Reports related to testing and review of compliance towards cybersecurity policies.",
+        "guidance": "Reports related to testing and review of compliance towards cybersecurity policies.",
+        "tasks": [
+            {
+                "title": "Any annual or interim reports or other documents regarding the review or testing of the Adviser's compliance with its cybersecurity policies and procedures, including those policies related to penetration testing, vulnerability scanning, and patch management.",
+                "description": "Any annual or interim reports or other documents regarding the review or testing of the Adviser's compliance with its cybersecurity policies and procedures, including those policies related to penetration testing, vulnerability scanning, and patch management."
+            }
+        ]
+    },
+    {
+        "name": "Policies and procedures addressing client authentication methods prior to fund transfers.",
+        "description": "Policies and procedures addressing client authentication methods prior to fund transfers.",
+        "category": "Funds Transfer and NPI Access Control",
+        "subcategory": "Funds Transfer and NPI Access Control",
+        "ref_code": "sec_12",
+        "mitigation": "Policies and procedures addressing client authentication methods prior to fund transfers.",
+        "guidance": "Policies and procedures addressing client authentication methods prior to fund transfers.",
+        "tasks": [
+            {
+                "title": "Provide a copy of the Adviser's policies and procedures related to verification of the authenticity of a client request to transfer funds. If no such written policies or procedures exist, please describe the process the Adviser follows to verify the authenticity of fund transfer requests and describe the individuals and/or departments involved in the authentication process.",
+                "description": "Provide a copy of the Adviser's policies and procedures related to verification of the authenticity of a client request to transfer funds. If no such written policies or procedures exist, please describe the process the Adviser follows to verify the authenticity of fund transfer requests and describe the individuals and/or departments involved in the authentication process."
+            },
+            {
+                "title": "Policies and procedures describing how client Nonpublic Personal Information (\"NPI\") and financial assets are protected in the event that client accounts are compromised or accessed by a bad actor.",
+                "description": "Policies and procedures describing how client Nonpublic Personal Information (\"NPI\") and financial assets are protected in the event that client accounts are compromised or accessed by a bad actor."
+            }
+        ]
+    },
+    {
+        "name": "Regulation S-ID policy, if applicable.",
+        "description": "Regulation S-ID policy, if applicable.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_13",
+        "mitigation": "Regulation S-ID policy, if applicable.",
+        "guidance": "Regulation S-ID policy, if applicable.",
+        "tasks": [
+            {
+                "title": "Provide a copy of the Adviser's Regulation S-ID policy. If the Adviser is not subject to Regulation S-ID, please state so.",
+                "description": "Provide a copy of the Adviser's Regulation S-ID policy. If the Adviser is not subject to Regulation S-ID, please state so."
+            },
+            {
+                "title": "Documentation showing whether the firm offers or maintains \"covered accounts\" as defined in Rule 201 of Regulation S-ID. If the firm does not maintain covered accounts, provide the most recent risk assessment in which it determined that it does not maintain covered accounts.",
+                "description": "Documentation showing whether the firm offers or maintains \"covered accounts\" as defined in Rule 201 of Regulation S-ID. If the firm does not maintain covered accounts, provide the most recent risk assessment in which it determined that it does not maintain covered accounts."
+            }
+        ]
+    },
+    {
+        "name": "Cybersecurity insurance policy.",
+        "description": "Cybersecurity insurance policy.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_14",
+        "mitigation": "Cybersecurity insurance policy.",
+        "guidance": "Cybersecurity insurance policy.",
+        "tasks": [
+            {
+                "title": "Provide the Adviser's insurance policy that covers losses and expenses attributable to cybersecurity incidents, if any.",
+                "description": "Provide the Adviser's insurance policy that covers losses and expenses attributable to cybersecurity incidents, if any."
+            }
+        ]
+    },
+    {
+        "name": "Board of director minutes and briefing reports.",
+        "description": "Board of director minutes and briefing reports.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_15",
+        "mitigation": "Board of director minutes and briefing reports.",
+        "guidance": "Board of director minutes and briefing reports.",
+        "tasks": [
+            {
+                "title": "Provide a copy of all minutes and briefing material provided to the Adviser's board of directors (or senior management if the Adviser does not have a board of directors) regarding cybersecurity, including any testing of the Adviser's cybersecurity program, actual cybersecurity incidents, assessment of cybersecurity risks, and changes to its client privacy policy or cybersecurity program and policies and procedures",
+                "description": "Provide a copy of all minutes and briefing material provided to the Adviser's board of directors (or senior management if the Adviser does not have a board of directors) regarding cybersecurity, including any testing of the Adviser's cybersecurity program, actual cybersecurity incidents, assessment of cybersecurity risks, and changes to its client privacy policy or cybersecurity program and policies and procedures"
+            }
+        ]
+    },
+    {
+        "name": "Policies and procedures addressing cybersecurity awareness and training.",
+        "description": "Policies and procedures addressing cybersecurity awareness and training.",
+        "category": "Governance of Cybersecurity Programs",
+        "subcategory": "Governance of Cybersecurity Programs",
+        "ref_code": "sec_16",
+        "mitigation": "Policies and procedures addressing cybersecurity awareness and training.",
+        "guidance": "Policies and procedures addressing cybersecurity awareness and training.",
+        "tasks": [
+            {
+                "title": "Provide a copy of the Adviser's cybersecurity training policies and procedures.",
+                "description": "Provide a copy of the Adviser's cybersecurity training policies and procedures."
+            },
+            {
+                "title": "Policies and procedures around security awareness and training.",
+                "description": "Policies and procedures around security awareness and training."
+            }
+        ]
+    },
+    {
+        "name": "Documentation on systems and tools used to provent/detect/monitor client NPI data loss.",
+        "description": "Documentation on systems and tools used to provent/detect/monitor client NPI data loss.",
+        "category": "Data Loss Prevention",
+        "subcategory": "Data Loss Prevention",
+        "ref_code": "sec_17",
+        "mitigation": "Documentation on systems and tools used to provent/detect/monitor client NPI data loss.",
+        "guidance": "Documentation on systems and tools used to provent/detect/monitor client NPI data loss.",
+        "tasks": [
+            {
+                "title": "Provide a list of the systems, utilities, and tools used to prevent, detect, and monitor data loss as it relates to client NPI. Please include a brief description of their functions and whether the systems are proprietary, managed by a third party, or commercial off-the-shelf products.",
+                "description": "Provide a list of the systems, utilities, and tools used to prevent, detect, and monitor data loss as it relates to client NPI. Please include a brief description of their functions and whether the systems are proprietary, managed by a third party, or commercial off-the-shelf products."
+            }
+        ]
+    },
+    {
+        "name": "Policies and procedures addressing monitoring exfiltration and unauthorized distribution of client NPI.",
+        "description": "Policies and procedures addressing monitoring exfiltration and unauthorized distribution of client NPI.",
+        "category": "Data Loss Prevention",
+        "subcategory": "Data Loss Prevention",
+        "ref_code": "sec_18",
+        "mitigation": "Policies and procedures addressing monitoring exfiltration and unauthorized distribution of client NPI.",
+        "guidance": "Policies and procedures addressing monitoring exfiltration and unauthorized distribution of client NPI.",
+        "tasks": [
+            {
+                "title": "Provide a copy of the Adviser's policies and procedures relating to monitoring exfiltration and unauthorized distribution of client NPI outside of the Adviser through email, physical media, hard copy, web-based file transfer programs, or via other electronic means. If the Adviser maintains documentation of this monitoring, please include a copy of the most recent report.",
+                "description": "Provide a copy of the Adviser's policies and procedures relating to monitoring exfiltration and unauthorized distribution of client NPI outside of the Adviser through email, physical media, hard copy, web-based file transfer programs, or via other electronic means. If the Adviser maintains documentation of this monitoring, please include a copy of the most recent report."
+            }
+        ]
+    },
+    {
+        "name": "Policies and procedures addressing protection of network resources and devices.",
+        "description": "Policies and procedures addressing protection of network resources and devices.",
+        "category": "Access Rights and Controls",
+        "subcategory": "Access Rights and Controls",
+        "ref_code": "sec_19",
+        "mitigation": "Policies and procedures addressing protection of network resources and devices.",
+        "guidance": "Policies and procedures addressing protection of network resources and devices.",
+        "tasks": [
+            {
+                "title": "Policies and procedures that address ensuring that unauthorized persons do not access its network resources and devices",
+                "description": "Policies and procedures that address ensuring that unauthorized persons do not access its network resources and devices"
+            }
+        ]
+    },
+    {
+        "name": "Policies and procedures on updating access rights.",
+        "description": "Policies and procedures on updating access rights.",
+        "category": "Access Rights and Controls",
+        "subcategory": "Access Rights and Controls",
+        "ref_code": "sec_20",
+        "mitigation": "Policies and procedures on updating access rights.",
+        "guidance": "Policies and procedures on updating access rights.",
+        "tasks": [
+            {
+                "title": "Policies and procedures that address updating access rights based on personnel or system changes (i.e., obtaining authorization to add, delete, or modify authorized user access to systems or applications)",
+                "description": "Policies and procedures that address updating access rights based on personnel or system changes (i.e., obtaining authorization to add, delete, or modify authorized user access to systems or applications)"
+            }
+        ]
+    },
+    {
+        "name": "Additioinal policies and procedures on updating access rights.",
+        "description": "Additioinal policies and procedures on updating access rights.",
+        "category": "Access Rights and Controls",
+        "subcategory": "Access Rights and Controls",
+        "ref_code": "sec_21",
+        "mitigation": "Additioinal policies and procedures on updating access rights.",
+        "guidance": "Additioinal policies and procedures on updating access rights.",
+        "tasks": [
+            {
+                "title": "Policies and procedures that address obtaining manager approval of changes to access rights or controls",
+                "description": "Policies and procedures that address obtaining manager approval of changes to access rights or controls"
+            }
+        ]
+    },
+    {
+        "name": "New employee list.",
+        "description": "New employee list.",
+        "category": "Access Rights and Controls",
+        "subcategory": "Access Rights and Controls",
+        "ref_code": "sec_22",
+        "mitigation": "New employee list.",
+        "guidance": "New employee list.",
+        "tasks": [
+            {
+                "title": "Provide a list of the last ten employees or IARs who were hired by the Adviser during the Examination Period, including: employee name; title; hire date; start date; date access rights granted; documentation evidencing manager approval.",
+                "description": "Provide a list of the last ten employees or IARs who were hired by the Adviser during the Examination Period, including: employee name; title; hire date; start date; date access rights granted; documentation evidencing manager approval."
+            }
+        ]
+    },
+    {
+        "name": "Terminated employee list.",
+        "description": "Terminated employee list.",
+        "category": "Access Rights and Controls",
+        "subcategory": "Access Rights and Controls",
+        "ref_code": "sec_23",
+        "mitigation": "Terminated employee list.",
+        "guidance": "Terminated employee list.",
+        "tasks": [
+            {
+                "title": "A list of the last ten employees or IARs to leave the Adviser during the Examination Period and documentation evidencing their last date of employment and the date their access to the Adviser's network and systems was terminated",
+                "description": "A list of the last ten employees or IARs to leave the Adviser during the Examination Period and documentation evidencing their last date of employment and the date their access to the Adviser's network and systems was terminated"
+            }
+        ]
+    },
+    {
+        "name": "Reassigned employee list.",
+        "description": "Reassigned employee list.",
+        "category": "Access Rights and Controls",
+        "subcategory": "Access Rights and Controls",
+        "ref_code": "sec_24",
+        "mitigation": "Reassigned employee list.",
+        "guidance": "Reassigned employee list.",
+        "tasks": [
+            {
+                "title": "A list of the last ten employees or IARs to be reassigned by the Adviser to a new group or function during the Examination Period and documentation evidencing the date of employee's reassignment; manager approval of change in access rights including date manager approved change; the date employee's access to the adviser's systems and applications was modified.",
+                "description": "A list of the last ten employees or IARs to be reassigned by the Adviser to a new group or function during the Examination Period and documentation evidencing the date of employee's reassignment; manager approval of change in access rights including date manager approved change; the date employee's access to the adviser's systems and applications was modified."
+            }
+        ]
+    },
+    {
+        "name": "Documentation on access rights reviews.",
+        "description": "Documentation on access rights reviews.",
+        "category": "Access Rights and Controls",
+        "subcategory": "Access Rights and Controls",
+        "ref_code": "sec_25",
+        "mitigation": "Documentation on access rights reviews.",
+        "guidance": "Documentation on access rights reviews.",
+        "tasks": [
+            {
+                "title": "If the Adviser conducts reviews of user (i.e., employee, IAR, contractor/vendor, other third parties) access rights and restrictions with respect to role or job-specific resources within the network, provide a list of reviews conducted during the Examination Period and a brief description of each. If the Adviser maintains documentation related to these reviews, provide a copy of the most recent report for each type of review.",
+                "description": "If the Adviser conducts reviews of user (i.e., employee, IAR, contractor/vendor, other third parties) access rights and restrictions with respect to role or job-specific resources within the network, provide a list of reviews conducted during the Examination Period and a brief description of each. If the Adviser maintains documentation related to these reviews, provide a copy of the most recent report for each type of review."
+            }
+        ]
+    },
+    {
+        "name": "Additional documentation on access rights reviews.",
+        "description": "Additional documentation on access rights reviews.",
+        "category": "Access Rights and Controls",
+        "subcategory": "Access Rights and Controls",
+        "ref_code": "sec_26",
+        "mitigation": "Additional documentation on access rights reviews.",
+        "guidance": "Additional documentation on access rights reviews.",
+        "tasks": [
+            {
+                "title": "Provide a list of any instances during the Examination Period where system users (including employees, IARs, clients, contractors/vendors, and any other third parties) received entitlements or access to the Adviser's network, data, systems, or reports in contravention of 8 the Adviser's policies or practices and without authorization. Please include the date and a brief description of the instance and any remediation efforts undertaken in response.",
+                "description": "Provide a list of any instances during the Examination Period where system users (including employees, IARs, clients, contractors/vendors, and any other third parties) received entitlements or access to the Adviser's network, data, systems, or reports in contravention of 8 the Adviser's policies or practices and without authorization. Please include the date and a brief description of the instance and any remediation efforts undertaken in response."
+            }
+        ]
+    },
+    {
+        "name": "Vendor inventory.",
+        "description": "Vendor inventory.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_27",
+        "mitigation": "Vendor inventory.",
+        "guidance": "Vendor inventory.",
+        "tasks": [
+            {
+                "title": "Provide a list of all vendors with access to adviser's network, systems, or data. Indicate whether the vendor is a web or cloud based service provider or a cybersecurity-related vendor.",
+                "description": "Provide a list of all vendors with access to adviser's network, systems, or data. Indicate whether the vendor is a web or cloud based service provider or a cybersecurity-related vendor."
+            }
+        ]
+    },
+    {
+        "name": "Vendor contract example.",
+        "description": "Vendor contract example.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_28",
+        "mitigation": "Vendor contract example.",
+        "guidance": "Vendor contract example.",
+        "tasks": [
+            {
+                "title": "Provide a sample contract that illustrates the typical contractual terms related to Vendors' access to the Adviser's networks, systems, or data, including client NPI.",
+                "description": "Provide a sample contract that illustrates the typical contractual terms related to Vendors' access to the Adviser's networks, systems, or data, including client NPI."
+            }
+        ]
+    },
+    {
+        "name": "Additional vendor inventory documentation.",
+        "description": "Additional vendor inventory documentation.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_29",
+        "mitigation": "Additional vendor inventory documentation.",
+        "guidance": "Additional vendor inventory documentation.",
+        "tasks": [
+            {
+                "title": "Provide a list of all vendors that are cloud based, regardless of whether these Vendors have access to the Adviser's network.",
+                "description": "Provide a list of all vendors that are cloud based, regardless of whether these Vendors have access to the Adviser's network."
+            }
+        ]
+    },
+    {
+        "name": "Additional vendor inventory documentation.",
+        "description": "Additional vendor inventory documentation.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_30",
+        "mitigation": "Additional vendor inventory documentation.",
+        "guidance": "Additional vendor inventory documentation.",
+        "tasks": [
+            {
+                "title": "Provide a list of all vendors That provide cybersecurity services, regardless of whether these Vendors have direct access to the firms network. Please include Dark Web monitoring services in this list.",
+                "description": "Provide a list of all vendors That provide cybersecurity services, regardless of whether these Vendors have direct access to the firms network. Please include Dark Web monitoring services in this list."
+            }
+        ]
+    },
+    {
+        "name": "Additional vendor inventory documentation.",
+        "description": "Additional vendor inventory documentation.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_31",
+        "mitigation": "Additional vendor inventory documentation.",
+        "guidance": "Additional vendor inventory documentation.",
+        "tasks": [
+            {
+                "title": "For each Vendor listed, please include a brief description of the service (or type of service) the Vendor provides to the Adviser, whether the Adviser has access to client NPI, and whether the Adviser has an executed contract in place with the Vendor.",
+                "description": "For each Vendor listed, please include a brief description of the service (or type of service) the Vendor provides to the Adviser, whether the Adviser has access to client NPI, and whether the Adviser has an executed contract in place with the Vendor."
+            }
+        ]
+    },
+    {
+        "name": "Vendor contingency plan.",
+        "description": "Vendor contingency plan.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_32",
+        "mitigation": "Vendor contingency plan.",
+        "guidance": "Vendor contingency plan.",
+        "tasks": [
+            {
+                "title": "Provide a copy of any written contingency plans the Adviser has with its Vendors in case of bankruptcy, the development of conflicts of interest, or other issues that might put the Vendor out of business. If not documented, please describe any such contingency plans (e.g., software escrow).",
+                "description": "Provide a copy of any written contingency plans the Adviser has with its Vendors in case of bankruptcy, the development of conflicts of interest, or other issues that might put the Vendor out of business. If not documented, please describe any such contingency plans (e.g., software escrow)."
+            }
+        ]
+    },
+    {
+        "name": "Documentation relation to requirements from vendors prior to significant changes.",
+        "description": "Documentation relation to requirements from vendors prior to significant changes.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_33",
+        "mitigation": "Documentation relation to requirements from vendors prior to significant changes.",
+        "guidance": "Documentation relation to requirements from vendors prior to significant changes.",
+        "tasks": [
+            {
+                "title": "Provide a sample of documentation or notification that the Adviser requires (or has received) from third-party Vendors to provide prior to any significant changes to the third-party Vendors' systems, components, or services that could potentially have security impacts to the Adviser and its data containing NPI.",
+                "description": "Provide a sample of documentation or notification that the Adviser requires (or has received) from third-party Vendors to provide prior to any significant changes to the third-party Vendors' systems, components, or services that could potentially have security impacts to the Adviser and its data containing NPI."
+            }
+        ]
+    },
+    {
+        "name": "Additional vendor inventory documentation.",
+        "description": "Additional vendor inventory documentation.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_34",
+        "mitigation": "Additional vendor inventory documentation.",
+        "guidance": "Additional vendor inventory documentation.",
+        "tasks": [
+            {
+                "title": "Provide a list of terminated Vendors during the Examination Period.",
+                "description": "Provide a list of terminated Vendors during the Examination Period."
+            }
+        ]
+    },
+    {
+        "name": "Documentation of actual or suspected breaches involving vendors.",
+        "description": "Documentation of actual or suspected breaches involving vendors.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_35",
+        "mitigation": "Documentation of actual or suspected breaches involving vendors.",
+        "guidance": "Documentation of actual or suspected breaches involving vendors.",
+        "tasks": [
+            {
+                "title": "Provide information obtained by the Adviser regarding any actual or suspected breaches of the vendor's data security protocols, including: date of suspected breach, summary of facts surrounding the breach, how the vendor discovered the issue, steps taken to address risk, whether senior management at the Advisor and vendor was apprised of the issue, and whether any other stakeholders (additional vendor clients with interconnected systems) were made aware of the breach.",
+                "description": "Provide information obtained by the Adviser regarding any actual or suspected breaches of the vendor's data security protocols, including: date of suspected breach, summary of facts surrounding the breach, how the vendor discovered the issue, steps taken to address risk, whether senior management at the Advisor and vendor was apprised of the issue, and whether any other stakeholders (additional vendor clients with interconnected systems) were made aware of the breach."
+            }
+        ]
+    },
+    {
+        "name": "Documentation of communication relating to actual or suspected breaches involving vendors.",
+        "description": "Documentation of communication relating to actual or suspected breaches involving vendors.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_36",
+        "mitigation": "Documentation of communication relating to actual or suspected breaches involving vendors.",
+        "guidance": "Documentation of communication relating to actual or suspected breaches involving vendors.",
+        "tasks": [
+            {
+                "title": "Provide a copy of any internal communications with vendors (e-mails, letters) concerning any suspected/actual breaches.",
+                "description": "Provide a copy of any internal communications with vendors (e-mails, letters) concerning any suspected/actual breaches."
+            }
+        ]
+    },
+    {
+        "name": "Documentation of actual or suspected internal breaches relating to video conferencing software.",
+        "description": "Documentation of actual or suspected internal breaches relating to video conferencing software.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_37",
+        "mitigation": "Documentation of actual or suspected internal breaches relating to video conferencing software.",
+        "guidance": "Documentation of actual or suspected internal breaches relating to video conferencing software.",
+        "tasks": [
+            {
+                "title": "Provide information on any actual or suspected breaches of the firm's data security protocols related to the use of video conferencing software, including: date of the actual or suspected breach, summary of facts surrounding breach, how the firm discovered the issue, steps taken to address the risk, whether senior management at the firm was apprised of the issue, and whether any other stakeholders (clients, vendors) were made aware of the breach.",
+                "description": "Provide information on any actual or suspected breaches of the firm's data security protocols related to the use of video conferencing software, including: date of the actual or suspected breach, summary of facts surrounding breach, how the firm discovered the issue, steps taken to address the risk, whether senior management at the firm was apprised of the issue, and whether any other stakeholders (clients, vendors) were made aware of the breach."
+            }
+        ]
+    },
+    {
+        "name": "Documentation of internal communication with clients or stakeholders (emails/letters) relating to actual or suspected internal breaches.",
+        "description": "Documentation of internal communication with clients or stakeholders (emails/letters) relating to actual or suspected internal breaches.",
+        "category": "Vendor Management",
+        "subcategory": "Vendor Management",
+        "ref_code": "sec_38",
+        "mitigation": "Documentation of internal communication with clients or stakeholders (emails/letters) relating to actual or suspected internal breaches.",
+        "guidance": "Documentation of internal communication with clients or stakeholders (emails/letters) relating to actual or suspected internal breaches.",
+        "tasks": [
+            {
+                "title": "Provide a copy of any internal communications with clients or other stakeholders (e-mails, letters) concerning any suspected/actual breaches.",
+                "description": "Provide a copy of any internal communications with clients or other stakeholders (e-mails, letters) concerning any suspected/actual breaches."
+            }
+        ]
+    },
+    {
+        "name": "Policies and procedures relating to tabletop exercises.",
+        "description": "Policies and procedures relating to tabletop exercises.",
+        "category": "Incident Response Management",
+        "subcategory": "Incident Response Management",
+        "ref_code": "sec_39",
+        "mitigation": "Policies and procedures relating to tabletop exercises.",
+        "guidance": "Policies and procedures relating to tabletop exercises.",
+        "tasks": [
+            {
+                "title": "Provide a copy of the Adviser's policies and procedures for conducting tests or exercises of its incident response plan, including the frequency of such testing, if applicable.",
+                "description": "Provide a copy of the Adviser's policies and procedures for conducting tests or exercises of its incident response plan, including the frequency of such testing, if applicable."
+            }
+        ]
+    },
+    {
+        "name": "Documentation of tabletop exercises that have taken place.",
+        "description": "Documentation of tabletop exercises that have taken place.",
+        "category": "Incident Response Management",
+        "subcategory": "Incident Response Management",
+        "ref_code": "sec_40",
+        "mitigation": "Documentation of tabletop exercises that have taken place.",
+        "guidance": "Documentation of tabletop exercises that have taken place.",
+        "tasks": [
+            {
+                "title": "If the Adviser prepares a report related to testing of its incident response plan, please provide a copy of the most recent report.",
+                "description": "If the Adviser prepares a report related to testing of its incident response plan, please provide a copy of the most recent report."
+            }
+        ]
+    },
+    {
+        "name": "Documentation of cybersecurity incidents or breaches.",
+        "description": "Documentation of cybersecurity incidents or breaches.",
+        "category": "Incident Response Management",
+        "subcategory": "Incident Response Management",
+        "ref_code": "sec_41",
+        "mitigation": "Documentation of cybersecurity incidents or breaches.",
+        "guidance": "Documentation of cybersecurity incidents or breaches.",
+        "tasks": [
+            {
+                "title": "Provide a list of all cybersecurity incidents or breaches that occurred during the Examination Period.",
+                "description": "Provide a list of all cybersecurity incidents or breaches that occurred during the Examination Period."
+            },
+            {
+                "title": "List of incidents for the review period (full documentation, including root cause analysis, mitigation efforts, etc.) related to account compromise.",
+                "description": "List of incidents for the review period (full documentation, including root cause analysis, mitigation efforts, etc.) related to account compromise."
+            }
+        ]
+    },
+    {
+        "name": "Identity Theft Provention Program.",
+        "description": "Identity Theft Provention Program.",
+        "category": "Firm Overview",
+        "subcategory": "Firm Overview",
+        "ref_code": "sec_42",
+        "mitigation": "Identity Theft Provention Program.",
+        "guidance": "Identity Theft Provention Program.",
+        "tasks": [
+            {
+                "title": "Identity Theft Prevention Program, including all policies and procedures incorporated into the firm's Identity Theft Prevention Program.",
+                "description": "Identity Theft Prevention Program, including all policies and procedures incorporated into the firm's Identity Theft Prevention Program."
+            }
+        ]
+    },
+    {
+        "name": "Documentation covering the number of customer relationships.",
+        "description": "Documentation covering the number of customer relationships.",
+        "category": "Firm Overview",
+        "subcategory": "Firm Overview",
+        "ref_code": "sec_43",
+        "mitigation": "Documentation covering the number of customer relationships.",
+        "guidance": "Documentation covering the number of customer relationships.",
+        "tasks": [
+            {
+                "title": "Approximate number of \"customer relationships\" the firm maintains as defined under Rule 30 of Regulation S-P.",
+                "description": "Approximate number of \"customer relationships\" the firm maintains as defined under Rule 30 of Regulation S-P."
+            }
+        ]
+    },
+    {
+        "name": "Policies and procedures addressing IP blocking, geolocations, and device fingerprinting.",
+        "description": "Policies and procedures addressing IP blocking, geolocations, and device fingerprinting.",
+        "category": "Authentication",
+        "subcategory": "Authentication",
+        "ref_code": "sec_44",
+        "mitigation": "Policies and procedures addressing IP blocking, geolocations, and device fingerprinting.",
+        "guidance": "Policies and procedures addressing IP blocking, geolocations, and device fingerprinting.",
+        "tasks": [
+            {
+                "title": "Policies and procedures that may address IP block-listing/blocking after a certain number of failed logins, use of geolocations, device fingerprinting, as users attempt to access systems.",
+                "description": "Policies and procedures that may address IP block-listing/blocking after a certain number of failed logins, use of geolocations, device fingerprinting, as users attempt to access systems."
+            }
+        ]
+    },
+    {
+        "name": "Policies and procedures addressing credential stuffing and email compromise.",
+        "description": "Policies and procedures addressing credential stuffing and email compromise.",
+        "category": "Monitoring and Alerting",
+        "subcategory": "Monitoring and Alerting",
+        "ref_code": "sec_45",
+        "mitigation": "Policies and procedures addressing credential stuffing and email compromise.",
+        "guidance": "Policies and procedures addressing credential stuffing and email compromise.",
+        "tasks": [
+            {
+                "title": "Policies and procedures around detecting, monitoring, alerting, reporting and preventing of unusual or suspicious behavior on the network to protect against credential stuffing and business email compromise.",
+                "description": "Policies and procedures around detecting, monitoring, alerting, reporting and preventing of unusual or suspicious behavior on the network to protect against credential stuffing and business email compromise."
+            }
+        ]
+    },
+    {
+        "name": "Reports on network monitoring.",
+        "description": "Reports on network monitoring.",
+        "category": "Monitoring and Alerting",
+        "subcategory": "Monitoring and Alerting",
+        "ref_code": "sec_46",
+        "mitigation": "Reports on network monitoring.",
+        "guidance": "Reports on network monitoring.",
+        "tasks": [
+            {
+                "title": "Reporting (such as operational reports or from governance materials) indicating that the network is being monitored for:  - Cyber breaches whereby employees' or clients' credentials are stolen  - Frequency of the cyber-attacks against a particular asset",
+                "description": "Reporting (such as operational reports or from governance materials) indicating that the network is being monitored for:  - Cyber breaches whereby employees' or clients' credentials are stolen  - Frequency of the cyber-attacks against a particular asset"
+            }
+        ]
+    },
+    {
+        "name": "Examples of suspicious activity alerts.",
+        "description": "Examples of suspicious activity alerts.",
+        "category": "Monitoring and Alerting",
+        "subcategory": "Monitoring and Alerting",
+        "ref_code": "sec_47",
+        "mitigation": "Examples of suspicious activity alerts.",
+        "guidance": "Examples of suspicious activity alerts.",
+        "tasks": [
+            {
+                "title": "Examples of any alerts sent to users notifying them of detected suspicious activity on their accounts.",
+                "description": "Examples of any alerts sent to users notifying them of detected suspicious activity on their accounts."
+            }
+        ]
+    },
+    {
+        "name": "Anti-spam policies and procedures.",
+        "description": "Anti-spam policies and procedures.",
+        "category": "Email security",
+        "subcategory": "Email security",
+        "ref_code": "sec_48",
+        "mitigation": "Anti-spam policies and procedures.",
+        "guidance": "Anti-spam policies and procedures.",
+        "tasks": [
+            {
+                "title": "Policies and procedures for configuration and implementation of the firm's anti-spam solution, including evidence of an anti spam solution having been deployed in production environment.",
+                "description": "Policies and procedures for configuration and implementation of the firm's anti-spam solution, including evidence of an anti spam solution having been deployed in production environment."
+            }
+        ]
+    },
+    {
+        "name": "ERM framework documentation.",
+        "description": "ERM framework documentation.",
+        "category": "Second and Third Lines of Defense",
+        "subcategory": "Second and Third Lines of Defense",
+        "ref_code": "sec_49",
+        "mitigation": "ERM framework documentation.",
+        "guidance": "ERM framework documentation.",
+        "tasks": [
+            {
+                "title": "Enterprise Risk Management framework or its equivalent.",
+                "description": "Enterprise Risk Management framework or its equivalent."
+            }
+        ]
+    },
+    {
+        "name": "Technology risk assessment documentation.",
+        "description": "Technology risk assessment documentation.",
+        "category": "Second and Third Lines of Defense",
+        "subcategory": "Second and Third Lines of Defense",
+        "ref_code": "sec_50",
+        "mitigation": "Technology risk assessment documentation.",
+        "guidance": "Technology risk assessment documentation.",
+        "tasks": [
+            {
+                "title": "The current technology risk assessment schedule/plan or its equivalent.",
+                "description": "The current technology risk assessment schedule/plan or its equivalent."
+            }
+        ]
+    },
+    {
+        "name": "Documentation of risk relating to credential stuffing and email compromise.",
+        "description": "Documentation of risk relating to credential stuffing and email compromise.",
+        "category": "Second and Third Lines of Defense",
+        "subcategory": "Second and Third Lines of Defense",
+        "ref_code": "sec_51",
+        "mitigation": "Documentation of risk relating to credential stuffing and email compromise.",
+        "guidance": "Documentation of risk relating to credential stuffing and email compromise.",
+        "tasks": [
+            {
+                "title": "The current risk registry entries related to business email compromise and credential stuffing.",
+                "description": "The current risk registry entries related to business email compromise and credential stuffing."
+            }
+        ]
+    },
+    {
+        "name": "Technology audit plan.",
+        "description": "Technology audit plan.",
+        "category": "Second and Third Lines of Defense",
+        "subcategory": "Second and Third Lines of Defense",
+        "ref_code": "sec_52",
+        "mitigation": "Technology audit plan.",
+        "guidance": "Technology audit plan.",
+        "tasks": [
+            {
+                "title": "The current technology audit plan and audit universe.",
+                "description": "The current technology audit plan and audit universe."
+            }
+        ]
+    },
+    {
+        "name": "Internal audit reports relating to credential stuffing and email compromise.",
+        "description": "Internal audit reports relating to credential stuffing and email compromise.",
+        "category": "Second and Third Lines of Defense",
+        "subcategory": "Second and Third Lines of Defense",
+        "ref_code": "sec_53",
+        "mitigation": "Internal audit reports relating to credential stuffing and email compromise.",
+        "guidance": "Internal audit reports relating to credential stuffing and email compromise.",
+        "tasks": [
+            {
+                "title": "The latest Internal Audit reports related to credential stuffing and business email compromise.",
+                "description": "The latest Internal Audit reports related to credential stuffing and business email compromise."
+            }
+        ]
+    },
+    {
+        "name": "Additional audit reports relating to credential stuffing and email compromise.",
+        "description": "Additional audit reports relating to credential stuffing and email compromise.",
+        "category": "Second and Third Lines of Defense",
+        "subcategory": "Second and Third Lines of Defense",
+        "ref_code": "sec_54",
+        "mitigation": "Additional audit reports relating to credential stuffing and email compromise.",
+        "guidance": "Additional audit reports relating to credential stuffing and email compromise.",
+        "tasks": [
+            {
+                "title": "The current listing of all outstanding Internal Audit findings related to business email compromise and credential stuffing.",
+                "description": "The current listing of all outstanding Internal Audit findings related to business email compromise and credential stuffing."
+            }
+        ]
+    }
+]

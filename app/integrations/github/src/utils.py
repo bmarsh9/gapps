@@ -1,3 +1,3 @@
 
 def github_test():
-  return "called from github test!"
+  return {"message":"called from github test - updated!"}

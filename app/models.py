@@ -1,5 +1,5 @@
-from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy import func,and_,or_,not_
+from sqlalchemy.dialects.postgresql import JSON, ARRAY
+from sqlalchemy import func, and_, or_, not_, Integer, cast, desc, asc, exc
 from sqlalchemy.orm import validates
 from app.utils.mixin_models import LogMixin,DateMixin,SubControlMixin,ControlMixin
 from flask_login import UserMixin
@@ -18,22 +18,241 @@ from app.email import send_email
 from random import randrange
 from app.utils.authorizer import Authorizer
 import email_validator
+from app.utils.bg_worker import bg_app
+from app.utils.bg_helper import BgHelper
 import logging
-
 
 logger = logging.getLogger(__name__)
 
+
+class Finding(LogMixin, db.Model):
+    __tablename__ = 'findings'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    title = db.Column(db.String())
+    description = db.Column(db.String())
+    mitigation = db.Column(db.String())
+    status = db.Column(db.String())
+    risk = db.Column(db.Integer())
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    @validates('status')
+    def _validate_status(self, key, status):
+        if not status or status.lower() not in ["open", "in progress", "closed"]:
+            raise ValueError("invalid status")
+        return status
+
+    @staticmethod
+    def create(**kwargs):
+        pass
+
+class Locker(LogMixin, db.Model):
+    __tablename__ = 'lockers'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    name = db.Column(db.String())
+    value = db.Column(db.JSON(), default={})
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    def as_dict(self):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        for field in ["date_added", "date_updated"]:
+            data[field] = str(getattr(self, field)) if getattr(self, field) else None
+        return data
+
+    @staticmethod
+    def find_by_name(name, tenant_id):
+        return Locker.query.filter(Locker.tenant_id == tenant_id).filter(func.lower(Locker.name) == func.lower(name)).first()
+
+    @staticmethod
+    def add(name, value, tenant_id):
+        if Locker.find_by_name(name, tenant_id):
+            raise ValueError("name already exists for tenant")
+        locker = Locker(name=name, value=value, tenant_id=tenant_id)
+        db.session.add(locker)
+        db.session.commit()
+        return True
+
+    def has_integration(self, integration_id):
+        return LockerAssociation.query.filter(LockerAssociation.locker_id==self.id).filter(LockerAssociation.integration_id==integration_id).first()
+
+    def add_integration(self, integration_id):
+        if self.has_integration(integration_id):
+            return True
+        assoc = LockerAssociation(locker_id=self.id, integration_id=integration_id)
+        db.session.add(assoc)
+        db.session.commit()
+        return True
+
+    def remove_integration(self, integration_id):
+        if assoc := self.has_integration(integration_id):
+            db.session.delete(assoc)
+            db.session.commit()
+        return True
+
+class LockerAssociation(db.Model):
+    __tablename__ = 'locker_association'
+    id = db.Column(db.Integer(), primary_key=True)
+    locker_id = db.Column(db.Integer(), db.ForeignKey('lockers.id', ondelete='CASCADE'))
+    integration_id = db.Column(db.Integer(), db.ForeignKey('integrations.id', ondelete='CASCADE'))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+class Integration(LogMixin, db.Model):
+    __tablename__ = 'integrations'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    name = db.Column(db.String())
+    url = db.Column(db.String())
+    tasks = db.relationship('Task', backref='integration',lazy='dynamic', cascade="all, delete-orphan")
+    lockers = db.relationship('Locker', secondary='locker_association', lazy='dynamic',
+        backref=db.backref('integration', lazy='dynamic'))
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    @staticmethod
+    def find_by_name(name, tenant_id):
+        return Task.query.filter(Task.tenant_id == tenant_id).filter(func.lower(Task.name) == func.lower(name)).first()
+
+    @staticmethod
+    def add(name, tenant_id):
+        if Integration.find_by_name(name, tenant_id):
+            raise ValueError("integration already exists for tenant")
+        integration = Integration(name=name, tenant_id=tenant_id)
+        db.session.add(integration)
+        db.session.commit()
+        return integration
+
+    def add_task(self, name, cron, disabled=False):
+        if Task.find_by_name(name, self.tenant_id):
+            raise ValueError("task already exists")
+        task = Task(name=name, cron=cron, disabled=disabled,
+            queue=self.tenant_id, integration_id=self.id, tenant_id=self.tenant_id)
+        db.session.add(task)
+        db.session.commit()
+        return task
+
+    def get_lockers(self, as_dict=False):
+        data = {}
+        for locker in self.lockers.all():
+            if as_dict:
+                data[locker.name] = locker.as_dict()
+            else:
+                data[locker.name] = locker
+        return data
+
+    def get_locker_by_name(self, name):
+        return self.lockers.filter(Locker.name == name).first()
 
 class Task(LogMixin, db.Model):
     __tablename__ = 'tasks'
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
     name = db.Column(db.String())
+    queue = db.Column(db.String())
+    disabled = db.Column(db.Boolean(), default=False)
     last_run = db.Column(db.DateTime)
     not_before = db.Column(db.DateTime)
     cron = db.Column(db.String())
+    results = db.relationship('TaskResult', backref='task',lazy='dynamic', cascade="all, delete-orphan")
+    integration_id = db.Column(db.Integer, db.ForeignKey('integrations.id'))
+    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    def as_dict(self, with_lockers=False):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        data["integration"] = self.integration.name
+        data["tenant"] = self.tenant.name
+        data["lock"] = self.get_lock()
+        data["full_name"] = self.get_full_name()
+        for field in ["last_run", "not_before", "date_added", "date_updated"]:
+            data[field] = str(getattr(self, field)) if getattr(self, field) else None
+        if with_lockers:
+            data["lockers"] = self.integration.get_lockers(as_dict=True)
+        return data
+
+    @staticmethod
+    def find_by_name(name, tenant_id):
+        return Task.query.filter(Task.tenant_id == tenant_id).filter(func.lower(Task.name) == func.lower(name)).first()
+
+    def get_full_name(self):
+        return f"{self.integration.name}:{self.name}"
+
+    def get_lock(self):
+        """
+        the lock will be namespaced by tenant_id:integration_name:task_name
+        """
+        return f"{self.tenant_id}:{self.integration.name}:{self.name}"
+
+    def get_executions(self):
+        with bg_app.open():
+            return BgHelper().list_jobs(lock=self.get_lock())
+
+    def get_summary(self):
+        with bg_app.open():
+            return BgHelper().list_tasks(name=self.get_lock())
+
+    def save_results(self, data, version=None, update=False):
+        result = None
+        if version:
+            # update data for the version
+            result = self.get_result_by_version(version)
+            if result and update:
+                result.data = data
+        # add new result
+        if not result:
+            result = TaskResult(data=data)
+            if version:
+                result.version = str(version)
+            self.results.append(result)
+        # commit the result
+        try:
+            db.session.commit()
+            return result
+        except exc.SQLAlchemyError as e:
+            db.session.rollback()
+            raise ValueError(e)
+            return None
+
+    def get_first_result(self, sort="id"):
+        if sort == "version":
+            return self.results.order_by(asc(cast(func.string_to_array(TaskResult.version, '.'), ARRAY(Integer)))).first()
+        return self.results.order_by(TaskResult.id.asc()).first()
+
+    def get_latest_result(self, sort="id"):
+        if sort == "version":
+            return self.results.order_by(desc(cast(func.string_to_array(TaskResult.version, '.'), ARRAY(Integer)))).first()
+        return self.results.order_by(TaskResult.id.desc()).first()
+
+    def get_result_by_version(self, version):
+        return self.results.filter(TaskResult.version == str(version)).first()
+
+    def sort_results(self, sort="id"):
+        if sort == "version":
+            return self.results.order_by(desc(cast(func.string_to_array(TaskResult.version, '.'), ARRAY(Integer)))).all()
+        return self.results.order_by(TaskResult.id.desc()).all()
+
+class TaskResult(LogMixin, db.Model):
+    __tablename__ = 'task_results'
+    __table_args__ = (db.UniqueConstraint('version', 'task_id'),)
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
+    data = db.Column(db.JSON(), default={})
+    version = db.Column(db.String())
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    @validates('version')
+    def _validate_version(self, key, version):
+        if not all([c.isdigit() or c == '.' for c in str(version)]):
+            raise ValueError("invalid characters in version")
+        return version
 
 class Job(LogMixin, db.Model):
     __tablename__ = 'jobs'
@@ -64,6 +283,7 @@ class Tenant(LogMixin, db.Model):
     tags = db.relationship('Tag', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     questionnaires = db.relationship('Questionnaire', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    tasks = db.relationship('Task', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     labels = db.relationship('PolicyLabel', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -270,7 +490,7 @@ class Tenant(LogMixin, db.Model):
         return False
 
     @staticmethod
-    def create(user, name, email, approved_domains, init=False):
+    def create(user, name, email, approved_domains=None, init=False):
         if exists := Tenant.find_by_name(name):
             return exists
         tenant = Tenant(owner_id=user.id, name=name.lower(),
@@ -512,7 +732,6 @@ class Control(LogMixin, db.Model):
     references = db.Column(db.String())
     mapping = db.Column(db.JSON(),default={})
     vendor_recommendations = db.Column(db.JSON(),default={})
-
     """framework specific fields"""
     # CMMC
     level = db.Column(db.Integer, default=1)
@@ -602,10 +821,13 @@ class Control(LogMixin, db.Model):
             """
             subcontrols = control.get("subcontrols",[])
             if not subcontrols:
-                subcontrols = [{"name":c.name,
-                    "description":c.description, "ref_code":c.ref_code,
+                subcontrols = [{
+                    "name":c.name,
+                    "description":c.description,
+                    "ref_code":c.ref_code,
                     "mitigation":control.get("mitigation","The mitigation has not been documented"),
-                    "guidance":control.get("guidance")
+                    "guidance":control.get("guidance"),
+                    "tasks":control.get("tasks")
                 }]
             for sub in subcontrols:
                 fa = SubControl(
@@ -615,7 +837,8 @@ class Control(LogMixin, db.Model):
                     mitigation=sub.get("mitigation"),
                     guidance=sub.get("guidance"),
                     implementation_group=sub.get("implementation_group"),
-                    meta=sub.get("meta",{})
+                    meta=sub.get("meta",{}),
+                    tasks=sub.get("tasks",[])
                 )
                 c.subcontrols.append(fa)
             f.controls.append(c)
@@ -631,7 +854,8 @@ class SubControl(LogMixin, db.Model):
     ref_code = db.Column(db.String())
     mitigation = db.Column(db.String())
     guidance = db.Column(db.String)
-    meta = db.Column(db.JSON(),default="{}")
+    meta = db.Column(db.JSON(), default={})
+    tasks = db.Column(db.JSON(), default={})
     """framework specific fields"""
     # CSC
     implementation_group = db.Column(db.Integer)
@@ -855,6 +1079,13 @@ class Project(LogMixin, db.Model, DateMixin):
         for sub in control.subcontrols.all():
             control_sub = ProjectSubControl(subcontrol_id=sub.id, project_id=self.id)
             project_control.subcontrols.append(control_sub)
+            # Add tasks (e.g. AuditorFeedback)
+            for task in sub.tasks:
+                control_sub.feedback.append(AuditorFeedback(
+                    title=task.get("title"), description=task.get("description"),
+                    owner_id=self.owner_id
+                ))
+
         self.controls.append(project_control)
         if commit:
             db.session.commit()
@@ -1022,6 +1253,7 @@ class AuditorFeedback(LogMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     title = db.Column(db.String())
     description = db.Column(db.String())
+    response = db.Column(db.String())
     is_complete = db.Column(db.Boolean(), default=False)
     auditor_complete = db.Column(db.Boolean(), default=False)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -1633,7 +1865,7 @@ class Questionnaire(LogMixin, db.Model):
     def set_guests(self, guests, send_notification=False):
         '''
         user must already be a member of the tenant
-        expects [1,2,3]
+        expects [1,2, 3]
         '''
         guests_to_notify = []
         current_guests = [x.user_id for x in self.guests.all()]

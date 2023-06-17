@@ -3,7 +3,7 @@
 {% block before_head %}
 {{ super() }}
 {% import "helpers/src_macros.html" as macro %}
-{{ macro.filehelper(apex=True,select2=True,mentions=True,editor=True) }}
+{{ macro.filehelper(apex=True,select2=True,mentions=True,editor=True,confetti=True) }}
   <style>
     .breadcrumbs>ul>li+:before {
       margin-top: 5px;
@@ -37,6 +37,9 @@
     </span>
     <span class="ml-3 hidden sm:block">
       <button class="btn format-btn reload-button btn-ghost border border-base-300 btn-sm">Reload<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2 svg-reload"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg></button>
+    </span>
+    <span class="ml-3 hidden sm:block">
+      <button class="btn btn-ghost border border-base-300 btn-sm" @click="document.getElementById('help-modal').checked = true">Help<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg></button>
     </span>
   </div>
 </div>
@@ -83,6 +86,13 @@
         >
           Comments<span class="ml-1 text-sm" id="comments-title"></span>
         </button>
+        <button
+          x-on:click="changeTab('todo')"
+          x-bind:class="{ 'tab-active border-primary border-b-2': tab === 'todo' }"
+          class="tab hover:text-primary tab-md capitalize text-sm font-semibold focus:border-primary"
+        >
+          Auditor Feedback<span class="ml-1 text-sm" id="feedback-title"></span>
+        </button>
         {%if not is_auditor%}
         <button
           x-on:click="changeTab('internal-notes')"
@@ -111,6 +121,7 @@
   <div id="alert-div" class="col-span-9"></div>
   <div class="col-span-9" x-show="tab === 'overview'">
     <div class="grid grid-cols-9 gap-4">
+      <div id="stats-div" class="col-span-9"></div>
       <div id="summary-div" class="col-span-6"></div>
       <div id="charts-div" class="col-span-3"></div>
     </div>
@@ -157,6 +168,67 @@
           <div class=" h-[calc(100vh-500px)] overflow-auto px-3" id="comments"></div>
         </div>
   </div>
+  <div class="col-span-9">
+    <div class="mx-auto rounded-lg" x-show="tab === 'todo'" @reload.window="todos=[];getItems()">
+        <div class="mb-4 flex justify-between">
+          <div>
+            <h1 class="text-2xl font-bold">Feedback<span id="feedback-count" class="ml-2"></span></h1>
+            <p class="text-sm">Feedback is used by the Auditor to list action items and/or questions for the InfoSec team to complete. The Auditor and InfoSec team should mark completion. Note: Feedback is attached to each subcontrol. {%if is_auditor%}If you would like to add new feedback, please click under the specific subcontrol.{%endif%}</p>
+          </div>
+        </div>
+        <div id="feedback-body" class="h-[calc(100vh-400px)] overflow-auto px-3">
+            <template x-if="todos.length">
+                <ul @click.away="defocusItems()" class="">
+                    <template x-for="(item,index) in todos">
+                        <div class="tooltip tooltip-bottom w-full text-left" data-tip="Double click to view">
+                        <li @click="focusItem(index)" @mousedown="if ($event.detail>1){$event.preventDefault()}" @dblclick="openItem(index)" class="px-4 py-2 rounded-lg transition-all flex text-md hover:bg-base-300" :class="{'bg-base-200':item.focused,'shadow-lg py-4 my-5 border':item.open,'mb-1 border border-base-300 cursor-pointer':!item.open}" :key="index">
+                            <div class="flex-none leading-none py-2">
+                                <div class="flex flex-row gap-x-6 text-xs leading-none font-semibold text-base-content">
+                                        <div class="flex flex-col gap-y-2">
+                                          <p class="mx-auto">InfoSec Team</p>
+                                          <input class="checkbox border-2 mx-auto" :id="`feedback-${item.id}`" type="checkbox" :checked="item.is_complete" @click="checkItem(index)" {%if is_auditor%}disabled{%endif%}>
+                                        </div>
+                                        <div class="flex flex-col gap-y-2">
+                                          <p class="mx-auto">Auditor</p>
+                                          <input class="checkbox border-2 mx-auto" type="checkbox" :checked="item.auditor_complete" @click="checkAuditorItem(index)" {%if not is_auditor%}disabled{%endif%}>
+                                        </div>
+                                </div>
+                            </div>
+                            <div class="flex-grow max-w-full py-4 ml-8 my-auto">
+                                <div class="w-full leading-none">
+                                    <h3 class="text-sm w-full  mt-1 font-semibold capitalize text-base-content" :class="item.title.length?'text-base-content':'text-primary'" x-text="item.title||'Add Feedback...'" x-show="!item.open"></h3>
+                                    <input type="text" x-show="item.open" class="text-md w-full bg-transparent leading-none focus:outline-none mb-2" x-model="item.title" :id="`titleField${index}`" placeholder="Add Feedback..." {%if not is_auditor%}disabled{%endif%}/>
+                                </div>
+                                <div class="w-full" x-show="item.open" x-data="{content:`Note: This feedback is tied to the Subcontrol ID:${item.subcontrol_id}. If you would like to add new feedback, view more details or converse, <a class='text-red-500 underline' target='_blank' rel='noopener noreferrer' href='/projects/{{project.id}}/controls/{{project_control.id}}/subcontrols/${item.subcontrol_id}'>please view the subcontrol</a>`}">
+                                  <p class="text-xs font-semi-bold mb-2" x-html="content"></p>
+                                </div>           
+                                <div class="w-full" x-show="item.open">
+                                    <label class="block text-sm font-medium">Auditor Description</label>
+                                    <textarea class="textarea bg-base-200 w-full leading-tight my-2" rows="3" x-model="item.description" placeholder="Enter notes or supporting items to help the team" {%if not is_auditor%}disabled{%endif%}></textarea>
+                                </div>
+                                <div class="w-full" x-show="item.open">
+                                    <label class="block text-sm font-medium">InfoSec Response</label>
+                                    <textarea class="textarea bg-base-200 w-full leading-tight my-2" rows="3" @change="updateItem(index)" x-model="item.response" placeholder="Provide a explanation to the Auditors action item or question." {%if is_auditor%}disabled{%endif%}></textarea>
+                                </div>
+                                <div class="w-full flex justify-end" x-show="item.open">
+                                    <button class="btn btn-success mr-2" @click="updateItem(index)">Save</button>
+                                    <a target="_blank" rel="noopener noreferrer" x-bind:href="'/projects/{{project.id}}/controls/{{project_control.id}}/subcontrols/' + item.subcontrol_id + '?tab=todo'" class="btn btn-primary mr-2">View Item</a>
+                                    {%if is_auditor%}
+                                    <button class="btn btn-error" @click="removeItem(index)">Delete</button>
+                                    {%endif%}
+                                </div>
+                            </div>
+                        </li>
+                        </div>
+                    </template>
+                </ul>
+            </template>
+            <template x-if="!todos.length">
+                <p class="text-primary text-xl font-semibold mx-auto text-center mt-5"><b class="mr-2">😊</b>No Feedback</p>
+            </template>
+        </div>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -173,6 +245,18 @@
     {%else%}
     There is no guidance for this control at this time. Please see the <a class="text-primary font-semibold underline" href="https://github.com/bmarsh9/gapps/issues/31">Github issue</a> for more information.
     {%endif%}
+  </label>
+</label>
+
+<input type="checkbox" id="help-modal" class="modal-toggle" />
+<label for="help-modal" class="modal cursor-pointer">
+  <label class="modal-box relative w-11/12 max-w-5xl" for="">
+    <div class="flex justify-between">
+      <div>
+        <h2 class="card-title mb-5">Help</h2>
+      </div>
+    </div>
+    You are currently viewing a single control within your project. Each control will have subcontrols. So for example, the current control has {{project_control.subcontrols.count()}} subcontrol(s). In order to complete the control, you must complete all of the subcontrols. For each subcontrol, you can click into the "Auditor Collab" page. This page allows you to converse with the Auditor/Reviewer about the subcontrol.<br><br>If you do not believe the control is Applicable, you can mark the control as "Non-Applicable" and it will be excluded from your project. You can also mark individual subcontrols as "Non-Applicable".
   </label>
 </label>
 {%endblock%}
@@ -323,7 +407,6 @@ function addCommentToDiv(comment) {
   `
   $("#comments").prepend(record)
 }
-
 function app(){
     return {
         init() {
@@ -332,13 +415,105 @@ function app(){
           if (tab) {
             this.tab = tab;
           }
+          this.getItems()
         },
         tab: "overview",
+        todos: [],
         changeTab: function(tab) {
           this.tab = tab;
           var queryParams = new URLSearchParams(window.location.search);
           queryParams.set("tab", tab)
           history.replaceState(null, null, "?"+queryParams.toString());
+        },
+        checkItem: function(index) {
+          var item = this.todos[index];
+          if (!item.response) {
+            toast("Please provide a response", "warning")
+            document.getElementById(`feedback-${item.id}`).checked = false;
+            return
+          }
+          item.is_complete=!item.is_complete
+          if (item.is_complete) {
+            confetti({particleCount: 200,spread: 300,origin: { y: .6 }});
+          }
+          this.updateItem(index)
+        },
+        checkAuditorItem: function(index) {
+          var item = this.todos[index];
+          item.auditor_complete=!item.auditor_complete
+          if (item.auditor_complete) {
+            confetti({particleCount: 200,spread: 300,origin: { y: .6 }});
+          }
+          this.updateItem(index)
+        },
+        updateItem: function(index) {
+          var item = this.todos[index];
+          var data = {
+            "title":item.title,
+            "description":item.description,
+            "is_complete":item.is_complete,
+            "auditor_complete":item.auditor_complete,
+            "response":item.response
+          }
+          $.ajax({
+            type: "PUT",
+            url: `/api/v1/projects/{{project.id}}/subcontrols/${item.subcontrol_id}/feedback/${item.id}`,
+            data: JSON.stringify(data),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+              toast("Updated feedback")
+              return(data)
+            },
+            error: function(errMsg) {
+              toast(errMsg["responseJSON"]["message"],"error")
+              return(errMsg);
+            }
+          })
+        },
+        focusItem: function(index) {
+            if ( !this.todos[index].open ) {
+                for(let i = 0; i < this.todos.length; i++){
+                    this.todos[i].open = false;
+                    this.todos[i].focused = i == index;
+                }
+            }
+        },
+        openItem: function(index) {
+            for(let i = 0; i < this.todos.length; i++){
+                this.todos[i].focused = false;
+                this.todos[i].open = i == index;
+            }
+            setTimeout(()=>document.getElementById(`titleField${index}`).focus(),10);
+        },
+        defocusItems: function() {
+            for(let i = 0; i < this.todos.length; i++){
+                this.todos[i].focused = false;
+                this.todos[i].open = false;
+            }
+        },
+        getItems: function() {
+          todos = this.todos
+          $.ajax({
+            type: "GET",
+            url: `/api/v1/projects/{{project.id}}/subcontrols/1/feedback`,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function(data){
+              $("#feedback-count").html(`(${data.length})`)
+              if (data) {
+                $("#feedback-title").html(`(${data.length})`)
+              }
+              for (var item in data) {
+                todos.push(data[item])
+              }
+              return(data)
+            },
+            error: function(errMsg) {
+              toast(errMsg["responseJSON"]["message"],"error")
+              return(errMsg);
+            }
+          })
         }
     }
 }
@@ -353,8 +528,8 @@ function loadCharts() {
       $("#charts-div").html("");
 
       $("#charts-div").html(`<div class="grid grid-cols-4 gap-y-4">
-        <div class="col-span-4"><div class="card  shadow-md border border-base-200"><div class="p-5"><h2 class="card-title  capitalize text-lg">Controls Implemented</h2><div class="text-center"><div id="implementation-progress"></div></div></div></div></div>
-        <div class="col-span-4"><div class="card  shadow-md border border-base-200"><div class="p-5"><h2 class="card-title  capitalize text-lg">Evidence Collection</h2><div class="text-center"><div id="evidence-progress"></div></div></div></div></div>
+        <div class="col-span-4"><div class="card  shadow-md border border-base-200"><div class="p-5"><div class="flex justify-between"><div><h2 class="card-title  capitalize text-lg">Implemention Progress</h2></div><div><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" @click="changeTab('subcontrols')" class="w-6 h-6 cursor-pointer"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></div></div><div class="text-center"><div id="implementation-progress"></div></div></div></div></div>
+        <div class="col-span-4"><div class="card  shadow-md border border-base-200"><div class="p-5"><div class="flex justify-between"><div><h2 class="card-title  capitalize text-lg">Evidence Collection</h2></div><div><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" @click="changeTab('subcontrols')" class="w-6 h-6 cursor-pointer"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></div></div><div class="text-center"><div id="evidence-progress"></div></div></div></div></div>
       </div>`);
 
       var options = {
@@ -459,6 +634,8 @@ function loadSubControls() {
     dataType: "json",
     success: function(data){
       $("#subcontrols-div").html("");
+      $("#subcontrols-title").html(`(${data.length})`)
+
       $("#subcontrols-div").html(`
 <div class="col-span-6">
   <div class="card bg-base-100 border border-base-200 shadow p-5">
@@ -590,7 +767,7 @@ function loadSubControls() {
 							<div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
 								<dt class="text-sm font-medium text-primary my-auto">Applicable</dt>
 								<dd class="mt-1 text-sm  sm:col-span-5 sm:mt-0">
-						                  <input type="checkbox" class="toggle toggle-secondary input-${obj.id}-applicable" ${applicable}/>
+						                  <input type="checkbox" class="toggle toggle-primary input-${obj.id}-applicable" ${applicable}/>
 								</dd>
 							</div>
 						</dl>
@@ -598,7 +775,7 @@ function loadSubControls() {
 							<div class=" px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
 								<dt class="text-sm font-medium text-primary my-auto">Implemented</dt>
 								<dd class="mt-1 text-sm  sm:col-span-5 sm:mt-0">
-									<input data-name="status" type="range" min="0" max="100" value="${obj.implemented}" class="range range-secondary input-${obj.id}-implemented" step="25"/>
+									<input data-name="status" type="range" min="0" max="100" value="${obj.implemented}" class="range range-primary input-${obj.id}-implemented" step="25"/>
 									<div class="w-full flex justify-between text-xs px-2">
 										<span>0%</span>
 										<span>25%</span>
@@ -612,15 +789,15 @@ function loadSubControls() {
 						<dl>
 							<div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
 								<dt class="text-sm font-medium text-primary my-auto">Ref Code</dt>
-								<dd class="mt-1 text-sm sm:col-span-5 sm:mt-0 text-secondary bg-base-200 rounded-full py-1 px-3 w-fit uppercase">${obj.ref_code}</dd>
+								<dd class="mt-1 text-sm sm:col-span-5 sm:mt-0 text-primary bg-base-200 rounded-full py-1 px-3 w-fit uppercase">${obj.ref_code}</dd>
 							</div>
 						</dl>
 						<dl>
 							<div class=" px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
 								<dt class="text-sm font-medium text-primary my-auto">Description</dt>
                                                                 <dd x-data="{truncated:true,msg:&quot;${obj.description}&quot;}" class="mt-1 text-sm sm:col-span-5 sm:mt-0">
-                                                                  <span x-show="truncated" x-html="msg.substring(0,50)+'<span @click=&quot;truncated=false&quot; class=&quot;text-secondary underline cursor-pointer&quot;> ... Show more</span>'"></span>
-                                                                  <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-secondary underline cursor-pointer&quot;> ... Show less</span>'"></span>
+                                                                  <span x-show="truncated" x-html="msg.substring(0,50)+'<span @click=&quot;truncated=false&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show more</span>'"></span>
+                                                                  <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show less</span>'"></span>
                                                                 </dd>
 
 							</div>
@@ -629,8 +806,8 @@ function loadSubControls() {
 							<div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
 								<dt class="text-sm font-medium text-primary my-auto">Mitigation</dt>
                                                                 <dd x-data="{truncated:true,msg:&quot;${mitigation}&quot;}" class="mt-1 text-sm sm:col-span-5 sm:mt-0">
-                                                                  <span x-show="truncated" x-html="msg.substring(0,50)+'<span @click=&quot;truncated=false&quot; class=&quot;text-secondary underline cursor-pointer&quot;> ... Show more</span>'"></span>
-                                                                  <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-secondary underline cursor-pointer&quot;> ... Show less</span>'"></span>
+                                                                  <span x-show="truncated" x-html="msg.substring(0,50)+'<span @click=&quot;truncated=false&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show more</span>'"></span>
+                                                                  <span x-show="!truncated" x-html="msg+'<span @click=&quot;truncated=true&quot; class=&quot;text-primary underline cursor-pointer&quot;> ... Show less</span>'"></span>
                                                                 </dd>
 							</div>
 						</dl>
@@ -642,24 +819,6 @@ function loadSubControls() {
 								</dd>
 							</div>
 						</dl>
-                                                <!--
-						<dl>
-							<div class="px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
-								<dt class="text-sm font-medium text-primary my-auto">Internal Notes</dt>
-								<dd class="mt-1 text-sm  sm:col-span-5 sm:mt-0">
-									<textarea data-name="notes" class="textarea textarea-bordered w-full input-${obj.id}-notes" placeholder="Document any notes here. Users with the Audit role will not be able to view these notes">${notes}</textarea>
-								</dd>
-							</div>
-						</dl>
-						<dl>
-							<div class=" px-4 py-5 sm:grid sm:grid-cols-6 sm:gap-4 sm:px-6">
-								<dt class="text-sm font-medium text-primary my-auto">Auditor Feedback</dt>
-								<dd class="mt-1 text-sm  sm:col-span-5 sm:mt-0">
-									<textarea data-name="feedback" class="textarea textarea-bordered w-full input-${obj.id}-feedback" placeholder="Feedback from the auditor can be placed here">${auditor_feedback}</textarea>
-								</dd>
-							</div>
-						</dl>
-                                                -->
 					</div>
 					<button data-id=${obj.id} class="save-fa float-right btn btn-primary m-4 w-20">Save</button>
 					<a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}/controls/{{project_control.id}}/subcontrols/${obj.id}" class="float-right btn btn-ghost m-4 mr-4">Auditor Collab</a>
@@ -728,6 +887,7 @@ function loadSummary() {
     contentType: "application/json; charset=utf-8",
     dataType: "json",
     success: function(data){
+
       if (!data.is_applicable) {
         $("#alert-div").html('<div class="alert alert-warning shadow-lg "> <div> <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> <span>This control has been marked as Not Applicable and therefore is complete.</span> </div> </div>');
         setApplicableBtn(false)
@@ -741,6 +901,14 @@ function loadSummary() {
       }
 
       $("#summary-div").html("");
+      $("#stats-div").html(`
+        <div class="grid grid-cols-8 gap-4">
+          <div class="col-span-2 cursor-pointer hover:bg-base-200 hover:shadow-sm" @click="changeTab('subcontrols')"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg></div><div class="ml-4"><h2 class="font-semibold">Subcontrols Complete</h2><p class="mt-2 text-sm">${data.stats.subcontrols_complete}/${data.stats.subcontrols} complete</p></div></div></div>
+          <div class="col-span-2 cursor-pointer hover:bg-base-200 hover:shadow-sm" @click="changeTab('todo')"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"></path></svg></div><div class="ml-4"><h2 class="font-semibold">Auditor Feedback</h2><p class="mt-2 text-sm">${data.stats["complete_feedback"]}/${data.stats["feedback"]} complete</p></div></div></div>
+          <div class="col-span-2 cursor-pointer hover:bg-base-200 hover:shadow-sm" @click="changeTab('subcontrols')"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" /></svg></div><div class="ml-4"><h2 class="font-semibold">InfoSec Control Status</h2><p class="mt-2 text-sm">${data.stats["infosec_status"]} waiting on InfoSec</p></div></div></div>
+          <div class="col-span-2 cursor-pointer hover:bg-base-200 hover:shadow-sm" @click="changeTab('subcontrols')"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg></div><div class="ml-4"><h2 class="font-semibold">Auditor Control Status</h2><p class="mt-2 text-sm">${data.stats["auditor_status"]} waiting on Auditor</p></div></div></div>
+        </div>
+      `)
       $("#summary-div").append(`<div class="col-span-6"><div class="overflow-hidden  shadow sm:rounded-lg border border-base-200"><div class="px-4 py-6 sm:px-6 flex justify-between"><div><h3 class="text-lg font-medium leading-6 ">${data.id} - Control Details</h3><p class="mt-1 max-w-2xl text-sm ">Overview of your control details and status</p></div><div><button class="btn btn-ghost border border-base-300 btn-sm guidance-btn">View Guidance</button></div></div><div class="border-t border-base-200"><div class="grid grid-cols-9 px-6 py-5 gap-y-4">
           <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Status</strong><span class=" text-sm capitalize">${data.status}</span></div></div>
           <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Reference Code</strong><span class=" text-sm uppercase">${data.ref_code}</span></div></div>

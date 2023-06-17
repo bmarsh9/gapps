@@ -45,7 +45,7 @@ def logs():
 @login_required
 def tenant_users():
     roles = Role.query.all()
-    return render_template('management/tenant_users.html',roles=roles)
+    return render_template('management/tenant_users.html', roles=roles)
 
 @main.route('/tenants', methods=['GET'])
 @login_required

@@ -4,7 +4,6 @@ import logging
 import os
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
-logging.basicConfig(level=app.config["WORKER_LOG_LEVEL"] or app.config["LOG_LEVEL"])
 
 with bg_app.open():
     options = {

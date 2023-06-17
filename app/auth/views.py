@@ -76,7 +76,7 @@ def login_with_magic_link(tid):
         token = user.generate_magic_link(tid)
         link = f"{request.host_url}magic-login/{token}"
         title = f"{current_app.config['APP_NAME']}: Login Request"
-        content = f"You have requested a login via email. If you did not request a reset, please ignore. Otherwise, please click the button below to login."
+        content = f"You have requested a login via email. If you did not request a magic link, please ignore. Otherwise, please click the button below to login."
         send_email(
             title,
             sender=current_app.config['MAIL_USERNAME'],
