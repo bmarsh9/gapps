@@ -252,6 +252,13 @@ def get_comments_for_project(pid):
     data = [comment.as_dict() for comment in result["extra"]["project"].comments.order_by(models.ProjectComment.id.asc()).all()]
     return jsonify(data)
 
+@api.route('/projects/<int:pid>/findings', methods=['GET'])
+@login_required
+def get_findings_for_project(pid):
+    result = Authorizer(current_user).can_user_read_project_comments(pid)
+    data = [finding.as_dict() for finding in result["extra"]["project"].findings.all()]
+    return jsonify(data)
+
 @api.route('/projects/<int:pid>/matrix/summary', methods=['GET'])
 @login_required
 def get_resp_matrix_summary_for_project(pid):

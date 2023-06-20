@@ -34,6 +34,8 @@ class Finding(LogMixin, db.Model):
     mitigation = db.Column(db.String())
     status = db.Column(db.String())
     risk = db.Column(db.Integer())
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -43,9 +45,9 @@ class Finding(LogMixin, db.Model):
             raise ValueError("invalid status")
         return status
 
-    @staticmethod
-    def create(**kwargs):
-        pass
+    def as_dict(self):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return data
 
 class Locker(LogMixin, db.Model):
     __tablename__ = 'lockers'
@@ -110,29 +112,14 @@ class Integration(LogMixin, db.Model):
     tasks = db.relationship('Task', backref='integration',lazy='dynamic', cascade="all, delete-orphan")
     lockers = db.relationship('Locker', secondary='locker_association', lazy='dynamic',
         backref=db.backref('integration', lazy='dynamic'))
-    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
-    @staticmethod
-    def find_by_name(name, tenant_id):
-        return Task.query.filter(Task.tenant_id == tenant_id).filter(func.lower(Task.name) == func.lower(name)).first()
-
-    @staticmethod
-    def add(name, tenant_id):
-        if Integration.find_by_name(name, tenant_id):
-            raise ValueError("integration already exists for tenant")
-        integration = Integration(name=name, tenant_id=tenant_id)
-        db.session.add(integration)
-        db.session.commit()
-        return integration
-
     def add_task(self, name, cron, disabled=False):
-        if Task.find_by_name(name, self.tenant_id):
-            raise ValueError("task already exists")
         task = Task(name=name, cron=cron, disabled=disabled,
-            queue=self.tenant_id, integration_id=self.id, tenant_id=self.tenant_id)
-        db.session.add(task)
+            queue=self.project.tenant_id)
+        self.tasks.append(task)
         db.session.commit()
         return task
 
@@ -158,16 +145,16 @@ class Task(LogMixin, db.Model):
     last_run = db.Column(db.DateTime)
     not_before = db.Column(db.DateTime)
     cron = db.Column(db.String())
+    findings = db.relationship('Finding', backref='task',lazy='dynamic', cascade="all, delete-orphan")
     results = db.relationship('TaskResult', backref='task',lazy='dynamic', cascade="all, delete-orphan")
     integration_id = db.Column(db.Integer, db.ForeignKey('integrations.id'))
-    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
     def as_dict(self, with_lockers=False):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         data["integration"] = self.integration.name
-        data["tenant"] = self.tenant.name
+        data["tenant"] = self.integration.project.tenant.name
         data["lock"] = self.get_lock()
         data["full_name"] = self.get_full_name()
         for field in ["last_run", "not_before", "date_added", "date_updated"]:
@@ -180,6 +167,12 @@ class Task(LogMixin, db.Model):
     def find_by_name(name, tenant_id):
         return Task.query.filter(Task.tenant_id == tenant_id).filter(func.lower(Task.name) == func.lower(name)).first()
 
+    def add_finding(self, **kwargs):
+        finding = Finding(project_id=self.integration.project_id, **kwargs)
+        self.findings.append(finding)
+        db.session.commit()
+        return finding
+
     def get_full_name(self):
         return f"{self.integration.name}:{self.name}"
 
@@ -187,7 +180,7 @@ class Task(LogMixin, db.Model):
         """
         the lock will be namespaced by tenant_id:integration_name:task_name
         """
-        return f"{self.tenant_id}:{self.integration.name}:{self.name}"
+        return f"{self.integration.project.tenant_id}:{self.integration.name}:{self.name}"
 
     def get_executions(self):
         with bg_app.open():
@@ -283,7 +276,6 @@ class Tenant(LogMixin, db.Model):
     tags = db.relationship('Tag', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     questionnaires = db.relationship('Questionnaire', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    tasks = db.relationship('Task', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     labels = db.relationship('PolicyLabel', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -518,7 +510,7 @@ class Tenant(LogMixin, db.Model):
         for control in controls:
             project.add_control(control, commit=False)
         db.session.commit()
-        return True
+        return project
 
 class Evidence(LogMixin, db.Model):
     __tablename__ = 'evidence'
@@ -912,6 +904,8 @@ class Project(LogMixin, db.Model, DateMixin):
     comments = db.relationship('ProjectComment', backref='project', lazy='dynamic', cascade="all, delete-orphan")
     notes = db.Column(db.String())
     members = db.relationship('ProjectMember', backref='project', lazy='dynamic',cascade="all, delete-orphan")
+    integrations = db.relationship('Integration', backref='project', lazy='dynamic', cascade="all, delete-orphan")
+    findings = db.relationship('Finding', backref='project', lazy='dynamic', cascade="all, delete-orphan")
     owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
     tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False)
     framework_id = db.Column(db.Integer, db.ForeignKey('frameworks.id'))
@@ -948,6 +942,14 @@ class Project(LogMixin, db.Model, DateMixin):
                 framework_ids = [framework_ids]
             _query = _query.filter(Project.framework_id.in_(framework_ids))
         return _query.all()
+
+    def add_integration(self, name):
+        if self.integrations.filter(func.lower(Integration.name) == func.lower(self.name)).first():
+            raise ValueError("integration already exists for tenant")
+        integration = Integration(name=name)
+        self.integrations.append(integration)
+        db.session.commit()
+        return integration
 
     def can_user_manage(self, user):
         if user.super:
