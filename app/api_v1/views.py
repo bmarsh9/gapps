@@ -657,7 +657,8 @@ def add_evidence_for_tenant(tid):
     )
     result["extra"]["tenant"].evidence.append(evidence)
     db.session.commit()
-    s3.upload_file_obj(request.files['file'], "evidence_" + str(evidence.id))
+    if file := request.files.get('file'):
+        S3().upload_file_obj(file, "evidence_" + str(evidence.id))
     return jsonify(evidence.as_dict())
 
 @api.route('/evidence/<int:eid>', methods=['PUT'])
@@ -669,7 +670,8 @@ def update_evidence(eid):
     result["extra"]["evidence"].content = request.form.get("content")
     result["extra"]["evidence"].collected_on = request.form.get("collected")
     db.session.commit()
-    S3().upload_file_obj(request.files['file'], "evidence_" + str(eid))
+    if file := request.files.get('file'):
+        S3().upload_file_obj(file, "evidence_" + str(eid))
     return jsonify(result["extra"]["evidence"].as_dict())
 
 @api.route('/evidence/<int:eid>', methods=['DELETE'])
@@ -1202,8 +1204,6 @@ def delete_evidence_for_subcontrol(pid, sid, eid):
 
 @api.route("/evidence/<int:eid>/upload", methods=["GET"])
 def upload_image(eid):
-    s3 = S3()
-    url = s3.generate_presigned_url(current_app.config['EVIDENCE_BUCKET'], "evidence_" + str(eid))
-    print(url)
+    url = S3().generate_presigned_url(current_app.config['EVIDENCE_BUCKET'], "evidence_" + str(eid))
     evidence = models.Evidence.query.filter(models.Evidence.id == eid).first()
     return render_template("evidence_upload.html", image_url=url, evidence_name=evidence.name)

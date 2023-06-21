@@ -262,7 +262,10 @@
      $(document).on('click', '.edit-evidence', function() {
        var evidenceId = $(this).data('id')
        var formData = new FormData();
-        formData.append('file', $('#update-evidence-file')[0].files[0]);
+       var fileInput = $('#update-evidence-file')[0]
+       if (fileInput.files.length > 0) {
+            formData.append("file", fileInput.files[0]);
+        }
         formData.append("name", $("#update-name").val());
         formData.append("content", $("#update-content").val());
         formData.append("description", $("#update-description").val());
@@ -289,7 +292,11 @@
      $(document).on('click', '.create-evidence', function() {
        var selectedTenant = getTenant();
       var formData = new FormData();
-      formData.append('file', $('#evidenceFile')[0].files[0]);
+      var fileInput = $('#evidenceFile')[0]
+      if (fileInput.files.length > 0) {
+          formData.append("file", fileInput.files[0]);
+      }
+      // formData.append('file', $('#evidenceFile')[0].files[0]  || "");
       formData.append("name", $("#name").val());
       formData.append("content", $("#content").val());
       formData.append("description", $("#description").val());
