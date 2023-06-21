@@ -12,6 +12,7 @@ from app.utils.bg_worker import bg_app
 from app.utils.bg_helper import BgHelper
 from app.utils.reports import Report
 from app.utils.authorizer import Authorizer
+from app.integrations.aws.src.s3_client import S3
 
 
 @api.route('/health', methods=['GET'])
@@ -347,8 +348,8 @@ def get_users():
 @login_required
 def create_user():
     result = Authorizer(current_user).can_user_manage_platform()
-    # if not current_app.config["MAIL_USERNAME"] or not current_app.config["MAIL_PASSWORD"]:
-    #     return jsonify({"message":"MAIL_USERNAME and MAIL_PASSWORD must be set"}),400
+    if not current_app.config["MAIL_USERNAME"] or not current_app.config["MAIL_PASSWORD"]:
+        return jsonify({"message":"MAIL_USERNAME and MAIL_PASSWORD must be set"}),400
     data = request.get_json()
     email = data.get("email")
     if not models.User.validate_email(email):
@@ -356,25 +357,25 @@ def create_user():
     tenant_id = data.get("tenant_id")
     token = models.User.generate_invite_token(email, tenant_id)
     link = "{}{}?token={}".format(request.host_url,"register",token)
-    # title = f"{current_app.config['APP_NAME']}: Welcome"
-    # content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
-    # send_email(
-    #     title,
-    #     sender=current_app.config['MAIL_USERNAME'],
-    #     recipients=[email],
-    #     text_body=render_template(
-    #         'email/basic_template.txt',
-    #         title=title,
-    #         content=content,
-    #         button_link=link
-    #     ),
-    #     html_body=render_template(
-    #         'email/basic_template.html',
-    #         title=title,
-    #         content=content,
-    #         button_link=link
-    #     )
-    # )
+    title = f"{current_app.config['APP_NAME']}: Welcome"
+    content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
+    send_email(
+        title,
+        sender=current_app.config['MAIL_USERNAME'],
+        recipients=[email],
+        text_body=render_template(
+            'email/basic_template.txt',
+            title=title,
+            content=content,
+            button_link=link
+        ),
+        html_body=render_template(
+            'email/basic_template.html',
+            title=title,
+            content=content,
+            button_link=link
+        )
+    )
     return jsonify({"message":"invited user", "url": link})
 
 @api.route('/admin/users/<int:id>', methods=['GET'])
@@ -463,9 +464,9 @@ def create_policy_for_tenant(tid):
 @login_required
 def invite_user_to_tenant(tid):
     result = Authorizer(current_user).can_user_admin_tenant(tid)
-    # email_configured = False
-    # if current_app.config["MAIL_USERNAME"] and current_app.config["MAIL_PASSWORD"]:
-    #     email_configured = True
+    email_configured = False
+    if current_app.config["MAIL_USERNAME"] and current_app.config["MAIL_PASSWORD"]:
+        email_configured = True
     data = request.get_json()
     email = data.get("email")
     roles = data.get("roles",[])
@@ -476,31 +477,31 @@ def invite_user_to_tenant(tid):
     if user := models.User.find_by_email(email):
         result["extra"]["tenant"].add_user(user, roles=roles)
         link = request.host_url
-        # title = f"{current_app.config['APP_NAME']}: Tenant invite"
-        # content = f"You have been added to a new tenant in {current_app.config['APP_NAME']}"
+        title = f"{current_app.config['APP_NAME']}: Tenant invite"
+        content = f"You have been added to a new tenant in {current_app.config['APP_NAME']}"
     else:
         token = models.User.generate_invite_token(email, tid, attributes={"roles":roles})
         link = "{}{}?token={}".format(request.host_url,"register",token)
-        # title = f"{current_app.config['APP_NAME']}: Welcome"
-        # content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
-    # if email_configured:
-    #     send_email(
-    #       title,
-    #       sender=current_app.config['MAIL_USERNAME'],
-    #       recipients=[email],
-    #       text_body=render_template(
-    #         'email/basic_template.txt',
-    #         title=title,
-    #         content=content,
-    #         button_link=link
-    #       ),
-    #       html_body=render_template(
-    #         'email/basic_template.html',
-    #         title=title,
-    #         content=content,
-    #         button_link=link
-    #       )
-    #     )
+        title = f"{current_app.config['APP_NAME']}: Welcome"
+        content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
+    if email_configured:
+        send_email(
+          title,
+          sender=current_app.config['MAIL_USERNAME'],
+          recipients=[email],
+          text_body=render_template(
+            'email/basic_template.txt',
+            title=title,
+            content=content,
+            button_link=link
+          ),
+          html_body=render_template(
+            'email/basic_template.html',
+            title=title,
+            content=content,
+            button_link=link
+          )
+        )
     return jsonify({"url":link,"email_sent":True})
 
 @api.route('/tenants/<int:tid>', methods=['GET'])
@@ -647,25 +648,28 @@ def get_evidence(eid):
 @login_required
 def add_evidence_for_tenant(tid):
     result = Authorizer(current_user).can_user_manage_tenant(tid)
-    payload = request.get_json()
-    evidence = models.Evidence(name=payload["name"],
-        description=payload["description"],
-        content=payload["content"],owner_id=current_user.id,
-        collected_on=payload["collected"] or None)
+    evidence = models.Evidence(
+        name=request.form.get("name"),
+        description=request.form.get("description"),
+        content=request.form.get("content"),
+        owner_id=current_user.id,
+        collected_on=request.form.get("collected") or None
+    )
     result["extra"]["tenant"].evidence.append(evidence)
     db.session.commit()
+    s3.upload_file_obj(request.files['file'], "evidence_" + str(evidence.id))
     return jsonify(evidence.as_dict())
 
 @api.route('/evidence/<int:eid>', methods=['PUT'])
 @login_required
 def update_evidence(eid):
     result = Authorizer(current_user).can_user_manage_evidence(eid)
-    payload = request.get_json()
-    result["extra"]["evidence"].name = payload["name"]
-    result["extra"]["evidence"].description = payload["description"]
-    result["extra"]["evidence"].content = payload["content"]
-    result["extra"]["evidence"].collected_on = payload["collected"]
+    result["extra"]["evidence"].name = request.form.get("name"),
+    result["extra"]["evidence"].description = request.form.get("description")
+    result["extra"]["evidence"].content = request.form.get("content")
+    result["extra"]["evidence"].collected_on = request.form.get("collected")
     db.session.commit()
+    S3().upload_file_obj(request.files['file'], "evidence_" + str(eid))
     return jsonify(result["extra"]["evidence"].as_dict())
 
 @api.route('/evidence/<int:eid>', methods=['DELETE'])
@@ -1195,3 +1199,11 @@ def delete_evidence_for_subcontrol(pid, sid, eid):
     result["extra"]["subcontrol"].evidence.remove(result["extra"]["evidence"])
     db.session.commit()
     return jsonify({"message": "ok"})
+
+@api.route("/evidence/<int:eid>/upload", methods=["GET"])
+def upload_image(eid):
+    s3 = S3()
+    url = s3.generate_presigned_url(current_app.config['EVIDENCE_BUCKET'], "evidence_" + str(eid))
+    print(url)
+    evidence = models.Evidence.query.filter(models.Evidence.id == eid).first()
+    return render_template("evidence_upload.html", image_url=url, evidence_name=evidence.name)

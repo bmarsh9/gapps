@@ -27,8 +27,13 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
       - POSTGRES_DB=${POSTGRES_DB:-db1}
       - GUNICORN_WORKERS=2
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - EVIDENCE_BUCKET=dev-grc-evidence-bucket
+      - AWS_PROFILE
     volumes:
       - .:/app
+      - ~/.aws:/root/.aws
   gapps-worker:
     container_name: gapps-worker
     build:
@@ -54,8 +59,13 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-db1}
       - WORKER_CONCURRENCY=${WORKER_CONCURRENCY:-1}
       - WORKER_LOG_LEVEL=DEBUG
+      - MAIL_USERNAME=${MAIL_USERNAME}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - EVIDENCE_BUCKET=dev-grc-evidence-bucket
+      - AWS_PROFILE
     volumes:
       - .:/app
+      - ~/.aws:/root/.aws
   postgres:
     container_name: postgres
     image: postgres
