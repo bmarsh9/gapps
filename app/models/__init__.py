@@ -7,7 +7,8 @@ from flask import current_app, request,render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from datetime import datetime, timedelta
-from app import db, login
+from app.login import login
+from app.db import db
 from uuid import uuid4
 from app.utils import misc
 import arrow

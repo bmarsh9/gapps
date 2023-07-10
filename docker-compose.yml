@@ -15,64 +15,70 @@ services:
       - "5000:5000"
     restart: unless-stopped
     environment:
-      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
+      - PYTHONPATH=.
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:not-secret@postgres/gapps
       - DEFAULT_EMAIL=${DEFAULT_EMAIL:-admin@example.com}
       - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-admin}
       - RESET_DB=${RESET_DB:-no}
       # - DOC_LINK=https://github.com/bmarsh9/gapps
       - VERSION=${VERSION:-3.4.3}
       - APP_NAME=GRC
-      - POSTGRES_USER=${POSTGRES_USER:-db1}
-      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
-      - POSTGRES_DB=${POSTGRES_DB:-db1}
+      - POSTGRES_USER=postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PASSWORD=not-secret
+      - POSTGRES_DB=gapps
       - GUNICORN_WORKERS=2
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       - EVIDENCE_BUCKET=dev-grc-evidence-bucket
       - AWS_PROFILE
     volumes:
-      - .:/app
+      - .:/server
       - ~/.aws:/root/.aws
-  gapps-worker:
-    container_name: gapps-worker
-    build:
-      context: .
-      dockerfile: Dockerfile
-    depends_on:
-      postgres:
-        condition: "service_healthy"
-    networks:
-      - db_nw
-      - web_nw
-    #ports:
-    #  - "5000:5000"
-    restart: unless-stopped
-    environment:
-      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
-      - VERSION=${VERSION:-3.4.3}
-      - APP_NAME=GRC
-      - AS_WORKER=yes
-      - POSTGRES_USER=${POSTGRES_USER:-db1}
-      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
-      - POSTGRES_DB=${POSTGRES_DB:-db1}
-      - WORKER_CONCURRENCY=${WORKER_CONCURRENCY:-1}
-      - WORKER_LOG_LEVEL=DEBUG
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
-      - EVIDENCE_BUCKET=dev-grc-evidence-bucket
-      - AWS_PROFILE
-    volumes:
-      - .:/app
-      - ~/.aws:/root/.aws
+    command: >
+      /bin/sh -c " \
+        alembic upgrade head; \
+        gunicorn --bind 0.0.0.0:5000 flask_app:app
+      "
+  # gapps-worker:
+  #   container_name: gapps-worker
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     postgres:
+  #       condition: "service_healthy"
+  #   networks:
+  #     - db_nw
+  #     - web_nw
+  #   #ports:
+  #   #  - "5000:5000"
+  #   restart: unless-stopped
+  #   environment:
+  #     - SQLALCHEMY_DATABASE_URI=postgresql://postgres:not-secret@postgres/gapps
+  #     - VERSION=${VERSION:-3.4.3}
+  #     - APP_NAME=GRC
+  #     - AS_WORKER=yes
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_HOST=not-secret
+  #     - POSTGRES_PASSWORD=gapps
+  #     - POSTGRES_DB=${POSTGRES_DB:-db1}
+  #     - WORKER_CONCURRENCY=${WORKER_CONCURRENCY:-1}
+  #     - WORKER_LOG_LEVEL=DEBUG
+  #     - MAIL_USERNAME=${MAIL_USERNAME}
+  #     - MAIL_PASSWORD=${MAIL_PASSWORD}
+  #     - EVIDENCE_BUCKET=dev-grc-evidence-bucket
+  #     - AWS_PROFILE
+  #   volumes:
+  #     - .:/app
+  #     - ~/.aws:/root/.aws
   postgres:
     container_name: postgres
     image: postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-db1}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-db1}
-      POSTGRES_DB: ${POSTGRES_DB:-db1}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: not-secret
+      POSTGRES_DB: gapps
       PGDATA: /data/postgres
     volumes:
       - dbdata:/data/postgres

@@ -1,4 +1,4 @@
-from app import db
+from app.db import db
 from flask import current_app
 from sqlalchemy.ext.declarative import declared_attr
 from app.utils.misc import get_class_by_tablename

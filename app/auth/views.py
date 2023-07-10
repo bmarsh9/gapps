@@ -15,7 +15,7 @@ from flask_babel import lazy_gettext as _l
 from flask_login import current_user, logout_user, login_user, login_required
 from . import auth
 
-from app import db
+from app.db import db
 from app.models import *
 from app.email import send_email
 from app.utils import misc
