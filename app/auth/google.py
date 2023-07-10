@@ -10,7 +10,7 @@ from flask_dance.contrib.google import make_google_blueprint
 from sqlalchemy.orm.exc import NoResultFound
 
 from app.utils.misc import generate_uuid
-from app import db
+from app.db import db
 from app.models import OAuth, User
 
 google_bp = make_google_blueprint(

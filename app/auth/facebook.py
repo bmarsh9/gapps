@@ -10,7 +10,7 @@ from flask_dance.contrib.facebook import make_facebook_blueprint
 from sqlalchemy.orm.exc import NoResultFound
 
 from app.utils.misc import get_random_password_string
-from app import db
+from app.db import db
 from app.models import OAuth, User
 
 facebook_bp = make_facebook_blueprint(

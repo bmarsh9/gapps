@@ -1,19 +1,14 @@
 from flask import Flask,request,render_template,jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail
 from config import config
-from flask_migrate import Migrate
-from flask_login import LoginManager
 from flask_babel import Babel, lazy_gettext as _l
 import json
 
+from app.db import db
+from app.login import login
+from app.email import mail
 
-db = SQLAlchemy()
+
 babel = Babel()
-migrate = Migrate()
-mail = Mail()
-login = LoginManager()
-login.login_view = 'auth.login'
 
 def create_app(config_name="default"):
     app = Flask(__name__)
@@ -77,7 +72,6 @@ def configure_models(app):
 def configure_extensions(app):
     db.init_app(app)
     mail.init_app(app)
-    migrate.init_app(app, db)
     babel.init_app(app)
     login.init_app(app)
     return

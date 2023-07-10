@@ -1,7 +1,7 @@
 from functools import wraps
 from flask import current_app, g, request, jsonify,redirect,url_for,session,flash
 from app.models import *
-from app import db
+from app.db import db
 from flask_login import current_user, login_user
 
 def validate_token_in_header(enc_token):
