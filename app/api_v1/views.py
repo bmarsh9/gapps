@@ -8,8 +8,6 @@ from app.utils.misc import project_creation, get_users_from_text
 from sqlalchemy import func
 from app.email import send_email
 import arrow
-from app.utils.bg_worker import bg_app
-from app.utils.bg_helper import BgHelper
 from app.utils.reports import Report
 from app.utils.authorizer import Authorizer
 from app.integrations.aws.src.s3_client import S3
@@ -129,55 +127,6 @@ def get_questionnaires(tid):
     for questionnaire in result["extra"]["tenant"].get_questionnaires_for_user(current_user):
         data.append(questionnaire.as_dict())
     return jsonify(data)
-
-@api.route('/tenants/<int:id>/queues')
-@login_required
-def get_bg_queues(id):
-    Authorizer(current_user).can_user_read_tenant(id)
-    with bg_app.open():
-        r = BgHelper().list_queues()
-        return jsonify(r)
-
-@api.route('/tenants/<int:id>/tasks')
-@login_required
-def get_bg_tasks(id):
-    Authorizer(current_user).can_user_read_tenant(id)
-    with bg_app.open():
-        r = BgHelper().list_tasks()
-        return jsonify(r)
-
-@api.route('/jobs/<int:id>')
-@login_required
-def get_bg_job_by_id(id):
-    Authorizer(current_user).can_user_manage_platform()
-    with bg_app.open():
-        r = BgHelper().get_job_by_id(id=id)
-        return jsonify(r)
-
-@api.route('/tenants/<int:id>/jobs')
-@login_required
-def get_bg_jobs(id):
-    Authorizer(current_user).can_user_read_tenant(id)
-    id = request.args.get("id",None)
-    name = request.args.get("name",None)
-    status = request.args.get("status",None)
-    queue = request.args.get("queue",None)
-    if exclude_scheduler := request.args.get("exclude-scheduler",None):
-        exclude_scheduler = True
-    with bg_app.open():
-        r = BgHelper().list_jobs(id=id, name=name,
-            status=status,
-            queue=queue,
-            exclude_scheduler=exclude_scheduler
-        )
-        return jsonify(r)
-
-@api.route('/task')
-@login_required
-def task():
-    with bg_app.open():
-        BgHelper().run_task()
-    return jsonify({"message":"ok"})
 
 @api.route('/tenants/<int:id>/frameworks', methods=['GET'])
 @login_required

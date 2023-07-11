@@ -1,11 +1,9 @@
-from flask import render_template, redirect, url_for, abort, flash, request, \
-    current_app, jsonify, session, send_from_directory
+from flask import render_template, redirect, url_for, flash, \
+    current_app, send_from_directory
 from . import main
 from app.models import *
 from flask_login import current_user
 from app.utils.decorators import *
-from app.utils.bg_worker import bg_app
-from app.utils.bg_helper import BgHelper
 from app.utils.misc import generate_layout
 from app.utils.authorizer import Authorizer
 import arrow

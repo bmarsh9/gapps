@@ -157,7 +157,7 @@
             </div>
             {%endfor%}
             {%if current_user.super%}
-            {%for link in [{'label':'Instance Users','link':'/admin/users'},{'label':'settings','link':'/admin/settings'},{'label':'tasks','link':'/tasks'},{'label':'jobs','link':'/jobs'},{'label':'logs','link':'/logs'}] %}
+            {%for link in [{'label':'Instance Users','link':'/admin/users'},{'label':'settings','link':'/admin/settings'},{'label':'logs','link':'/logs'}] %}
             <div arial-label="More" class="mt-2 space-y-2 px-7" role="menu" x-show="open">
               <a href="{{link["link"]}}" :class="{ 'lg:hidden': !isSidebarOpen }" class="block p-2 text-sm transition-colors duration-200 rounded-md hover:bg-neutral-focus text-neutral-content capitalize">{{link["label"]}}</a>
             </div>

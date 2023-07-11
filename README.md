@@ -119,36 +119,6 @@ unset SQLALCHEMY_DATABASE_URI
 unset POSTGRES_HOST
 ```
 
-##### Set env variables for the database connection
-
-The value `db1` is the default value for the username, database and password. If you would like to change it, update `db1` with the respective values and `postgres` for the host.
-```
-export POSTGRES_HOST=${POSTGRES_HOST:-postgres}
-export POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
-export POSTGRES_USER=${POSTGRES_USER:-db1}
-export POSTGRES_DB=${POSTGRES_DB:-db1}
-export SQLALCHEMY_DATABASE_URI="postgresql://db1:db1@postgres/db1"
-```
-
-##### Resetting the database
-When starting Gapps for the first time, it will automatically create the database models. If you want to reset the data (e.g. delete all data), you can set the `RESET_DB` env variable such as `export RESET_DB=yes`.
-
-##### Running Gapps for development
-Sometimes you may want to run Gapps outside of Docker. You can do this by starting the Postgres container and then starting Gapps in the foreground.
-
-1. Uncomment ports declaration [here](https://github.com/bmarsh9/gapps/blob/e8dd926fb946e47fa66f918afa543c535ae212be/docker-compose.yml#L59)
-2. Start the postgres container: `docker-compose up -d postgres`
-3. Set the following env variables:
-```
-export POSTGRES_HOST=${POSTGRES_HOST:-localhost}
-export POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
-export POSTGRES_USER=${POSTGRES_USER:-db1}
-export POSTGRES_DB=${POSTGRES_DB:-db1}
-export SQLALCHEMY_DATABASE_URI="postgresql://db1:db1@localhost/db1"
-```
-4. Run `export FLASK_CONFIG=development;bash run.sh` 
-5. Gapps should be running and connected to the database. You can now make changes to the code.
-
 ##### Running with Docker Desktop
 1. Download the [docker-compose.yml](https://github.com/bmarsh9/gapps/blob/main/docker-compose.yml) file
 2. Open up a elevated command prompt and change directories (cd) to where the docker-compose.yml file was downloaded (likely Downloads)
@@ -156,31 +126,15 @@ export SQLALCHEMY_DATABASE_URI="postgresql://db1:db1@localhost/db1"
 
 ##### View env variables for debugging
 ```
-docker exec -e ONESHOT=yes gapps env
+docker exec gapps env
 ```
 
-##### Perform database migration
+##### Create database migration script
 ```
-docker exec -e INIT_MIGRATE=yes -e MIGRATE=yes -e ONESHOT=yes gapps bash run.sh
+docker exec gapps alembic revision --autogenerate -m 'Migration message.'
 ```
-**OR**
-```
-docker-compose up -d
-docker exec -it gapps bash
-python3 manage.py db migrate
-python3 manage.py db stamp head
-python3 manage.py db upgrade
-exit
-```
-
-##### Creating database manually
-
-Warning - this will delete all data in the database!  
-```
-docker exec -it gapps bash
-python3 tools/check_db_connection.py
-python3 tools/check_db_models.py
-python3 manage.py init_db
+##### Upgrade database to the latest state
+docker exec gapps alembic upgrade head
 ```
 
 ##### Upgrading versions

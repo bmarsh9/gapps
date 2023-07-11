@@ -32,18 +32,6 @@ def upgrade():
     sa.Column('label', sa.Unicode(length=255), server_default='', nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('tasks',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('uuid', sa.String(), nullable=True),
-    sa.Column('name', sa.String(), nullable=True),
-    sa.Column('last_run', sa.DateTime(), nullable=True),
-    sa.Column('not_before', sa.DateTime(), nullable=True),
-    sa.Column('cron', sa.String(), nullable=True),
-    sa.Column('date_added', sa.DateTime(), nullable=True),
-    sa.Column('date_updated', sa.DateTime(), nullable=True),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('uuid')
-    )
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('is_active', sa.Boolean(), server_default='1', nullable=False),
@@ -116,18 +104,6 @@ def upgrade():
     sa.Column('reference_link', sa.String(), nullable=True),
     sa.Column('guidance', sa.String(), nullable=True),
     sa.Column('feature_evidence', sa.Boolean(), nullable=True),
-    sa.Column('tenant_id', sa.Integer(), nullable=True),
-    sa.Column('date_added', sa.DateTime(), nullable=True),
-    sa.Column('date_updated', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['tenant_id'], ['tenants.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('uuid')
-    )
-    op.create_table('jobs',
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('uuid', sa.String(), nullable=True),
-    sa.Column('result', sa.JSON(), nullable=True),
-    sa.Column('bg_id', sa.Integer(), nullable=False),
     sa.Column('tenant_id', sa.Integer(), nullable=True),
     sa.Column('date_added', sa.DateTime(), nullable=True),
     sa.Column('date_updated', sa.DateTime(), nullable=True),
@@ -505,13 +481,11 @@ def downgrade():
     op.drop_table('questionnaire_templates')
     op.drop_table('policy_labels')
     op.drop_table('policies')
-    op.drop_table('jobs')
     op.drop_table('frameworks')
     op.drop_table('evidence')
     op.drop_table('tenants')
     op.drop_table('logs')
     op.drop_table('users')
-    op.drop_table('tasks')
     op.drop_table('roles')
     op.drop_table('config_store')
     # ### end Alembic commands ###

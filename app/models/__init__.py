@@ -23,28 +23,6 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
-class Task(LogMixin, db.Model):
-    __tablename__ = 'tasks'
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
-    name = db.Column(db.String())
-    last_run = db.Column(db.DateTime)
-    not_before = db.Column(db.DateTime)
-    cron = db.Column(db.String())
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)
-    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
-
-class Job(LogMixin, db.Model):
-    __tablename__ = 'jobs'
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
-    uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
-    result = db.Column(db.JSON(),default="{}")
-    bg_id = db.Column(db.Integer, nullable=False)
-    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=True)
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)
-    date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
-
 class Tenant(LogMixin, db.Model):
     __tablename__ = 'tenants'
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)

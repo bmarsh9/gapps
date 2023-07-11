@@ -23,18 +23,6 @@ def settings():
     Authorizer(current_user).can_user_manage_platform()
     return render_template("management/settings.html")
 
-@main.route('/jobs', methods=['GET'])
-@login_required
-def jobs():
-    Authorizer(current_user).can_user_manage_platform()
-    return render_template("jobs.html")
-
-@main.route('/tasks', methods=['GET'])
-@login_required
-def tasks():
-    Authorizer(current_user).can_user_manage_platform()
-    return render_template("tasks.html")
-
 @main.route('/logs', methods=['GET'])
 @login_required
 def logs():
