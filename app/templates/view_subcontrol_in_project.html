@@ -608,15 +608,12 @@ function evidence() {
                 this.evidence[i].focused = false;
                 this.evidence[i].open = i == index;
             }
-//haaaaaaaa
             if (!this.fileUploadMap[this.evidence[index].id]) {
-//              this.fileUploadMap[this.evidence[index].id].resetPreviewPanel();
-            var preloadFiles = [];
-            for (var file in this.evidence[index].files) {
-              preloadFiles.push([this.evidence[index].files[file],`/evidence/${this.evidence[index].id}/files/${this.evidence[index].files[file]}`])
-            }
-            this.fileUploadMap[this.evidence[index].id] = new FileUploadWithPreview.FileUploadWithPreview(`upload-${this.evidence[index].id}`, {multiple:true, text:{browse: 'Choose',chooseFile: 'Choose files to upload...'}, presetFiles:preloadFiles});
-
+              var preloadFiles = [];
+              for (var file in this.evidence[index].files) {
+                preloadFiles.push([this.evidence[index].files[file],`/evidence/${this.evidence[index].id}/files/${this.evidence[index].files[file]}`])
+              }
+              this.fileUploadMap[this.evidence[index].id] = new FileUploadWithPreview.FileUploadWithPreview(`upload-${this.evidence[index].id}`, {multiple:true, text:{browse: 'Choose',chooseFile: 'Choose files to upload...'}, presetFiles:preloadFiles});
             }
             setTimeout(()=>document.getElementById(`titleField${index}`).focus(),10);
         },
@@ -727,7 +724,6 @@ function evidence() {
         updateEvidence: function(index) {
           var item = this.evidence[index];
           var fd = new FormData();
-//haaaaaaaa
 
           for(var file in this.fileUploadMap[item.id].cachedFileArray) {
             fd.append("file", this.fileUploadMap[item.id].cachedFileArray[file])
