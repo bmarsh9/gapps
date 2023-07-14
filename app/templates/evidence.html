@@ -107,11 +107,9 @@
                                         <label class="block text-sm font-medium ">Evidence content</label>
                                         <textarea id="content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea>
                                   </div>
-                                  <form id = "evidenceUploadForm" method = "upload-image" 
-                                    enctype = "multipart/form-data">
-                                    <input type = "file" id="evidenceFile" name = "file" />
-                                    <!-- <input type = "submit"/> -->
-                                  </form>  
+                                  <form id = "evidenceUploadForm"" enctype="multipart/form-data">
+                                    <input id="evidenceFile" type="file" name="file" multiple />
+                                  </form>
                                 </div>
                           </div>
                           <div class="px-4 py-3 text-right sm:px-6">
@@ -142,17 +140,25 @@
                                         <label class="block text-sm font-medium ">Description</label>
                                         <input type="text" id="update-description" placeholder="Describe what the evidence entails/covers" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
                                   </div>
-                                  <div class="col-span-6 sm:col-span-6">
+                                  <div class="col-span-3 sm:col-span-3">
                                         <label class="block text-sm font-medium mb-3">Collected On</label>
                                         <input type="text" id="update-collected" class="rounded-md input-md w-full" placeholder="Input date (m/dd/yyyy)">
+                                  </div>
+                                  <div class="col-span-3 sm:col-span-3">
+                                    <label class="block text-sm font-medium mb-3">Created By</label>
+                                    <p id="evidence-created-by" class="rounded-md input-md w-full"/>
                                   </div>
                                   <div class="col-span-6 sm:col-span-6">
                                         <label class="block text-sm font-medium ">Evidence content</label>
                                         <textarea id="update-content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea>
                                   </div>
+                                  <div id='evidence-uploads' class="flex flex-col col-span-6 sm:col-span-6">
+                                    <label class="block text-sm font-medium">Evidence uploads</label>
+                                    <!-- <textarea id="update-content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea> -->
+                                  </div>
                                   <form id = "evidenceUploadForm" method = "upload-image" 
                                     enctype = "multipart/form-data">
-                                    <input type = "file" id="update-evidence-file" name = "file" />
+                                    <input id="update-evidence-file" type = "file" name = "file" multiple />
                                     <!-- <input type = "submit"/> -->
                                   </form>  
                                 </div>
@@ -204,7 +210,7 @@
         dataType: "json",
         success: function(data){
           for (var evidence in data) {
-            $("#evidence-body").append(`<tr data-record-id=${data[evidence].id}> <td class="text-sm font-medium ">${clean(data[evidence].name)}</td><td class="text-sm font-medium ">${clean(data[evidence].description)}</td><td class="text-sm font-medium ">${data[evidence].control_count}</td><td class="text-center"><div class="dropdown dropdown-top dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"><li><a data-name="${clean(data[evidence].name)}" data-id="${data[evidence].id}" class="view-evidence">View</a></li><li><a data-id="${data[evidence].id}" data-evidence-name="${clean(data[evidence].name)}" data-evidence-id="${data[evidence].id}" class="delete-record">Delete</a></li><li><a href="api/v1/evidence/${data[evidence].id}/upload" target="_blank" class="view-evidence-upload">View evidence upload</a></li></ul></div></td></tr>`);
+            $("#evidence-body").append(`<tr data-record-id=${data[evidence].id}> <td class="text-sm font-medium ">${clean(data[evidence].name)}</td><td class="text-sm font-medium ">${clean(data[evidence].description)}</td><td class="text-sm font-medium ">${data[evidence].control_count}</td><td class="text-center"><div class="dropdown dropdown-top dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"><li><a data-name="${clean(data[evidence].name)}" data-id="${data[evidence].id}" class="view-evidence">View</a></li><li><a data-id="${data[evidence].id}" data-evidence-name="${clean(data[evidence].name)}" data-evidence-id="${data[evidence].id}" class="delete-record">Delete</a></li></ul></div></td></tr>`);
           }
           $('#evidences').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
           return(data)
@@ -243,6 +249,29 @@
             $("#update-description").val(data["description"])
             $("#update-content").val(data["content"])
             $("#update-collected").val(data["collected_on"])
+            $("#evidence-created-by").text(data["owner_email"])
+            var modalBody = document.getElementById('evidence-uploads');
+            let childrenToRemove = []
+            modalBody.childNodes.forEach(node => {
+              if (node.tagName && node.tagName.toLowerCase() === "a"){
+                childrenToRemove.push(node)
+              }
+            })
+            childrenToRemove.forEach( child => {
+              modalBody.removeChild(child)
+            })
+
+            console.log(modalBody.childNodes.length)
+            const links = data["evidence_uploads"]
+            for (var i = 0; i < links.length; i++) {
+              var linkElement = document.createElement('a');
+              linkElement.href = links[i]["upload_link"];
+              linkElement.textContent = links[i]["filename"];
+              linkElement.className = "w-full mt-3"
+              linkElement.target = "_blank"
+              modalBody.appendChild(linkElement);
+            }
+
             return(data)
         },
         error: function(errMsg) {
@@ -260,11 +289,11 @@
       document.getElementById('evidence-modal').checked = true;
     });
      $(document).on('click', '.edit-evidence', function() {
-       var evidenceId = $(this).data('id')
-       var formData = new FormData();
-       var fileInput = $('#update-evidence-file')[0]
-       if (fileInput.files.length > 0) {
-            formData.append("file", fileInput.files[0]);
+        var evidenceId = $(this).data('id')
+        var formData = new FormData();
+         var fileInput = $('#update-evidence-file')[0]
+        for (var i = 0; i < fileInput.files.length; i++) {
+          formData.append("file", fileInput.files[i]);
         }
         formData.append("name", $("#update-name").val());
         formData.append("content", $("#update-content").val());
@@ -279,6 +308,7 @@
          processData: false,
          success: function(data){
              toast("Edited evidence")
+             document.getElementById('update-evidence-file').value = ''
              document.getElementById('view-modal').checked = false;
              loadEvidenceTable()
              return(data)
@@ -293,8 +323,8 @@
        var selectedTenant = getTenant();
       var formData = new FormData();
       var fileInput = $('#evidenceFile')[0]
-      if (fileInput.files.length > 0) {
-          formData.append("file", fileInput.files[0]);
+      for (var i = 0; i < fileInput.files.length; i++) {
+          formData.append("file", fileInput.files[i]);
       }
       // formData.append('file', $('#evidenceFile')[0].files[0]  || "");
       formData.append("name", $("#name").val());
@@ -316,6 +346,7 @@
          processData: false,
          success: function(data){
              toast("Added evidence")
+             document.getElementById('evidenceFile').value = ''
              document.getElementById('evidence-modal').checked = false;
              loadEvidenceTable()
              return(data)

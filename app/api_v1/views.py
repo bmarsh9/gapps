@@ -605,9 +605,22 @@ def add_evidence_for_tenant(tid):
         collected_on=request.form.get("collected") or None
     )
     result["extra"]["tenant"].evidence.append(evidence)
+    db.session.add(evidence)
+    db.session.flush()
+    if files := request.files.getlist('file'):
+        for file in files:
+            evidence_upload = models.EvidenceUpload(
+                filename = file.filename,
+                evidence_id=evidence.id
+            )
+            db.session.add(evidence_upload)
+            try:
+                db.session.flush()
+            except Exception:
+                db.session.rollback()
+
+            S3().upload_file_obj(file, str(evidence_upload.upload_link))
     db.session.commit()
-    if file := request.files.get('file'):
-        S3().upload_file_obj(file, "evidence_" + str(evidence.id))
     return jsonify(evidence.as_dict())
 
 @api.route('/evidence/<int:eid>', methods=['PUT'])
@@ -618,9 +631,22 @@ def update_evidence(eid):
     result["extra"]["evidence"].description = request.form.get("description")
     result["extra"]["evidence"].content = request.form.get("content")
     result["extra"]["evidence"].collected_on = request.form.get("collected")
+    db.session.flush()
+    if files := request.files.getlist('file'):
+        for file in files:
+            evidence_upload = models.EvidenceUpload(
+                filename = file.filename,
+                evidence_id=eid
+            )
+            db.session.add(evidence_upload)
+            try:
+                db.session.flush()
+            except Exception:
+                db.session.rollback()
+                
+            S3().upload_file_obj(file, str(evidence_upload.upload_link))
     db.session.commit()
-    if file := request.files.get('file'):
-        S3().upload_file_obj(file, "evidence_" + str(eid))
+                
     return jsonify(result["extra"]["evidence"].as_dict())
 
 @api.route('/evidence/<int:eid>', methods=['DELETE'])
@@ -1151,8 +1177,14 @@ def delete_evidence_for_subcontrol(pid, sid, eid):
     db.session.commit()
     return jsonify({"message": "ok"})
 
-@api.route("/evidence/<int:eid>/upload", methods=["GET"])
-def upload_image(eid):
-    url = S3().generate_presigned_url(current_app.config['EVIDENCE_BUCKET'], "evidence_" + str(eid))
-    evidence = models.Evidence.query.filter(models.Evidence.id == eid).first()
-    return render_template("evidence_upload.html", image_url=url, evidence_name=evidence.name)
+@api.route("/evidence_upload/<uuid:upload_id>", methods=["GET"])
+def get_evidence_upload(upload_id):
+    print(upload_id)
+    print(type(upload_id))
+    evidence_upload = models.EvidenceUpload.query.filter(models.EvidenceUpload.upload_link == str(upload_id)).one_or_none()
+    result = Authorizer(current_user).can_user_read_evidence(evidence_upload.evidence_id)
+    evidence = result["extra"]["evidence"]
+    image_url = S3().generate_presigned_url(current_app.config['EVIDENCE_BUCKET'], str(upload_id))
+    print(image_url)
+
+    return render_template("evidence_upload.html", image_url=image_url, evidence_name=evidence.name)

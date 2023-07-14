@@ -32,7 +32,7 @@ services:
     command: >
       /bin/sh -c " \
         alembic upgrade head; \
-        gunicorn --bind 0.0.0.0:5000 flask_app:app
+         gunicorn --bind 0.0.0.0:5000 flask_app:app --access-logfile '-' --error-logfile "-"
       "
   # gapps-worker:
   #   container_name: gapps-worker

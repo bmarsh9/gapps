@@ -21,6 +21,8 @@ from app.utils.authorizer import Authorizer
 import email_validator
 import logging
 
+from app.models.evidence_upload import EvidenceUpload
+
 logger = logging.getLogger(__name__)
 
 class Tenant(LogMixin, db.Model):
@@ -274,9 +276,13 @@ class Evidence(LogMixin, db.Model):
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
+    owner = db.relationship("User", lazy='joined')
+
     def as_dict(self):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         data["control_count"] = self.control_count()
+        data["evidence_uploads"] = [evidence_upload.as_dict() for evidence_upload in self.evidence_uploads]
+        data["owner_email"] = self.owner.email if self.owner else "Unknown"
         return data
 
     def remove_controls(self, control_ids=[]):
