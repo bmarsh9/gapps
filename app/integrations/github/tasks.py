@@ -1,7 +1,7 @@
 from app.integrations.utils.decorators import task
 from app.integrations.utils import shared
 from flask import current_app
-from app.models import Finding
+from app.models import Finding, Task
 from app import db
 
 # integration imports

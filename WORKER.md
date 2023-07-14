@@ -51,10 +51,11 @@ from app.models import *
 # create tenant
 user = User.query.get(1)
 tenant = Tenant.create(user, "demo", user.email)
+project = tenant.create_project("sample", user)
 
 # create integration and task
-integration = Integration(name="github", tenant_id=tenant.id)
-integration.add_task(name="get_users", cron="* * * * *")
+integration = project.add_integration(name="github")
+task = integration.add_task(name="get_users", cron="* * * * *")
 
 # create locker
 Locker.add("test","value", tenant.id)
@@ -69,3 +70,14 @@ bg_app.open()
 [print(i) for i in BgHelper().list_jobs()]
 ```
 
+###### Testing task
+
+```
+# create task in the import_path
+python3 manage.py shell
+from app.utils.bg_helper import BgHelper
+BgHelper().test_task("github:get_users")
+
+# open new shell
+INTEGRATION_IMPORT_PATHS="app.integrations.github.tasks" AS_WORKER=yes bash run.sh
+```

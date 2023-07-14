@@ -4,9 +4,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True) }}
-  <link rel="stylesheet" href="https://gyrocode.github.io/jquery-datatables-checkboxes/1.2.10/css/dataTables.checkboxes.css"/>
-  <script src="https://gyrocode.github.io/jquery-datatables-checkboxes/1.2.10/js/dataTables.checkboxes.min.js"></script>
+  {{ macro.filehelper(datatables=True, files=True) }}
 {% endblock %}
 
 {%block page_header_title%}Evidence<p class="text-sm  font-medium">Evidence can be added and associated with controls in your projects</p>{%endblock%}
@@ -22,6 +20,7 @@
         <table class="table table-vcenter" id="evidences" style="width:100%">
           <thead>
             <tr>
+              <th class="w-1">ID</th>
               <th>Name</th>
               <th>Description</th>
               <th class="w-1">Controls</th>
@@ -101,11 +100,15 @@
                                   </div>
                                   <div class="col-span-6 sm:col-span-6">
                                         <label class="block text-sm font-medium mb-3">Collected On</label>
-                                        <input type="text" id="collected" class="rounded-md input-md w-full" placeholder="Input date (m/dd/yyyy)">
+                                        <input type="text" id="collected" class="rounded-md input-md w-full border" placeholder="Input date (m/dd/yyyy)">
                                   </div>
                                   <div class="col-span-6 sm:col-span-6">
                                         <label class="block text-sm font-medium ">Evidence content</label>
                                         <textarea id="content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea>
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-6">
+                                        <label class="block text-sm font-medium ">Files</label>
+                                        <div class="custom-file-container flex flex-col w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 p-4" data-upload-id="my-unique-id"></div>
                                   </div>
                                 </div>
                           </div>
@@ -139,11 +142,15 @@
                                   </div>
                                   <div class="col-span-6 sm:col-span-6">
                                         <label class="block text-sm font-medium mb-3">Collected On</label>
-                                        <input type="text" id="update-collected" class="rounded-md input-md w-full" placeholder="Input date (m/dd/yyyy)">
+                                        <input type="text" id="update-collected" class="rounded-md input-md w-full border" placeholder="Input date (m/dd/yyyy)">
                                   </div>
                                   <div class="col-span-6 sm:col-span-6">
                                         <label class="block text-sm font-medium ">Evidence content</label>
                                         <textarea id="update-content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea>
+                                  </div>
+                                  <div class="col-span-6 sm:col-span-6">
+                                        <label class="block text-sm font-medium ">Files</label>
+                                        <div id="preview-evidence"></div>
                                   </div>
                                 </div>
                           </div>
@@ -160,6 +167,9 @@
 {%endblock%}
 
 {%block extrajs%}
+<script>
+  const upload = new FileUploadWithPreview.FileUploadWithPreview('my-unique-id', {multiple:true, text:{browse: 'Choose',chooseFile: 'Choose files to upload...'}});
+</script>
 <script>
   function deleteEvidence(e) {
     var id = $('#delete-evidence-btn').data('id')
@@ -194,7 +204,7 @@
         dataType: "json",
         success: function(data){
           for (var evidence in data) {
-            $("#evidence-body").append(`<tr data-record-id=${data[evidence].id}> <td class="text-sm font-medium ">${clean(data[evidence].name)}</td><td class="text-sm font-medium ">${clean(data[evidence].description)}</td><td class="text-sm font-medium ">${data[evidence].control_count}</td><td class="text-center"><div class="dropdown dropdown-top dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"><li><a data-name="${clean(data[evidence].name)}" data-id="${data[evidence].id}" class="view-evidence">View</a></li><li><a data-id="${data[evidence].id}" data-evidence-name="${clean(data[evidence].name)}" data-evidence-id="${data[evidence].id}" class="delete-record">Delete</a></li></ul></div></td></tr>`);
+            $("#evidence-body").append(`<tr data-record-id=${data[evidence].id}><td class="text-sm font-medium">${data[evidence].id}</td><td class="text-sm font-medium ">${clean(data[evidence].name)}</td><td class="text-sm font-medium ">${clean(data[evidence].description)}</td><td class="text-sm font-medium ">${data[evidence].control_count}</td><td class="text-center"><div class="dropdown dropdown-top dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"><li><a data-name="${clean(data[evidence].name)}" data-id="${data[evidence].id}" class="view-evidence">View</a></li><li><a data-id="${data[evidence].id}" data-evidence-name="${clean(data[evidence].name)}" data-evidence-id="${data[evidence].id}" class="delete-record">Delete</a></li></ul></div></td></tr>`);
           }
           $('#evidences').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
           return(data)
@@ -222,6 +232,9 @@
     $(document).on('click', '.view-evidence', function() {
       var evidenceId = $(this).data('id')
       $(".edit-evidence").data("id",evidenceId)
+      $("#preview-evidence").html(`
+        <div class="custom-file-container flex flex-col w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 p-4" data-upload-id="preview-edit-evidence"></div>
+      `)
       document.getElementById('view-modal').checked = true;
       $.ajax({
         type: "GET",
@@ -233,6 +246,12 @@
             $("#update-description").val(data["description"])
             $("#update-content").val(data["content"])
             $("#update-collected").val(data["collected_on"])
+            var preloadFiles = [];
+            for (var file in data["files"]) {
+                preloadFiles.push([data["files"][file],`/evidence/${evidenceId}/files/${data["files"][file]}`])
+            }
+            var previewEdit = new FileUploadWithPreview.FileUploadWithPreview('preview-edit-evidence', {multiple:true, text:{browse: 'Choose',chooseFile: 'Choose files to upload...'},presetFiles:preloadFiles});
+            window.previewEdit = previewEdit
             return(data)
         },
         error: function(errMsg) {
@@ -251,20 +270,25 @@
     });
      $(document).on('click', '.edit-evidence', function() {
        var evidenceId = $(this).data('id')
-       var data = {
-           "name":$("#update-name").val(),
-           "content":$("#update-content").val(),
-           "description":$("#update-description").val(),
-           "collected":$("#update-collected").val()
-       };
+       var fd = new FormData();
+       for(var file in previewEdit.cachedFileArray) {
+         fd.append("file", previewEdit.cachedFileArray[file])
+       }
+       fd.append("name", $("#update-name").val())
+       fd.append("content", $("#update-content").val())
+       fd.append("collected", $("#update-collected").val())
+       fd.append("description", $("#update-description").val())
+
        $.ajax({
          type: "PUT",
          url: `/api/v1/evidence/${evidenceId}`,
-         data: JSON.stringify(data),
-         contentType: "application/json; charset=utf-8",
-         dataType: "json",
+         contentType: false,
+         processData: false,
+         cache: false,
+         data:fd,
          success: function(data){
              toast("Edited evidence")
+             previewEdit.resetPreviewPanel();
              document.getElementById('view-modal').checked = false;
              loadEvidenceTable()
              return(data)
@@ -277,20 +301,25 @@
      });
      $(document).on('click', '.create-evidence', function() {
        var selectedTenant = getTenant();
-       var data = {
-           "name":$("#name").val(),
-           "content":$("#content").val(),
-           "description":$("#description").val(),
-           "collected":$("#collected").val()
-       };
+       var fd = new FormData();
+       for(var file in upload.cachedFileArray) {
+         fd.append("file", upload.cachedFileArray[file])
+       }
+       fd.append("name", $("#name").val())
+       fd.append("content", $("#content").val())
+       fd.append("collected", $("#collected").val())
+       fd.append("description", $("#description").val())
+
        $.ajax({
          type: "POST",
          url: `/api/v1/tenants/${selectedTenant.id}/evidence`,
-         data: JSON.stringify(data),
-         contentType: "application/json; charset=utf-8",
-         dataType: "json",
+         contentType: false,
+         processData: false,
+         cache: false,
+         data:fd,
          success: function(data){
              toast("Added evidence")
+             upload.resetPreviewPanel();
              document.getElementById('evidence-modal').checked = false;
              loadEvidenceTable()
              return(data)

@@ -128,6 +128,8 @@ class BgHelper:
             queue=task.queue).defer_async(id=task.id)
         current_app.logger.info(f"Placed {lock} in the queue:{task.queue}. Task_ID:{task_id} scheduled in {seconds} seconds.")
 
-    def run_task(self, name, tenant):
-        raise ValueError("Not implemented")
-        bg_app.configure_task(name='github-get-users',lock="my lock",schedule_in={"seconds":10},queue="test").defer()
+    def test_task(self, name):
+        current_app.logger.info(f"Trying to run task:{name} on queue: test")
+        with bg_app.open():
+            return bg_app.configure_task(name=name, lock="test", schedule_in={"seconds":2}, queue="test").defer(id="test")
+

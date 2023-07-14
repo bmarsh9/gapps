@@ -210,6 +210,10 @@
               <label class="block text-sm font-medium mb-2">Approved Domains</label>
               <input type="text" placeholder="Comma separated list of approved domains for users" value="${clean(data.approved_domains)?clean(data.approved_domains):''}" class="input-md w-full approved-domains border rounded-md" />
             </div>
+            <div class="col-span-6">
+              <label class="block text-sm font-medium mb-2">Tenant UUID</label>
+              <input type="text" value="${data.uuid}" class="input-md w-full approved-domains border rounded-md" disabled/>
+            </div>
           `);
           document.getElementById('edit-tenant-modal').checked = true;
           return(data)

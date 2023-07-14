@@ -1,18 +1,18 @@
+from config import config
 from typing import Type
 import procrastinate
 import os
-import logging
 
+
+app = config.get(os.getenv('FLASK_CONFIG') or 'default')
 
 connector_class: Type[procrastinate.BaseConnector]
 connector_class = procrastinate.AiopgConnector
 
-import_paths = ["app.integrations.base.tasks","app.integrations.github.tasks"]
-
 bg_app = procrastinate.App(
     connector=connector_class(
-        host=os.environ.get("POSTGRES_HOST"),
-        user=os.environ.get("POSTGRES_USER"),
-        password=os.environ.get("POSTGRES_PASSWORD")
+        host=app.POSTGRES_HOST,
+        user=app.POSTGRES_USER,
+        password=app.POSTGRES_PASSWORD
     ),
-    import_paths=import_paths)
+    import_paths=app.INTEGRATION_IMPORT_PATHS)
