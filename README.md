@@ -22,6 +22,7 @@
 - Multi-tenancy is now supported!
 - Collaboration with auditors  
 - Vendor Questionnaires
+- Add evidence directly to Gapps
 
 ### Next big features :snowflake:  
 - Control automation?
