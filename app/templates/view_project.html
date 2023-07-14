@@ -38,6 +38,7 @@
             <option value="scratchpad">Scratchpad</option>
             <option value="comments">Comments</option>
             <option value="report">Report</option>
+            <option value="integrations">Integrations</option>
             <option value="settings">Settings</option>
           </select>
         </li>
@@ -75,7 +76,7 @@
       {%endif%}
       <div class="divider divider-horizontal mx-0"></div>
       <div class="flex space-x-2 tabs">
-        {%for tab in ["summary","controls","policies","evidence","findings","matrix","scratchpad","comments","report","settings"]%}
+        {%for tab in ["summary","controls","policies","evidence","findings","matrix","scratchpad","comments","report","integrations","settings"]%}
         <span @click="changeTab('{{tab}}')" id="tab-{{tab}}" class="cursor-pointer rounded-md py-1 px-4 text-sm font-medium hover:bg-base-200 capitalize">{{tab}}</span>
         {%endfor%}
       </div>
@@ -832,7 +833,11 @@ plotOptions: {
 	      }
   	    }]
 	  };
-          var review_complete = Number(parseFloat(((data.review_summary["complete"]||0)/data.review_summary["total"])*100).toFixed(2));
+          if (data.review_summary["total"]) {
+            var review_complete = Number(parseFloat(((data.review_summary["complete"]||0)/data.review_summary["total"])*100).toFixed(2));
+          } else {
+            var review_complete = 0;
+          }
 	  var review_options = {
             series: [100-review_complete,review_complete],
             legend: {
@@ -1620,9 +1625,46 @@ function loadMatrix() {
     }
   })
 }
+function buildFindingsTable(data) {
+      $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300 p-5"><div><div class="justify-between flex"><div><h2 class="card-title mb-4">Project Findings (${Object.keys(data).length})</h2></div></div><table class="table table-vcenter" id="findings-table" style="width:100%"><thead><tr><th class="w-1 bg-base-200">ID</th><th class="w-1 bg-base-200">Title</th><th class="bg-base-200">Risk</th><th class="bg-base-200">Status</th><th class="w-1 bg-base-200">View</th></tr></thead><tbody id="findings-table-body"></tbody></table></div></div></div>`);
+
+      for (var finding in data) {
+        var obj = data[finding];
+        if (obj.status === "open") {
+          var statusColor = "blue"
+        } else if (obj.status === "in progress") {
+          var statusColor = "yellow"
+        } else if (obj.status === "complete") {
+          var statusColor = "green"
+        }
+        $("#findings-table-body").append(`<tr><td class="text-sm font-medium uppercase dt-control"><b class="ml-2">${obj.id}</b></td><td class="text-sm font-medium">${clean(obj.title)}</td><td class="text-sm font-medium whitespace-normal capitalize">${clean(obj.risk)}</td><td class="text-xs font-medium capitalize"><p class="text-${statusColor}-600 bg-${statusColor}-400/10 rounded-full py-1 px-3 w-fit">${obj.status}</p></td><td class=""><a data-id="${obj.id}" class="btn btn-xs btn-ghost control-modal-btn" href="#">click</a></td></tr>`);
+      }
+      table = $("#findings-table").DataTable({"pageLength":25,"order": [[ 0, "asc" ]]});
+
+      function format(d) {
+        // hack to get ID from formatted HTML
+        var id = parseInt(d[0].split(">")[1].split("<")[0]);
+        return "testing"
+      }
+
+      $('#findings-table tbody').on('click', 'td.dt-control', function () {
+        var tr = $(this).closest('tr');
+        var row = table.row(tr);
+
+        if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        } else {
+            // Open this row
+            row.child(format(row.data())).show();
+            tr.addClass('shown');
+        }
+      });
+}
 function loadFindings() {
   {%if is_auditor%}
-  toast("You lack permissions to view the settings.","warning")
+  toast("You lack permissions to view the findings.","warning")
   $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
   return
   {%endif%}
@@ -1634,9 +1676,31 @@ function loadFindings() {
     contentType: "application/json; charset=utf-8",
     dataType: "json",
     success: function(data){
+      buildFindingsTable(data)
+    },
+    error: function(errMsg) {
+        return(errMsg);
+    }
+  })
+}
+function loadIntegrations() {
+  {%if is_auditor%}
+  toast("You lack permissions to view the integrations.","warning")
+  $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
+  return
+  {%endif%}
+  //load integrations for the project
+  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+  $.ajax({
+    type: "GET",
+    url: "/api/v1/projects/{{project.id}}/integrations?summary=yes",
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data){
       $("#card-div").html("");
-      for (var finding in data) {
-        $("#card-div").append(data[finding].title);
+      for (var integration in data) {
+        var obj = data[integration];
+        $("#card-div").append(obj.id);
       }
     },
     error: function(errMsg) {
@@ -1906,6 +1970,8 @@ function loadPageElements(tab) {
     loadSettings()
   } else if (tab === "findings") {
     loadFindings()
+  } else if (tab === "integrations") {
+    loadIntegrations()
   } else {
     loadSummary();
   }

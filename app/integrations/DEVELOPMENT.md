@@ -30,6 +30,9 @@ task.sort_results(sort="version")
 
 # Get result by specific version
 task.get_result_by_version("1.1.1")
+
+# Add finding
+task.add_finding(title="testing the title2",risk=7,status="in progress")
 ```
 
 

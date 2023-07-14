@@ -12,6 +12,8 @@ from app.utils.bg_worker import bg_app
 from app.utils.bg_helper import BgHelper
 from app.utils.reports import Report
 from app.utils.authorizer import Authorizer
+from werkzeug.utils import secure_filename
+import os
 
 
 @api.route('/health', methods=['GET'])
@@ -35,8 +37,7 @@ def set_session(id):
 @login_required
 def delete_tenant(id):
     result = Authorizer(current_user).can_user_admin_tenant(id)
-    db.session.delete(result["extra"]["tenant"])
-    db.session.commit()
+    result["extra"]["tenant"].delete()
     return jsonify({"message": "ok"})
 
 @api.route('/questionnaires/<int:qid>', methods=['GET'])
@@ -255,8 +256,19 @@ def get_comments_for_project(pid):
 @api.route('/projects/<int:pid>/findings', methods=['GET'])
 @login_required
 def get_findings_for_project(pid):
-    result = Authorizer(current_user).can_user_read_project_comments(pid)
+    result = Authorizer(current_user).can_user_manage_project(pid)
     data = [finding.as_dict() for finding in result["extra"]["project"].findings.all()]
+    return jsonify(data)
+
+@api.route('/projects/<int:pid>/integrations', methods=['GET'])
+@login_required
+def get_integrations_for_project(pid):
+    result = Authorizer(current_user).can_user_manage_project(pid)
+    # include all available integrations
+    summary = request.args.get("summary")
+    if summary == "yes":
+        return jsonify(result["extra"]["project"].get_integration_summary())
+    data = [integration.as_dict() for integration in result["extra"]["project"].integrations.all()]
     return jsonify(data)
 
 @api.route('/projects/<int:pid>/matrix/summary', methods=['GET'])
@@ -656,33 +668,34 @@ def get_evidence(eid):
 @login_required
 def add_evidence_for_tenant(tid):
     result = Authorizer(current_user).can_user_manage_tenant(tid)
-    payload = request.get_json()
-    evidence = models.Evidence(name=payload["name"],
-        description=payload["description"],
-        content=payload["content"],owner_id=current_user.id,
-        collected_on=payload["collected"] or None)
+    evidence = models.Evidence(name=request.form.get("name"),
+        description=request.form.get("description"),
+        content=request.form.get("content"),owner_id=current_user.id,
+        collected_on=request.form.get("collected") or arrow.utcnow().format("MM/DD/YYYY"))
     result["extra"]["tenant"].evidence.append(evidence)
     db.session.commit()
+    evidence.diff_files_with_checks(request.files.getlist("file"), execute=True)
     return jsonify(evidence.as_dict())
 
 @api.route('/evidence/<int:eid>', methods=['PUT'])
 @login_required
 def update_evidence(eid):
     result = Authorizer(current_user).can_user_manage_evidence(eid)
-    payload = request.get_json()
-    result["extra"]["evidence"].name = payload["name"]
-    result["extra"]["evidence"].description = payload["description"]
-    result["extra"]["evidence"].content = payload["content"]
-    result["extra"]["evidence"].collected_on = payload["collected"]
+    evidence = result["extra"]["evidence"]
+    evidence.name = request.form.get("name")
+    evidence.description = request.form.get("description")
+    evidence.content = request.form.get("content")
+    if request.form.get("collected"):
+        evidence.collected_on = request.form.get("collected")
     db.session.commit()
-    return jsonify(result["extra"]["evidence"].as_dict())
+    evidence.diff_files_with_checks(request.files.getlist("file"), execute=True)
+    return jsonify(evidence.as_dict())
 
 @api.route('/evidence/<int:eid>', methods=['DELETE'])
 @login_required
 def delete_evidence(eid):
     result = Authorizer(current_user).can_user_manage_evidence(eid)
-    db.session.delete(result["extra"]["evidence"])
-    db.session.commit()
+    result["extra"]["evidence"].delete()
     return jsonify({"message": "ok"})
 
 @api.route('/evidence/<int:eid>/controls', methods=['PUT'])
@@ -1199,13 +1212,13 @@ def get_evidence_for_subcontrol(pid, sid):
 @login_required
 def add_evidence_for_subcontrol(pid, sid):
     result = Authorizer(current_user).can_user_manage_project_subcontrol(sid)
-    data = request.get_json()
-    evidence = models.Evidence(name=data["name"],
-        content=data["content"],description=data["description"],
+    evidence = models.Evidence(name=request.form.get("name"),
+        content=request.form.get("content"),description=request.form.get("description"),
         tenant_id=result["extra"]["subcontrol"].p_control.project.tenant_id,
         owner_id=current_user.id)
     result["extra"]["subcontrol"].evidence.append(evidence)
     db.session.commit()
+    evidence.diff_files_with_checks(request.files.getlist("file"), execute=True)
     return jsonify(evidence.as_dict())
 
 @api.route('/projects/<int:pid>/subcontrols/<int:sid>/evidence/<int:eid>', methods=["DELETE"])

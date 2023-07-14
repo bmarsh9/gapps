@@ -12,9 +12,15 @@ def task(*args, **kwargs):
             add the Task object and the lockers that
             the task has access to
             """
-            task = Task.query.get(job_kwargs["id"])
-            lockers = task.integration.get_lockers()
-            lock = task.get_lock()
+            # testing a task
+            if job_kwargs["id"] == "test":
+                task = None
+                lockers = []
+                lock = "test"
+            else:
+                task = Task.query.get(job_kwargs["id"])
+                lockers = task.integration.get_lockers()
+                lock = task.get_lock()
 
             logging.info(f"Starting task: {lock}")
             result = func(task, lockers, *job_args, **job_kwargs)

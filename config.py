@@ -1,4 +1,7 @@
+from sqlalchemy.engine.url import make_url
 import os
+
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
@@ -41,6 +44,16 @@ class Config:
     FRAMEWORK_FOLDER = os.environ.get("FRAMEWORK_FOLDER", os.path.join(basedir, "app/files/base_controls"))
     POLICY_FOLDER = os.environ.get("POLICY_FOLDER", os.path.join(basedir, "app/files/base_policies"))
 
+    EVIDENCE_FOLDER = os.environ.get("EVIDENCE_FOLDER", os.path.join(basedir, "app/files/evidence"))
+    UPLOAD_EXTENSIONS = os.environ.get("UPLOAD_EXTENSIONS", [".jpg", ".png", ".pdf"])
+
+    # integration import paths
+    int_import_paths = os.environ.get("INTEGRATION_IMPORT_PATHS")
+    if not int_import_paths:
+        INTEGRATION_IMPORT_PATHS = ["app.integrations.base.tasks"]
+    else:
+        INTEGRATION_IMPORT_PATHS = int_import_paths.split(",")
+
     LAYOUT = {
       "header": True,
       "footer": False,
@@ -64,20 +77,36 @@ class Config:
     def init_app(app):
         pass
 
-class ProductionConfig(Config):
+class ProductionConfig(Config, ):
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI') or \
         "postgresql://db1:db1@postgres/db1"
+    url = make_url(SQLALCHEMY_DATABASE_URI)
+    POSTGRES_HOST = url.host
+    POSTGRES_USER = url.username
+    POSTGRES_PASSWORD = url.password
+    POSTGRES_DB = url.database
 
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI') or \
         "postgresql://db1:db1@postgres/db1"
+    url = make_url(SQLALCHEMY_DATABASE_URI)
+    POSTGRES_HOST = url.host
+    POSTGRES_USER = url.username
+    POSTGRES_PASSWORD = url.password
+    POSTGRES_DB = url.database
 
 class TestingConfig(Config):
     TESTING = True
+    DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI') or \
         "postgresql://db1:db1@postgres/db1"
+    url = make_url(SQLALCHEMY_DATABASE_URI)
+    POSTGRES_HOST = url.host
+    POSTGRES_USER = url.username
+    POSTGRES_PASSWORD = url.password
+    POSTGRES_DB = url.database
     WTF_CSRF_ENABLED = False
 
 config = {
