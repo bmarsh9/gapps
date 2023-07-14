@@ -533,7 +533,7 @@ class Tenant(LogMixin, db.Model):
             tenant.create_base_frameworks()
             tenant.create_base_policies()
         # create folder for evidence
-        evidence_folder = self.get_evidence_folder()
+        evidence_folder = tenant.get_evidence_folder()
         if not os.path.exists(evidence_folder):
             os.makedirs(evidence_folder)
         return tenant
