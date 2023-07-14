@@ -58,6 +58,7 @@ def create_app(config_name="default"):
 
     @app.errorhandler(500)
     def internal_error(e):
+        app.logger.error(str(e))
         if request.path.startswith("/api/"):
             if isinstance(e.description, dict):
                 return jsonify(e.description), e.code

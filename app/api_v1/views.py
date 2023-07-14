@@ -552,13 +552,10 @@ def reload_tenant_policies(tid):
 def add_tenant():
     result = Authorizer(current_user).can_user_create_tenants()
     data = request.get_json()
-    try:
-        tenant = models.Tenant.create(current_user, data.get("name"),
-            data.get("contact_email"), approved_domains=data.get("approved_domains"),
-            init=True)
-        return jsonify(tenant.as_dict())
-    except:
-        abort(500)
+    tenant = models.Tenant.create(current_user, data.get("name"),
+        data.get("contact_email"), approved_domains=data.get("approved_domains"),
+        init=True)
+    return jsonify(tenant.as_dict())
 
 @api.route('/users/<int:uid>/tenants', methods=['GET'])
 @login_required
