@@ -3,7 +3,7 @@
 {% block before_head %}
 {{ super() }}
 {% import "helpers/src_macros.html" as macro %}
-{{ macro.filehelper(select2=True,editor=True,confetti=True,mentions=True) }}
+{{ macro.filehelper(select2=True,editor=True,confetti=True,mentions=True,files=True) }}
   <style>
     .breadcrumbs>ul>li+:before {
       margin-top: 5px;
@@ -271,17 +271,22 @@
         </div>
         <div id="evidence-body" class="overflow-auto h-[calc(100vh-400px)] px-3">
             <template x-if="evidence.length">
-                <ul @click.away="defocusEvidence()" class="">
+                <ul class="">
                     <template x-for="(item,index) in evidence">
-                        <div class="tooltip tooltip-bottom w-full text-left" data-tip="Double click to view">
-                        <li @click="focusEvidence(index)" @dblclick="openEvidence(index)" class="px-4 py-2 rounded-lg transition-all flex text-md hover:bg-base-300" :class="{'bg-base-200':item.focused,'shadow-lg py-4 my-5 border':item.open,'mb-1 border border-base-300 cursor-pointer':!item.open}" :key="index">
+                        <div class="tooltip tooltip-bottom w-full text-left" data-tip="Select dropdown icon">
+                        <li @click="focusEvidence(index)" class="px-4 py-2 rounded-lg transition-all flex text-md hover:bg-base-300" :class="{'bg-base-200':item.focused,'shadow-lg py-4 my-5 border':item.open,'mb-1 border border-base-300':!item.open}" :key="index">
                             <div class="flex-none w-10 leading-none py-4">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-green-400"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>
                             </div>
                             <div class="flex-grow max-w-full py-4">
-                                <div class="w-full leading-none">
-                                    <h3 class="text-md leading-none truncate w-full pr-10 mt-1 font-semibold" :class="item.name.length?'text-base-content':'text-primary'" x-text="item.name||'Add Evidence...'" x-show="!item.open"></h3>
-                                    <input type="text" x-show="item.open" class="text-md w-full bg-transparent leading-none focus:outline-none mb-2" x-model="item.name" :id="`titleField${index}`" placeholder="Add Evidence..." {%if is_auditor%}disabled{%endif%}/>
+                                <div class="flex justify-between">
+                                  <div class="w-full leading-none">
+                                      <h3 class="text-md leading-none truncate w-full pr-10 mt-1 font-semibold" :class="item.name.length?'text-base-content':'text-primary'" x-text="item.name||'Add Evidence...'" x-show="!item.open"></h3>
+                                      <input type="text" x-show="item.open" class="text-md w-full bg-transparent leading-none focus:outline-none mb-2" x-model="item.name" :id="`titleField${index}`" placeholder="Add Evidence..." {%if is_auditor%}disabled{%endif%}/>
+                                  </div>
+                                  <div>
+                                    <button @click="item.open?defocusEvidence():openEvidence(index)" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" :class="item.open ? 'text-orange-500' : 'text-primary'" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg></button>
+                                  </div>
                                 </div>
                                 <div class="w-full" x-show="item.open">
                                     <textarea class="textarea bg-base-200 w-full leading-tight my-4" rows="1" x-model="item.description" placeholder="Enter description of the evidence" {%if is_auditor%}disabled{%endif%}></textarea>
@@ -289,8 +294,13 @@
                                 <div class="w-full" x-show="item.open">
                                     <textarea class="textarea bg-base-200 w-full leading-tight mb-4" rows="3" x-model="item.content" placeholder="Enter the content of the evidence (e.g. links, raw CSV results, etc). Using a Google Drive (or similar) folder is recommended" {%if is_auditor%}disabled{%endif%}></textarea>
                                 </div>
+                                <div class="w-full" x-show="item.open">
+                                  <label class="block text-sm font-medium ">Files</label>
+                                  <div class="custom-file-container flex flex-col w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 p-4" :data-upload-id="`upload-${item.id}`"></div>
+
+                                </div>
                                 {%if not is_auditor%}
-                                <div class="w-full flex justify-end" x-show="item.open">
+                                <div class="w-full flex justify-end mt-2" x-show="item.open">
                                     <button class="btn btn-error mr-2" @click="removeEvidence(index)">Remove from Control</button>
                                     <button class="btn btn-primary" @click="saveEvidence(index)">Save</button>
                                 </div>
@@ -354,8 +364,8 @@
             <template x-if="todos.length">
                 <ul @click.away="defocusItems()" class="">
                     <template x-for="(item,index) in todos">
-                        <div class="tooltip tooltip-bottom w-full text-left" data-tip="Double click to view">
-                        <li @click="focusItem(index)" @mousedown="if ($event.detail>1){$event.preventDefault()}" @dblclick="openItem(index)" class="px-4 py-2 rounded-lg transition-all flex text-md hover:bg-base-300" :class="{'bg-base-200':item.focused,'shadow-lg py-4 my-5 border':item.open,'mb-1 border border-base-300 cursor-pointer':!item.open}" :key="index">
+                        <div class="tooltip tooltip-bottom w-full text-left" data-tip="Select dropdown icon">
+                        <li @click="focusItem(index)" class="px-4 py-2 rounded-lg transition-all flex text-md" :class="{'bg-base-200':item.focused,'shadow-lg py-4 my-5 border':item.open,'mb-1 border border-base-300':!item.open}" :key="index">
                             <div class="flex-none leading-none py-2">
 				<div class="flex flex-row gap-x-2 text-xs leading-none font-semibold text-base-content">
 					<div class="flex flex-col gap-y-2">
@@ -369,9 +379,14 @@
 				</div>
                             </div>
                             <div class="flex-grow max-w-full py-4 ml-4 my-auto">
-                                <div class="w-full leading-none">
-                                    <h3 class="text-sm w-full  mt-1 font-semibold capitalize text-base-content" :class="item.title.length?'text-base-content':'text-primary'" x-text="item.title||'Add Feedback...'" x-show="!item.open"></h3>
-                                    <input type="text" x-show="item.open" class="text-md w-full bg-transparent leading-none focus:outline-none mb-2" x-model="item.title" :id="`titleField${index}`" placeholder="Add Feedback..." {%if not is_auditor%}disabled{%endif%}/>
+                                <div class="flex justify-between">
+                                  <div class="w-full leading-none">
+                                      <h3 class="text-sm w-full  mt-1 font-semibold capitalize text-base-content" :class="item.title.length?'text-base-content':'text-primary'" x-text="item.title||'Add Feedback...'" x-show="!item.open"></h3>
+                                      <input type="text" x-show="item.open" class="text-md w-full bg-transparent leading-none focus:outline-none mb-2" x-model="item.title" :id="`titleField${index}`" placeholder="Add Feedback..." {%if not is_auditor%}disabled{%endif%}/>
+                                  </div>
+                                  <div>
+                                    <button @click="item.open?defocusItems():openItem(index)" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" :class="item.open ? 'text-orange-500' : 'text-primary'" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg></button>
+                                  </div>
                                 </div>
                                 <div class="w-full" x-show="item.open">
                                     <label class="block text-sm font-medium">Auditor Description</label>
@@ -570,6 +585,7 @@ function setStatus(e) {
 
 function evidence() {
   return {
+        fileUploadMap:{},
         evidence: [],
         evidence_map: {},
         focusEvidence: function(index) {
@@ -580,10 +596,27 @@ function evidence() {
                 }
             }
         },
+        isOpen: function(index) {
+            for(let i = 0; i < this.evidence.length; i++){
+                
+                this.evidence[i].focused = false;
+                this.evidence[i].open = i == index;
+            }
+        },
         openEvidence: function(index) {
             for(let i = 0; i < this.evidence.length; i++){
                 this.evidence[i].focused = false;
                 this.evidence[i].open = i == index;
+            }
+//haaaaaaaa
+            if (!this.fileUploadMap[this.evidence[index].id]) {
+//              this.fileUploadMap[this.evidence[index].id].resetPreviewPanel();
+            var preloadFiles = [];
+            for (var file in this.evidence[index].files) {
+              preloadFiles.push([this.evidence[index].files[file],`/evidence/${this.evidence[index].id}/files/${this.evidence[index].files[file]}`])
+            }
+            this.fileUploadMap[this.evidence[index].id] = new FileUploadWithPreview.FileUploadWithPreview(`upload-${this.evidence[index].id}`, {multiple:true, text:{browse: 'Choose',chooseFile: 'Choose files to upload...'}, presetFiles:preloadFiles});
+
             }
             setTimeout(()=>document.getElementById(`titleField${index}`).focus(),10);
         },
@@ -600,6 +633,9 @@ function evidence() {
                 return i == index ? false : true;
             });
             setTimeout(()=>this.defocusEvidence(),10);
+            if (!item.id) {
+              return
+            }
             $.ajax({
               type: "DELETE",
               url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/evidence/${item.id}`,
@@ -690,17 +726,22 @@ function evidence() {
         },
         updateEvidence: function(index) {
           var item = this.evidence[index];
-          var data = {
-            "name":item.name,
-            "description":item.description,
-            "content":item.content
+          var fd = new FormData();
+//haaaaaaaa
+
+          for(var file in this.fileUploadMap[item.id].cachedFileArray) {
+            fd.append("file", this.fileUploadMap[item.id].cachedFileArray[file])
           }
+          fd.append("name", item.name)
+          fd.append("content", item.content)
+          fd.append("description", item.description)
           $.ajax({
             type: "PUT",
-            url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/evidence/${item.id}`,
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
+            url: `/api/v1/evidence/${item.id}`,
+            contentType: false,
+            processData: false,
+            cache: false,
+            data:fd,
             success: function(data){
               toast("Updated evidence")
               return(data)
@@ -723,17 +764,21 @@ function evidence() {
             this.updateEvidence(index)
             return
           }
-          var data = {
-            "name":item.name,
-            "description":item.description,
-            "content":item.content
+          var fd = new FormData();
+          for(var file in this.fileUploadMap[index].cachedFileArray) {
+            fd.append("file", this.fileUploadMap[index].cachedFileArray[file])
           }
+          fd.append("name", item.name)
+          fd.append("content", item.content)
+          fd.append("description", item.description)
+
           $.ajax({
             type: "POST",
             url: `/api/v1/projects/{{project.id}}/subcontrols/{{project_subcontrol.id}}/evidence`,
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
+            contentType: false,
+            processData: false,
+            cache: false,
+            data:fd,
             success: function(data){
               toast("Added evidence")
               item.open = false;
@@ -752,6 +797,7 @@ function evidence() {
         getEvidence: function() {
           evidence = this.evidence;
           evidence_map = this.evidence_map;
+          this.fileUploadMap = {};
           // reset values
           evidence.length = 0;
           evidence_map.length = 0;

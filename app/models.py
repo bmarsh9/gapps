@@ -20,10 +20,15 @@ from app.utils.authorizer import Authorizer
 import email_validator
 from app.utils.bg_worker import bg_app
 from app.utils.bg_helper import BgHelper
+from werkzeug.utils import secure_filename
+import glob
+import shutil
+import string
+import random
 import logging
 
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 class Finding(LogMixin, db.Model):
     __tablename__ = 'findings'
@@ -32,20 +37,26 @@ class Finding(LogMixin, db.Model):
     title = db.Column(db.String())
     description = db.Column(db.String())
     mitigation = db.Column(db.String())
-    status = db.Column(db.String())
-    risk = db.Column(db.Integer())
+    status = db.Column(db.String(), default="open")
+    risk = db.Column(db.Integer(), default=0)
+    task_id = db.Column(db.Integer, db.ForeignKey('tasks.id'))
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
+    @staticmethod
+    def get_status_list():
+        return ["open", "in progress", "closed"]
+
     @validates('status')
     def _validate_status(self, key, status):
-        if not status or status.lower() not in ["open", "in progress", "closed"]:
+        if not status or status.lower() not in Finding.get_status_list():
             raise ValueError("invalid status")
         return status
 
-    @staticmethod
-    def create(**kwargs):
-        pass
+    def as_dict(self):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return data
 
 class Locker(LogMixin, db.Model):
     __tablename__ = 'lockers'
@@ -110,29 +121,21 @@ class Integration(LogMixin, db.Model):
     tasks = db.relationship('Task', backref='integration',lazy='dynamic', cascade="all, delete-orphan")
     lockers = db.relationship('Locker', secondary='locker_association', lazy='dynamic',
         backref=db.backref('integration', lazy='dynamic'))
-    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
-    @staticmethod
-    def find_by_name(name, tenant_id):
-        return Task.query.filter(Task.tenant_id == tenant_id).filter(func.lower(Task.name) == func.lower(name)).first()
-
-    @staticmethod
-    def add(name, tenant_id):
-        if Integration.find_by_name(name, tenant_id):
-            raise ValueError("integration already exists for tenant")
-        integration = Integration(name=name, tenant_id=tenant_id)
-        db.session.add(integration)
-        db.session.commit()
-        return integration
+    def as_dict(self):
+        data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        data["project"] = self.project.name
+        data["project_id"] = self.project.id
+        data["tasks"] = [task.as_dict() for task in self.tasks.all()]
+        return data
 
     def add_task(self, name, cron, disabled=False):
-        if Task.find_by_name(name, self.tenant_id):
-            raise ValueError("task already exists")
         task = Task(name=name, cron=cron, disabled=disabled,
-            queue=self.tenant_id, integration_id=self.id, tenant_id=self.tenant_id)
-        db.session.add(task)
+            queue=self.project.tenant_id)
+        self.tasks.append(task)
         db.session.commit()
         return task
 
@@ -158,16 +161,16 @@ class Task(LogMixin, db.Model):
     last_run = db.Column(db.DateTime)
     not_before = db.Column(db.DateTime)
     cron = db.Column(db.String())
+    findings = db.relationship('Finding', backref='task',lazy='dynamic', cascade="all, delete-orphan")
     results = db.relationship('TaskResult', backref='task',lazy='dynamic', cascade="all, delete-orphan")
     integration_id = db.Column(db.Integer, db.ForeignKey('integrations.id'))
-    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
     def as_dict(self, with_lockers=False):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         data["integration"] = self.integration.name
-        data["tenant"] = self.tenant.name
+        data["tenant"] = self.integration.project.tenant.name
         data["lock"] = self.get_lock()
         data["full_name"] = self.get_full_name()
         for field in ["last_run", "not_before", "date_added", "date_updated"]:
@@ -180,6 +183,14 @@ class Task(LogMixin, db.Model):
     def find_by_name(name, tenant_id):
         return Task.query.filter(Task.tenant_id == tenant_id).filter(func.lower(Task.name) == func.lower(name)).first()
 
+    def add_finding(self, **kwargs):
+        if not kwargs.get("status") or kwargs.get("status") not in Finding.get_status_list():
+            kwargs["status"] = "open"
+        finding = Finding(project_id=self.integration.project_id, **kwargs)
+        self.findings.append(finding)
+        db.session.commit()
+        return finding
+
     def get_full_name(self):
         return f"{self.integration.name}:{self.name}"
 
@@ -187,7 +198,7 @@ class Task(LogMixin, db.Model):
         """
         the lock will be namespaced by tenant_id:integration_name:task_name
         """
-        return f"{self.tenant_id}:{self.integration.name}:{self.name}"
+        return f"{self.integration.project.tenant_id}:{self.integration.name}:{self.name}"
 
     def get_executions(self):
         with bg_app.open():
@@ -274,6 +285,7 @@ class Tenant(LogMixin, db.Model):
     license = db.Column(db.String())
     approved_domains = db.Column(db.String())
     magic_link_login = db.Column(db.Boolean(), default=False)
+    storage_cap = db.Column(db.String(), default="10000000")
     user_roles = db.relationship('UserRole', backref='tenant',lazy='dynamic', cascade="all, delete-orphan")
     frameworks = db.relationship('Framework', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     projects = db.relationship('Project', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
@@ -283,7 +295,6 @@ class Tenant(LogMixin, db.Model):
     tags = db.relationship('Tag', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     questionnaires = db.relationship('Questionnaire', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    tasks = db.relationship('Task', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     labels = db.relationship('PolicyLabel', backref='tenant', lazy='dynamic', cascade="all, delete-orphan")
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -489,6 +500,22 @@ class Tenant(LogMixin, db.Model):
             return UserRole.query.filter(UserRole.tenant_id == self.id).filter(UserRole.user_id == user.id).filter(UserRole.role_id == role.id).first()
         return False
 
+    def get_evidence_folder(self):
+        return os.path.join(current_app.config['EVIDENCE_FOLDER'], self.uuid)
+
+    def get_size_of_evidence_folder(self):
+        return sum(os.path.getsize(f) for f in glob.glob(f"{self.get_evidence_folder()}/*") if os.path.isfile(f))
+
+    def can_save_file_in_folder(self, file):
+        # calculate size from file object
+        old_file_position = file.tell()
+        file.seek(0, os.SEEK_END)
+        size = file.tell()
+        file.seek(old_file_position, os.SEEK_SET)
+        if self.get_size_of_evidence_folder() + size > int(self.storage_cap):
+            return False
+        return True
+
     @staticmethod
     def create(user, name, email, approved_domains=None, init=False):
         if exists := Tenant.find_by_name(name):
@@ -505,7 +532,19 @@ class Tenant(LogMixin, db.Model):
         if init:
             tenant.create_base_frameworks()
             tenant.create_base_policies()
+        # create folder for evidence
+        evidence_folder = self.get_evidence_folder()
+        if not os.path.exists(evidence_folder):
+            os.makedirs(evidence_folder)
         return tenant
+
+    def delete(self):
+        evidence_folder = self.get_evidence_folder()
+        if os.path.exists(evidence_folder):
+            shutil.rmtree(evidence_folder)
+        db.session.delete(self)
+        db.session.commit()
+        return True
 
     def create_project(self, name, owner, framework=None, description=None, controls=[]):
         if not description:
@@ -518,10 +557,11 @@ class Tenant(LogMixin, db.Model):
         for control in controls:
             project.add_control(control, commit=False)
         db.session.commit()
-        return True
+        return project
 
 class Evidence(LogMixin, db.Model):
     __tablename__ = 'evidence'
+    __table_args__ = (db.UniqueConstraint('name', 'tenant_id'),)
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     name = db.Column(db.String())
     description = db.Column(db.String())
@@ -535,7 +575,14 @@ class Evidence(LogMixin, db.Model):
     def as_dict(self):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         data["control_count"] = self.control_count()
+        data["files"] = self.get_files(basename=True)
         return data
+
+    def delete(self):
+        [os.remove(file) for file in self.get_files()]
+        db.session.delete(self)
+        db.session.commit()
+        return True
 
     def remove_controls(self, control_ids=[]):
         if control_ids:
@@ -563,6 +610,77 @@ class Evidence(LogMixin, db.Model):
 
     def has_control(self, control_id):
         return EvidenceAssociation.exists(control_id, self.id)
+
+    def get_files(self, as_dict=False, basename=False):
+        files = glob.glob(os.path.join(self.tenant.get_evidence_folder(), f"{self.id}_*"))
+        if as_dict:
+            return [{"name":os.path.basename(file),"path":file} for file in files]
+        if basename:
+            return [os.path.basename(file) for file in files]
+        return files
+
+    def get_files_wo_prefix(self):
+        files = []
+        current_files = glob.glob(os.path.join(self.tenant.get_evidence_folder(), f"{self.id}_*"))
+        for file in current_files:
+            os.path.basename(file)
+            files.append("_".join(os.path.basename(file).split("_")[2:]))
+        return files
+
+    def delete_files(self):
+        [os.remove(file) for file in self.get_files()]
+        return True
+
+    def delete_file_by_name(self, name):
+        for file in glob.glob(os.path.join(self.tenant.get_evidence_folder(), f"{self.id}_*_{name}")):
+            os.remove(file)
+        return True
+
+    def get_secure_name_from_uploaded_file(self, filename):
+        if ":upload:" not in filename:
+            raise ValueError("invalid naming convention")
+        name = filename.split(":upload:")[0].lower()
+        file_ext = os.path.splitext(name)[1]
+        if file_ext not in current_app.config['UPLOAD_EXTENSIONS']:
+            raise ValueError("file type is not allowed")
+        return secure_filename(name)
+
+    def diff_files_with_checks(self, request_files, execute=False):
+        """
+        pass request.files.getlist("file") into this function
+        """
+        files = {}
+        new_list = []
+        # create list/dict of the new list of files
+        for file in request_files:
+            secure_name = self.get_secure_name_from_uploaded_file(file.filename)
+            if secure_name.startswith(f"{self.id}_"):
+                secure_name = "_".join(secure_name.split("_")[2:])
+            files[secure_name] = file
+            new_list.append(secure_name)
+
+        # perform diff with existing list
+        new_set = set(new_list)
+        old_set = set(self.get_files_wo_prefix())
+        inter = new_set & old_set
+        added, deleted, unchanged = new_set - inter, old_set - inter, inter
+
+        # add and delete files
+        if execute:
+            [self.save_file(file, files[file]) for file in added]
+            [self.delete_file_by_name(file) for file in deleted]
+        return added, deleted, unchanged
+
+    def save_file(self, name, file_object):
+        if not self.tenant.can_save_file_in_folder(file_object):
+            raise ValueError("tenant does not have enough storage capacity")
+
+        # generate new name for file
+        file_uuid = ''.join(random.choices(string.ascii_uppercase +
+                             string.digits, k=7))
+        full_path = os.path.join(self.tenant.get_evidence_folder(), f"{self.id}_{file_uuid}_{name}".lower())
+        file_object.save(full_path)
+        return full_path
 
 class EvidenceAssociation(db.Model):
     __tablename__ = 'evidence_association'
@@ -912,6 +1030,8 @@ class Project(LogMixin, db.Model, DateMixin):
     comments = db.relationship('ProjectComment', backref='project', lazy='dynamic', cascade="all, delete-orphan")
     notes = db.Column(db.String())
     members = db.relationship('ProjectMember', backref='project', lazy='dynamic',cascade="all, delete-orphan")
+    integrations = db.relationship('Integration', backref='project', lazy='dynamic', cascade="all, delete-orphan")
+    findings = db.relationship('Finding', backref='project', lazy='dynamic', cascade="all, delete-orphan")
     owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'), nullable=False)
     tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=False)
     framework_id = db.Column(db.Integer, db.ForeignKey('frameworks.id'))
@@ -948,6 +1068,17 @@ class Project(LogMixin, db.Model, DateMixin):
                 framework_ids = [framework_ids]
             _query = _query.filter(Project.framework_id.in_(framework_ids))
         return _query.all()
+
+    def get_integration_summary(self):
+        return []
+
+    def add_integration(self, name):
+        if self.integrations.filter(func.lower(Integration.name) == func.lower(self.name)).first():
+            raise ValueError("integration already exists for tenant")
+        integration = Integration(name=name)
+        self.integrations.append(integration)
+        db.session.commit()
+        return integration
 
     def can_user_manage(self, user):
         if user.super:

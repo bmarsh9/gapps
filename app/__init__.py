@@ -65,9 +65,14 @@ def create_app(config_name="default"):
         return render_template("layouts/errors/default.html", title="Internal error"), e.code
 
     @app.errorhandler(exc.SQLAlchemyError)
-    def handle_db_exceptions(error):
-        app.logger.warning("Rolling back database session in app")
+    def handle_db_exceptions(e):
+        error = str(e)
+        app.logger.warning(f"Rolling back database session in app: {error}")
         db.session.rollback()
+        if request.path.startswith("/api/"):
+            return jsonify({"ok":False, "message":error, "code":500}), 500
+        return render_template("layouts/errors/default.html", title="Internal error"), 500
+
 
     def to_pretty_json(value):
         return json.dumps(value, sort_keys=True,

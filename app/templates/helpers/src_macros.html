@@ -1,4 +1,4 @@
-{% macro filehelper(datatables=False,apex=False,datepicker=False,toasts=False,spinner=False,select=False,select2=False,query=False,editor=False,confetti=False,mentions=False,sanitize=False) -%}
+{% macro filehelper(datatables=False,apex=False,datepicker=False,toasts=False,spinner=False,select=False,select2=False,query=False,editor=False,confetti=False,mentions=False,sanitize=False,files=False) -%}
   {% if sanitize %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.3/purify.min.js" integrity="sha512-TBmnYz6kBCpcGbD55K7f4LZ+ykn3owqujFnUiTSHEto6hMA7aV4W7VDPvlqDjQImvZMKxoR0dNY5inyhxfZbmA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   {%endif%}
@@ -9,7 +9,6 @@
   {% if datatables %}
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css"/>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dt_custom.css') }}"/>
-<!--    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.12.1/datatables.min.js"></script>-->
     <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.13.4/datatables.min.js"></script>
   {% endif %}
   {% if apex %}
@@ -50,5 +49,11 @@
   {% if mentions %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tributejs/5.1.3/tribute.css" integrity="sha512-GnwBnXd+ZGO9CdP343MUr0jCcJXCr++JVtQRnllexRW2IDq4Zvrh/McTQjooAKnSUbXZ7wamp7AQSweTnfMVoA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tributejs/5.1.3/tribute.min.js" integrity="sha512-KJYWC7RKz/Abtsu1QXd7VJ1IJua7P7GTpl3IKUqfa21Otg2opvRYmkui/CXBC6qeDYCNlQZ7c+7JfDXnKdILUA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  {% endif %}
+  {% if files %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/preview.css') }}"/>
+    <script src="{{ url_for('static', filename='js/file-upload-with-preview.iife.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.3/viewer.min.js" integrity="sha512-f8kZwYACKF8unHuRV7j/5ILZfflRncxHp1f6y/PKuuRpCVgpORNZMne1jrghNzTVlXabUXIg1iJ5PvhuAaau6Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.3/viewer.css" integrity="sha512-0IJ01kDH6fR7Oo1QEcyF+PgSLpefYXuGICVfNNoOseW6+HmsoaHzSZ7BAnwuu6BoK+nSn9WOeh0kiNjPNtGpuw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   {% endif %}
 {%- endmacro %}

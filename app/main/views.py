@@ -63,6 +63,15 @@ def view_framework(name):
 def evidence():
     return render_template("evidence.html")
 
+@main.route('/evidence/<int:eid>/files/<string:name>', methods=['GET'])
+@login_required
+def view_file_for_evidence(eid, name):
+    result = Authorizer(current_user).can_user_read_evidence(eid)
+    if name.lower() not in result["extra"]["evidence"].get_files(basename=True):
+        abort(404)
+    return send_from_directory(directory=result["extra"]["evidence"].tenant.get_evidence_folder(),
+        path=name, as_attachment=True)
+
 @main.route('/policies', methods=['GET'])
 @login_required
 def policies():
