@@ -3,6 +3,7 @@ env/*
 migrations
 *pyc
 app/files/reports/*
+app/files/evidence/*
 # C extensions
 *.so
 
