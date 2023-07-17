@@ -213,7 +213,13 @@ The format consists of controls and subcontrols. The snippet below shows an exam
                 "ref_code": "3.1.1.a",
                 "name": "Authorized users are identified.",
                 "description": "Authorized users are identified.",
-                "meta": {}
+                "meta": {},
+                "tasks": [
+                    {
+                        "title": "title of the task",
+                        "description": "description of the task"
+                    }
+                ]
             }
         ]
     }
