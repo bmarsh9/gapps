@@ -1,3 +1,4 @@
+.env
 *.py[cod]
 env/*
 migrations
