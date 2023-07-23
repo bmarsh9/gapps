@@ -9,6 +9,8 @@ class Config:
     APP_SUBTITLE = os.environ.get("APP_SUBTITLE","")
     CR_YEAR = os.environ.get("CR_YEAR","2023")
     VERSION = os.environ.get("VERSION","1.0.0")
+    SERVER_NAME = os.environ.get("SERVER_NAME")
+    PREFERRED_URL_SCHEME = os.environ.get("PREFERRED_URL_SCHEME","http")
 
     LOG_TYPE = os.environ.get("LOG_TYPE", "stream")
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
