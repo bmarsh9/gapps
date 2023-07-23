@@ -1,4 +1,5 @@
 from sqlalchemy.engine.url import make_url
+from flask import request
 import os
 
 
@@ -9,8 +10,14 @@ class Config:
     APP_SUBTITLE = os.environ.get("APP_SUBTITLE","")
     CR_YEAR = os.environ.get("CR_YEAR","2023")
     VERSION = os.environ.get("VERSION","1.0.0")
-    SERVER_NAME = os.environ.get("SERVER_NAME")
-    PREFERRED_URL_SCHEME = os.environ.get("PREFERRED_URL_SCHEME","http")
+    if host_name := os.environ.get("HOST_NAME"):
+        if not host_name.startswith("http"):
+            host_name = "https://{host_name}"
+        if not host_name.endswith("/"):
+            host_name = "{host_name}/"
+        HOST_NAME = host_name
+    else:
+        HOST_NAME = request.host_url
 
     LOG_TYPE = os.environ.get("LOG_TYPE", "stream")
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")

@@ -74,7 +74,7 @@ def login_with_magic_link(tid):
             return redirect(next_page or url_for('auth.login_with_magic_link', tid=tid))
         # send email with login
         token = user.generate_magic_link(tid)
-        link = f"{request.host_url}magic-login/{token}"
+        link = f"{current_app.HOST_NAME}magic-login/{token}"
         title = f"{current_app.config['APP_NAME']}: Login Request"
         content = f"You have requested a login via email. If you did not request a magic link, please ignore. Otherwise, please click the button below to login."
         send_email(
@@ -176,7 +176,7 @@ def reset_password_request():
             return redirect(next_page or url_for('auth.reset_password_request'))
         Logs.add(f"{email} requested a password reset", level="warning")
         token = user.generate_auth_token()
-        link = f"{request.host_url}reset-password/{token}"
+        link = f"{current_app.HOST_NAME}reset-password/{token}"
         title = f"{current_app.config['APP_NAME']}: Password reset"
         content = f"You have requested a password reset. If you did not request a reset, please ignore. Otherwise, click the button below to continue."
         send_email(

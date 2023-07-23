@@ -1944,7 +1944,7 @@ class Questionnaire(LogMixin, db.Model):
         return stats
 
     def send_invite(self, email):
-        link = "{}{}".format(request.host_url,"questionnaires")
+        link = "{}{}".format(current_app.HOST_NAME,"questionnaires")
         title = f"{current_app.config['APP_NAME']}: Vendor Questionnaire"
         content = f"You have been invited to {current_app.config['APP_NAME']} for a questionnaire. Please click the button below to begin."
         send_email(
