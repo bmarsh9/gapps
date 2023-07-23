@@ -2,7 +2,9 @@
 ###  💰 Please [consider supporting the project](https://www.buymeacoffee.com/bmarsh/membership)
 
 
-:snowflake: View the [Gapps site](https://web-gapps.pages.dev/)  
+:cloud: Try the [SaaS app](https://gapps.darkbanner.com/)  
+:snowflake: View the [Gapps site](https://web-gapps.pages.dev/)
+
 
 ### Table of Contents
 1. [About](#about)
@@ -12,6 +14,7 @@
 5. [Things to know](#things-to-know)
 6. [FAQ](#faq)
 
+- SaaS App: https://gapps.darkbanner.com  
 - Interested in some form of partnership or new license? Contact me on [discord](https://discord.gg/9unhWAqadg)
 - Stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw7  
 - Discord: https://discord.gg/9unhWAqadg

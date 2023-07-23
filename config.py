@@ -12,9 +12,9 @@ class Config:
     VERSION = os.environ.get("VERSION","1.0.0")
     if host_name := os.environ.get("HOST_NAME"):
         if not host_name.startswith("http"):
-            host_name = "https://{host_name}"
+            host_name = f"https://{host_name}"
         if not host_name.endswith("/"):
-            host_name = "{host_name}/"
+            host_name = f"{host_name}/"
         HOST_NAME = host_name
     else:
         HOST_NAME = request.host_url

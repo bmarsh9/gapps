@@ -216,7 +216,7 @@ def add_comment_for_project(id):
     result["extra"]["project"].comments.append(comment)
     db.session.commit()
     if tagged_users:
-        link = f"{current_app.HOST_NAME}projects/{id}?tab=comments"
+        link = f"{current_app.config['HOST_NAME']}projects/{id}?tab=comments"
         title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
         content = f"{current_user.get_username()} mentioned you in a comment for the {result['extra']['project'].name} project. Please click the button to begin."
         send_email(
@@ -368,7 +368,7 @@ def create_user():
         return jsonify({"message":"invalid email"}), 400
     tenant_id = data.get("tenant_id")
     token = models.User.generate_invite_token(email, tenant_id)
-    link = "{}{}?token={}".format(current_app.HOST_NAME,"register",token)
+    link = "{}{}?token={}".format(current_app.config["HOST_NAME"],"register",token)
     title = f"{current_app.config['APP_NAME']}: Welcome"
     content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
     send_email(
@@ -487,12 +487,12 @@ def invite_user_to_tenant(tid):
         return jsonify({"message":"user is not in approved domains"}),403
     if user := models.User.find_by_email(email):
         result["extra"]["tenant"].add_user(user, roles=roles)
-        link = current_app.HOST_NAME
+        link = current_app.config["HOST_NAME"]
         title = f"{current_app.config['APP_NAME']}: Tenant invite"
         content = f"You have been added to a new tenant in {current_app.config['APP_NAME']}"
     else:
         token = models.User.generate_invite_token(email, tid, attributes={"roles":roles})
-        link = "{}{}?token={}".format(current_app.HOST_NAME,"register",token)
+        link = "{}{}?token={}".format(current_app.config["HOST_NAME"],"register",token)
         title = f"{current_app.config['APP_NAME']}: Welcome"
         content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
     if email_configured:
@@ -1055,7 +1055,7 @@ def add_comment_for_control(pid, cid):
     db.session.commit()
     tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["control"].project.tenant)
     if tagged_users:
-        link = f"{current_app.HOST_NAME}projects/{pid}/controls/{cid}?tab=comments"
+        link = f"{current_app.config['HOST_NAME']}projects/{pid}/controls/{cid}?tab=comments"
         title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
         content = f"{current_user.get_username()} mentioned you in a comment for a control. Please click the button to begin."
         send_email(
@@ -1110,7 +1110,7 @@ def add_comment_for_subcontrol(pid, sid):
 
     tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["subcontrol"].p_control.project.tenant)
     if tagged_users:
-        link = f"{current_app.HOST_NAME}projects/{pid}/controls/{result['extra']['subcontrol'].project_control_id}/subcontrols/{sid}?tab=comments"
+        link = f"{current_app.config['HOST_NAME']}projects/{pid}/controls/{result['extra']['subcontrol'].project_control_id}/subcontrols/{sid}?tab=comments"
         title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
         content = f"{current_user.get_username()} mentioned you in a comment for a subcontrol. Please click the button to begin."
         send_email(
