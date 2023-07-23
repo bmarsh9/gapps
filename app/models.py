@@ -518,8 +518,8 @@ class Tenant(LogMixin, db.Model):
 
     @staticmethod
     def create(user, name, email, approved_domains=None, init=False):
-        if exists := Tenant.find_by_name(name):
-            return exists
+        if Tenant.find_by_name(name):
+            raise ValueError("tenant name already exists")
         tenant = Tenant(owner_id=user.id, name=name.lower(),
             contact_email=email, approved_domains=approved_domains)
         evidence = Evidence(name="Evidence N/A",
@@ -1546,6 +1546,7 @@ class User(LogMixin, db.Model, UserMixin):
     last_name = db.Column(db.String(100), nullable=False, server_default='')
     super = db.Column(db.Boolean(), nullable=False, server_default='0')
     built_in = db.Column(db.Boolean(), default=False)
+    tenant_limit = db.Column(db.Integer, default=1)
     can_user_create_tenant = db.Column(db.Boolean(), nullable=False, server_default='1')
     roles = db.relationship('Role', secondary='user_roles',lazy='dynamic',
                             backref=db.backref('users', lazy='dynamic'))
@@ -1684,7 +1685,9 @@ class User(LogMixin, db.Model, UserMixin):
                 projects.append(project)
         return projects
 
-    def tenants(self):
+    def tenants(self, own=False):
+        if own:
+            return Tenant.query.filter(Tenant.owner_id == self.id).all()
         if self.super:
             return Tenant.query.all()
         tenant_ids = UserRole.query.filter(UserRole.user_id == self.id).distinct(UserRole.tenant_id).all()

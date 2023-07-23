@@ -526,8 +526,11 @@ def get_tenant(tid):
 def update_tenant(tid):
     result = Authorizer(current_user).can_user_admin_tenant(tid)
     data = request.get_json()
+    name = data.get("name").lower()
+    if result["extra"]["tenant"].name != name and models.Tenant.find_by_name(name):
+        return jsonify({"message": "tenant name already exists"}), 400
+    result["extra"]["tenant"].name = name
     result["extra"]["tenant"].contact_email = data.get("contact_email")
-    result["extra"]["tenant"].name = data.get("name")
     result["extra"]["tenant"].approved_domains = data.get("approved_domains")
     result["extra"]["tenant"].magic_link_login = data.get("magic_link")
     db.session.commit()
@@ -552,9 +555,12 @@ def reload_tenant_policies(tid):
 def add_tenant():
     result = Authorizer(current_user).can_user_create_tenants()
     data = request.get_json()
-    tenant = models.Tenant.create(current_user, data.get("name"),
-        data.get("contact_email"), approved_domains=data.get("approved_domains"),
-        init=True)
+    try:
+        tenant = models.Tenant.create(current_user, data.get("name"),
+            data.get("contact_email"), approved_domains=data.get("approved_domains"),
+            init=True)
+    except Exception as e:
+        return jsonify({"message": str(e)}), 400
     return jsonify(tenant.as_dict())
 
 @api.route('/users/<int:uid>/tenants', methods=['GET'])

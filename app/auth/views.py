@@ -133,7 +133,7 @@ def register():
         flash("You are already registered", "success")
         return redirect(next_page or url_for('main.home'))
     email = None
-    result = None
+    result = {}
     if token := request.args.get("token"):
         if result := User.verify_invite_token(token):
             email = result["email"]

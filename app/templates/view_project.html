@@ -33,11 +33,11 @@
             <option value="controls">Controls</option>
             <option value="policies">Policies</option>
             <option value="evidence">Evidence</option>
-            <option value="findings">Findings</option>
             <option value="matrix">Resp. Matrix</option>
             <option value="scratchpad">Scratchpad</option>
             <option value="comments">Comments</option>
             <option value="report">Report</option>
+            <option value="findings">Findings</option>
             <option value="integrations">Integrations</option>
             <option value="settings">Settings</option>
           </select>
@@ -64,7 +64,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
         <span class="text-sm font-medium">{{project.progress("complete")}}%</span>
       </div>
-      <div class="flex gap-x-1 py-1 px-1 tooltip" data-tip="Start Date">
+      <div class="flex gap-x-1 py-1 px-1 tooltip" :class="{'hidden': isSidebarOpen}" data-tip="Start Date">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" /></svg>
         <span class="text-sm font-medium">{{project.simple(project.date_added)}}</span>
       </div>
@@ -76,16 +76,24 @@
       {%endif%}
       <div class="divider divider-horizontal mx-0"></div>
       <div class="flex space-x-2 tabs">
-        {%for tab in ["summary","controls","policies","evidence","findings","matrix","scratchpad","comments","report","integrations","settings"]%}
+        {%for tab in ["summary","controls","policies","evidence","matrix","scratchpad","comments","settings"]%}
         <span @click="changeTab('{{tab}}')" id="tab-{{tab}}" class="cursor-pointer rounded-md py-1 px-4 text-sm font-medium hover:bg-base-200 capitalize">{{tab}}</span>
         {%endfor%}
+        <div class="dropdown mb-[2px]">
+          <label tabindex="0" class="m-1 cursor-pointer rounded-md py-1 px-4 text-sm font-medium hover:bg-base-200">More</label>
+          <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+          {%for tab in ["report","findings","integrations"]%}
+            <li><span @click="changeTab('{{tab}}')" id="tab-{{tab}}" class="cursor-pointer rounded-md py-1 px-4 text-sm font-medium hover:bg-base-200 capitalize">{{tab}}</span></li>
+          {%endfor%}
+          </ul>
+        </div>
       </div>
     </div>
     <div class="flex flex-row rounded-md border-b border-r border-l border-base-300 p-3">
-      <div class="flex gap-x-1 py-1 tooltip font-medium text-sm" data-tip="Quick filters for the controls">
+      <div class="flex gap-x-1 py-1 tooltip font-medium text-sm" data-tip="Quick filters for the controls" :class="{'hidden': isSidebarOpen}">
       Quick Filters
       </div>
-      <div class="divider divider-horizontal mx-0"></div>
+      <div class="divider divider-horizontal mx-0" :class="{'hidden': isSidebarOpen}"></div>
       <div class="flex gap-x-4 tabs">
         <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&owner={{current_user.email}}">Control's I Own</a>
         <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&operator={{current_user.email}}">Control's I Operate</a>

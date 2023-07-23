@@ -69,7 +69,7 @@ class Authorizer:
         return False
 
     def can_user_create_tenants(self):
-        if self.user.super or self.user.can_user_create_tenant:
+        if self.user.super or self.user.can_user_create_tenant and len(self.user.tenants(own=True)) < self.user.tenant_limit:
             return self.return_response(True, AUTHORIZED_MSG, 200)
         return self.return_response(False, UNAUTHORIZED_MSG, 403)
 
