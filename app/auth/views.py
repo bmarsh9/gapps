@@ -17,9 +17,8 @@ from . import auth
 
 from app.db import db
 from app.models import *
-from app.email import send_email
 from app.utils import misc
-import datetime
+from app.integrations.azure.graph_client import GraphClient
 
 logger = logging.getLogger(__name__)
 
@@ -54,9 +53,6 @@ def login_with_magic_link(tid):
     next_page = request.args.get('next')
     if current_user.is_authenticated:
         return redirect(next_page or url_for('main.home'))
-    if not current_app.config["MAIL_USERNAME"] or not current_app.config["MAIL_PASSWORD"]:
-        flash("Email is not configured", "warning")
-        abort(404)
     if not (tenant := Tenant.query.get(tid)):
         abort(404)
     if not tenant.magic_link_login:
@@ -77,9 +73,8 @@ def login_with_magic_link(tid):
         link = f"{request.host_url}magic-login/{token}"
         title = f"{current_app.config['APP_NAME']}: Login Request"
         content = f"You have requested a login via email. If you did not request a reset, please ignore. Otherwise, please click the button below to login."
-        send_email(
+        GraphClient().send_email(
             title,
-            sender=current_app.config['MAIL_USERNAME'],
             recipients=[email],
             text_body=render_template(
                 'email/basic_template.txt',
@@ -179,9 +174,8 @@ def reset_password_request():
         link = f"{request.host_url}reset-password/{token}"
         title = f"{current_app.config['APP_NAME']}: Password reset"
         content = f"You have requested a password reset. If you did not request a reset, please ignore. Otherwise, click the button below to continue."
-        send_email(
+        GraphClient().send_email(
             title,
-            sender=current_app.config['MAIL_USERNAME'],
             recipients=[email],
             text_body=render_template(
                 'email/basic_template.txt',

@@ -1,7 +1,7 @@
 version: '3'
 services:
-  gapps:
-    container_name: gapps
+  grc:
+    container_name: grc
     build:
       context: .
       dockerfile: Dockerfile
@@ -16,14 +16,13 @@ services:
     restart: unless-stopped
     environment:
       - PYTHONPATH=.
-      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:not-secret@postgres/gapps
+      - SQLALCHEMY_DATABASE_URI=postgresql://postgres:not-secret@postgres/grc
       - DEFAULT_EMAIL=${DEFAULT_EMAIL:-admin@example.com}
       - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-admin}
       - VERSION=${VERSION:-3.4.3}
       - APP_NAME=GRC
       - GUNICORN_WORKERS=2
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_USERNAME=notification@saltsquare.io
       - EVIDENCE_BUCKET=dev-grc-evidence-bucket
       - AWS_PROFILE
     volumes:
@@ -32,7 +31,7 @@ services:
     command: >
       /bin/sh -c " \
         alembic upgrade head; \
-         gunicorn --bind 0.0.0.0:5000 flask_app:app --access-logfile '-' --error-logfile "-"
+         gunicorn --bind 0.0.0.0:5000 flask_app:app --access-logfile '-' --error-logfile "-" --timeout 600
       "
   # gapps-worker:
   #   container_name: gapps-worker
@@ -72,7 +71,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: not-secret
-      POSTGRES_DB: gapps
+      POSTGRES_DB: grc
       PGDATA: /data/postgres
     volumes:
       - dbdata:/data/postgres

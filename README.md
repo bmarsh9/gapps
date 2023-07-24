@@ -75,7 +75,6 @@ You can setup email (for sending user invites) as well by setting the following 
 
 ```
 MAIL_USERNAME="email@gmail.com"
-MAIL_PASSWORD="app password" # https://support.google.com/accounts/answer/185833?hl=en
 ```
 
 ### Supported frameworks

@@ -4,8 +4,7 @@ from . import main
 from app.models import *
 from flask_login import current_user
 from app.utils.decorators import roles_required, is_super, login_required
-from app.models import Role,User,Logs
-from app.email import send_email
+from app.models import Role,Logs
 from app.utils.authorizer import Authorizer
 from app.utils import misc
 

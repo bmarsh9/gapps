@@ -15,7 +15,7 @@ import arrow
 import json
 import os
 from string import Formatter
-from app.email import send_email
+from app.integrations.azure.graph_client import GraphClient
 from random import randrange
 from app.utils.authorizer import Authorizer
 import email_validator
@@ -1533,9 +1533,8 @@ class Questionnaire(LogMixin, db.Model):
         link = "{}{}".format(request.host_url,"questionnaires")
         title = f"{current_app.config['APP_NAME']}: Vendor Questionnaire"
         content = f"You have been invited to {current_app.config['APP_NAME']} for a questionnaire. Please click the button below to begin."
-        send_email(
+        GraphClient().send_email(
           title,
-          sender=current_app.config['MAIL_USERNAME'],
           recipients=[email],
           text_body=render_template(
             'email/basic_template.txt',

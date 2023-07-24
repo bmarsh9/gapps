@@ -13,7 +13,6 @@ class S3(Singleton):
     def client(self):
         return self._client
 
-
     def upload_file_obj(self, fileObj, key):
         self.client.upload_fileobj(Fileobj=fileObj, Bucket=current_app.config['EVIDENCE_BUCKET'], Key=key)
 

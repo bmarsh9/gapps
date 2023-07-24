@@ -5,7 +5,6 @@ import json
 
 from app.db import db
 from app.login import login
-from app.email import mail
 
 
 babel = Babel()
@@ -71,7 +70,6 @@ def configure_models(app):
 
 def configure_extensions(app):
     db.init_app(app)
-    mail.init_app(app)
     babel.init_app(app)
     login.init_app(app)
     return

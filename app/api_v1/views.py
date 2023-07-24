@@ -6,11 +6,11 @@ from app.utils.decorators import login_required
 from app.utils.jquery_filters import Filter
 from app.utils.misc import project_creation, get_users_from_text
 from sqlalchemy import func
-from app.email import send_email
 import arrow
 from app.utils.reports import Report
 from app.utils.authorizer import Authorizer
 from app.integrations.aws.src.s3_client import S3
+from app.integrations.azure.graph_client import GraphClient
 
 
 @api.route('/health', methods=['GET'])
@@ -174,9 +174,8 @@ def add_comment_for_project(id):
         link = f"{request.host_url}projects/{id}?tab=comments"
         title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
         content = f"{current_user.get_username()} mentioned you in a comment for the {result['extra']['project'].name} project. Please click the button to begin."
-        send_email(
+        GraphClient().send_email(
             title,
-            sender=current_app.config['MAIL_USERNAME'],
             recipients=[user.email for user in tagged_users],
             text_body=render_template(
                 'email/basic_template.txt',
@@ -297,8 +296,6 @@ def get_users():
 @login_required
 def create_user():
     result = Authorizer(current_user).can_user_manage_platform()
-    if not current_app.config["MAIL_USERNAME"] or not current_app.config["MAIL_PASSWORD"]:
-        return jsonify({"message":"MAIL_USERNAME and MAIL_PASSWORD must be set"}),400
     data = request.get_json()
     email = data.get("email")
     if not models.User.validate_email(email):
@@ -308,9 +305,8 @@ def create_user():
     link = "{}{}?token={}".format(request.host_url,"register",token)
     title = f"{current_app.config['APP_NAME']}: Welcome"
     content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
-    send_email(
+    GraphClient().send_email(
         title,
-        sender=current_app.config['MAIL_USERNAME'],
         recipients=[email],
         text_body=render_template(
             'email/basic_template.txt',
@@ -413,9 +409,6 @@ def create_policy_for_tenant(tid):
 @login_required
 def invite_user_to_tenant(tid):
     result = Authorizer(current_user).can_user_admin_tenant(tid)
-    email_configured = False
-    if current_app.config["MAIL_USERNAME"] and current_app.config["MAIL_PASSWORD"]:
-        email_configured = True
     data = request.get_json()
     email = data.get("email")
     roles = data.get("roles",[])
@@ -433,23 +426,21 @@ def invite_user_to_tenant(tid):
         link = "{}{}?token={}".format(request.host_url,"register",token)
         title = f"{current_app.config['APP_NAME']}: Welcome"
         content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
-    if email_configured:
-        send_email(
-          title,
-          sender=current_app.config['MAIL_USERNAME'],
-          recipients=[email],
-          text_body=render_template(
-            'email/basic_template.txt',
-            title=title,
-            content=content,
-            button_link=link
-          ),
-          html_body=render_template(
-            'email/basic_template.html',
-            title=title,
-            content=content,
-            button_link=link
-          )
+        GraphClient().send_email(
+            title,
+            recipients=[email],
+            text_body=render_template(
+                'email/basic_template.txt',
+                title=title,
+                content=content,
+                button_link=link
+            ),
+            html_body=render_template(
+                'email/basic_template.html',
+                title=title,
+                content=content,
+                button_link=link
+            )
         )
     return jsonify({"url":link,"email_sent":True})
 
@@ -1014,9 +1005,8 @@ def add_comment_for_control(pid, cid):
         link = f"{request.host_url}projects/{id}/controls/{cid}?tab=comments"
         title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
         content = f"{current_user.get_username()} mentioned you in a comment for a control. Please click the button to begin."
-        send_email(
+        GraphClient().send_email(
             title,
-            sender=current_app.config['MAIL_USERNAME'],
             recipients=[user.email for user in tagged_users],
             text_body=render_template(
                 'email/basic_template.txt',
@@ -1068,9 +1058,8 @@ def add_comment_for_subcontrol(pid, sid):
         link = f"{request.host_url}projects/{id}/controls/{control.project_control_id}/subcontrols/{sid}?tab=comments"
         title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
         content = f"{current_user.get_username()} mentioned you in a comment for a subcontrol. Please click the button to begin."
-        send_email(
+        GraphClient().send_email(
             title,
-            sender=current_app.config['MAIL_USERNAME'],
             recipients=[user.email for user in tagged_users],
             text_body=render_template(
                 'email/basic_template.txt',

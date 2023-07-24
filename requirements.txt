@@ -15,7 +15,7 @@ Flask-Migrate==2.5.3
 Flask-Moment==0.10.0
 Flask-Script==2.0.5
 Flask-SQLAlchemy==2.5.1
-idna==2.6
+idna==3.4
 itsdangerous==2.0.0
 Jinja2==3.0.3
 Mako==1.2.0
@@ -33,3 +33,5 @@ gunicorn==20.1.0
 Werkzeug==2.1.2
 weasyprint==58.1
 boto3
+microsoft-kiota-http==0.4.4
+msgraph-sdk
