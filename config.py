@@ -32,6 +32,9 @@ class Config:
     GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
     GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
 
+    GRAPH_APP_ID = os.environ.get("GRAPH_APP_ID", "")
+    GRAPH_APP_SECRET = os.environ.get("GRAPH_APP_SECRET", "")
+
     UPLOAD_FOLDER = "files/reports"
 
     LAYOUT = {

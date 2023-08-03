@@ -11,12 +11,6 @@ from msgraph.generated.models.recipient import Recipient
 from msgraph.generated.models.email_address import EmailAddress
 from msgraph.generated.users.item.send_mail.send_mail_post_request_body import SendMailPostRequestBody
 
-credentials = ClientSecretCredential(
-    tenant_id='50e8e35a-251b-49e7-acf6-c993d8501741',
-    client_id='db19ed1a-23b7-43dc-8a52-fbecbc82a42e',
-    client_secret='0eW8Q~NVtBN4XaaagX_CK5f4_Oy3rTcsQpDGxanq',
-)
-
 scopes = ['https://graph.microsoft.com/.default']
 
 class SenderMailNotDefined(Exception):
@@ -26,7 +20,14 @@ class GraphClient(Singleton):
     _client = None
     def __init__(self):
         if self._client is None:
-            self._client: GraphServiceClient = GraphServiceClient(credentials=credentials , scopes=scopes)
+            self._client: GraphServiceClient = GraphServiceClient(
+                credentials=ClientSecretCredential(
+                    tenant_id='50e8e35a-251b-49e7-acf6-c993d8501741',
+                    client_id=current_app.config["GRAPH_APP_ID"],
+                    client_secret=current_app.config["GRAPH_APP_SECRET"],
+                ),
+                scopes=scopes
+            )
 
     def _generate_email_message(self, subject, recipients, text_body, html_body) -> Message:
         return Message(
