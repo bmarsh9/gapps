@@ -103,13 +103,19 @@ class Tenant(LogMixin, db.Model):
             if filename.endswith(".html"):
                 with open(f"app/files/base_policies/{filename}") as f:
                     name = filename.split(".")[0]
+                    content = f.read()
                     p = Policy(name=name,
                         description=f"Content for the {name} policy",
-                        content=f.read(),
-                        template=f.read(),
+                        # content=f.read(),
+                        template=content,
                         tenant_id=self.id
                     )
+                    p_version = PolicyVersion(
+                        policy=p,
+                        content=content,
+                    )
                     db.session.add(p)
+                    db.session.add(p_version)
         db.session.commit()
         return True
 
@@ -417,21 +423,60 @@ class Policy(LogMixin, db.Model):
     name = db.Column(db.String(), nullable=False)
     ref_code = db.Column(db.String())
     description = db.Column(db.String())
-    content = db.Column(db.String())
+    # content = db.Column(db.String())
     template = db.Column(db.String())
-    version = db.Column(db.Integer(), default=1)
+    # version = db.Column(db.Integer(), default=1)
     visible = db.Column(db.Boolean(), default=True)
     project_policies = db.relationship('ProjectPolicy', backref='policy', lazy='dynamic', cascade="all, delete")
     tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    policy_versions = db.relationship('PolicyVersion', lazy='joined', cascade="delete", backref="policy", order_by="PolicyVersion.version")
 
-    def as_dict(self, include=[]):
+    _policy_version_identifier = None
+
+    @property
+    def content(self):
+        return policy_version.content if (policy_version:=self.get_policy_version()) else None
+
+    @property
+    def version(self):
+        return policy_version.version if (policy_version:=self.get_policy_version()) else None
+
+    def as_dict(self, version = None, include=[]):
         data = {}
         for c in self.__table__.columns:
             if c.name in include or not include:
                 data[c.name] = getattr(self, c.name)
+
+        policy_version = self.get_policy_version()
+
+        data["content"] = policy_version.content if policy_version else ""
+        data["version"] = policy_version.version if policy_version else ""
+        data["content_updated_at"] = policy_version.date_added if policy_version else ""
+
         return data
+
+    # @property
+    # def policy_version_identifier(self):
+    #     return self._policy_version_identifier
+
+    # @policy_version_identifier.setter
+    # def policy_version_identifier(self, value):
+    #     self._policy_version_identifier = value
+
+    def get_current_version(self):
+        if not self.policy_versions:
+            return None
+
+        return self.policy_versions[-1]
+    
+
+    def get_policy_version(self, version=None):
+        if not version:
+            return self.get_current_version()
+
+        return self.policy_versions[version-1] if self.policy_versions else None
 
     def controls(self, as_id_list=False):
         control_id_list = []
@@ -457,6 +502,16 @@ class Policy(LogMixin, db.Model):
             template_vars[label.key] = label.value
         template_vars["organization"] = self.tenant.name
         return template_vars
+
+
+class PolicyVersion(db.Model):
+    __tablename__= "policy_version"
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    content = db.Column(db.String())
+    version = db.Column(db.Integer(), default=1)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    policy_id = db.Column(db.Integer, db.ForeignKey("policies.id"))
+
 
 class Control(LogMixin, db.Model):
     __tablename__ = 'controls'
@@ -942,7 +997,7 @@ class ProjectPolicy(LogMixin, db.Model):
             template[label.key] = label.value
         return template
 
-    def translate_to_html(self):
+    def translate_to_html(self, policy_version=None):
         class CustomFormatter(Formatter):
             def get_value(self, key, args, kwds):
                 if isinstance(key, str):
@@ -953,7 +1008,7 @@ class ProjectPolicy(LogMixin, db.Model):
                 else:
                     return Formatter.get_value(key, args, kwds)
         fmt = CustomFormatter()
-        return fmt.format(self.content, **self.get_template_variables())
+        return fmt.format(self.policy.get_policy_version(policy_version).content, **self.get_template_variables())
 
 class ProjectControl(LogMixin, db.Model, ControlMixin):
     __tablename__ = 'project_controls'

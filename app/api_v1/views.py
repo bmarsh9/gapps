@@ -568,7 +568,13 @@ def update_policy(pid):
     result["extra"]["policy"].ref_code = data["ref_code"]
     result["extra"]["policy"].description = data["description"]
     result["extra"]["policy"].template = data["template"]
-    result["extra"]["policy"].content = data["content"]
+    p_version = models.PolicyVersion(
+        content=data["content"],
+        version = len(result["extra"]["policy"].policy_versions) + 1,
+        policy=result["extra"]["policy"]
+    )
+    # result["extra"]["policy"].content = data["content"]
+    db.session.add(p_version)
     db.session.commit()
     return jsonify(result["extra"]["policy"].as_dict())
 

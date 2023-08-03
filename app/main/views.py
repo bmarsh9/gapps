@@ -129,10 +129,10 @@ def view_policy_in_project(pid, ppid):
 @login_required
 def view_rendered_policy(pid):
     result = Authorizer(current_user).can_user_read_project_policy(pid)
-    policy = result["extra"]["policy"]
-    content = policy.translate_to_html()
+    project_policy = result["extra"]["policy"]
+    rendered_version = int(version) if (version := request.args.get('version', None)) else len(project_policy.policy.policy_versions)
     return render_template("view_rendered_policy.html",
-        policy=policy, content=content)
+        policy=project_policy, content=project_policy.translate_to_html(rendered_version), rendered_version=rendered_version)
 
 @main.route('/labels', methods=['GET'])
 @login_required

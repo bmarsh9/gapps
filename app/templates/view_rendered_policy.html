@@ -77,13 +77,14 @@ header.navbar.navbar-expand-lg.navbar-dark.bd-navbar.sticky-top {
 
 <li class="nav-item dropdown">
   <button type="button" class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" data-bs-display="static">
-    <span class="d-lg-none" aria-hidden="true">{{policy.policy.tenant.name}}</span><span class="visually-hidden">{{policy.policy.tenant.name}}&nbsp;</span> v{{policy.policy.version}} <span class="visually-hidden">(switch to other versions)</span>
+    <span class="d-lg-none" aria-hidden="true">{{policy.policy.tenant.name}}</span><span class="visually-hidden">{{policy.policy.tenant.name}}&nbsp;</span> v{{rendered_version}} <span class="visually-hidden">(switch to other versions)</span>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><h6 class="dropdown-header">Previous releases</h6></li>
-    <li><a class="dropdown-item" href="">vc</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="">All versions</a></li>
+    <li><h6 class="dropdown-header">Policy versions</h6></li>
+    {% for policy_version in policy.policy.policy_versions %}
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item" href="/policies/{{policy.id}}/view?version={{ policy_version.version }}">v{{ policy_version.version }}</a></li>
+    {% endfor %}
   </ul>
 </li>
 
@@ -110,7 +111,7 @@ header.navbar.navbar-expand-lg.navbar-dark.bd-navbar.sticky-top {
       {%endif%}
       
       <p class="text-muted mb-0">
-        Currently <strong class="d-sm-inline-block p-2 me-2 mb-2 mb-lg-0 rounded-3 masthead-notice">v{{policy.policy.version}}</strong>
+        Currently <strong class="d-sm-inline-block p-2 me-2 mb-2 mb-lg-0 rounded-3 masthead-notice">v{{rendered_version}}</strong>
         <span class="px-1">·</span>
         <a href="" class="link-secondary">Download</a>
         <span class="px-1">·</span>
