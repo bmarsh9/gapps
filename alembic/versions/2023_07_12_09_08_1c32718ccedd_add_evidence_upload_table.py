@@ -21,7 +21,7 @@ def upgrade():
     op.create_table('evidence_uploads',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('filename', sa.String(length=100), nullable=True),
-    sa.Column('upload_link', postgresql.UUID(as_uuid=True), nullable=True),
+    sa.Column('upload_link', postgresql.UUID(as_uuid=True), nullable=False),
     sa.Column('evidence_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['evidence_id'], ['evidence.id'], ),
     sa.PrimaryKeyConstraint('id'),
