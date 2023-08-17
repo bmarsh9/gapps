@@ -37,6 +37,17 @@
                 {%endfor%}
               </select>
             </li>
+            <li class="px-2 mt-2">
+              <label class="block text-sm font-medium  mb-2">Public</label>
+              {%if policy.public_viewable%}
+              <input id="public" type="checkbox" class="toggle toggle-success" checked />
+              {%else%}
+              <input id="public" type="checkbox" class="toggle toggle-success" />
+              {%endif%}
+            </li>
+            <li class="px-2 mt-8">
+              <button class="save-policy btn btn-md btn-primary w-20">Save</button>
+            </li>
         </ul>
 
             </div>
@@ -44,8 +55,8 @@
                 <div class="card bg-base-100 border border-base-200">
                     <div class="card-body gap-0">
                         <h2 class="card-title text-xl font-medium  mb-4 justify-between">Policy Content</h2>
-                        <textarea id="default">{%if policy.content%}{{policy.content|safe}}{%endif%}</textarea>
-                        <button class="save-policy btn btn-md btn-primary mt-4 w-20">Save</button>
+                        <textarea id="content-area">{%if policy.content%}{{policy.content|safe}}{%endif%}</textarea>
+                        <button id="content-save-button" class="save-policy-content btn btn-md btn-primary mt-4 w-20" disabled>Save</button>
                     </div>
                 </div>
             </div>
@@ -83,16 +94,46 @@
 
 <script>
   $(document).ready(function() {
-tinymce.init({
-  selector: 'textarea#default',
-  content_css: "{{ url_for('static', filename='css/tiny_custom.css') }}",
-  promotion: false,
-  plugins: "preview fullscreen searchreplace table codesample lists advlist variable",
-  toolbar: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo",
-  variable_mapper: {{labels|tojson}},
-  variable_prefix: "{",
-  variable_suffix: "}"
-});
+    tinymce.init({
+      selector: 'textarea#content-area',
+      setup: function(editor) {
+        console.log("Setup executed")
+        const saveButton = document.getElementById('content-save-button');
+        editor.on('init', function(e) {
+          let initialContent = editor.getContent();
+
+          editor.on('Change', function(e) {
+            if (editor.getContent() !== initialContent) {
+              saveButton.disabled = false;
+            } else {
+              saveButton.disabled = true;
+            }
+          });
+
+          saveButton.addEventListener('click', function() {
+            // initialContent = editor.getContent();
+            savePolicyContent().then( success => {
+              if (success){
+                console.log(success)
+                initialContent = editor.getContent();
+              } else {
+                console.log(success)
+                editor.setContent(initialContent)
+              }
+            });
+
+            saveButton.disabled = true;
+          });
+        });
+  },
+      content_css: "{{ url_for('static', filename='css/tiny_custom.css') }}",
+      promotion: false,
+      plugins: "preview fullscreen searchreplace table codesample lists advlist variable",
+      toolbar: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo",
+      variable_mapper: {{labels|tojson}},
+      variable_prefix: "{",
+      variable_suffix: "}"
+    });
 
     $(document).on('change', '.select', function() {
       var value = $(this).val();
@@ -101,31 +142,57 @@ tinymce.init({
     });
 
     $(document).on('click', '.save-policy', function() {
-      var content = tinymce.get("default").getContent();
-
         var data = {
-          "template":content,
-          "content":content,
           "name":$("#name").val(),
           "description":$("#description").val(),
           "ref_code":$("#ref_code").val(),
           "public":$("#public").is(":checked")
         };
-  $.ajax({
-    type: "PUT",
-    url: "/api/v1/policies/{{policy.id}}",
-    data: JSON.stringify(data),
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-        toast("Saved policy")
-        return(data)
-    },
-    error: function(errMsg) {
-        return(errMsg);
-    }
-  })
+      $.ajax({
+        type: "PUT",
+        url: "/api/v1/policies/{{policy.id}}",
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){
+            toast("Saved policy")
+            return(data)
+        },
+        error: function(errMsg) {
+          if (errMsg.status === 403){
+            toast('Unauthorized. Only policy owner can update policy.')
+          }
+            return(errMsg);
+        }
+      })
     });
+
+    function savePolicyContent(){
+      var content = tinymce.get("content-area").getContent();
+
+      var data = {
+        "content":content,
+      };
+      return new Promise((resolve, reject) =>{ 
+        $.ajax({
+          type: "PATCH",
+          url: "/api/v1/policies/{{policy.id}}/content",
+          data: JSON.stringify(data),
+          contentType: "application/json; charset=utf-8",
+          dataType: "json",
+          success: function(data){
+              toast("Policy content updated.")
+              resolve(true)
+          },
+          error: function(errMsg) {
+            if (errMsg.status === 403){
+              toast('Unauthorized. Only policy owner can update policy content.')
+            }
+              resolve(false);
+          }
+        })
+      })
+    }
 
     $("#control-table").DataTable({"pageLength":5,"order": [[ 0, "desc" ]]});
     $(document).on('change', '.control-checkbox', function() {

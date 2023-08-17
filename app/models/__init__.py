@@ -423,15 +423,18 @@ class Policy(LogMixin, db.Model):
     name = db.Column(db.String(), nullable=False)
     ref_code = db.Column(db.String())
     description = db.Column(db.String())
-    # content = db.Column(db.String())
     template = db.Column(db.String())
-    # version = db.Column(db.Integer(), default=1)
     visible = db.Column(db.Boolean(), default=True)
-    project_policies = db.relationship('ProjectPolicy', backref='policy', lazy='dynamic', cascade="all, delete")
+    project_policies = db.relationship('ProjectPolicy', backref=db.backref("policy", lazy='joined'), lazy='dynamic', cascade="all, delete")
     tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
     policy_versions = db.relationship('PolicyVersion', lazy='joined', cascade="delete", backref="policy", order_by="PolicyVersion.version")
+    owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
+    owner = db.relationship("User", foreign_keys=[owner_id], lazy='joined')
+    reviewer_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
+    reviewer = db.relationship("User", foreign_keys=[reviewer_id], lazy='joined')
+    public_viewable = db.Column(db.Boolean(), default=False)
 
     _policy_version_identifier = None
 
@@ -454,6 +457,8 @@ class Policy(LogMixin, db.Model):
         data["content"] = policy_version.content if policy_version else ""
         data["version"] = policy_version.version if policy_version else ""
         data["content_updated_at"] = policy_version.date_added if policy_version else ""
+        data["owner"] = self.owner.email if self.owner else None
+        data["reviewer"] = self.reviewer.email if self.reviewer else None
 
         return data
 
@@ -922,14 +927,14 @@ class ProjectPolicy(LogMixin, db.Model):
     __tablename__ = 'project_policies'
     id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     uuid = db.Column(db.String,  default=lambda: uuid4().hex, unique=True)
-    public_viewable = db.Column(db.Boolean(), default=False)
+    # public_viewable = db.Column(db.Boolean(), default=False)
     content = db.Column(db.String())
     version = db.Column(db.Integer(), default=1)
     tags = db.relationship('Tag', secondary='policy_tags', lazy='dynamic',
         backref=db.backref('project_policies', lazy='dynamic'))
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
-    owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
-    reviewer_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
+    # owner_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
+    # reviewer_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
     policy_id = db.Column(db.Integer, db.ForeignKey('policies.id'), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -942,21 +947,26 @@ class ProjectPolicy(LogMixin, db.Model):
         data["name"] = self.policy.name
         data["description"] = self.policy.description
         data["ref_code"] = self.policy.ref_code
-        data["owner"] = self.owner()
-        data["reviewer"] = self.reviewer()
+        data["public_viewable"] = self.public_viewable
+        # data["owner"] = self.owner()
+        # data["reviewer"] = self.reviewer()
         return data
 
-    def owner(self):
-        if self.owner_id:
-            if user := User.query.get(self.owner_id):
-                return user.email
-        return None
+    @property
+    def public_viewable(self):
+        return self.policy.public_viewable
 
-    def reviewer(self):
-        if self.reviewer_id:
-            if user := User.query.get(self.reviewer_id):
-                return user.email
-        return None
+    # def owner(self):
+    #     if self.owner_id:
+    #         if user := User.query.get(self.owner_id):
+    #             return user.email
+    #     return None
+
+    # def reviewer(self):
+    #     if self.reviewer_id:
+    #         if user := User.query.get(self.reviewer_id):
+    #             return user.email
+    #     return None
 
     def get_controls(self):
         controls = []
@@ -978,12 +988,12 @@ class ProjectPolicy(LogMixin, db.Model):
         return True
 
     def owner_email(self):
-        if user := User.query.get(self.owner_id):
+        if user := Policy.query.get(self.policy_id).owner:
             return user.email
         return None
 
     def reviewer_email(self):
-        if user := User.query.get(self.reviewer_id):
+        if user := Policy.query.get(self.policy_id).reviewer:
             return user.email
         return None
 

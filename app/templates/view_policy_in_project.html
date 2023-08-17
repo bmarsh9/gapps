@@ -29,7 +29,7 @@
   <div class="flex">
     <span class="ml-3 hidden sm:block">
       <a href="{{url_for("main.view_rendered_policy",pid=policy.id)}}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-ghost border border-base-300">View</a>
-      <button class="save-policy btn btn-sm btn-primary">Save</button>
+      <!-- <button class="save-policy btn btn-sm btn-primary">Save</button> -->
     </span>
   </div>
 </div>
@@ -87,19 +87,15 @@
             <li class="px-2 mt-2">
             <label class="block text-sm font-medium  mb-2">Public</label>
             {%if policy.public_viewable%}
-            <input id="public" type="checkbox" class="toggle toggle-success" checked />
+            <input id="public" type="checkbox" class="toggle toggle-success" checked disabled/>
             {%else%}
-            <input id="public" type="checkbox" class="toggle toggle-success" />
+            <input id="public" type="checkbox" class="toggle toggle-success" disabled/>
             {%endif%}
             </li>
         </ul>
 
             </div>
-            <div class="col-span-8 h-full">
-                <textarea id="default">{%if policy.content%}{{policy.content|safe}}{%endif%}</textarea>
-                <button class="save-policy btn btn-md btn-primary mt-4 w-20 float-right">Save</button>
-            </div>
-            <div class="col-span-10">
+            <div class="col-span-8">
                 <div class="card bg-base-100 border border-base-200">
                   <div class="card-body">
                     <h2 class="card-title">Control Association</h2>
@@ -135,44 +131,6 @@
 
 <script>
   $(document).ready(function() {
-tinymce.init({
-  selector: 'textarea#default',
-  content_css: "{{ url_for('static', filename='css/tiny_custom.css') }}",
-  promotion: false,
-  plugins: "preview fullscreen searchreplace table codesample lists advlist variable",
-  toolbar1: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo",
-  variable_mapper: {{labels|tojson}},
-  variable_prefix: "{",
-  variable_suffix: "}"
-});
-    $(document).on('change', '.select', function() {
-      var value = $(this).val();
-      tinymce.activeEditor.execCommand('mceInsertContent', false, {% raw %}"{"+value+"}"{%endraw%});
-      $('select>option:eq(0)').prop('selected', true);
-    });
-    $(document).on('click', '.save-policy', function() {
-        var content = tinymce.get("default").getContent();
-        console.log(content)
-        var data = {
-          "content":content,
-          "public_viewable":$("#public").is(":checked")
-        };
-  $.ajax({
-    type: "PUT",
-    url: "/api/v1/projects/{{project.id}}/policies/{{policy.id}}",
-    data: JSON.stringify(data),
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-        toast("Saved policy")
-        return(data)
-    },
-    error: function(errMsg) {
-        toast(errMsg["responseJSON"]["message"],"error")
-        return(errMsg);
-    }
-  })
-    });
     $("#control-table").DataTable({"pageLength":10,"order": [[ 0, "desc" ]]});
     $(document).on('change', '.control-checkbox', function() {
       var id = $(this).data('id')

@@ -567,7 +567,15 @@ def update_policy(pid):
     result["extra"]["policy"].name = data["name"]
     result["extra"]["policy"].ref_code = data["ref_code"]
     result["extra"]["policy"].description = data["description"]
-    result["extra"]["policy"].template = data["template"]
+    result["extra"]["policy"].public_viewable = data["public"]
+    db.session.commit()
+    return jsonify(result["extra"]["policy"].as_dict())
+
+@api.route('/policies/<int:pid>/content', methods=['PATCH'])
+@login_required
+def update_policy_content(pid):
+    result = Authorizer(current_user).can_user_manage_policy(pid)
+    data = request.get_json()
     p_version = models.PolicyVersion(
         content=data["content"],
         version = len(result["extra"]["policy"].policy_versions) + 1,
@@ -575,6 +583,24 @@ def update_policy(pid):
     )
     # result["extra"]["policy"].content = data["content"]
     db.session.add(p_version)
+    db.session.commit()
+    return jsonify(result["extra"]["policy"].as_dict())
+
+@api.route('/policies/<int:pid>/owner', methods=['PATCH'])
+@login_required
+def update_policy_owner(pid):
+    result = Authorizer(current_user).can_user_set_policy_owner_or_reviewer(pid)
+    data = request.get_json()
+    result["extra"]["policy"].owner_id = data.get("owner_id")
+    db.session.commit()
+    return jsonify(result["extra"]["policy"].as_dict())
+
+@api.route('/policies/<int:pid>/reviewer', methods=['PATCH'])
+@login_required
+def update_policy_reviewer(pid):
+    result = Authorizer(current_user).can_user_set_policy_owner_or_reviewer(pid)
+    data = request.get_json()
+    result["extra"]["policy"].reviewer_id = data.get("reviewer_id")
     db.session.commit()
     return jsonify(result["extra"]["policy"].as_dict())
 
@@ -777,7 +803,7 @@ def get_policy_for_project(pid, ppid):
 def update_policy_for_project(pid, ppid):
     result = Authorizer(current_user).can_user_manage_project_policy(ppid)
     data = request.get_json()
-    for key in ["content", "public_viewable", "owner_id", "reviewer_id"]:
+    for key in ["content", "viewable", "owner_id", "reviewer_id"]:
         if key in data:
             setattr(result["extra"]["policy"], key, data[key])
     db.session.commit()

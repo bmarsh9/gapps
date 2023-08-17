@@ -165,6 +165,13 @@ class Authorizer:
     def can_user_manage_policy(self, policy):
         if not (policy := self.id_to_obj("Policy", policy)):
             return self.return_response(False, "policy not found", 404)
+        if policy.owner_id == self.user.id:
+            return self.return_response(True, AUTHORIZED_MSG, 200, policy=policy)
+        return self.return_response(False, UNAUTHORIZED_MSG, 403)
+
+    def can_user_set_policy_owner_or_reviewer(self, policy):
+        if not (policy := self.id_to_obj("Policy", policy)):
+            return self.return_response(False, "policy not found", 404)
         if self._can_user_manage_tenant(policy.tenant):
             return self.return_response(True, AUTHORIZED_MSG, 200, policy=policy)
         return self.return_response(False, UNAUTHORIZED_MSG, 403)

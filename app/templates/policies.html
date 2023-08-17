@@ -23,6 +23,8 @@
               <th class="w-1">Reference</th>
               <th>Name</th>
               <th>Description</th>
+              <th>Owner</th>
+              <th>Reviewer</th>
               <th class="w-1">More</th>
             </tr>
           </thead>
@@ -48,6 +50,30 @@
     </div>
   </label>
 </label>
+
+<input type="checkbox" id="policy-owner-modal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <label for="ownerPolicyModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <label class="block text-sm font-medium mb-2">Owner of the Policy</label>
+    <select id='policy-owner-select' class="select select-md w-full max-w-xs select-bordered owner-policy-id"><option value="">Select an Owner</option></select>
+    <div class="modal-action">
+      <button data-id="" class="btn btn-primary save-policy-owner-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<input type="checkbox" id="policy-reviewer-modal" class="modal-toggle" />
+<div class="modal">
+  <div class="modal-box">
+    <label for="reviewerPolicyModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
+    <label class="block text-sm font-medium mb-2">Reviewer of the Policy</label>
+    <select id='policy-reviewer-select' class="select select-md w-full max-w-xs select-bordered reviewer-policy-id"><option value="">Select a Reviewer</option></select>
+    <div class="modal-action">
+      <button data-id="" class="btn btn-primary save-policy-reviewer-btn">Save</button>
+    </div>
+  </div>
+</div>
 
 <input type="checkbox" id="policy-modal" class="modal-toggle" />
 <label for="policy-modal" class="modal cursor-pointer">
@@ -86,6 +112,37 @@
 
 {%block extrajs%}
 <script>
+  function populateTenantUserPickerOptions(policy_id, selected_option, selectElementSelector, modalToOpenId, saveButtonSelector){
+    // $("#ownerPolicyModalBody").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+    
+    const selectElement = document.getElementById(selectElementSelector)
+    for(let i = selectElement.options.length - 1; i > 0; i--) {
+        selectElement.remove(i);
+    }
+    $.ajax({
+        type: "GET",
+        url: `/api/v1/tenants/${getTenant().id}/users`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data){    
+          data.forEach((user) => {
+            const newOption = document.createElement('option');
+            newOption.value = `${user.id}`;
+            newOption.textContent = user.email;
+            newOption.selected = user.email === selected_option
+            selectElement.appendChild(newOption)
+          })
+          document.getElementById(modalToOpenId).checked = true;
+          return(data)
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"],"error")
+          return(errMsg);
+        }
+      })
+    $(saveButtonSelector).data("policy_id", policy_id)
+  }
+  
   $(document).ready(function() {
   function loadPolicyTable() {
       $("#policies").dataTable().fnDestroy();
@@ -99,9 +156,20 @@
         url: `/api/v1/tenants/${selectedTenant.id}/policies`,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success: function(data){
+        success: function(data){          
           for (var policy in data) {
-            $("#policy-body").append(`<tr data-policy-id=${data[policy].id}><td class="text-sm font-medium "><p class="font-medium text-xs uppercase text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${clean(data[policy].ref_code)}</p></td><td class="text-sm font-medium ">${clean(data[policy].name)}</td><td class="text-sm font-medium ">${clean(data[policy].description)}</td><td class="text-center"><div class="dropdown dropdown-top dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"><li><a href="/policies/${data[policy].id}" class="view">View</a></li><li><a data-name="${clean(data[policy].name)}" data-id="${data[policy].id}" class="add-to-project">Add to project</a></li><li><a data-id="${data[policy].id}" class="delete-policy">Delete</a></li></ul></div></td></tr>`);
+            var obj = data[policy];
+            if (obj.owner) {
+              var owner = `<div data-id="${obj.id}" data-owner="${obj.owner}" class="avatar placeholder font-semibold cursor-pointer transform transition duration-500 hover:scale-110 open-policy-owner-modal"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${obj.owner[0]}</span></div></div>`;
+            } else {
+              var owner = `<div data-id="${obj.id}" data-owner="${obj.owner}" class="avatar placeholder font-semibold cursor-pointer transform transition duration-500 hover:scale-110 open-policy-owner-modal"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
+            }
+            if (obj.reviewer) {
+              var reviewer = `<div data-id="${obj.id}" data-reviewer="${obj.reviewer}" class="avatar placeholder font-semibold cursor-pointer transform transition duration-500 hover:scale-110 open-policy-reviewer-modal"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${obj.reviewer[0]}</span></div></div>`;
+            } else {
+              var reviewer = `<div data-id="${obj.id}" data-reviewer="${obj.reviewer}" class="avatar placeholder font-semibold cursor-pointer transform transition duration-500 hover:scale-110 open-policy-reviewer-modal"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
+            }
+            $("#policy-body").append(`<tr data-policy-id=${data[policy].id}><td class="text-sm font-medium "><p class="font-medium text-xs uppercase text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${clean(data[policy].ref_code)}</p></td><td class="text-sm font-medium ">${clean(data[policy].name)}</td><td class="text-sm font-medium ">${clean(data[policy].description)}</td><td class="text-sm font-medium capitalize">${owner}</td><td class="text-sm font-medium capitalize">${reviewer}</td><td class="text-center"><div class="dropdown dropdown-top dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"><li><a href="/policies/${data[policy].id}" class="view">View</a></li><li><a data-name="${clean(data[policy].name)}" data-id="${data[policy].id}" class="add-to-project">Add to project</a></li><li><a data-id="${data[policy].id}" class="delete-policy">Delete</a></li></ul></div></td></tr>`);
           }
           $('#policies').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
           return(data)
@@ -131,6 +199,58 @@
          }
        })
     });
+    $(document).on('click', '.open-policy-owner-modal', function() {
+      console.log('open-policy-owner-modal')
+      populateTenantUserPickerOptions($(this).data('id'), $(this).data('owner'), 'policy-owner-select', 'policy-owner-modal', '.save-policy-owner-btn')
+    });
+    $(document).on('click', '.open-policy-reviewer-modal', function() {
+      console.log('open-policy-reviewer-modal')
+      populateTenantUserPickerOptions($(this).data('id'), $(this).data('reviewer'), 'policy-reviewer-select', 'policy-reviewer-modal', '.save-policy-reviewer-btn')
+    });
+    $(document).on('click', '.save-policy-owner-btn', function() {
+      data = {}
+      var id = $(this).data("id")
+      var email = $(".owner-policy-id").val();
+      data["owner_id"] = email ? email : null;
+      $.ajax({
+        type: "PATCH",
+        url: `/api/v1/policies/${$(this).data("policy_id")}/owner`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function(data){
+          toast('Owner updated.')
+          loadPolicyTable()
+        },
+        error: function(errMsg) {
+          toast("Hmm.. something went wrong", "error")
+        }
+      })
+      document.getElementById('policy-owner-modal').checked = false;
+    });
+
+    $(document).on('click', '.save-policy-reviewer-btn', function() {
+      data = {}
+      var id = $(this).data("id")
+      var email = $(".reviewer-policy-id").val();
+      data["reviewer_id"] = email ? email : null;
+      $.ajax({
+        type: "PATCH",
+        url: `/api/v1/policies/${$(this).data("policy_id")}/reviewer`,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: JSON.stringify(data),
+        success: function(data){
+          toast('Reviewer updated.')
+          loadPolicyTable()
+        },
+        error: function(errMsg) {
+          toast("Hmm.. something went wrong", "error")
+        }
+      })
+      document.getElementById('policy-reviewer-modal').checked = false;
+    });
+
     $(document).on('click', '.modal-button', function() {
       document.getElementById('policy-modal').checked = true;
     });
