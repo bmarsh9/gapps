@@ -1137,6 +1137,9 @@ class ProjectSubControl(LogMixin, db.Model, SubControlMixin):
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
+    owner = db.relationship("User", foreign_keys=owner_id, lazy='joined')
+    operator = db.relationship("User", foreign_keys=operator_id, lazy='joined')
+
 class ProjectTags(db.Model):
     __tablename__ = 'project_tags'
     id = db.Column(db.Integer(), primary_key=True)

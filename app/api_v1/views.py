@@ -591,8 +591,22 @@ def update_policy_content(pid):
 def update_policy_owner(pid):
     result = Authorizer(current_user).can_user_set_policy_owner_or_reviewer(pid)
     data = request.get_json()
+    owner_changed = result["extra"]["policy"].owner_id != data.get("owner_id")
     result["extra"]["policy"].owner_id = data.get("owner_id")
     db.session.commit()
+    if owner_changed and result["extra"]["policy"].owner is not None:
+        GraphClient().send_email(
+            f"{current_app.config['APP_NAME']}: Policy assigned to you.",
+            [result["extra"]["policy"].owner.email],
+            text_body=None,
+            html_body=render_template(
+                'email/basic_template.html',
+                title=f"{current_app.config['APP_NAME']}: Policy assigned to you.",
+                content="You have been added as policy owner. Click bellow to visit the policy page.",
+                button_link=f"{request.host_url}policies/{pid}"
+            )
+        )
+        
     return jsonify(result["extra"]["policy"].as_dict())
 
 @api.route('/policies/<int:pid>/reviewer', methods=['PATCH'])
@@ -600,8 +614,21 @@ def update_policy_owner(pid):
 def update_policy_reviewer(pid):
     result = Authorizer(current_user).can_user_set_policy_owner_or_reviewer(pid)
     data = request.get_json()
+    reviewer_changed = result["extra"]["policy"].reviewer_id != data.get("reviewer_id")
     result["extra"]["policy"].reviewer_id = data.get("reviewer_id")
     db.session.commit()
+    if reviewer_changed and result["extra"]["policy"].reviewer is not None:
+        GraphClient().send_email(
+            f"{current_app.config['APP_NAME']}: Policy assigned to you.",
+            [result["extra"]["policy"].reviewer.email],
+            text_body=None,
+            html_body=render_template(
+                'email/basic_template.html',
+                title=f"{current_app.config['APP_NAME']}: Policy assigned to you.",
+                content="You have been added as policy reviewer. Click bellow to visit the policy page.",
+                button_link=f"{request.host_url}policies/{pid}"
+            )
+        )
     return jsonify(result["extra"]["policy"].as_dict())
 
 @api.route('/frameworks/<int:fid>', methods=['GET'])
@@ -898,6 +925,8 @@ def update_review_status_for_subcontrol(sid):
 def update_subcontrols_in_control_for_project(cid, sid):
     result = Authorizer(current_user).can_user_manage_project_subcontrol(sid)
     payload = request.get_json()
+    owner_changed = result["extra"]["subcontrol"].owner_id != payload.get("owner-id")
+    operator_changed = result["extra"]["subcontrol"].operator_id != payload.get("operator-id")
     if payload.get("applicable") != None:
         result["extra"]["subcontrol"].is_applicable = payload.get("applicable")
     if payload.get("implemented") != None:
@@ -913,6 +942,30 @@ def update_subcontrols_in_control_for_project(cid, sid):
     if payload.get("operator-id") or payload.get("operator-id") == None:
         result["extra"]["subcontrol"].operator_id = payload.get("operator-id")
     db.session.commit()
+    if owner_changed and result["extra"]["subcontrol"].owner is not None:
+        GraphClient().send_email(
+            f"{current_app.config['APP_NAME']}: Control assigned to you.",
+            [result["extra"]["subcontrol"].owner.email],
+            text_body=None,
+            html_body=render_template(
+                'email/basic_template.html',
+                title=f"{current_app.config['APP_NAME']}: Control assigned to you.",
+                content="You have been added as control owner. Click bellow to visit the control page.",
+                button_link=f"{request.host_url}projects/{result['extra']['subcontrol'].project_id}/controls/{cid}/subcontrols/{sid}"
+            )
+        )
+    if operator_changed and result["extra"]["subcontrol"].operator is not None:
+        GraphClient().send_email(
+            f"{current_app.config['APP_NAME']}: Control assigned to you.",
+            [result["extra"]["subcontrol"].operator.email],
+            text_body=None,
+            html_body=render_template(
+                'email/basic_template.html',
+                title=f"{current_app.config['APP_NAME']}: Control assigned to you.",
+                content="You have been added as control operator. Click bellow to visit the control page.",
+                button_link=f"{request.host_url}projects/{result['extra']['subcontrol'].project_id}/controls/{cid}/subcontrols/{sid}"
+            )
+        )
     return jsonify({"message": "ok"})
 
 @api.route('/project-controls/<int:cid>/applicability', methods=['PUT'])
