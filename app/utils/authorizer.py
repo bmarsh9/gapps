@@ -441,7 +441,7 @@ class Authorizer:
     def can_user_manage_project_policy(self, policy):
         if not (policy := self.id_to_obj("ProjectPolicy", policy)):
             return self.return_response(False, "policy not found", 404)
-        if self.user.id == policy.owner_id or self._can_user_manage_project(policy.project):
+        if self.user.id == policy.policy.owner_id or self._can_user_manage_project(policy.project):
             return self.return_response(True, AUTHORIZED_MSG, 200, policy=policy)
         return self.return_response(False, UNAUTHORIZED_MSG, 403)
 
