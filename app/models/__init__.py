@@ -670,8 +670,10 @@ class ProjectMember(LogMixin, db.Model):
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
-    def user(self):
-        return User.query.get(self.user_id)
+    user = db.relationship("User")
+
+    # def user(self):
+    #     return User.query.get(self.user_id)
 
 class Project(LogMixin, db.Model, DateMixin):
     __tablename__ = 'projects'
@@ -761,7 +763,7 @@ class Project(LogMixin, db.Model, DateMixin):
     def get_auditors(self):
         auditors = []
         for member in self.members.filter(ProjectMember.access_level == "auditor").all():
-            auditors.append(member.user())
+            auditors.append(member.user)
         return auditors
 
     def has_auditor(self, user):
@@ -800,11 +802,11 @@ class Project(LogMixin, db.Model, DateMixin):
                 return False
             member.access_level = access_level
             db.session.commit()
-        return False
+        return member
 
     def set_auditors_by_id(self, user_ids):
         for auditor in self.auditors.all():
-            self.remove_auditor(auditor.user())
+            self.remove_auditor(auditor.user)
         for user_id in user_ids:
             if user := User.query.get(user_id):
                 self.add_auditor(user)
@@ -812,7 +814,7 @@ class Project(LogMixin, db.Model, DateMixin):
 
     def set_members_by_id(self, user_ids):
         for member in self.members.all():
-            self.remove_member(member.user())
+            self.remove_member(member.user)
         for user_id in user_ids:
             if user := User.query.get(user_id):
                 self.add_member(user)
@@ -1136,6 +1138,8 @@ class ProjectSubControl(LogMixin, db.Model, SubControlMixin):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+
+    project = db.relationship("Project", lazy="select")
 
     owner = db.relationship("User", foreign_keys=owner_id, lazy='joined')
     operator = db.relationship("User", foreign_keys=operator_id, lazy='joined')

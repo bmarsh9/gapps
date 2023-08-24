@@ -3,14 +3,12 @@ from . import api
 from app import models, db
 from flask_login import current_user
 from app.utils.decorators import login_required
-from app.utils.jquery_filters import Filter
 from app.utils.misc import project_creation, get_users_from_text
+from app.utils.notification_service import NotificationService
 from sqlalchemy import func
-import arrow
 from app.utils.reports import Report
 from app.utils.authorizer import Authorizer
 from app.integrations.aws.src.s3_client import S3
-from app.integrations.azure.graph_client import GraphClient
 
 
 @api.route('/health', methods=['GET'])
@@ -166,30 +164,10 @@ def add_comment_for_project(id):
     data = request.get_json()
     if not data.get("data"):
         return jsonify({"message": "empty comment"}), 400
-    tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["project"].tenant)
     comment = models.ProjectComment(message=data["data"], owner_id=current_user.id)
     result["extra"]["project"].comments.append(comment)
     db.session.commit()
-    if tagged_users:
-        link = f"{request.host_url}projects/{id}?tab=comments"
-        title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
-        content = f"{current_user.get_username()} mentioned you in a comment for the {result['extra']['project'].name} project. Please click the button to begin."
-        GraphClient().send_email(
-            title,
-            recipients=[user.email for user in tagged_users],
-            text_body=render_template(
-                'email/basic_template.txt',
-                title=title,
-                content=content,
-                button_link=link
-            ),
-            html_body=render_template(
-                'email/basic_template.html',
-                title=title,
-                content=content,
-                button_link=link
-            )
-        )
+    NotificationService.send_email_to_users_tagged_in_project_comment(data["data"], result["extra"]["project"])
     return jsonify(comment.as_dict())
 
 @api.route('/projects/<int:pid>/comments/<int:cid>', methods=["DELETE"])
@@ -258,6 +236,11 @@ def add_members_for_project(pid):
     for user in data["members"]:
         if user := models.User.query.get(user["id"]):
             result["extra"]["project"].add_member(user)
+    
+    NotificationService.send_added_to_project_notification(
+        result['extra']['project'],
+        [member.get("text") for member in data["members"] if member.get("text")]
+    )
     return jsonify({"message": "ok"})
 
 @api.route('/projects/<int:pid>/members/<int:uid>/access', methods=['PUT'])
@@ -265,7 +248,13 @@ def add_members_for_project(pid):
 def update_access_level_for_user_in_project(pid, uid):
     result = Authorizer(current_user).can_user_manage_project(pid)
     data = request.get_json()
-    result["extra"]["project"].update_member_access(uid, data["access_level"])
+    member = result["extra"]["project"].update_member_access(uid, data["access_level"])
+
+    NotificationService.send_member_project_access_level_change_notification(
+        result['extra']['project'],
+        member.user.email,
+        data['access_level']
+    )
     return jsonify({"message": "ok"})
 
 @api.route('/projects/<int:pid>/members/<int:uid>', methods=['DELETE'])
@@ -302,26 +291,11 @@ def create_user():
         return jsonify({"message":"invalid email"}), 400
     tenant_id = data.get("tenant_id")
     token = models.User.generate_invite_token(email, tenant_id)
-    link = "{}{}?token={}".format(request.host_url,"register",token)
-    title = f"{current_app.config['APP_NAME']}: Welcome"
-    content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
-    GraphClient().send_email(
-        title,
-        recipients=[email],
-        text_body=render_template(
-            'email/basic_template.txt',
-            title=title,
-            content=content,
-            button_link=link
-        ),
-        html_body=render_template(
-            'email/basic_template.html',
-            title=title,
-            content=content,
-            button_link=link
-        )
+    NotificationService.send_app_invitation_email(
+        email,
+        token
     )
-    return jsonify({"message":"invited user", "url": link})
+    return jsonify({"message":"invited user", "url": token})
 
 @api.route('/admin/users/<int:id>', methods=['GET'])
 @login_required
@@ -418,31 +392,14 @@ def invite_user_to_tenant(tid):
         return jsonify({"message":"user is not in approved domains"}),403
     if user := models.User.find_by_email(email):
         result["extra"]["tenant"].add_user(user, roles=roles)
-        link = request.host_url
-        title = f"{current_app.config['APP_NAME']}: Tenant invite"
-        content = f"You have been added to a new tenant in {current_app.config['APP_NAME']}"
+        NotificationService.send_invited_to_tenant_email(email)
     else:
         token = models.User.generate_invite_token(email, tid, attributes={"roles":roles})
-        link = "{}{}?token={}".format(request.host_url,"register",token)
-        title = f"{current_app.config['APP_NAME']}: Welcome"
-        content = f"You have been invited to {current_app.config['APP_NAME']}. Please click the button below to begin."
-        GraphClient().send_email(
-            title,
-            recipients=[email],
-            text_body=render_template(
-                'email/basic_template.txt',
-                title=title,
-                content=content,
-                button_link=link
-            ),
-            html_body=render_template(
-                'email/basic_template.html',
-                title=title,
-                content=content,
-                button_link=link
-            )
+        NotificationService.send_app_invitation_email(
+            email,
+            token
         )
-    return jsonify({"url":link,"email_sent":True})
+    return jsonify({"url":"{}{}?token={}".format(request.host_url,"register",token) ,"email_sent":True})
 
 @api.route('/tenants/<int:tid>', methods=['GET'])
 @login_required
@@ -595,17 +552,7 @@ def update_policy_owner(pid):
     result["extra"]["policy"].owner_id = data.get("owner_id")
     db.session.commit()
     if owner_changed and result["extra"]["policy"].owner is not None:
-        GraphClient().send_email(
-            f"{current_app.config['APP_NAME']}: Policy assigned to you.",
-            [result["extra"]["policy"].owner.email],
-            text_body=None,
-            html_body=render_template(
-                'email/basic_template.html',
-                title=f"{current_app.config['APP_NAME']}: Policy assigned to you.",
-                content="You have been added as policy owner. Click bellow to visit the policy page.",
-                button_link=f"{request.host_url}policies/{pid}"
-            )
-        )
+        NotificationService.send_policy_owner_changed_notification(result["extra"]["policy"])
         
     return jsonify(result["extra"]["policy"].as_dict())
 
@@ -618,17 +565,7 @@ def update_policy_reviewer(pid):
     result["extra"]["policy"].reviewer_id = data.get("reviewer_id")
     db.session.commit()
     if reviewer_changed and result["extra"]["policy"].reviewer is not None:
-        GraphClient().send_email(
-            f"{current_app.config['APP_NAME']}: Policy assigned to you.",
-            [result["extra"]["policy"].reviewer.email],
-            text_body=None,
-            html_body=render_template(
-                'email/basic_template.html',
-                title=f"{current_app.config['APP_NAME']}: Policy assigned to you.",
-                content="You have been added as policy reviewer. Click bellow to visit the policy page.",
-                button_link=f"{request.host_url}policies/{pid}"
-            )
-        )
+        NotificationService.send_policy_reviewer_changed_notification(result["extra"]["policy"])
     return jsonify(result["extra"]["policy"].as_dict())
 
 @api.route('/frameworks/<int:fid>', methods=['GET'])
@@ -918,6 +855,7 @@ def update_review_status_for_subcontrol(sid):
     result = Authorizer(current_user).can_user_manage_project_subcontrol_status(sid, payload.get("review-status"))
     result["extra"]["subcontrol"].review_status = payload["review-status"].lower()
     db.session.commit()
+    NotificationService.send_subcontrol_status_change_notification(result["extra"]["subcontrol"])
     return jsonify({"message": "ok"})
 
 @api.route('/project-controls/<int:cid>/subcontrols/<int:sid>', methods=['PUT'])
@@ -943,29 +881,10 @@ def update_subcontrols_in_control_for_project(cid, sid):
         result["extra"]["subcontrol"].operator_id = payload.get("operator-id")
     db.session.commit()
     if owner_changed and result["extra"]["subcontrol"].owner is not None:
-        GraphClient().send_email(
-            f"{current_app.config['APP_NAME']}: Control assigned to you.",
-            [result["extra"]["subcontrol"].owner.email],
-            text_body=None,
-            html_body=render_template(
-                'email/basic_template.html',
-                title=f"{current_app.config['APP_NAME']}: Control assigned to you.",
-                content="You have been added as control owner. Click bellow to visit the control page.",
-                button_link=f"{request.host_url}projects/{result['extra']['subcontrol'].project_id}/controls/{cid}/subcontrols/{sid}"
-            )
-        )
+        NotificationService.send_subcontrol_owner_changed_notification(result["extra"]["subcontrol"])
+
     if operator_changed and result["extra"]["subcontrol"].operator is not None:
-        GraphClient().send_email(
-            f"{current_app.config['APP_NAME']}: Control assigned to you.",
-            [result["extra"]["subcontrol"].operator.email],
-            text_body=None,
-            html_body=render_template(
-                'email/basic_template.html',
-                title=f"{current_app.config['APP_NAME']}: Control assigned to you.",
-                content="You have been added as control operator. Click bellow to visit the control page.",
-                button_link=f"{request.host_url}projects/{result['extra']['subcontrol'].project_id}/controls/{cid}/subcontrols/{sid}"
-            )
-        )
+        NotificationService.send_subcontrol_operator_changed_notification(result["extra"]["subcontrol"])
     return jsonify({"message": "ok"})
 
 @api.route('/project-controls/<int:cid>/applicability', methods=['PUT'])
@@ -1087,24 +1006,9 @@ def add_comment_for_control(pid, cid):
     db.session.commit()
     tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["control"].project.tenant)
     if tagged_users:
-        link = f"{request.host_url}projects/{id}/controls/{cid}?tab=comments"
-        title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
-        content = f"{current_user.get_username()} mentioned you in a comment for a control. Please click the button to begin."
-        GraphClient().send_email(
-            title,
-            recipients=[user.email for user in tagged_users],
-            text_body=render_template(
-                'email/basic_template.txt',
-                title=title,
-                content=content,
-                button_link=link
-            ),
-            html_body=render_template(
-                'email/basic_template.html',
-                title=title,
-                content=content,
-                button_link=link
-            )
+        NotificationService.send_tagged_in_control_comment_notification(
+            result["extra"]["control"],
+            [user.email for user in tagged_users]
         )
     models.Logs.add("Added comment for control",
         namespace=f"projects:{id}.controls:{result['extra']['control'].id}.comments:{comment.id}",
@@ -1140,24 +1044,9 @@ def add_comment_for_subcontrol(pid, sid):
     db.session.commit()
     tagged_users = get_users_from_text(data["data"], resolve_users=True, tenant=result["extra"]["subcontrol"].p_control.project.tenant)
     if tagged_users:
-        link = f"{request.host_url}projects/{id}/controls/{control.project_control_id}/subcontrols/{sid}?tab=comments"
-        title = f"{current_app.config['APP_NAME']}: Mentioned by {current_user.get_username()}"
-        content = f"{current_user.get_username()} mentioned you in a comment for a subcontrol. Please click the button to begin."
-        GraphClient().send_email(
-            title,
-            recipients=[user.email for user in tagged_users],
-            text_body=render_template(
-                'email/basic_template.txt',
-                title=title,
-                content=content,
-                button_link=link
-            ),
-            html_body=render_template(
-                'email/basic_template.html',
-                title=title,
-                content=content,
-                button_link=link
-            )
+        NotificationService.send_tagged_in_subcontrol_comment_notification(
+            result["extra"]["subcontrol"],
+            [user.email for user in tagged_users],
         )
     models.Logs.add("Added comment for subcontrol",
         namespace=f"projects:{id}.subcontrols:{result['extra']['subcontrol'].id}.comments:{comment.id}",
@@ -1193,7 +1082,7 @@ def get_feedback_for_subcontrol(pid, sid):
 def add_feedback_for_subcontrol(pid, sid):
     result = Authorizer(current_user).can_user_add_project_subcontrol_feedback(sid)
     data = request.get_json()
-    feedback = models.AuditorFeedback(owner_id_id=current_user.id,
+    feedback = models.AuditorFeedback(owner_id=current_user.id,
         title=data["title"],description=data["description"],
         is_complete=data["is_complete"],auditor_complete=data["auditor_complete"])
     result["extra"]["subcontrol"].feedback.append(feedback)
