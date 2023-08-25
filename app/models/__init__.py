@@ -73,22 +73,31 @@ class Tenant(LogMixin, db.Model):
         return Role.query.all()
 
     def get_valid_frameworks(self):
-        return ["soc2","cmmc","iso27001","hipaa",
-            "nist_800_53_v4","nist_csf_v1.1","asvs_v4.0.1",
-            "ssf","cisv8","pci_3.1","cmmc_v2","custom"]
+        # return ["soc2","cmmc","iso27001","hipaa",
+        #     "nist_800_53_v4","nist_csf_v1.1","asvs_v4.0.1",
+        #     "ssf","cisv8","pci_3.1","cmmc_v2","custom"]
+        return [
+            "iso27001",
+            "iso27001_bos",
+            "soc2"
+        ]
+
+    def get_valid_framework_languages(self):
+        return ["eng", "bos"]
 
     def check_valid_framework(self, name):
         if name not in self.get_valid_frameworks():
             raise ValueError("framework is not implemented")
         return True
 
-    def create_framework(self, name, add_controls=False, add_policies=False):
+    def create_framework(self, name, add_controls=False):
+        print(name)
         self.check_valid_framework(name)
         Framework.create(name, self)
         if add_controls:
             self.create_base_controls(name)
-        if add_policies:
-            self.create_base_policies()
+        # if add_policies:
+        #     self.create_base_policies()
         return True
 
     def create_base_controls(self, name):
@@ -98,17 +107,18 @@ class Tenant(LogMixin, db.Model):
             Control.create({"controls":controls,"framework":name}, self.id)
         return True
 
-    def create_base_policies(self):
-        for filename in os.listdir("app/files/base_policies/"):
+    def create_base_policies(self, language):
+        for filename in os.listdir(f"app/files/base_policies/{language}/"):
             if filename.endswith(".html"):
-                with open(f"app/files/base_policies/{filename}") as f:
+                with open(f"app/files/base_policies/{language}/{filename}") as f:
                     name = filename.split(".")[0]
                     content = f.read()
                     p = Policy(name=name,
                         description=f"Content for the {name} policy",
                         # content=f.read(),
                         template=content,
-                        tenant_id=self.id
+                        tenant_id=self.id,
+                        language=language
                     )
                     p_version = PolicyVersion(
                         policy=p,
@@ -265,7 +275,7 @@ class Tenant(LogMixin, db.Model):
         self.projects.append(project)
         for control in controls:
             project.add_control(control, commit=False)
-        for policy in Policy.query.all():
+        for policy in Policy.query.filter(Policy.language == framework.get_language()).all():
             project.add_policy(policy)
         db.session.commit()
         return True
@@ -372,6 +382,15 @@ class Framework(LogMixin, db.Model):
         data["controls"] = self.controls.count()
         return data
 
+    def get_language(self):
+        if self.name in ["soc2", "iso27001"]:
+            return "eng"
+
+        if self.name in ["iso27001_bos"]:
+            return "bos"
+
+        return "eng"
+
     @staticmethod
     def create(name, tenant):
         tenant.check_valid_framework(name)
@@ -435,6 +454,7 @@ class Policy(LogMixin, db.Model):
     reviewer_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
     reviewer = db.relationship("User", foreign_keys=[reviewer_id], lazy='joined')
     public_viewable = db.Column(db.Boolean(), default=False)
+    language = db.Column(db.String(3), nullable=False, server_default="eng")
 
     _policy_version_identifier = None
 

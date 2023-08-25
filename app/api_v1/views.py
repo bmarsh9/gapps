@@ -130,7 +130,9 @@ def get_questionnaires(tid):
 @login_required
 def get_frameworks(id):
     data = []
+    print("Executed")
     result = Authorizer(current_user).can_user_access_tenant(id)
+    print("Authorised")
     for framework in result["extra"]["tenant"].frameworks.all():
         data.append(framework.as_dict())
     return jsonify(data)
@@ -428,11 +430,11 @@ def add_tenant():
         tenant = models.Tenant.create(current_user, data.get("name"),
             data.get("contact_email"), approved_domains=data.get("approved_domains"))
         # TODO - clean up, we only need to add policies once
+        for language in tenant.get_valid_framework_languages():
+            tenant.create_base_policies(language)
+
         for framework in tenant.get_valid_frameworks():
-            if framework == "soc2":
-                tenant.create_framework(framework,add_controls=True, add_policies=True)
-            else:
-                tenant.create_framework(framework,add_controls=True)
+            tenant.create_framework(framework,add_controls=True)
         return jsonify(tenant.as_dict())
     except:
         abort(500)
@@ -1142,12 +1144,9 @@ def delete_evidence_for_subcontrol(pid, sid, eid):
 
 @api.route("/evidence_upload/<uuid:upload_id>", methods=["GET"])
 def get_evidence_upload(upload_id):
-    print(upload_id)
-    print(type(upload_id))
     evidence_upload = models.EvidenceUpload.query.filter(models.EvidenceUpload.upload_link == str(upload_id)).one_or_none()
     result = Authorizer(current_user).can_user_read_evidence(evidence_upload.evidence_id)
     evidence = result["extra"]["evidence"]
     image_url = S3().generate_presigned_url(current_app.config['EVIDENCE_BUCKET'], str(upload_id))
-    print(image_url)
 
     return render_template("evidence_upload.html", image_url=image_url, evidence_name=evidence.name)
