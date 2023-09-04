@@ -1,557 +1,124 @@
-<html>
+<h2>Purpose and Scope</h2>
+<ul>
+<li>This policy outlines the requisite measures for establishing and upholding foundational security standards for company software, network devices, servers, and desktop systems.</li>
+<li>It applies to all individuals engaged in software development, system administration, and related activities within the organization, encompassing employees, contractors, and external parties involved in these functions.</li>
+<li>This policy is accessible to all users within its scope.</li>
+</ul>
+
+<h2>Background</h2>
+<ul>
+<li>The underlying objective of this policy is to ensure a well-structured, secure, and consistent approach to managing the complete lifecycle of software and information systems.</li>
+<li>It covers the entire spectrum, from initial requirements analysis to eventual system decommissioning.</li>
+<li>The policy delineates procedures, roles, and responsibilities for each stage of the software development lifecycle.</li>
+<li>The software development lifecycle may be executed in various forms, including linear progression or iterative cycles.</li>
+</ul>
+
+<h2>Policy</h2>
+<ul>
+<li>This policy outlines the key principles and actions governing the organization's software development lifecycle:</li>
+</ul>
+<ul>
+<li>Software Development Life Cycle (SDLC): The organization's SDLC comprises the following phases:</li>
+</ul>
+<li>Requirements Analysis</li>
+<li>Architecture and Design</li>
+<li>Testing</li>
+<li>Deployment/Implementation</li>
+<li>Operations/Maintenance</li>
+<li>Decommission</li>
+
+<ul>
+<li>Protection of Non-Production Data:</li>
+</ul>
+<ul>
+<li>Throughout SDLC phases excluding production, live data sets containing personally identifiable information, financial data, or sensitive information must not be utilized.</li>
+<li>Sensitive information is restricted from use beyond production environments.</li>
+</ul>
+
+<li>Requirements Analysis Phase:</li>
+<ul>
+<li>Analyze business requirements.</li>
+<li>Perform risk assessment, guided by the Risk Assessment Policy (reference [a]).</li>
+<li>Address security aspects (e.g., confidentiality, integrity, availability) relevant to the requirement.</li>
+<li>Review regulatory mandates, organizational policies, standards, procedures, and guidelines.</li>
+<li>Consider future business goals and current operational landscape.</li>
+<li>Incorporate program management aspects.</li>
+<li>Define security solution requirements.</li>
+<li>Assess security solution costs and budget constraints.</li>
+<li>Approve security requirements and budget.</li>
+<li>Make informed decisions on "buy vs. build" for security services.</li>
+</ul>
+
+<li>Architecture and Design Phase:</li>
+<ul>
+<li>Educate development teams on secure system development.</li>
+<li>Develop or refine infrastructure security architecture.</li>
+<li>Specify technical and non-technical security controls.</li>
+<li>Conduct architecture walkthrough.</li>
+<li>Create system-level security design.</li>
+<li>Formulate high-level technical and non-technical security designs.</li>
+<li>Analyze design components through cost-benefit analysis.</li>
+<li>Document detailed technical security design.</li>
+<li>Perform comprehensive design reviews.</li>
+<li>Define security processes, procedures, and segregation of duties.</li>
+<li>Establish end-user training and awareness programs.</li>
+<li>Formulate a general security test plan.</li>
+<li>Update organizational policies, standards, and procedures as required.</li>
+<li>Mitigate residual vulnerabilities within application and infrastructure.</li>
+</ul>
+
+<li>Development Phase:</li>
+<ul>
+<li>Configure secure development environment.</li>
+<li>Provide training on software installation and configuration for infrastructure teams.</li>
+<li>Develop code for application-level security.</li>
+<li>Set up and integrate testing infrastructure.</li>
+<li>Establish security-related vulnerability tracking processes.</li>
+<li>Draft detailed security test plan and execute unit and integration testing.</li>
+</ul>
+
+<li>Testing Phase:</li>
+<ul>
+<li>Review code and configurations through static and dynamic analysis to identify vulnerabilities.</li>
+<li>Test configuration procedures.</li>
+<li>Perform system tests and assess performance under security controls.</li>
+<li>Conduct usability testing of application security measures.</li>
+<li>Execute independent vulnerability assessments on both infrastructure and application.</li>
+</ul>
+
+<li>Deployment Phase:</li>
+<ul>
+<li>Pilot deployment of infrastructure, application, and related components.</li>
+<li>Transition from pilot to full-scale deployment.</li>
+<li>Verify file integrity to ensure authenticity.</li>
+<li>Conduct training and awareness programs for administrative personnel and users.</li>
+<li>Require dual developer participation for production environment deployment.</li>
+</ul>
+
+<li>Operations/Maintenance Phase:</li>
+<ul>
+<li>User and access administration.</li>
+<li>Performance tuning.</li>
+<li>Scheduled backups in line with System Availability Policy.</li>
+<li>Routine system maintenance, including security updates and patches.</li>
+<li>Deliver training and awareness initiatives.</li>
+<li>Conduct periodic system vulnerability assessments.</li>
+<li>Perform annual risk assessments.</li>
+<li>Validate operational system security controls and monitor logs.</li>
+<li>Implement proactive system and user monitoring.</li>
+<li>Execute software and hardware patching within specified timelines.</li>
+</ul>
+
+<li>Decommission Phase:</li>
+<ul>
+<li>Upon decommissioning, these steps are observed:</li>
+</ul>
+<li>Conduct unit and integration testing following component removal.</li>
+<li>Facilitate operational transition for component removal or replacement.</li>
+<li>Define data retention requirements for software and system data.</li>
+<li>Document detailed technical security design.</li>
+<li>Update organizational policies, standards, and procedures as necessary.</li>
+<li>Resolve remaining vulnerabilities within the application and infrastructure.</li>
 
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=utf-8">
-<meta name=Generator content="Microsoft Word 15 (filtered)">
-<style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:Wingdings;
-	panose-1:5 0 0 0 0 0 0 0 0 0;}
-@font-face
-	{font-family:"Cambria Math";
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-@font-face
-	{font-family:Times;
-	panose-1:2 2 6 3 5 4 5 2 3 4;}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:8.0pt;
-	margin-left:0in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:8.0pt;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraphCxSpFirst, li.MsoListParagraphCxSpFirst, div.MsoListParagraphCxSpFirst
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:0in;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraphCxSpMiddle, li.MsoListParagraphCxSpMiddle, div.MsoListParagraphCxSpMiddle
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:0in;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraphCxSpLast, li.MsoListParagraphCxSpLast, div.MsoListParagraphCxSpLast
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:8.0pt;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-.MsoChpDefault
-	{font-family:"Calibri",sans-serif;}
-.MsoPapDefault
-	{margin-bottom:8.0pt;
-	line-height:107%;}
-@page WordSection1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.0in 1.0in 1.0in;}
-div.WordSection1
-	{page:WordSection1;}
- /* List Definitions */
- ol
-	{margin-bottom:0in;}
-ul
-	{margin-bottom:0in;}
--->
-</style>
 
-</head>
 
-<body lang=EN-US style='word-wrap:break-word'>
-
-<div class=WordSection1>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif'>Purpose
-and Scope </span></p>
-
-<p class=MsoListParagraphCxSpFirst style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>This policy outlines the
-requisite measures for establishing and upholding foundational security
-standards for company software, network devices, servers, and desktop systems. </span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>It applies to all
-individuals engaged in software development, system administration, and related
-activities within the organization, encompassing employees, contractors, and
-external parties involved in these functions. </span></p>
-
-<p class=MsoListParagraphCxSpLast style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>This policy is accessible
-to all users within its scope.</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif'>Background
-</span></p>
-
-<p class=MsoListParagraphCxSpFirst style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>The underlying objective
-of this policy is to ensure a well-structured, secure, and consistent approach to
-managing the complete lifecycle of software and information systems. </span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>It covers the entire
-spectrum, from initial requirements analysis to eventual system
-decommissioning.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>The policy delineates
-procedures, roles, and responsibilities for each stage of the software
-development lifecycle. </span></p>
-
-<p class=MsoListParagraphCxSpLast style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>The software development
-lifecycle may be executed in various forms, including linear progression or
-iterative cycles.</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif'>Policy
-</span></p>
-
-<p class=MsoListParagraphCxSpFirst style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>This policy outlines the
-key principles and actions governing the organization's software development
-lifecycle:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Software Development Life
-Cycle (SDLC): The organization's SDLC comprises the following phases:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.5in;text-indent:-.25in'><span
-style='font-family:Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp;
-</span></span><span style='font-family:"Times",serif'>Requirements Analysis</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Architecture and Design</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Testing</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Deployment/Implementation</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Operations/Maintenance</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Decommission</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Protection of Non-Production
-Data: </span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Throughout SDLC phases
-excluding production, live data sets containing personally identifiable
-information, financial data, or sensitive information must not be utilized.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'> Sensitive information is
-restricted from use beyond production environments.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Requirements Analysis
-Phase: During this phase, the following activities are conducted:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Analyze business requirements.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Perform risk assessment, guided by the Risk
-Assessment Policy (reference [a]).</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Address security aspects (e.g., confidentiality,
-integrity, availability) relevant to the requirement.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Review regulatory mandates, organizational
-policies, standards, procedures, and guidelines.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Consider future business goals and current
-operational landscape.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Incorporate program management aspects.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Define security solution requirements.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Assess security solution costs and budget
-constraints.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Approve security requirements and budget.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Make informed decisions on &quot;buy vs.
-build&quot; for security services.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Architecture and Design
-Phase: During this phase, the following tasks are accomplished:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Educate development teams on secure system
-development.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Develop or refine infrastructure security
-architecture.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Specify technical and non-technical security
-controls.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Conduct architecture walkthrough.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Create system-level security design.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Formulate high-level technical and
-non-technical security designs.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Analyze design components through
-cost-benefit analysis.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Document detailed technical security design.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Perform comprehensive design reviews.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Define security processes, procedures, and
-segregation of duties.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Establish end-user training and awareness
-programs.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Formulate a general security test plan.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Update organizational policies, standards,
-and procedures as required.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Mitigate residual vulnerabilities within
-application and infrastructure.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Development Phase: During
-development, these tasks are completed:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Configure secure development environment.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Provide training on software installation and
-configuration for infrastructure teams.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Develop code for application-level security.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Set up and integrate testing infrastructure.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Establish security-related vulnerability
-tracking processes.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Draft detailed security test plan and execute
-unit and integration testing.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Testing Phase: During
-testing, these steps are taken:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Review code and configurations through static
-and dynamic analysis to identify vulnerabilities.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Test configuration procedures.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Perform system tests and assess performance
-under security controls.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Conduct usability testing of application
-security measures.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Execute independent vulnerability assessments
-on both infrastructure and application.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Deployment Phase: For
-deployment, the following activities occur:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Pilot deployment of infrastructure,
-application, and related components.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Transition from pilot to full-scale
-deployment.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Verify file integrity to ensure authenticity.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Conduct training and awareness programs for
-administrative personnel and users.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Require dual developer participation for
-production environment deployment.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Operations/Maintenance
-Phase: In this phase, ongoing operational security tasks include:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>User and access administration.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Performance tuning.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Scheduled backups in line with System
-Availability Policy.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Routine system maintenance, including
-security updates and patches.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Deliver training and awareness initiatives.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Conduct periodic system vulnerability
-assessments.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Perform annual risk assessments.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Validate operational system security controls
-and monitor logs.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Implement proactive system and user
-monitoring.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Execute software and hardware patching within
-specified timelines.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Decommission Phase: </span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Upon decommissioning,
-these steps are observed:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Conduct unit and integration testing
-following component removal.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Facilitate operational transition for
-component removal or replacement.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Define data retention requirements for
-software and system data.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Document detailed technical security design.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Update organizational policies, standards,
-and procedures as necessary.</span></p>
-
-<p class=MsoListParagraphCxSpLast style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Address residual vulnerabilities in
-application and infrastructure.</span></p>
-
-<p class=MsoNormal><br>
-<br>
-</p>
-
-</div>
-
-</body>
-
-</html>

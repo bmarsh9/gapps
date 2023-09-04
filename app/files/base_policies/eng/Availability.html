@@ -1,308 +1,84 @@
-<html>
+<h2>Purpose and Scope</h2>
+<ul>
+<li>The purpose of this policy is to establish a framework for ensuring the continuous availability of the organization's information systems through proper controls.</li>
+<li>This policy pertains to all users of information systems within the organization, including employees, contractors, and external parties interacting with the organization's systems and controlled information (referred to as "users"). This policy is to be readily accessible to all users.</li>
+</ul>
 
-<head>
+<h2>Background</h2>
+<ul>
+<li>This policy is designed to minimize unforeseen or unplanned downtime, commonly referred to as outages, of information systems under the organization's purview. It mandates specific measures aimed at enhancing system redundancy, introducing failover mechanisms, and implementing vigilant monitoring to prevent outages whenever feasible. In cases where prevention is unattainable, prompt detection and remediation of outages are prescribed.</li>
+</ul>
 
-<style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:Wingdings;
-	panose-1:5 0 0 0 0 0 0 0 0 0;}
-@font-face
-	{font-family:"Cambria Math";
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-	{font-family:Times;
-	panose-1:2 2 6 3 5 4 5 2 3 4;}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:8.0pt;
-	margin-left:0in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:8.0pt;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraphCxSpFirst, li.MsoListParagraphCxSpFirst, div.MsoListParagraphCxSpFirst
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:0in;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraphCxSpMiddle, li.MsoListParagraphCxSpMiddle, div.MsoListParagraphCxSpMiddle
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:0in;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraphCxSpLast, li.MsoListParagraphCxSpLast, div.MsoListParagraphCxSpLast
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:8.0pt;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-.MsoChpDefault
-	{font-family:"Calibri",sans-serif;}
-.MsoPapDefault
-	{margin-bottom:8.0pt;
-	line-height:107%;}
-@page WordSection1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.0in 1.0in 1.0in;}
-div.WordSection1
-	{page:WordSection1;}
- /* List Definitions */
- ol
-	{margin-bottom:0in;}
-ul
-	{margin-bottom:0in;}
--->
-</style>
+<h2>References</h2>
+<ul>
+<li>Risk Assessment Policy</li>
+</ul>
 
-</head>
+<h2>Policy</h2>
+<ul>
+<li>Continuous Availability</li>
+</ul>
+<li>Information systems must consistently maintain availability to facilitate and uphold business operations.</li>
+<ul>
+<li>Availability Classification and Controls</li>
+</ul>
+<ul>
+<li>Information systems must possess a well-defined availability classification, accompanied by relevant controls integrated into both development and production processes based on this classification.</li>
+</ul>
+<ul>
+<li>Reporting of Failures:</li>
+</ul>
+<ul>
+<li>Instances of system and network failures must be promptly communicated to the organization's lead for Information Technology (IT) or the designated IT operations manager.</li>
+</ul>
+<ul>
+<li>Scheduled Outages Notification</li>
+</ul>
+<ul>
+<li>Users must receive advance notice of scheduled outages (e.g., system maintenance) that entail periods of downtime. This notification should include the scheduled maintenance date, time, anticipated duration, and expected system or service restoration time.</li>
+</ul>
+<ul>
+<li>Risk Assessment and Availability</li>
+</ul>
+<ul>
+<li>Prior to being deployed for production use, each new or substantially modified application must undergo a comprehensive risk assessment that includes an assessment of availability risks. These assessments must be conducted in adherence to the Risk Assessment Policy.</li>
+</ul>
+<ul>
+<li>Capacity Management and Load Balancing</li>
+</ul>
+<ul>
+<li>Capacity management and load balancing strategies must be employed as necessary to mitigate the risks and consequences of system failures.</li>
+</ul>
+<ul>
+<li>Data Backup Plan</li>
+</ul>
+<ul>
+<li>Information systems must establish an appropriate data backup plan encompassing the following aspects:</li></ul>
+<ol>
+<li>Sensitive data can be restored within a reasonable timeframe.</li>
+<li>Full backups of critical resources are executed weekly.</li>
+<li>Incremental backups for critical resources are performed daily.</li>
+<li>Backup data and related media are retained for a minimum of thirty (30) days and preserved for a minimum of one (1) year, or as dictated by legal and regulatory requisites.</li>
+<li>Backups are stored off-site with multiple redundancies and secured through encryption and key management.</li>
+<li>Quarterly tests of backup data and semi-annual tests of configurations are conducted.</li>
+</ol>
+<ul>
+<li>Redundancy and Failover Plan</li></ul>
+<ul>
+<li>Information systems must implement a suitable redundancy and failover plan meeting the subsequent criteria:</li></ul>
+<ol>
+<li>Network infrastructure supporting critical resources features system-level redundancy, including secondary power supply, backup disk array, and secondary computing systems. Spare parts must be actively maintained, with replacement within twenty-four (24) hours.</li>
+<li>Servers supporting critical resources possess redundant power supplies and network interface cards. All servers maintain actively managed spares, with parts replacement within twenty-four (24) hours. High availability servers employ disk mirroring.</li>
+</ol>
 
-<body lang=EN-US style='word-wrap:break-word'>
-
-<div class=WordSection1>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif'>Purpose
-and Scope </span></p>
-
-<p class=MsoListParagraphCxSpFirst style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>The purpose of this
-policy is to establish a framework for ensuring the continuous availability of
-the organization's information systems through proper controls. </span></p>
-
-<p class=MsoListParagraphCxSpLast style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>This policy pertains to
-all users of information systems within the organization, including employees,
-contractors, and external parties interacting with the organization's systems
-and controlled information (referred to as &quot;users&quot;). This policy is
-to be readily accessible to all users.</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif'>Background
-</span></p>
-
-<p class=MsoListParagraph style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>This policy is designed
-to minimize unforeseen or unplanned downtime, commonly referred to as outages,
-of information systems under the organization's purview. It mandates specific
-measures aimed at enhancing system redundancy, introducing failover mechanisms,
-and implementing vigilant monitoring to prevent outages whenever feasible. In
-cases where prevention is unattainable, prompt detection and remediation of
-outages are prescribed.</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif'>&nbsp;</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif'>References</span></p>
-
-<p class=MsoListParagraph style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Risk Assessment Policy</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif'>&nbsp;</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif'>Policy
-</span></p>
-
-<p class=MsoListParagraphCxSpFirst style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Continuous Availability </span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp; </span></span><span
-style='font-family:"Times",serif'>Information systems must consistently
-maintain availability to facilitate and uphold business operations.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Availability
-Classification and Controls Information systems must possess a well-defined
-availability classification, accompanied by relevant controls integrated into
-both development and production processes based on this classification.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Reporting of Failures:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Instances of system and
-network failures must be promptly communicated to the organization's lead for
-Information Technology (IT) or the designated IT operations manager.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Scheduled Outages
-Notification </span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Users must receive
-advance notice of scheduled outages (e.g., system maintenance) that entail
-periods of downtime. This notification should include the scheduled maintenance
-date, time, anticipated duration, and expected system or service restoration
-time.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Risk Assessment and
-Availability </span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Prior to being deployed
-for production use, each new or substantially modified application must undergo
-a comprehensive risk assessment that includes an assessment of availability
-risks. These assessments must be conducted in adherence to the Risk Assessment
-Policy.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Capacity Management and
-Load Balancing</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Capacity management and
-load balancing strategies must be employed as necessary to mitigate the risks
-and consequences of system failures.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Data Backup Plan </span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Information systems must
-establish an appropriate data backup plan encompassing the following aspects:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Sensitive data can be restored within a
-reasonable timeframe.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Full backups of critical resources are
-executed weekly.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Incremental backups for critical resources
-are performed daily.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Backup data and related media are retained
-for a minimum of thirty (30) days and preserved for a minimum of one (1) year,
-or as dictated by legal and regulatory requisites.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Backups are stored off-site with multiple
-redundancies and secured through encryption and key management.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Quarterly tests of backup data and
-semi-annual tests of configurations are conducted.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Redundancy and Failover
-Plan </span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Information systems must
-implement a suitable redundancy and failover plan meeting the subsequent
-criteria:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Network infrastructure supporting critical
-resources features system-level redundancy, including secondary power supply,
-backup disk array, and secondary computing systems. Spare parts must be
-actively maintained, with replacement within twenty-four (24) hours.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Servers supporting critical resources possess
-redundant power supplies and network interface cards. All servers maintain
-actively managed spares, with parts replacement within twenty-four (24) hours.
-High availability servers employ disk mirroring.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Business Continuity Plan </span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Information systems must
-have an adequate business continuity plan complying with the ensuing
-requirements:</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Recovery time and data loss limits are
-specified (see Table 3).</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>The plan includes precise documentation
-adhering to recovery time requisites and data loss limits.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>Critical resources, personnel, and corrective
-actions, both internal and external, are explicitly identified.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>The plan details designated responsibilities
-and tasks for emergency response and business operations resumption.</span></p>
-
-<p class=MsoListParagraphCxSpLast style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.5in;text-indent:-.25in'><span style='font-family:
-Wingdings'>§<span style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><span
-style='font-family:"Times",serif'>All relevant legal and regulatory obligations
-are fulfilled.</span></p>
-
-<p class=MsoNormal><span style='font-family:"Times",serif'>&nbsp;</span></p>
-
-</div>
-
-</body>
-
-</html>
+<li>Business Continuity Plan</li>
+<ul>
+<li>Information systems must have an adequate business continuity plan complying with the ensuing requirements:</li>
+</ul>
+<ul>
+<li>Recovery time and data loss limits are specified (see Table 3).</li>
+<li>The plan includes precise documentation adhering to recovery time requisites and data loss limits.</li>
+<li>Critical resources, personnel, and corrective actions, both internal and external, are explicitly identified.</li>
+<li>The plan details designated responsibilities and tasks for emergency response and business operations resumption.</li>
+<li>All relevant legal and regulatory obligations are fulfilled.</li>
+</ul>
