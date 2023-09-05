@@ -1,450 +1,206 @@
-<html>
-
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=utf-8">
-<meta name=Generator content="Microsoft Word 15 (filtered)">
-<style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:Wingdings;
-	panose-1:5 0 0 0 0 0 0 0 0 0;}
-@font-face
-	{font-family:"Cambria Math";
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-@font-face
-	{font-family:Times;
-	panose-1:2 2 6 3 5 4 5 2 3 4;}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:8.0pt;
-	margin-left:0in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:8.0pt;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraphCxSpFirst, li.MsoListParagraphCxSpFirst, div.MsoListParagraphCxSpFirst
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:0in;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraphCxSpMiddle, li.MsoListParagraphCxSpMiddle, div.MsoListParagraphCxSpMiddle
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:0in;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-p.MsoListParagraphCxSpLast, li.MsoListParagraphCxSpLast, div.MsoListParagraphCxSpLast
-	{margin-top:0in;
-	margin-right:0in;
-	margin-bottom:8.0pt;
-	margin-left:.5in;
-	line-height:107%;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-.MsoChpDefault
-	{font-family:"Calibri",sans-serif;}
-.MsoPapDefault
-	{margin-bottom:8.0pt;
-	line-height:107%;}
-@page WordSection1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.0in 1.0in 1.0in;}
-div.WordSection1
-	{page:WordSection1;}
- /* List Definitions */
- ol
-	{margin-bottom:0in;}
-ul
-	{margin-bottom:0in;}
--->
-</style>
-
-</head>
-
-<body lang=EN-US style='word-wrap:break-word'>
-
-<div class=WordSection1>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif;
-color:black'>Svrha i Cilj</span></p>
-
-<p class=MsoListParagraphCxSpFirst style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Svrha ove
-sigurnosne polise aplikacije je uspostavljanje sveobuhvatnog okvira sigurnosnih
-mjera i obaveza za aplikacije, sa fokusom na web aplikacije, unutar proizvodnog
-okruženja organizacije.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Ova polisa
-opisuje implementaciju kontrola i direktiva za osiguranje sigurnosti web
-aplikacija, uključujući redovne procjene ranjivosti, evaluacije i procjene.</span></p>
-
-<p class=MsoListParagraphCxSpLast style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Ova polisa
-proširuje svoj domet kako bi obuhvatila sve aplikacije unutar proizvodnog
-okruženja organizacije, kao i administratore i korisnike ovih aplikacija, što
-uključuje zaposlene i izvođače.</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif;
-color:black'>Pozadina</span></p>
-
-<p class=MsoListParagraphCxSpFirst style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Ranjivosti
-aplikacija služe kao istaknuti početni vektori napada nakon zaraze zlonamjernim
-softverom.Stoga je imperativ da sigurnost bude sastavni dio dizajna aplikacije,
-te da se kontinuirano nadgledanje i skeniranja sprovode kako bi se otkrile
-potencijalne zlonamjerne aktivnosti koje ukazuju na kompromitaciju sistema.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Identifikovanje
-i ublažavanje ranjivosti aplikacija, ne samo da smanjuje površinu napada
-organizacije, već i uspostavlja osnovni nivo sigurnosti u svim sistemima.</span></p>
-
-<p class=MsoListParagraphCxSpLast style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Osim toga,
-ova polisa definira tehničke preduslove i procedure kako bi se osiguralo da su
-aplikacije ojačane u skladu s najboljim sigurnosnim praksama.</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif;
-color:black'>Referenca</span></p>
-
-<p class=MsoListParagraphCxSpFirst style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Data
-Classification Polisa</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>OWASP Risk
-Rating Polisa</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>OWASP Testing
-Guide</span></p>
-
-<p class=MsoListParagraphCxSpLast style='margin-bottom:0in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>OWASP Top Ten
-Project</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif;
-color:black'>&nbsp;</span></p>
-
-<p class=MsoNormal style='margin-bottom:0in'><span style='font-family:"Times",serif;
-color:black'>Polisa</span></p>
-
-<p class=MsoListParagraphCxSpFirst style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:.25in;text-indent:-.25in'><span style='font-family:
-Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Siguran Razvoj
-Aplikacija i Upravljanje</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Organizacija
-mora osigurati da se sve razvijene i/ili nabavljene aplikacije konfiguriraju i
-upravljaju uz sigurnost kao glavnu brigu.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:.25in;text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Najbolji Sigurnosni
-Postupci</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Klasifikacija
-upravljanih podataka prema Politici klasifikacije podataka (referenca: Politika
-klasifikacije podataka).</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Prikaz
-upadljivog banera povjerljivog zapisa za aplikacije koje rukuju povjerljivim informacijama,
-naglašavajući vrstu povjerljivih podataka kojima se pristupa (npr. lični podaci
-(PII), zaštićene zdravstvene informacije (PHI) itd.).</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Neprikazivanje
-osjetljivih podataka, posebno informacija ograničenih zakonom ili politikom, u
-otvorenom tekstu.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Rigorozna
-validacija unosa za prihvatanje samo poznatih ispravnih tipova unosa,
-uključujući, ali ne ograničavajući se na skripte sa višeaokacija, buffer
-overflow errors i injection flaws.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Pravilno
-rukovanje greškama kako bi se spriječilo izlaganje detaljnih informacija o
-sistemu, uskraćivanje usluge, oštećenje sigurnosnog mehanizma ili pad sistema.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Ovlaštenje
-zasnovano na pripadnosti, članstvu ili zaposlenju, a ne individualno odobrenje,
-gdje je to moguće. Trebalo bi provesti automatske periodične provjere
-autorizacije, ako je to izvodljivo.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Enkripcija
-podataka koji se ne koriste I onih koje su u prenosu.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Implementacija
-prijavljivanja aplikacije u mjeri izvodljivosti, održavanje logova korisnika i
-pristupnih događaja najmanje 14 dana.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Sigurnosni Pregled
-i Upravljanje Promjenama</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Kvalificirani
-korisnici moraju provesti sigurnosne preglede koda za sve nove ili značajno
-izmijenjene aplikacije koje uključuju prikupljanje, korištenje i/ili prikaz
-povjerljivih podataka.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Sveobuhvatna dokumentacija
-o preduzetim radnjama je obavezna.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Proces upravljanja
-promjenama za postojeće modifikacije softverskih aplikacija mora biti
-implementiran.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Dokumentacija standardne
-konfiguracije aplikacije je obavezna.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Trenutna promjena zadanih
-lozinki koje se koriste unutar aplikacije, kao što su one za administrativne
-kontrolne panele ili integraciju baze podataka, nakon instalacije.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Složenost lozinke
-aplikacije u skladu sa preovlađujućim najboljim sigurnosnim praksama (najmanje
-8 znakova dužine, kombinacija alfanumeričkih velikih/malih znakova i simbola)
-je obavezna.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Upravljanje Podacima
-I Testiranje</span>            </p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Tokom faza
-razvoja i testiranja, aplikacije ne smiju imati pristup podacima koji se
-kosiste.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Stečene
-Aplikacije</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Nabavljat će
-se i primjenjivati samo aplikacije koje podržavaju odobreni dobavljači.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Ugovori o podršci za
-cijeli životni ciklus moraju se dogovoriti sa dobavljačima aplikacija.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Ažuriranja, zakrpe i
-promjene konfiguracije koje izdaje proizvođač trebaju odmah biti implementirani.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Kriteriji
-Procjene Web Aplikacije</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Nova ili
-glavna izdanja aplikacije moraju proći sveobuhvatnu procjenu prije odobrenja za
-implementaciju u proizvodno okruženje.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Aplikacije trećih strana
-ili nabavljene aplikacije moraju proći temeljnu procjenu prije implementacije.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Izdanja softvera moraju
-biti podvrgnuta odgovarajućim procjenama, koje određuje menadžer za sigurnost
-informacija organizacije, na osnovu inherentnih sigurnosnih rizika.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Hitna izdanja mogu
-zaobići sigurnosne procjene, podložna odobrenju glavnog službenika za
-informacije ili ovlaštenog lica.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Ublažavanje
-Ranjivosti</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Ranjivosti
-aplikacija otkrivene tokom procjene moraju se ublažiti na osnovu nivoa rizika.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Ranjivosti kategorizirane
-kao visoki rizik moraju se odmah popraviti ili naizmjenično ublažiti kako bi se
-ograničila izloženost prije implementacije.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Ranjivosti kategorisane
-kao srednji ili niski rizik moraju biti podvrgnute rasporedu ublažavanja.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-left:1.0in;text-indent:-.25in'><span
-style='font-family:"Courier New"'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif'>Ispravke i strategije
-ublažavanja za srednji rizik ili veće ranjivosti moraju biti potvrđene
-testiranjem.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Tipovi
-Sigurnosnih Procjena</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Procjene mogu
-koristiti tipove potpune, brze ili ciljane procjene sigurnosti, od kojih svaka
-služi određenim svrhama.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Centar
-Sigurnosti Podataka</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><b><span style='font-family:"Times",serif;color:black'>Bezbjednost
-centra podataka polise bezbjednosti centra podataka (referenca: Politika
-bezbjednosti centra podataka) sprečava rizike od neovlašćenog pristupa.</span></b></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Životni Ciklus
-Razvoja Softvera</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Politika
-životnog ciklusa razvoja softvera (referenca: Politika životnog ciklusa razvoja
-softvera) navodi sigurnosne zahtjeve za razvoj, nabavku i održavanje softvera.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Odgovor Na
-Incidente</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Sigurnosni
-zahtjevi za rukovanje incidentima sigurnosti informacija definirani su u Polisi
-odgovora na sigurnosne incidente (referenca: Polisa odgovora na sigurnosne
-incidente).</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Oporavak Od
-Katastrofe I Kontinuitet Poslovanja</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Polisa
-oporavka od katastrofe (referenca: Polisa oporavka od katastrofe) obuhvata
-oporavak od katastrofe i upravljanje kontinuitetom poslovanja.</span></p>
-
-<p class=MsoListParagraphCxSpMiddle style='text-indent:-.25in'><span
-style='font-family:Symbol;color:black'>·<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Dostupnost
-Sistema</span></p>
-
-<p class=MsoListParagraphCxSpLast style='margin-top:0in;margin-right:0in;
-margin-bottom:0in;margin-left:1.0in;text-indent:-.25in'><span style='font-family:
-"Courier New";color:black'>o<span style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;
-</span></span><span style='font-family:"Times",serif;color:black'>Politika
-dostupnosti sistema (referenca: Politika dostupnosti sistema) opisuje
-dostupnost informacijskog sistema i zahtjeve za redundantnost.</span></p>
-
-<p class=MsoNormal><span style='font-family:"Times",serif;color:black'>&nbsp;</span></p>
-
-<p class=MsoNormal><span style='font-family:"Times",serif'>&nbsp;</span></p>
-
-</div>
-
-</body>
-
-</html>
+<h2>Svrha i Cilj</h2>
+<ul>
+  <li>Svrha ove sigurnosne polise aplikacije je uspostavljanje sveobuhvatnog okvira sigurnosnih
+    mjera i obaveza za aplikacije, sa fokusom na web aplikacije, unutar proizvodnog okruženja
+    organizacije.
+  </li>
+  <li>Ova polisa opisuje implementaciju kontrola i direktiva za osiguranje sigurnosti web
+    aplikacija, uključujući redovne procjene ranjivosti, evaluacije i procjene.
+  </li>
+  <li>Ova polisa proširuje svoj domet kako bi obuhvatila sve aplikacije unutar proizvodnog okruženja
+    organizacije, kao i administratore i korisnike ovih aplikacija, što uključuje zaposlene i
+    izvođače.
+  </li>
+</ul>
+
+<h2>Pozadina</h2>
+<ul>
+  <li>Ranjivosti aplikacija služe kao istaknuti početni vektori napada nakon zaraze zlonamjernim
+    softverom. Stoga je imperativ da sigurnost bude sastavni dio dizajna aplikacije, te da se
+    kontinuirano nadgledanje i skeniranja sprovode kako bi se otkrile potencijalne zlonamjerne
+    aktivnosti koje ukazuju na kompromitaciju sistema.
+  </li>
+  <li>Identifikovanje i ublažavanje ranjivosti aplikacija, ne samo da smanjuje površinu napada
+    organizacije, već i uspostavlja osnovni nivo sigurnosti u svim sistemima.
+  </li>
+  <li>Osim toga, ova polisa definira tehničke preduslove i procedure kako bi se osiguralo da su
+    aplikacije ojačane u skladu s najboljim sigurnosnim praksama.
+  </li>
+</ul>
+
+<h2>Referenca</h2>
+<ul>
+  <li>Data Classification Polisa</li>
+  <li>OWASP Risk Rating Polisa</li>
+  <li>OWASP Testing Guide</li>
+  <li>OWASP Top Ten Project</li>
+</ul>
+
+<h2>Polisa</h2>
+<ul>
+  <li>Siguran Razvoj Aplikacija i Upravljanje
+    <ul>
+      <li>Organizacija mora osigurati da se sve razvijene i/ili nabavljene aplikacije konfiguriraju
+        i
+        upravljaju uz sigurnost kao glavnu brigu.
+      </li>
+    </ul>
+  </li>
+  <li>Najbolji Sigurnosni Postupci
+    <ul>
+      <li>Klasifikacija upravljanih podataka prema Politici klasifikacije podataka (referenca:
+        Politika klasifikacije podataka).
+      </li>
+      <li>Prikaz upadljivog banera povjerljivog zapisa za aplikacije koje rukuju povjerljivim
+        informacijama, naglašavajući vrstu povjerljivih podataka kojima se pristupa (npr. lični
+        podaci
+        (PII), zaštićene zdravstvene informacije (PHI) itd.).
+      </li>
+      <li>Neprikazivanje osjetljivih podataka, posebno informacija ograničenih zakonom ili
+        politikom,
+        u otvorenom tekstu.
+      </li>
+      <li>Rigorozna validacija unosa za prihvatanje samo poznatih ispravnih tipova unosa,
+        uključujući,
+        ali ne ograničavajući se na skripte sa višeaokacija, buffer overflow errors i injection
+        flaws.
+      </li>
+      <li>Pravilno rukovanje greškama kako bi se spriječilo izlaganje detaljnih informacija o
+        sistemu,
+        uskraćivanje usluge, oštećenje sigurnosnog mehanizma ili pad sistema.
+      </li>
+      <li>Ovlaštenje zasnovano na pripadnosti, članstvu ili zaposlenju, a ne individualno odobrenje,
+        gdje je to moguće. Trebalo bi provesti automatske periodične provjere autorizacije, ako je
+        to
+        izvodljivo.
+      </li>
+      <li>Enkripcija podataka koji se ne koriste I onih koje su u prenosu.</li>
+      <li>Implementacija prijavljivanja aplikacije u mjeri izvodljivosti, održavanje logova
+        korisnika
+        i pristupnih događaja najmanje 14 dana.
+      </li>
+    </ul>
+  </li>
+
+  <li>Sigurnosni Pregled i Upravljanje Promjenama
+    <ul>
+      <li>Kvalificirani korisnici moraju provesti sigurnosne preglede koda za sve nove ili značajno
+        izmijenjene aplikacije koje uključuju prikupljanje, korištenje i/ili prikaz povjerljivih
+        podataka.
+      </li>
+      <li>Sveobuhvatna dokumentacija o preduzetim radnjama je obavezna.</li>
+      <li>Proces upravljanja promjenama za postojeće modifikacije softverskih aplikacija mora biti
+        implementiran.
+      </li>
+      <li>Dokumentacija standardne konfiguracije aplikacije je obavezna.</li>
+      <li>Trenutna promjena zadanih lozinki koje se koriste unutar aplikacije, kao što su one za
+        administrativne kontrolne panele ili integraciju baze podataka, nakon instalacije.
+      </li>
+      <li>Složenost lozinke aplikacije u skladu sa preovlađujućim najboljim sigurnosnim praksama
+        (najmanje 8 znakova dužine, kombinacija alfanumeričkih velikih/malih znakova i simbola) je
+        obavezna.
+      </li>
+    </ul>
+  </li>
+
+  <li>Upravljanje Podacima I Testiranje
+    <ul>
+      <li>Tokom faza razvoja i testiranja, aplikacije ne smiju imati pristup podacima koji se
+        kosiste.
+      </li>
+    </ul>
+  </li>
+
+  <li>Stečene Aplikacije
+    <ul>
+      <li>Nabavljat će se i primjenjivati samo aplikacije koje podržavaju odobreni dobavljači.</li>
+      <li>Ugovori o podršci za cijeli životni ciklus moraju se dogovoriti sa dobavljačima
+        aplikacija.
+      </li>
+      <li>Ažuriranja, zakrpe i promjene konfiguracije koje izdaje proizvođač trebaju odmah biti
+        implementirani.
+      </li>
+    </ul>
+  </li>
+
+  <li>Kriteriji Procjene Web Aplikacije
+    <ul>
+      <li>Nova ili glavna izdanja aplikacije moraju proći sveobuhvatnu procjenu prije odobrenja za
+        implementaciju u proizvodno okruženje.
+      </li>
+      <li>Aplikacije trećih strana ili nabavljene aplikacije moraju proći temeljnu procjenu prije
+        implementacije.
+      </li>
+      <li>Izdanja softvera moraju biti podvrgnuta odgovarajućim procjenama, koje određuje menadžer
+        za
+        sigurnost informacija organizacije, na osnovu inherentnih sigurnosnih rizika.
+      </li>
+      <li>Hitna izdanja mogu zaobići sigurnosne procjene, podložna odobrenju glavnog službenika za
+        informacije ili ovlaštenog lica.
+      </li>
+    </ul>
+  </li>
+
+  <li>Ublažavanje Ranjivosti
+    <ul>
+      <li>Ranjivosti aplikacija otkrivene tokom procjene moraju se ublažiti na osnovu nivoa rizika.
+      </li>
+      <li>Ranjivosti kategorizirane kao visoki rizik moraju se odmah popraviti ili naizmjenično
+        ublažiti kako bi se ograničila izloženost prije implementacije.
+      </li>
+      <li>Ranjivosti kategorisane kao srednji ili niski rizik moraju biti podvrgnute rasporedu
+        ublažavanja.
+      </li>
+      <li>Ispravke i strategije ublažavanja za srednji rizik ili veće ranjivosti moraju biti
+        potvrđene
+        testiranjem.
+      </li>
+    </ul>
+  </li>
+
+  <li>Tipovi Sigurnosnih Procjena
+    <ul>
+      <li>Procjene mogu koristiti tipove potpune, brze ili ciljane procjene sigurnosti, od kojih
+        svaka
+        služi određenim svrhama.
+      </li>
+    </ul>
+  </li>
+
+  <li>Centar Sigurnosti Podataka
+    <ul>
+      <li>Bezbjednost centra podataka polise bezbjednosti centra podataka (referenca: Politika
+        bezbjednosti centra podataka) sprečava rizike od neovlašćenog pristupa.
+      </li>
+    </ul>
+  </li>
+
+  <li>Životni Ciklus Razvoja Softvera
+    <ul>
+      <li>Politika životnog ciklusa razvoja softvera (referenca: Politika životnog ciklusa razvoja
+        softvera) navodi sigurnosne zahtjeve za razvoj, nabavku i održavanje softvera.
+      </li>
+    </ul>
+  </li>
+  <li>Odgovor Na Incidente
+    <ul>
+      <li>Sigurnosni zahtjevi za rukovanje incidentima sigurnosti informacija definirani su u Polisi
+        odgovora na sigurnosne incidente (referenca: Polisa odgovora na sigurnosne incidente).
+      </li>
+    </ul>
+  </li>
+  <li>Oporavak Od Katastrofe I Kontinuitet Poslovanja
+    <ul>
+      <li>Polisa oporavka od katastrofe (referenca: Polisa oporavka od katastrofe) obuhvata oporavak
+        od katastrofe i upravljanje kontinuitetom poslovanja.
+      </li>
+    </ul>
+  </li>
+  <li>Dostupnost Sistema
+    <ul>
+      <li>Politika dostupnosti sistema (referenca: Politika dostupnosti sistema) opisuje dostupnost
+        informacijskog sistema i zahtjeve za redundantnost.
+      </li>
+    </ul>
+  </li>
+</ul>
