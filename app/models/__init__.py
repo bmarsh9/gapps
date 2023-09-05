@@ -275,7 +275,7 @@ class Tenant(LogMixin, db.Model):
         self.projects.append(project)
         for control in controls:
             project.add_control(control, commit=False)
-        for policy in Policy.query.filter(Policy.language == framework.get_language()).all():
+        for policy in Policy.query.filter(Policy.language == framework.get_language(), Policy.tenant_id == self.id).all():
             project.add_policy(policy)
         db.session.commit()
         return True
