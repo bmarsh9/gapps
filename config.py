@@ -10,14 +10,18 @@ class Config:
     APP_SUBTITLE = os.environ.get("APP_SUBTITLE","")
     CR_YEAR = os.environ.get("CR_YEAR","2023")
     VERSION = os.environ.get("VERSION","1.0.0")
-    if host_name := os.environ.get("HOST_NAME"):
-        if not host_name.startswith("http"):
-            host_name = f"https://{host_name}"
-        if not host_name.endswith("/"):
-            host_name = f"{host_name}/"
-        HOST_NAME = host_name
-    else:
-        HOST_NAME = request.host_url
+
+    try:
+        if host_name := os.environ.get("HOST_NAME"):
+            if not host_name.startswith("http"):
+                host_name = f"https://{host_name}"
+            if not host_name.endswith("/"):
+                host_name = f"{host_name}/"
+            HOST_NAME = host_name
+        else:
+            HOST_NAME = request.host_url
+    except:
+        HOST_NAME = ""
 
     LOG_TYPE = os.environ.get("LOG_TYPE", "stream")
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
@@ -28,9 +32,9 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = False
     MAIL_SERVER = os.environ.get('MAIL_SERVER','smtp.googlemail.com')
-    MAIL_PORT = int(os.environ.get('MAIL_PORT',587))
-    MAIL_USE_TLS = True
-    MAIL_DEBUG = os.environ.get('MAIL_DEBUG',False)
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "True") == "True"
+    MAIL_DEBUG = os.environ.get("MAIL_DEBUG", "False") == "True"
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     BASE_DIR = basedir
