@@ -533,11 +533,14 @@ class Tenant(LogMixin, db.Model):
             tenant.create_base_frameworks()
             tenant.create_base_policies()
         # create folder for evidence
+        self.create_evidence_folder()
+        return tenant
+
+    def create_evidence_folder(self):
         evidence_folder = tenant.get_evidence_folder()
         if not os.path.exists(evidence_folder):
             os.makedirs(evidence_folder)
-        return tenant
-
+            
     def delete(self):
         evidence_folder = self.get_evidence_folder()
         if os.path.exists(evidence_folder):
@@ -675,6 +678,9 @@ class Evidence(LogMixin, db.Model):
         if not self.tenant.can_save_file_in_folder(file_object):
             raise ValueError("tenant does not have enough storage capacity")
 
+        # create evidence folder if it doesnt exist
+        self.tenant.create_evidence_folder()
+        
         # generate new name for file
         file_uuid = ''.join(random.choices(string.ascii_uppercase +
                              string.digits, k=7))
