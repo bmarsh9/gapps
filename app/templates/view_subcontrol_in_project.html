@@ -725,8 +725,12 @@ function evidence() {
           var item = this.evidence[index];
           var fd = new FormData();
 
-          for(var file in this.fileUploadMap[item.id].cachedFileArray) {
-            fd.append("file", this.fileUploadMap[item.id].cachedFileArray[file])
+          if (this.fileUploadMap[item.id] && this.fileUploadMap[item.id].cachedFileArray) {
+            for (var file in this.fileUploadMap[item.id].cachedFileArray) {
+              fd.append("file", this.fileUploadMap[item.id].cachedFileArray[file]);
+            }
+          } else {
+            console.log("The fileUploadMap or cachedFileArray is empty or undefined.");
           }
           fd.append("name", item.name)
           fd.append("content", item.content)
@@ -761,8 +765,12 @@ function evidence() {
             return
           }
           var fd = new FormData();
-          for(var file in this.fileUploadMap[index].cachedFileArray) {
-            fd.append("file", this.fileUploadMap[index].cachedFileArray[file])
+          if (this.fileUploadMap[item.id] && this.fileUploadMap[item.id].cachedFileArray) {
+            for (var file in this.fileUploadMap[item.id].cachedFileArray) {
+              fd.append("file", this.fileUploadMap[item.id].cachedFileArray[file]);
+            }
+          } else {
+            console.log("The fileUploadMap or cachedFileArray is empty or undefined.");
           }
           fd.append("name", item.name)
           fd.append("content", item.content)

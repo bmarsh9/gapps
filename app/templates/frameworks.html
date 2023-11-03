@@ -101,7 +101,7 @@
           return(data)
         },
         error: function(errMsg) {
-          toast(rrrMsg["responseJSON"]["message"],"error")
+          toast(errMsg["responseJSON"]["message"],"error")
           return(errMsg);
         }
       })

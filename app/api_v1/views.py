@@ -23,7 +23,11 @@ def get_health():
 @api.route('/session', methods=['GET'])
 @login_required
 def get_session():
-    return jsonify(session)
+    data = {
+        "tenant-id": session.get("tenant-id"),
+        "tenant-uuid": session.get("tenant-uuid"),
+    }
+    return jsonify(data)
 
 @api.route('/session/<int:id>', methods=['PUT'])
 @login_required
@@ -31,6 +35,12 @@ def set_session(id):
     result = Authorizer(current_user).can_user_access_tenant(id)
     session["tenant-id"] = result["extra"]["tenant"].id
     session["tenant-uuid"] = result["extra"]["tenant"].uuid
+    return jsonify({"message": "ok"})
+
+@api.route('/session/delete', methods=['GET'])
+@login_required
+def delete_session():
+    session.clear()
     return jsonify({"message": "ok"})
 
 @api.route('/tenants/<int:id>', methods=['DELETE'])
