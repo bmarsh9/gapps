@@ -237,3 +237,24 @@ docker build -t gapps:3.4.3 .
 docker tag gapps:3.4.3 bmarsh13/gapps:3.4.3
 docker push bmarsh13/gapps:3.4.3
 ```
+
+##### API Authentication
+
+You can generate an API token by viewing the following route in your browsers
+```
+# Create token that expires in 15 minutes
+<gapps-host>/api/v1/token
+
+# Create token that expires in 30 seconds
+<gapps-host>/api/v1/token?expiration=30
+
+# Create token that never expires
+<gapps-host>/api/v1/token?expiration=0
+```
+
+And here is how you use the token to authenticate (curl as an example)
+
+```
+TOKEN="TOKEN HERE"
+curl <gapps-host>/api/v1/tenants -H "token: $TOKEN"
+```
