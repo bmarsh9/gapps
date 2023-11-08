@@ -20,6 +20,13 @@ import os
 def get_health():
     return jsonify({"message":"ok"})
 
+@api.route('/token', methods=['GET'])
+@login_required
+def generate_api_token():
+    expiration = int(request.args.get("expiration", 600))
+    token = current_user.generate_auth_token(expiration=expiration)
+    return jsonify({"token": token, "expires_in": expiration})
+
 @api.route('/session', methods=['GET'])
 @login_required
 def get_session():

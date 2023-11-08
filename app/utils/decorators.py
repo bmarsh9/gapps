@@ -6,11 +6,11 @@ from flask_login import current_user, login_user
 
 def validate_token_in_header(enc_token):
     user = User.verify_auth_token(enc_token)
-    if not user: # invalid token
+    if not user:
         return False
     if not user.is_active:
         return False
-    return False
+    return user
 
 def is_vendor_for_tenant(current_user):
     if tenant := Tenant.query.get(session.get("tenant-id")):
