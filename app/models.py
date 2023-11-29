@@ -304,6 +304,13 @@ class Tenant(LogMixin, db.Model):
         email_validator.validate_email(address, check_deliverability=False)
         return address
 
+    @validates('name')
+    def _validate_name(self, key, name):
+        special_characters="!\"#$%&'()*+,-./:;<=>?@[\]^`{|}~"
+        if any(c in special_characters for c in name):
+            raise ValueError("Illegal characters in name")
+        return name
+
     def as_dict(self):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         data["owner_email"] = self.get_owner_email()
