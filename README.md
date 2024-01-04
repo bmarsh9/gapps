@@ -16,7 +16,7 @@
 
 - SaaS App: https://gapps.darkbanner.com  
 - Interested in some form of partnership or new license? Contact me on [discord](https://discord.gg/9unhWAqadg)
-- Stay up to date on changes: https://forms.gle/EXigxbcWTSXcPnjw7  
+- Stay up to date on changes: [contact](https://web-gapps.pages.dev/#contact)
 - Discord: https://discord.gg/9unhWAqadg
 
 ### New Features :snowflake:
