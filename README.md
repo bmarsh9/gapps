@@ -78,8 +78,17 @@ Next, create a Tenant and a Project with you desired framework (e.g. SOC2). Base
 You can setup email (for sending user invites) as well by setting the following environment variables (docker-compose file or elsewhere)  
 
 ```
-MAIL_USERNAME="email@gmail.com"
-MAIL_PASSWORD="app password" # https://support.google.com/accounts/answer/185833?hl=en
+MAIL_SERVER : default ‘localhost’
+MAIL_PORT : default 25
+MAIL_USERNAME : default None
+MAIL_PASSWORD : default None
+MAIL_USE_TLS : default False
+MAIL_USE_SSL : default False
+MAIL_DEBUG : default app.debug
+MAIL_DEFAULT_SENDER : default None
+MAIL_MAX_EMAILS : default None
+MAIL_SUPPRESS_SEND : default app.testing
+MAIL_ASCII_ATTACHMENTS : default False
 ```
 
 ### Supported frameworks
