@@ -1,0 +1,34 @@
+{{- if .Values.gappsWorker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gapps-worker
+spec:
+  replicas: {{ .Values.gappsWorker.replicaCount }}
+  selector:
+    matchLabels:
+      app: gapps-worker
+  template:
+    metadata:
+      labels:
+        app: gapps-worker
+    spec:
+      containers:
+      - name: gapps-worker
+        image: {{ .Values.commonImage.repository }}:{{ .Values.commonImage.tag }}
+        envFrom:
+        - secretRef:
+            name: gapps-secrets
+        - configMapRef:
+            name: gapps-worker-config
+        env:
+        - name: AS_WORKER
+          value: {{ .Values.gappsWorker.environment.AS_WORKER | quote }}
+        resources:
+          requests:
+            memory: {{ .Values.gappsWorker.resources.requests.memory }}
+            cpu: {{ .Values.gappsWorker.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.gappsWorker.resources.limits.memory }}
+            cpu: {{ .Values.gappsWorker.resources.limits.cpu }}
+{{- end }}

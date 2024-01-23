@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-scripts
+data:
+  init-db.sh: |
+    #!/bin/bash
+    set -e
+
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
+        SELECT 'CREATE DATABASE gapps'
+        WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'gapps')\\gexec
+        GRANT ALL PRIVILEGES ON DATABASE gapps TO $POSTGRES_USER;
+    EOSQL
