@@ -1,0 +1,61 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: "postgres"
+  replicas: {{ .Values.postgres.replicaCount }}
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: {{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: username
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-credentials
+              key: password
+        - name: POSTGRES_DB
+          value: {{ .Values.postgres.dbName | quote }}
+        - name: PGDATA
+          value: {{ .Values.postgres.pgData | quote }}
+        resources:
+          requests:
+            memory: {{ .Values.postgres.resources.requests.memory }}
+            cpu: {{ .Values.postgres.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.postgres.resources.limits.memory }}
+            cpu: {{ .Values.postgres.resources.limits.cpu }}
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /data/postgres
+        - name: init-scripts
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: init-scripts
+        configMap:
+          name: postgres-init-scripts
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: {{ .Values.postgres.persistence.size }}
+{{- end }}

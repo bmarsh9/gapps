@@ -1,0 +1,33 @@
+{{- if .Values.gapps.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gapps
+spec:
+  replicas: {{ .Values.gapps.replicaCount }}
+  selector:
+    matchLabels:
+      app: gapps
+  template:
+    metadata:
+      labels:
+        app: gapps
+    spec:
+      containers:
+      - name: gapps
+        image: {{ .Values.commonImage.repository }}:{{ .Values.commonImage.tag }}
+        ports:
+        - containerPort: {{ .Values.gapps.service.port }}
+        envFrom:
+        - secretRef:
+            name: {{ .Values.gapps.secretName }}
+        - configMapRef:
+            name: {{ .Values.gapps.configMapName }}
+        resources:
+          requests:
+            memory: {{ .Values.gapps.resources.requests.memory }}
+            cpu: {{ .Values.gapps.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.gapps.resources.limits.memory }}
+            cpu: {{ .Values.gapps.resources.limits.cpu }}
+{{- end }}

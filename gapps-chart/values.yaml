@@ -1,0 +1,119 @@
+# Default values for gapps-chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+showPostInstallNotes: true
+
+# Global values
+replicaCount: 1
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Common image configuration for gapps and gapps-worker
+commonImage:
+  repository: bmarsh13/gapps
+  tag: "3.5.3"
+  pullPolicy: IfNotPresent
+
+# Ingress settings
+ingress:
+  enabled: false
+  backendServiceName: gapps-service
+  backendServicePort: 5000
+  tlsSecretName: example-tls #TODO: Still trying to figure this out. 
+  host: gapps.example.com  # Specify the desired host here as a string
+
+
+# gapps application values
+gapps:
+  enabled: true
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "250m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+  service:
+    type: ClusterIP
+    port: 5000
+    targetPort: 5000
+  config:
+    DOC_LINK: "https://github.com/bmarsh9/gapps"
+    VERSION: "3.5.3"
+    APP_NAME: "Gapps"
+    RESET_DB: "no"
+    GUNICORN_WORKERS: "2"
+    MAIL_USE_TLS: "True"  # Enables TLS encryption for secure email transmission. Set to "False" if using SSL encryption on port 465.
+    MAIL_USE_SSL: "False"  # Enables SSL encryption for secure email transmission. Set to "True" if using SSL encryption on port 465.
+    MAIL_DEBUG: "True"  # Enables debug information for the mail service. Useful for troubleshooting. Set to "False" in production for normal operation.
+    MAIL_DEFAULT_SENDER: "noreply@example.com"  # The default email address used as the sender for outgoing emails.
+    MAIL_MAX_EMAILS: None  # Limits the maximum number of emails to send per send() call. "None" means no limit.
+    MAIL_SUPPRESS_SEND: "False"  # Suppresses actual sending of emails when set to "True". Useful for testing. Set to "True" in testing environments and "False" in production.
+    MAIL_ASCII_ATTACHMENTS: "False"  # If set to "True", it ensures attachment filenames are ASCII only.
+    MAIL_SERVER: "localhost"  # The SMTP server through which emails are sent.
+    MAIL_PORT: "25"  # The port used for the SMTP server. Commonly 587 for TLS or 465 for SSL.
+    ONESHOT: "no"
+    INIT_MIGRATE: "no"
+    MIGRATE: "no"
+  configMapName: gapps-config
+  secretName: gapps-secrets
+  networkPolicy:
+    enabled: true
+
+# gapps-worker application values
+gappsWorker:
+  enabled: true
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "250m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+  config:
+    WORKER_CONCURRENCY: "1"
+    WORKER_LOG_LEVEL: "DEBUG"
+  environment:
+    AS_WORKER: "yes"
+  networkPolicy:
+    enabled: true
+
+# PostgreSQL database values
+postgres:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: postgres
+    tag: "latest"
+  credentials:
+    username: "YWRtaW5AZXhhbXBsZS5jb20="  # Base64 encoded username
+    password: "YWRtaW4="  # Base64 encoded password
+  dbName: "gapps"
+  pgData: "/data/postgres/pgdata"
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  persistence:
+    size: "10Gi"
+  service:
+    port: 5432
+    targetPort: 5432
+
+# gapps secrets configuration
+gappsSecrets:
+  # Uncomment and provide values for the secrets you want to set
+  #POSTGRES_USER: "base64-encoded-username"
+  #POSTGRES_PASSWORD: "base64-encoded-password"
+  #POSTGRES_HOST: "base64-encoded-host"
+  #POSTGRES_DB: "base64-encoded-dbname"
+  #DEFAULT_EMAIL: "base64-encoded-email"
+  #DEFAULT_PASSWORD: "base64-encoded-default-password"
+  #SQLALCHEMY_DATABASE_URI: "base64-encoded-uri"
+  #MAIL_USERNAME: "base64-encoded-mail-username"
+  #MAIL_PASSWORD: "base64-encoded-mail-password"

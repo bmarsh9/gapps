@@ -2,6 +2,8 @@ version: '3'
 services:
   gapps:
     container_name: gapps
+    build: 
+      context: .
     image: bmarsh13/gapps:3.5.3
     depends_on:
       - postgres
@@ -26,6 +28,8 @@ services:
       - GUNICORN_WORKERS=2
   gapps-worker:
     container_name: gapps-worker
+    build: 
+      context: .
     image: bmarsh13/gapps:3.5.3
     depends_on:
       - postgres

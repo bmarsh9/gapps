@@ -1,0 +1,14 @@
+{{- if .Values.gapps.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: gapps-service
+spec:
+  selector:
+    app: gapps
+  ports:
+  - protocol: TCP
+    port: {{ .Values.gapps.service.port }}
+    targetPort: {{ .Values.gapps.service.targetPort }}
+  type: {{ .Values.gapps.service.type }}
+{{- end }}
