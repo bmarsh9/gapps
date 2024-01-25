@@ -15,15 +15,22 @@ commonImage:
   repository: bmarsh13/gapps
   tag: "3.5.3"
   pullPolicy: IfNotPresent
+  imagePullSecrets: 
+  - name: "dockerhub-secret"
+
 
 # Ingress settings
 ingress:
   enabled: false
   backendServiceName: gapps-service
   backendServicePort: 5000
-  tlsSecretName: example-tls #TODO: Still trying to figure this out. 
+  tlsSecretName: example-tls
   host: gapps.example.com  # Specify the desired host here as a string
 
+  # IP Whitelisting
+  # Configured to allow traffic only from Cloudflare IP ranges for enhanced security.
+  # This setting acts as an additional layer of security, restricting access to the specified IP ranges.
+  whitelistSourceRange: "173.245.48.0/20, 103.21.244.0/22, 103.22.200.0/22, 103.31.4.0/22, 141.101.64.0/18, 108.162.192.0/18, 190.93.240.0/20, 188.114.96.0/20, 197.234.240.0/22, 198.41.128.0/17, 162.158.0.0/15, 104.16.0.0/13, 104.24.0.0/14, 172.64.0.0/13, 131.0.72.0/22"
 
 # gapps application values
 gapps:
@@ -43,17 +50,18 @@ gapps:
     DOC_LINK: "https://github.com/bmarsh9/gapps"
     VERSION: "3.5.3"
     APP_NAME: "Gapps"
+    ENABLE_SELF_REGISTRATION: "False"
     RESET_DB: "no"
     GUNICORN_WORKERS: "2"
     MAIL_USE_TLS: "True"  # Enables TLS encryption for secure email transmission. Set to "False" if using SSL encryption on port 465.
     MAIL_USE_SSL: "False"  # Enables SSL encryption for secure email transmission. Set to "True" if using SSL encryption on port 465.
     MAIL_DEBUG: "True"  # Enables debug information for the mail service. Useful for troubleshooting. Set to "False" in production for normal operation.
     MAIL_DEFAULT_SENDER: "noreply@example.com"  # The default email address used as the sender for outgoing emails.
-    MAIL_MAX_EMAILS: None  # Limits the maximum number of emails to send per send() call. "None" means no limit.
+    MAIL_MAX_EMAILS: "10"  # Limits the maximum number of emails to send per send() call. "None" means no limit.
     MAIL_SUPPRESS_SEND: "False"  # Suppresses actual sending of emails when set to "True". Useful for testing. Set to "True" in testing environments and "False" in production.
     MAIL_ASCII_ATTACHMENTS: "False"  # If set to "True", it ensures attachment filenames are ASCII only.
     MAIL_SERVER: "localhost"  # The SMTP server through which emails are sent.
-    MAIL_PORT: "25"  # The port used for the SMTP server. Commonly 587 for TLS or 465 for SSL.
+    MAIL_PORT: "587"  # The port used for the SMTP server. Commonly 587 for TLS or 465 for SSL.
     ONESHOT: "no"
     INIT_MIGRATE: "no"
     MIGRATE: "no"
@@ -87,9 +95,6 @@ postgres:
   image:
     repository: postgres
     tag: "latest"
-  credentials:
-    username: "YWRtaW5AZXhhbXBsZS5jb20="  # Base64 encoded username
-    password: "YWRtaW4="  # Base64 encoded password
   dbName: "gapps"
   pgData: "/data/postgres/pgdata"
   resources:
@@ -107,13 +112,14 @@ postgres:
 
 # gapps secrets configuration
 gappsSecrets:
+  enabled: true
   # Uncomment and provide values for the secrets you want to set
-  #POSTGRES_USER: "base64-encoded-username"
-  #POSTGRES_PASSWORD: "base64-encoded-password"
-  #POSTGRES_HOST: "base64-encoded-host"
-  #POSTGRES_DB: "base64-encoded-dbname"
-  #DEFAULT_EMAIL: "base64-encoded-email"
-  #DEFAULT_PASSWORD: "base64-encoded-default-password"
-  #SQLALCHEMY_DATABASE_URI: "base64-encoded-uri"
-  #MAIL_USERNAME: "base64-encoded-mail-username"
-  #MAIL_PASSWORD: "base64-encoded-mail-password"
+  POSTGRES_USER: "PLACEHOLDER"
+  POSTGRES_PASSWORD: "PLACEHOLDER"
+  POSTGRES_HOST: "PLACEHOLDER"
+  POSTGRES_DB: "PLACEHOLDER"
+  DEFAULT_EMAIL: "PLACEHOLDER"
+  DEFAULT_PASSWORD: "PLACEHOLDER"
+  SQLALCHEMY_DATABASE_URI: "PLACEHOLDER"
+  MAIL_USERNAME: "PLACEHOLDER"
+  MAIL_PASSWORD: "PLACEHOLDER"
