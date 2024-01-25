@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-gapps-ingress
+  name: gapps-ingress
   labels:
     app.kubernetes.io/name: gapps
     app.kubernetes.io/instance: {{ .Release.Name }}
@@ -11,6 +11,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: 2500m
     nginx.ingress.kubernetes.io/proxy-buffer-size: 12k
     nginx.ingress.kubernetes.io/backend-protocol: HTTP
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ .Values.ingress.whitelistSourceRange }}
     nginx.ingress.kubernetes.io/configuration-snippet: |
       more_set_headers "X-Frame-Options SAMEORIGIN always";
       more_set_headers "X-XSS-Protection 1; mode=block";
@@ -20,8 +21,6 @@ metadata:
       more_set_headers "Feature-Policy geolocation 'none';midi 'none';sync-xhr 'none';microphone 'none';camera 'none';magnetometer 'none';gyroscope 'none';fullscreen 'self';payment 'none';";
       more_set_headers "Permissions-Policy geolocation=(),midi=(),sync-xhr=(),microphone=(),camera=(),magnetometer=(),gyroscope=(),fullscreen=(self),payment=()";
       more_set_headers "server_tokens off;";
-    nginx.ingress.kubernetes.io/modsecurity-snippet: |
-      Include /etc/nginx/owasp-modsecurity-crs/nginx-modsecurity.conf"
 spec:
   ingressClassName: nginx
   rules:
@@ -35,8 +34,8 @@ spec:
                 name: {{ .Values.ingress.backendServiceName }}
                 port:
                   number: {{ .Values.ingress.backendServicePort }}
-  # tls:
-  #   - hosts:
-  #       - host: example-tls  # Use the host value from values.yaml
-  #     secretName: {{ .Values.ingress.tlsSecretName }}
+  tls:
+    - hosts:
+        - {{ .Values.ingress.host }}
+      secretName: {{ .Values.ingress.tlsSecretName }}
 {{- end }}

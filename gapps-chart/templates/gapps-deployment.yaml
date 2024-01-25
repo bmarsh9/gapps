@@ -13,6 +13,8 @@ spec:
       labels:
         app: gapps
     spec:
+      imagePullSecrets:
+      - name: {{ index .Values.commonImage.imagePullSecrets 0 "name" }}
       containers:
       - name: gapps
         image: {{ .Values.commonImage.repository }}:{{ .Values.commonImage.tag }}
