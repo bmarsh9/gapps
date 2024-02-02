@@ -3,7 +3,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True) }}
+  {{ macro.filehelper(datatables=True,utils=True) }}
 {% endblock %}
 
 {%block page_header_title%}Tenants{%endblock%}
@@ -124,6 +124,7 @@
       "approved_domains":$(".approved-domains").val(),
       "magic_link": $(".magic-link-enabled").is(':checked')
     }
+    disableButton('.save-tenant-btn');
     $.ajax({
       type: "PUT",
       url: `/api/v1/tenants/${id}`,
@@ -139,7 +140,10 @@
       error: function(errMsg) {
         toast(errMsg["responseJSON"]["message"],"error")
         return(errMsg);
-      }
+      },
+      complete: function() {
+        enableButton('.save-tenant-btn');
+      },
     })
   });
   $(document).on('click', '.edit-tenant-btn', function() {
@@ -221,6 +225,7 @@
       "contact_email":email,
       "approved_domains":approved_domains,
     }
+    disableButton('.save-tenant-btn');
     $.ajax({
       type: "POST",
       url: `/api/v1/tenants`,
@@ -237,7 +242,10 @@
         toast(errMsg["responseJSON"]["message"],"error")
         document.getElementById('add-tenant-modal').checked = false;
         return(errMsg);
-      }
+      },
+      complete: function() {
+        enableButton('.save-tenant-btn');
+      },
     })
     document.getElementById('add-tenant-modal').checked = true;
   });

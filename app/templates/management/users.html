@@ -3,7 +3,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True) }}
+  {{ macro.filehelper(datatables=True,utils=True) }}
 {% endblock %}
 
 {%block page_header_title%}User Management{%endblock%}
@@ -128,6 +128,7 @@
       "is_active": $("#active").is(':checked'),
       "is_super": $("#super").is(':checked')
     }
+    disableButton('.save-edit-btn');
     $.ajax({
       type: "PUT",
       url: `/api/v1/users/${id}`,
@@ -142,7 +143,10 @@
       },
       error: function(errMsg) {
         return(errMsg);
-      }
+      },
+        complete: function() {
+        enableButton('.save-edit-btn');
+      },
     })
   });
   $(document).on('click', '.edit-user-btn', function() {
@@ -181,6 +185,7 @@
         "email": $("#new-email").val(),
         "tenant_id": $("#new-tenant").val()
       }
+      disableButton('.save-user-btn');
       $.ajax({
         type: "POST",
         url: `/api/v1/admin/users`,
@@ -203,8 +208,10 @@
           toast(errMsg["responseJSON"]["message"],"error")
           document.getElementById('add-user-modal').checked = false;
           return(errMsg);
-        }
-
+        },
+        complete: function () {
+          enableButton('.save-user-btn');
+        },
       })
   });
 

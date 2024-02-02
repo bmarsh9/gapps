@@ -4,7 +4,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True) }}
+  {{ macro.filehelper(datatables=True,utils=True) }}
 {% endblock %}
 
 {%block page_header_title%}Tags<p class="text-sm  font-medium">Tags allow you to logically group controls, policies together</p>{%endblock%}
@@ -83,6 +83,7 @@
         }
         data = {"name":name}
         var selectedTenant = getTenant();
+        disableButton('.save-tag-btn');
         $.ajax({
           type: "POST",
           url: `/api/v1/tenants/${selectedTenant.id}/tags`,
@@ -97,7 +98,10 @@
           },
           error: function(errMsg) {
             return(errMsg);
-          }
+          },
+          complete: function() {
+            enableButton('.save-tag-btn');
+          },
         })
     });
   function loadTagTable() {

@@ -4,7 +4,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True,select2=True,apex=True,editor=True,mentions=True) }}
+  {{ macro.filehelper(datatables=True,select2=True,apex=True,editor=True,mentions=True,utils=True) }}
   <style>
     .breadcrumbs>ul>li+:before {
       margin-top: 5px;
@@ -114,7 +114,7 @@
       <div class="grid grid-cols-6 gap-6"><div class="col-span-6"><label class="block font-medium mb-2">Add Members to Project</label><select class="input-members w-full" name="members[]" multiple="multiple"/></select></div></div>
     </div>
     <div class="modal-action">
-      <button @click="addMembers" class="btn btn-primary">Save</button>
+      <button @click="addMembers" class="btn btn-primary add-project-member-btn">Save</button>
     </div>
   </div>
 </div>
@@ -577,6 +577,7 @@ function saveComment(e) {
     if (!value) {
       return
     }
+    disableButton('.add-project-comment-btn');
     $.ajax({
         type: "POST",
         url: `/api/v1/projects/{{project.id}}/comments`,
@@ -593,7 +594,10 @@ function saveComment(e) {
         error: function(errMsg) {
             toast(errMsg["responseJSON"]["message"],"error")
             return(errMsg);
-        }
+        },
+        complete: function() {
+            enableButton('.add-project-comment-btn');
+        },
     })
 }
 function loadReport() {
@@ -621,7 +625,7 @@ function loadComments() {
             </div>
             {%if not auditor or project.project.can_auditor_write_comments%}
             <div class="my-auto flex justify-between gap-x-2">
-              <button @click="saveComment" class="btn btn-sm btn-primary">Send</button>
+              <button @click="saveComment" class="btn btn-sm btn-primary add-project-comment-btn">Send</button>
             </div>
             {%endif%}
           </div>
@@ -1457,6 +1461,7 @@ function removeMember(user_id) {
   })
 }
 function addMembers() {
+  disableButton('.add-project-member-btn');
   $.ajax({
     type: "POST",
     url: `/api/v1/projects/{{project.id}}/members`,
@@ -1471,7 +1476,10 @@ function addMembers() {
     error: function(errMsg) {
         toast(errMsg["responseJSON"]["message"],"error")
         return(errMsg);
-    }
+    },
+    complete: function() {
+      enableButton('.add-project-member-btn');
+    },
   })
 }
 
@@ -1644,6 +1652,7 @@ $(document).on('click', '.save-btn', function() {
     "can_auditor_read_comments":$("#can_auditor_read_comments").is(':checked'),
     "can_auditor_write_comments":$("#can_auditor_write_comments").is(':checked'),
   };
+  disableButton('.save-btn');
   $.ajax({
     type: "POST",
     url: `/api/v1/projects/{{project.id}}/settings`,
@@ -1656,7 +1665,10 @@ $(document).on('click', '.save-btn', function() {
     error: function(errMsg) {
         toast(errMsg["responseJSON"]["message"],"error")
         return(errMsg);
-    }
+    },
+    complete: function() {
+      enableButton('.save-btn');
+    },
   })
 });
 

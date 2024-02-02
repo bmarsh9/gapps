@@ -4,7 +4,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True) }}
+  {{ macro.filehelper(datatables=True,utils=True) }}
 {% endblock %}
 
 {%block page_header_title%}Labels<p class="text-sm  font-medium">Labels are variables that are used in your policies</p>{%endblock%}
@@ -92,6 +92,7 @@
         }
         data = {"key":key,"value":value}
         var selectedTenant = getTenant();
+        disableButton('.save-label-btn');
         $.ajax({
           type: "POST",
           url: `/api/v1/tenants/${selectedTenant.id}/labels`,
@@ -106,7 +107,10 @@
           },
           error: function(errMsg) {
             return(errMsg);
-          }
+          },
+          complete: function() {
+            enableButton('.save-label-btn');
+          },
         })
     });
   function loadLabelTable() {

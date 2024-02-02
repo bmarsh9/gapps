@@ -4,7 +4,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True,select2=True,apex=True) }}
+  {{ macro.filehelper(datatables=True,select2=True,apex=True,utils=True) }}
 {% endblock %}
 
 {%block header%}{%endblock%}
@@ -283,6 +283,7 @@ $(document).on('click', '.modal-button', function() {
           "framework":framework,
         }
       }
+      disableButton('.create-project');
       $.ajax({
         type: "POST",
         url: `/api/v1/tenants/${selectedTenant.id}/projects`,
@@ -299,7 +300,10 @@ $(document).on('click', '.modal-button', function() {
         error: function(errMsg) {
           toast(errMsg["responseJSON"]["message"],"error")
           return(errMsg);
-        }
+        },
+        complete: function() {
+          enableButton('.create-project');
+        },
       })
     });
 
