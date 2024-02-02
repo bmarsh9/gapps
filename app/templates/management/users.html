@@ -128,6 +128,7 @@
       "is_active": $("#active").is(':checked'),
       "is_super": $("#super").is(':checked')
     }
+    disableButton('.save-edit-btn');
     $.ajax({
       type: "PUT",
       url: `/api/v1/users/${id}`,
@@ -142,13 +143,15 @@
       },
       error: function(errMsg) {
         return(errMsg);
-      }
+      },
+        complete: function() {
+        enableButton('.save-edit-btn');
+      },
     })
   });
   $(document).on('click', '.edit-user-btn', function() {
       var id = $(this).data('user-id')
       $(".save-edit-btn").data("user-id",id)
-      disableButton('.edit-user-btn');
       $.ajax({
         type: "GET",
         url: `/api/v1/admin/users/${id}`,
@@ -170,10 +173,7 @@
         error: function(errMsg) {
           toast(errMsg["responseJSON"]["message"],"error")
           return(errMsg);
-        },
-        complete: function() {
-          enableButton('.edit-user-btn');
-        },
+        }
       })    
   });
 
