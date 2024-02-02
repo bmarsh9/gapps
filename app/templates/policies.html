@@ -4,7 +4,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True) }}
+  {{ macro.filehelper(datatables=True,utils=True) }}
 {% endblock %}
 
 {%block page_header_title%}Policies<p class="text-sm  font-medium">Policies can be added to your projects and associated with controls</p>{%endblock%}
@@ -212,6 +212,7 @@
       var id = $(this).data("id")
       var email = $(".owner-policy-id").val();
       data["owner_id"] = email ? email : null;
+      disableButton('.save-policy-owner-btn');
       $.ajax({
         type: "PATCH",
         url: `/api/v1/policies/${$(this).data("policy_id")}/owner`,
@@ -224,7 +225,10 @@
         },
         error: function(errMsg) {
           toast("Hmm.. something went wrong", "error")
-        }
+        },
+        complete: function() {
+          enableButton('.save-policy-owner-btn');
+        },
       })
       document.getElementById('policy-owner-modal').checked = false;
     });
@@ -234,6 +238,7 @@
       var id = $(this).data("id")
       var email = $(".reviewer-policy-id").val();
       data["reviewer_id"] = email ? email : null;
+      disableButton('.save-policy-reviewer-btn');
       $.ajax({
         type: "PATCH",
         url: `/api/v1/policies/${$(this).data("policy_id")}/reviewer`,
@@ -246,7 +251,10 @@
         },
         error: function(errMsg) {
           toast("Hmm.. something went wrong", "error")
-        }
+        },
+        complete: function() {
+          enableButton('.save-policy-reviewer-btn');
+        },
       })
       document.getElementById('policy-reviewer-modal').checked = false;
     });
@@ -261,6 +269,7 @@
            "code":$("#code").val(),
        };
        var selectedTenant = getTenant();
+       disableButton('.create-policy');
        $.ajax({
          type: "POST",
          url: `/api/v1/tenants/${selectedTenant.id}/policies`,
@@ -275,12 +284,16 @@
          },
          error: function(errMsg) {
              return(errMsg);
-         }
+         },
+         complete: function() {
+            enableButton('.create-policy');
+         },
        })
      });
      $(document).on('click', '.btn-save-policy-to-project', function() {
        var policyId = $(this).data('id')
        var selectedProjectId = $("#selected-project").val()
+       disableButton('.btn-save-policy-to-project');
        $.ajax({
          type: "PUT",
          url: `/api/v1/policies/${policyId}/projects/${selectedProjectId}`,
@@ -293,7 +306,10 @@
          },
          error: function(errMsg) {
              return(errMsg);
-         }
+         },
+         complete: function() {
+            enableButton('.btn-save-policy-to-project');
+         },
        })
      });
 

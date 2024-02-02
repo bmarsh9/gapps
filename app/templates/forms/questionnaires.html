@@ -3,7 +3,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True,select2=True) }}
+  {{ macro.filehelper(datatables=True,select2=True,utils=True) }}
 {% endblock %}
 
 {%block page_header_title%}Questionnaires{%endblock%}
@@ -165,6 +165,7 @@
     var data = {
       "guests": $("#access").val()
     }
+    disableButton('.save-access-btn');
     $.ajax({
       type: "PUT",
       url: `/api/v1/questionnaires/${id}/guests`,
@@ -180,7 +181,10 @@
       error: function(errMsg) {
         toast(errMsg["responseJSON"]["message"],"error")
         return(errMsg);
-      }
+      },
+      complete: function() {
+        enableButton('.save-access-btn');
+      },
     })    
   })
   $(document).on('click', '.save-edit-btn', function() {
@@ -193,6 +197,7 @@
       "vendor": $("#edit-vendor").val(),
       "enabled": enabled
     }
+    disableButton('.save-edit-btn');
     $.ajax({
       type: "PUT",
       url: `/api/v1/questionnaires/${id}`,
@@ -208,7 +213,10 @@
       error: function(errMsg) {
         toast(errMsg["responseJSON"]["message"],"error")
         return(errMsg);
-      }
+      },
+      complete: function() {
+        enableButton('.save-edit-btn');
+      },
     })
   });
   $(document).on('click', '.edit-access-btn', function() {
@@ -273,6 +281,7 @@
         "vendor": $("#vendor").val(),
         "template": $("#template").val()
       }
+      disableButton('.save-questionnaire-btn');
       $.ajax({
         type: "POST",
         url: `/api/v1/tenants/${selectedTenant.id}/questionnaires`,
@@ -289,8 +298,10 @@
           toast(errMsg["responseJSON"]["message"],"error")
           document.getElementById('add-questionnaire-modal').checked = false;
           return(errMsg);
-        }
-
+        },
+        complete: function() {
+          enableButton('.save-questionnaire-btn');
+        },
       })
   });
 

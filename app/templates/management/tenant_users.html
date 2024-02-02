@@ -3,7 +3,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True,select2=True) }}
+  {{ macro.filehelper(datatables=True,select2=True,utils=True) }}
 {% endblock %}
 
 {%block page_header_title%}Tenant Users{%endblock%}
@@ -108,6 +108,7 @@
     data = {
       "roles":$(".input-roles").val()
     }
+    disableButton('.save-edit-btn');
     $.ajax({
       type: "PUT",
       url: `/api/v1/users/${id}/tenants/${selectedTenant.id}`,
@@ -123,12 +124,16 @@
       error: function(errMsg) {
         toast(errMsg["responseJSON"]["message"],"error")
         return(errMsg);
-      }
+      },
+      complete: function() {
+        enableButton('.save-edit-btn');
+      },
     })
   });
   $(document).on('click', '.save-remove-btn', function() {
     var selectedTenant = getTenant();
     var id = $(this).data('user-id')
+    disableButton('.save-remove-btn');
     $.ajax({
       type: "DELETE",
       url: `/api/v1/users/${id}/tenants/${selectedTenant.id}`,
@@ -143,7 +148,10 @@
       error: function(errMsg) {
         toast(errMsg["responseJSON"]["message"],"error")
         return(errMsg);
-      }
+      },
+      complete: function() {
+        enableButton('.save-remove-btn');
+      },
     })
   });
   $(document).on('click', '.edit-user-btn', function() {
@@ -190,6 +198,7 @@
         "email": $("#email").val(),
         "roles":$(".user-roles").val()
       }
+      disableButton('.save-user-btn');
       $.ajax({
         type: "POST",
         url: `/api/v1/tenants/${selectedTenant.id}/invite-user`,
@@ -217,7 +226,10 @@
           toast(errMsg["responseJSON"]["message"],"error")
           document.getElementById('add-user-modal').checked = false;
           return(errMsg);
-        }
+        },
+        complete: function() {
+          enableButton('.save-user-btn');
+        },
 
       })
   });

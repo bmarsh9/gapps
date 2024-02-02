@@ -4,7 +4,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True,select2=True) }}
+  {{ macro.filehelper(datatables=True,select2=True,utils=True) }}
 {% endblock %}
 
 {%block page_header_title%}Controls<p class="text-sm  font-medium">Controls can be added to your projects. When you create a project, you can import a framework (which contains controls).</p>{%endblock%}
@@ -331,6 +331,7 @@
           }
         });
         var selectedTenant = getTenant();
+        disableButton('.save-control');
         $.ajax({
           type: "POST",
           url: `/api/v1/tenants/${selectedTenant.id}/controls`,
@@ -345,7 +346,10 @@
           },
           error: function(errMsg) {
             return(errMsg);
-          }
+          },
+          complete: function() {
+            enableButton('.save-control');
+          },
         })
     });
         var counter = 2;
@@ -400,6 +404,7 @@
      $(document).on('click', '.btn-save-control-to-project', function() {
        var controlId = $(this).data('id')
        var selectedProjectId = $("#selected-project").val()
+       disableButton('.btn-save-control-to-project')
        $.ajax({
          type: "PUT",
          url: `/api/v1/controls/${controlId}/projects/${selectedProjectId}`,
@@ -412,7 +417,10 @@
          },
          error: function(errMsg) {
              return(errMsg);
-         }
+         },
+         complete: function() {
+          enableButton('.btn-save-control-to-project');
+         },
        })
      });
 
