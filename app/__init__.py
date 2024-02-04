@@ -110,4 +110,8 @@ def registering_blueprints(app):
 
     from app.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
+
+    # Import and register the OIDC blueprint
+    from app.auth.oidc import oidc_bp
+    app.register_blueprint(oidc_bp, url_prefix='/oidc')
     return

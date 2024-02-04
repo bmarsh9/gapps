@@ -1567,6 +1567,7 @@ class User(LogMixin, db.Model, UserMixin):
     questionnaires = db.relationship('QuestionnaireGuest', backref='user', lazy='dynamic')
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    oidc_identifier = db.Column(db.String(255), unique=True, nullable=True)
 
     @validates('email')
     def _validate_email(self, key, address):
@@ -1587,6 +1588,24 @@ class User(LogMixin, db.Model, UserMixin):
             return False
         return True
 
+    @staticmethod
+    def create_or_get_from_oidc(user_info):
+        user = User.query.filter_by(email=user_info['email']).first()
+        if not user:
+            # Example of setting additional fields if available
+            first_name = user_info.get('given_name', '')
+            last_name = user_info.get('family_name', '')
+
+            user = User(email=user_info['email'],
+                        oidc_identifier=user_info.get('sub'),
+                        first_name=first_name,
+                        last_name=last_name,
+                        # Set other necessary fields
+                        )
+            db.session.add(user)
+            db.session.commit()
+        return user
+    
     @staticmethod
     def validate_email(email):
         if not email:
@@ -1962,7 +1981,7 @@ class Questionnaire(LogMixin, db.Model):
         content = f"You have been invited to {current_app.config['APP_NAME']} for a questionnaire. Please click the button below to begin."
         send_email(
           title,
-          sender=current_app.config['MAIL_USERNAME'],
+          sender = current_app.config.get('MAIL_DEFAULT_SENDER', current_app.config['MAIL_USERNAME']),
           recipients=[email],
           text_body=render_template(
             'email/basic_template.txt',

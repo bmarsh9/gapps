@@ -1,4 +1,5 @@
 from sqlalchemy.engine.url import make_url
+from datetime import timedelta
 from flask import request
 import os
 
@@ -24,10 +25,10 @@ class Config:
         HOST_NAME = ""
 
     LOG_TYPE = os.environ.get("LOG_TYPE", "stream")
-    LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+    LOG_LEVEL = os.environ.get("LOG_LEVEL", "DEBUG")
     WORKER_LOG_LEVEL = os.environ.get("WORKER_LOG_LEVEL", LOG_LEVEL)
 
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'change_secret_key')
+    SECRET_KEY = os.environ.get('SECRET_KEY') or os.urandom(24)
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = False
@@ -37,6 +38,7 @@ class Config:
     MAIL_DEBUG = os.environ.get("MAIL_DEBUG", "False") == "True"
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
     BASE_DIR = basedir
     ENABLE_SELF_REGISTRATION = os.environ.get("ENABLE_SELF_REGISTRATION",False)
     ENABLE_GOOGLE_AUTH = os.environ.get("ENABLE_GOOGLE_AUTH","0")
@@ -52,6 +54,21 @@ class Config:
     os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = OAUTHLIB_RELAX_TOKEN_SCOPE
     GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")
     GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID")
+
+    # Session Management
+    PERMANENT_SESSION_LIFETIME = timedelta(days=7)
+    SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = 'Lax'  # or 'Strict'
+    SESSION_COOKIE_HTTPONLY = False
+   
+    # OIDC Configuration
+    ENFORCE_OIDC_AUTH = os.environ.get("ENFORCE_OIDC_AUTH", "0")  # Enforce OIDC authentication (default to "0" if not set)
+    ENABLE_OIDC_AUTH = os.environ.get("ENABLE_OIDC_AUTH", "0")  # Enable OIDC authentication (default to "0" if not set)
+    IDENTITY_PROVIDER_NAME = os.environ.get("IDENTITY_PROVIDER_NAME", "Azure AD")  # Set the Identity Provider name (default to "AzureAD" if not set)
+    OIDC_CLIENT_ID = os.environ.get("OIDC_CLIENT_ID")
+    OIDC_CLIENT_SECRET = os.environ.get("OIDC_CLIENT_SECRET")
+    OIDC_DISCOVERY_URL = os.environ.get("OIDC_DISCOVERY_URL") #https://login.IDP.com/.well-known/openid-configuration
+    OIDC_LOGOUT_URL = os.environ.get("OIDC_LOGOUT_URL")
 
     UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", os.path.join(basedir, "app/files/reports"))
     FRAMEWORK_FOLDER = os.environ.get("FRAMEWORK_FOLDER", os.path.join(basedir, "app/files/base_controls"))

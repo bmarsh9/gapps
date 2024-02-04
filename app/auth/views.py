@@ -9,8 +9,11 @@ from flask import (
     Blueprint,
     url_for,
     current_app,
-    abort
+    abort,
+    session
 )
+
+from .oidc import get_oidc_client
 from flask_babel import lazy_gettext as _l
 from flask_login import current_user, logout_user, login_user, login_required
 from . import auth
@@ -22,6 +25,55 @@ from app.utils import misc
 import datetime
 
 logger = logging.getLogger(__name__)
+
+@auth.route('/oidc/login')
+def oidc_login():
+    oidc = get_oidc_client()
+    redirect_uri = url_for('.oidc_auth', _external=True)  # Callback URL
+
+    # Initiate the OIDC authorization redirect
+    return oidc.authorize_redirect(redirect_uri)
+
+
+@auth.route('/oidc/auth')
+def oidc_auth():
+    oidc = get_oidc_client()
+    try:
+        # Logging at the start of the authentication process
+        logger.debug("Starting OIDC authentication process")
+
+        # Retrieve the nonce from the session
+        nonce = session.get('oidc_nonce', None)
+        logger.debug(f"Nonce value before OIDC request: {nonce}")  # Echo the nonce in the logs before the request
+
+        # Retrieve the token
+        token = oidc.authorize_access_token()
+        logger.debug(f"Received token: {token}")
+
+        # Parse the ID token using the nonce
+        user_info = oidc.parse_id_token(token, nonce=nonce)
+        logger.debug(f"User info obtained: {user_info}")
+
+        # Check if user exists or create new user
+        user = User.find_by_email(user_info['email'])
+        if not user:
+            # Create user from OIDC info
+            user = User.create_from_oidc(user_info)
+            logger.debug(f"New user created: {user}")
+        else:
+            logger.debug(f"Existing user found: {user}")
+
+        # Log in the user
+        login_user(user)
+        logger.debug(f"User logged in: {user}")
+
+        # Redirect to the home page
+        return redirect(url_for('main.home'))
+    except Exception as e:
+        error_message = f'OIDC authentication failed: {e}'
+        logger.error(error_message)
+        flash(error_message, 'error')
+        return redirect(url_for('auth.login'))
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -79,7 +131,7 @@ def login_with_magic_link(tid):
         content = f"You have requested a login via email. If you did not request a magic link, please ignore. Otherwise, please click the button below to login."
         send_email(
             title,
-            sender=current_app.config['MAIL_USERNAME'],
+            sender = current_app.config.get('MAIL_DEFAULT_SENDER', current_app.config['MAIL_USERNAME']),
             recipients=[email],
             text_body=render_template(
                 'email/basic_template.txt',
@@ -121,10 +173,17 @@ def validate_magic_link(token):
 
 @auth.route('/logout')
 def logout():
+    # You can add the OIDC logout URL here
+    oidc_logout_url = current_app.config.get('OIDC_LOGOUT_URL')
     logout_user()
     flash("You are logged out", "success")
     Logs.add(f"{current_user} logged out")
-    return redirect(url_for('auth.login'))
+    # Redirect to the OIDC logout URL
+    if oidc_logout_url:
+        return redirect(oidc_logout_url)
+    else:
+        # If OIDC_LOGOUT_URL is not configured, you can redirect to another page or provide a message
+        return redirect(url_for('auth.login'))
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -181,7 +240,7 @@ def reset_password_request():
         content = f"You have requested a password reset. If you did not request a reset, please ignore. Otherwise, click the button below to continue."
         send_email(
             title,
-            sender=current_app.config['MAIL_USERNAME'],
+            sender = current_app.config.get('MAIL_DEFAULT_SENDER', current_app.config['MAIL_USERNAME']),
             recipients=[email],
             text_body=render_template(
                 'email/basic_template.txt',
