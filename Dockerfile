@@ -1,34 +1,51 @@
-# Using Ubuntu 20.04 as the base image
-FROM ubuntu:20.04 AS builder
+# Use Python 3.8 slim image as the builder stage
+FROM python:3.8.12-slim-buster AS builder
 
-# Set noninteractive environment to avoid prompts during build
-ENV DEBIAN_FRONTEND=noninteractive
+# Install build-time dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    libgirepository1.0-dev \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libgdk-pixbuf2.0-dev \
+    libffi-dev \
+    shared-mime-info \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies for the build stage
-RUN apt-get update && apt-get install -y libpq-dev python3-pip gcc \
-    && pip install --upgrade pip setuptools wheel
-
-# Copy only the requirements.txt to install Python dependencies
+# Install Python dependencies
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install -r requirements.txt
 
-# Start the second stage for the actual application
-FROM ubuntu:20.04 AS app
+# Use Python 3.8 slim image for the runtime stage
+FROM python:3.8.12-slim-buster AS app
 
-# Set noninteractive environment
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y libpq5 python3.8 weasyprint=51-2 \
+# Install runtime dependencies as root
+RUN apt-get update && apt-get install -y \
+    libpq5 \
+    libcairo2 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf2.0-0 \
+    shared-mime-info \
     && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user and switch to it
+RUN useradd -m gapps
+
+# Create the directory for Flask sessions and set permissions
+RUN mkdir -p /app/flask_session && chown -R gapps:gapps /app
+
+USER gapps
 
 # Copy installed Python packages from builder stage
 COPY --from=builder /usr/local /usr/local/
 
-# Copy the application source code to the container
+# Copy the application source code
 COPY . .
 
 # Define the command to run the application
