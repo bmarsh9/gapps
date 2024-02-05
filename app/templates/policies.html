@@ -52,28 +52,28 @@
 </label>
 
 <input type="checkbox" id="policy-owner-modal" class="modal-toggle" />
-<div class="modal">
-  <div class="modal-box">
-    <label for="ownerPolicyModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-    <label class="block text-sm font-medium mb-2">Owner of the Policy</label>
-    <select id='policy-owner-select' class="select select-md w-full max-w-xs select-bordered owner-policy-id"><option value="">Select an Owner</option></select>
+<label for="policy-owner-modal" class="modal cursor-pointer">
+  <label class="modal-box">
+    <div class="btn btn-sm btn-circle absolute right-2 top-2" @click="document.getElementById('policy-owner-modal').checked = false;">✕</div>
+    <label for="policy-owner-select" class="block text-sm font-medium mb-2">Owner of the Policy</label>
+    <select id="policy-owner-select" class="select select-md w-full max-w-xs select-bordered owner-policy-id"><option value="">Select an Owner</option></select>
     <div class="modal-action">
       <button data-id="" class="btn btn-primary save-policy-owner-btn">Save</button>
     </div>
-  </div>
-</div>
+  </label>
+</label>
 
 <input type="checkbox" id="policy-reviewer-modal" class="modal-toggle" />
-<div class="modal">
-  <div class="modal-box">
-    <label for="reviewerPolicyModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-    <label class="block text-sm font-medium mb-2">Reviewer of the Policy</label>
-    <select id='policy-reviewer-select' class="select select-md w-full max-w-xs select-bordered reviewer-policy-id"><option value="">Select a Reviewer</option></select>
+<label for="policy-reviewer-modal" class="modal cursor-pointer">
+  <label class="modal-box">
+    <div class="btn btn-sm btn-circle absolute right-2 top-2" @click="document.getElementById('policy-reviewer-modal').checked = false;">✕</div>
+    <label for="policy-reviewer-select" class="block text-sm font-medium mb-2">Reviewer of the Policy</label>
+    <select id="policy-reviewer-select" class="select select-md w-full max-w-xs select-bordered reviewer-policy-id"><option value="">Select a Reviewer</option></select>
     <div class="modal-action">
       <button data-id="" class="btn btn-primary save-policy-reviewer-btn">Save</button>
     </div>
-  </div>
-</div>
+  </label>
+</label>
 
 <input type="checkbox" id="policy-modal" class="modal-toggle" />
 <label for="policy-modal" class="modal cursor-pointer">
