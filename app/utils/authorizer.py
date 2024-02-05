@@ -140,10 +140,10 @@ class Authorizer:
 
     # tenant policy labels
     def can_user_manage_policy_label(self, label):
-        if not (label := self.id_to_obj("PolicyLabels", label)):
+        if not (label := self.id_to_obj("PolicyLabel", label)):
             return self.return_response(False, "policy label not found", 404)
         if self.user == label.owner_id or self._can_user_manage_tenant(label.tenant):
-            return self.return_response(True, AUTHORIZED_MSG, 200, tag=tag)
+            return self.return_response(True, AUTHORIZED_MSG, 200, label=label)
         return self.return_response(False, UNAUTHORIZED_MSG, 403)
 
     # tenant controls

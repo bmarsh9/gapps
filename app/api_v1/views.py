@@ -900,7 +900,7 @@ def set_applicability_of_control_for_project(cid):
 @api.route('/tenants/<int:tid>/tags/<int:ttid>', methods=['DELETE'])
 @login_required
 def delete_tag_for_tenant(tid, ttid):
-    result = Authorizer(current_user).can_user_manage_tag(tid)
+    result = Authorizer(current_user).can_user_manage_tag(ttid)
     db.session.delete(result["extra"]["tag"])
     db.session.commit()
     return jsonify({"message": "ok"})
