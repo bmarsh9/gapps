@@ -1,7 +1,21 @@
 {% extends "layouts/sidebar-nav.html" %}
 {%block content%}
     <div style="display: flex; flex-direction: column; justify-content: flex-start; align-items: center; height: 100vh;">
-        <h1 class="text-2xl font-semibold whitespace-nowrap mb-2">Upload for evidence "{{evidence_name}}"</h1>
-        <img src="{{ image_url }}" alt="Image">
+        <h1 class="text-2xl font-semibold whitespace-nowrap mb-2">Upload for evidence "{{ evidence_name }}"</h1>
+        <div class="w-full text-xl" style="display: flex; flex-direction: row; text-align: center; padding: 24px 10px;">
+            <div style="flex-grow: 1;">File: {{ file_name }}</div>
+            <div style="flex-grow: 1;">
+                <a id="download-link" href="{{ download_url }}" title="Download {{ file_name }}">Download file</a>
+            </div>
+        </div>
+        {%if file_type == "image"%}
+        <img src="{{ file_url }}" alt="Image">
+        {%elif file_type == "document"%}
+        <object data="{{ file_url }}" type="{{ content_type }}" class="w-full h-full">
+            <p style="padding: 20px; text-align: center;">It appears you don't have a plugin for viewing documents in this browser. You can still download the document by clicking the link above.</p>
+        </object>
+        {%elif file_type == "unknown"%}
+        <p style="padding: 20px; text-align: center;">Unknown file extension, unable to display file. You can still download the document by clicking the link above.</p>
+        {%endif%}
     </div>
 {%endblock%}
