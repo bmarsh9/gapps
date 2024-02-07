@@ -1,7 +1,9 @@
 from flask import current_app
 from app import models, db
+from app.utils.enums import DocumentFormat, FileType
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 from sqlalchemy import or_
+from typing import Optional
 import re
 
 def get_class_by_tablename(table):
@@ -139,3 +141,39 @@ def get_users_from_text(text, resolve_users=False, tenant=None):
             else:
                 data.append(user)
     return data
+
+def get_file_extension(filename: str) -> Optional[str]:
+    if '.' in filename:
+        return filename.split('.')[-1].lower()
+    else:
+        return None
+
+def get_file_type_by_extensions(filename: str) -> FileType:
+    extension: Optional[str] = get_file_extension(filename)
+    
+    if not extension:
+        return FileType.UNKNOWN
+
+    image_extensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp']
+    media_extensions = []
+    document_extensions = [key.lower() for key in DocumentFormat.__members__.keys()]
+    
+    if extension in image_extensions:
+        return FileType.IMAGE
+    elif extension in document_extensions:
+        return FileType.DOCUMENT
+    elif extension in media_extensions:
+        return FileType.MEDIA
+    
+    return FileType.UNKNOWN
+
+def get_content_type_for_extension(filename: str) -> Optional[str]:
+    extension: Optional[str] = get_file_extension(filename)
+    if not extension:
+        return None
+    
+    document_format = DocumentFormat.get(extension.upper(), None)
+    if document_format is not None:
+        return document_format.value
+    
+    return None

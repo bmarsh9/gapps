@@ -13,12 +13,20 @@ class S3(Singleton):
     def client(self):
         return self._client
 
-    def upload_file_obj(self, fileObj, key):
-        self.client.upload_fileobj(Fileobj=fileObj, Bucket=current_app.config['EVIDENCE_BUCKET'], Key=key)
+    def upload_file_obj(self, fileObj, key, extra_args = {}):
+        self.client.upload_fileobj(Fileobj=fileObj, Bucket=current_app.config['EVIDENCE_BUCKET'], Key=key, ExtraArgs=extra_args)
 
-    def generate_presigned_url(self, bucket_name, key):
-        return self.client.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': bucket_name, 'Key': key},
-            ExpiresIn=60
-        )
+    def generate_presigned_url(self, bucket_name: str, key: str) -> str:
+        params = {
+            "Bucket": bucket_name,
+            "Key": key,
+        }
+        return self.client.generate_presigned_url('get_object', Params=params, ExpiresIn=60)
+
+    def generate_presigned_download_url(self, bucket_name: str, key: str, filename: str) -> str:
+        params = {
+            "Bucket": bucket_name,
+            "Key": key,
+            "ResponseContentDisposition": f'attachment; filename={filename}'
+        }
+        return self.client.generate_presigned_url('get_object', Params=params, ExpiresIn=60)

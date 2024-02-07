@@ -1,14 +1,16 @@
-from flask import jsonify, request, current_app,abort,render_template, make_response,session
+from flask import jsonify, request, current_app, abort, render_template, session
 from . import api
 from app import models, db
 from flask_login import current_user
 from app.utils.decorators import login_required
-from app.utils.misc import project_creation, get_users_from_text
+from app.utils.enums import FileType
+from app.utils.misc import project_creation, get_users_from_text, get_file_type_by_extensions, get_content_type_for_extension
 from app.utils.notification_service import NotificationService
 from sqlalchemy import func
 from app.utils.reports import Report
 from app.utils.authorizer import Authorizer
 from app.integrations.aws.src.s3_client import S3
+from typing import Optional
 
 
 @api.route('/health', methods=['GET'])
@@ -608,7 +610,12 @@ def add_evidence_for_tenant(tid):
             except Exception:
                 db.session.rollback()
 
-            S3().upload_file_obj(file, str(evidence_upload.upload_link))
+            extra_tags: dict = {}
+            content_type: Optional[str] = get_content_type_for_extension(file.filename)
+            if content_type:
+                extra_tags["ContentType"] = content_type
+                
+            S3().upload_file_obj(file, str(evidence_upload.upload_link), extra_tags)
     db.session.commit()
     return jsonify(evidence.as_dict())
 
@@ -632,8 +639,13 @@ def update_evidence(eid):
                 db.session.flush()
             except Exception:
                 db.session.rollback()
+
+            extra_tags: dict = {}
+            content_type: Optional[str] = get_content_type_for_extension(file.filename)
+            if content_type:
+                extra_tags["ContentType"] = content_type
                 
-            S3().upload_file_obj(file, str(evidence_upload.upload_link))
+            S3().upload_file_obj(file, str(evidence_upload.upload_link), extra_tags)
     db.session.commit()
                 
     return jsonify(result["extra"]["evidence"].as_dict())
@@ -1147,6 +1159,18 @@ def get_evidence_upload(upload_id):
     evidence_upload = models.EvidenceUpload.query.filter(models.EvidenceUpload.upload_link == str(upload_id)).one_or_none()
     result = Authorizer(current_user).can_user_read_evidence(evidence_upload.evidence_id)
     evidence = result["extra"]["evidence"]
-    image_url = S3().generate_presigned_url(current_app.config['EVIDENCE_BUCKET'], str(upload_id))
 
-    return render_template("evidence_upload.html", image_url=image_url, evidence_name=evidence.name)
+    file_type: FileType = get_file_type_by_extensions(evidence_upload.filename)
+    content_type: Optional[str] = get_content_type_for_extension(evidence_upload.filename)
+    file_url: str = S3().generate_presigned_url(current_app.config['EVIDENCE_BUCKET'], str(upload_id))
+    download_url: str = S3().generate_presigned_download_url(current_app.config['EVIDENCE_BUCKET'], str(upload_id), evidence_upload.filename)
+
+    return render_template(
+        "evidence_upload.html",
+        file_url=file_url,
+        download_url=download_url,
+        evidence_name=evidence.name,
+        file_name=evidence_upload.filename,
+        file_type=file_type.value,
+        content_type=content_type,
+    )
