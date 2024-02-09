@@ -286,7 +286,7 @@ class Evidence(LogMixin, db.Model):
     name = db.Column(db.String())
     description = db.Column(db.String())
     content = db.Column(db.String())
-    collected_on= db.Column(db.DateTime, default=datetime.utcnow)
+    collected_on = db.Column(db.DateTime, default=datetime.utcnow)
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)

@@ -623,7 +623,7 @@ def add_evidence_for_tenant(tid):
 @login_required
 def update_evidence(eid):
     result = Authorizer(current_user).can_user_manage_evidence(eid)
-    result["extra"]["evidence"].name = request.form.get("name"),
+    result["extra"]["evidence"].name = request.form.get("name")
     result["extra"]["evidence"].description = request.form.get("description")
     result["extra"]["evidence"].content = request.form.get("content")
     result["extra"]["evidence"].collected_on = request.form.get("collected")
