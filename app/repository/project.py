@@ -162,7 +162,7 @@ class ProjectRepository:
         if tenant is None:
             raise TenantNotFound()
 
-        if not current_user.super and current_user.id != (tenant is None or current_user.id != tenant.owner_id):
+        if not current_user.super and current_user.id != tenant.owner_id:
             user_member_alias = db.aliased(User, name="user_member")
             query = (
                 query
