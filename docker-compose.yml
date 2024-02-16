@@ -24,8 +24,6 @@ services:
       - GUNICORN_WORKERS=2
       - MAIL_USERNAME=notification@saltsquare.io
       - EVIDENCE_BUCKET=dev-grc-evidence-bucket
-      - GRAPH_APP_ID
-      - GRAPH_APP_SECRET
       - AWS_PROFILE
     volumes:
       - .:/server
@@ -70,6 +68,7 @@ services:
   postgres:
     container_name: postgres
     image: postgres
+    command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: not-secret
