@@ -13,6 +13,7 @@ from app.models import (
     User,
 )
 from app.repository.tenant import TenantRepository
+from app.utils.custom_errors import TenantNotFound
 
 class ProjectRepository:
 
@@ -76,7 +77,6 @@ class ProjectRepository:
             .group_by(Project.id)
             .subquery()
         )
-
 
         subcontrols_total_subquery = (
             db.session.query(
@@ -158,7 +158,11 @@ class ProjectRepository:
             .filter(Project.tenant_id == tenant_id)
         )
 
-        if not current_user.super and current_user.id != TenantRepository.get_tenant_by_id(tenant_id):
+        tenant = TenantRepository.get_tenant_by_id(tenant_id)
+        if tenant is None:
+            raise TenantNotFound()
+
+        if not current_user.super and current_user.id != (tenant is None or current_user.id != tenant.owner_id):
             user_member_alias = db.aliased(User, name="user_member")
             query = (
                 query
