@@ -325,7 +325,6 @@ function loadCards(format="cards") {
     contentType: "application/json; charset=utf-8",
     dataType: "json",
     success: function(data){
-      console.log(data)
       setCardData(data)
       $("#card-div").html("");
       if (format === "table") {
@@ -337,47 +336,50 @@ function loadCards(format="cards") {
         if (format === "table") {
           $("#project-table-body").append(`<tr><td class="text-sm font-medium capitalize">${obj.name}</td><td class="text-sm uppercase"><p class="badge badge-primary badge-md">${obj.framework}</p></td><td class="text-sm font-medium">${obj.total_controls}</td><td class="text-sm font-medium">${obj.total_policies}</td><td><div class="flex flex-col"><b class="text-xs font-medium">${obj.completion_progress}</b><progress class="progress w-100" value="${obj.completion_progress}" max="100"/></div></td><td class=""><a data-id="${obj.id}" class="btn btn-xs my-card" href="#">+</a></td></tr>`);
         } else {
-	  var options = {
-            series: [100-obj.completion_progress,obj.completion_progress],
+          var options = {
+            series: [
+              100-obj.completion_progress,
+              obj.completion_progress
+            ],
             legend: {
-	      show: false
-	    },
+              show: false
+            },
             dataLabels: {
               enabled: false
             },
-	    chart: {
-	      type: 'donut',
+	          chart: {
+	            type: 'donut',
               height:250
-	    },
-plotOptions: {
-    pie: {
-      donut: {
-        labels: {
-          show: true,
-        value:{
-          offsetY: -8,
-          color:'#6b6a6e'
-        },
-          total: {
-            show: true,
-            label: '',
-            formatter: () => `${obj.completion_progress}%`
-          }
-        }
-      }
-    }
-  },
+	          },
+            plotOptions: {
+              pie: {
+                donut: {
+                  labels: {
+                    show: true,
+                  value:{
+                    offsetY: -8,
+                    color:'#6b6a6e'
+                  },
+                    total: {
+                      show: true,
+                      label: '',
+                      formatter: () => `${obj.completion_progress}%`
+                    }
+                  }
+                }
+              }
+            },
             labels: ['Uncomplete', 'Complete'],
-            fill:{colors:['#f3f4f6', '#4ade80']},
+            fill: {colors:['#f3f4f6', '#4ade80']},
             responsive: [{
-	      breakpoint: 300,
-	      options: {
-	        chart: {
-	          width: 100
-	        }
-	      }
-  	    }]
-	  };
+              breakpoint: 300,
+              options: {
+                chart: {
+                  width: 100
+                }
+              }
+            }]
+          };
           $("#card-div").append(`<div class="col-span-3">
     <div class="card shadow-md border border-base-300">
       <div class="p-5">
@@ -460,24 +462,24 @@ $(document).on('click', '.my-card', function() {
             chart: {
               type: 'donut',
             },
-plotOptions: {
-    pie: {
-      donut: {
-        labels: {
-          show: true,
-        value:{
-          offsetY: -8,
-          color:'#6b6a6e'
-        },
-          total: {
-            show: true,
-            label: '',
-            formatter: () => `${data[item].completion_progress}%`
-          }
-        }
-      }
-    }
-  },
+            plotOptions: {
+                pie: {
+                  donut: {
+                    labels: {
+                      show: true,
+                    value:{
+                      offsetY: -8,
+                      color:'#6b6a6e'
+                    },
+                      total: {
+                        show: true,
+                        label: '',
+                        formatter: () => `${data[item].completion_progress}%`
+                      }
+                    }
+                  }
+                }
+              },
             labels: ['Uncomplete', 'Complete'],
             fill:{colors:['#f3f4f6', '#4ade80']},
             responsive: [{

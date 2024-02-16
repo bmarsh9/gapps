@@ -1,4 +1,3 @@
-from flask import current_app
 from sqlalchemy import func
 
 from app import db
@@ -13,14 +12,12 @@ from app.models import (
     Tenant,
     User,
 )
-import logging
-
-logger = logging.getLogger(__name__)
+from app.repository.tenant import TenantRepository
 
 class ProjectRepository:
 
     @staticmethod
-    def get_tenant_project_summaries(tenant_id: int):        
+    def get_tenant_project_summaries(current_user: User, tenant_id: int):
         control_subquery = (
             db.session.query(
                 Project.id.label('project_id'),
@@ -66,7 +63,6 @@ class ProjectRepository:
             .group_by(subcontrol_subquery.c.project_id)
             .subquery()
         )
-
 
         auditor_subquery = (
             db.session.query(
@@ -120,7 +116,6 @@ class ProjectRepository:
             .subquery()
         )
 
-
         evidence_association_subquery = (
             db.session.query(
                 ProjectSubControl.project_id.label('project_id'),
@@ -163,10 +158,13 @@ class ProjectRepository:
             .filter(Project.tenant_id == tenant_id)
         )
 
-        result = query.all()
+        if not current_user.super and current_user.id != TenantRepository.get_tenant_by_id(tenant_id):
+            user_member_alias = db.aliased(User, name="user_member")
+            query = (
+                query
+                .join(ProjectMember, ProjectMember.project_id == Project.id)
+                .join(user_member_alias, user_member_alias.id == ProjectMember.user_id)
+                .filter(user_member_alias.id == current_user.id)
+            )
 
-        current_app.logger.info(f"Columns: {[desc['name'] for desc in query.column_descriptions]}")
-        current_app.logger.info(f"Query Result: {result}")
-
-        return result
-
+        return query.all()

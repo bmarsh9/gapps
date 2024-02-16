@@ -419,11 +419,11 @@
     if (!isValidDateFormat(updateCollectedValue)) {
       $("#update-collected").css("border-color", "rgba(255, 0, 0, 0.75)");
       $("#update-collected-errors").text("Not a valid date, please use following format: MM/DD/YYYY").fadeIn();
-      disableButton(".create-evidence");
+      disableButton(".edit-evidence");
     } else {
       $("#update-collected").css("border-color", "");
       $("#update-collected-errors").fadeOut();
-      enableButton(".create-evidence");
+      enableButton(".edit-evidence");
     }
   }
 
