@@ -285,6 +285,12 @@ class SubControlMixin(object):
             attached
             """
             return True
+        elif framework.name == "iso27001_bos":
+            """
+            control must be implemented and have evidence
+            attached
+            """
+            return True
         elif framework.name == "hipaa":
             """
             control must be implemented and have evidence

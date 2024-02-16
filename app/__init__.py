@@ -5,7 +5,7 @@ import json
 
 from app.db import db
 from app.login import login
-
+from app.utils.custom_errors import CustomError
 
 babel = Babel()
 
@@ -17,6 +17,16 @@ def create_app(config_name="default"):
     configure_models(app)
     registering_blueprints(app)
     configure_extensions(app)
+
+    @app.errorhandler(Exception)
+    def handle_error(error):
+        if isinstance(error, CustomError):
+            message = error.message
+            status = error.status
+            response = jsonify({"error": message})
+            response.status_code = status
+            return response
+        return None
 
     @app.errorhandler(404)
     def not_found(e):

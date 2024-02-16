@@ -1,17 +1,20 @@
+from typing import List, Optional
+
 from flask import jsonify, request, current_app, abort, render_template, session
+from flask_login import current_user
+from sqlalchemy import func
+
 from . import api
 from app import models, db
-from flask_login import current_user
+from app.integrations.aws.src.s3_client import S3
+from app.service.authorization import AuthorizationService
+from app.service.project import ProjectService
+from app.utils.authorizer import Authorizer
 from app.utils.decorators import login_required
 from app.utils.enums import FileType
-from app.utils.misc import project_creation, get_users_from_text, get_file_type_by_extensions, get_content_type_for_extension
+from app.utils.misc import get_content_type_for_extension, get_file_type_by_extensions, get_users_from_text, project_creation
 from app.utils.notification_service import NotificationService
-from sqlalchemy import func
 from app.utils.reports import Report
-from app.utils.authorizer import Authorizer
-from app.integrations.aws.src.s3_client import S3
-from typing import Optional
-
 
 @api.route('/health', methods=['GET'])
 def get_health():
@@ -690,12 +693,10 @@ def control(cid):
 
 @api.route('/tenants/<int:tid>/projects', methods=['GET'])
 @login_required
-def get_projects_in_tenant(tid):
-    data = []
-    result = Authorizer(current_user).can_user_access_tenant(tid)
-    for record in current_user.get_projects_with_access_in_tenant(result["extra"]["tenant"]):
-        data.append(record.as_dict(with_review_summary=True))
-    return jsonify(data)
+def get_projects_in_tenant_v2(tid):
+    AuthorizationService(current_user).can_user_access_tenant(tid)
+    projects: List[dict] = ProjectService.get_tenant_project_summaries(current_user, tid)
+    return jsonify(projects)
 
 @api.route('/tenants/<int:tid>/projects', methods=['POST'])
 @login_required

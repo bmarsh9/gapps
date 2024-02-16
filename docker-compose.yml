@@ -70,6 +70,7 @@ services:
   postgres:
     container_name: postgres
     image: postgres
+    command: ["postgres", "-c", "log_statement=all", "-c", "log_destination=stderr"]
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: not-secret
