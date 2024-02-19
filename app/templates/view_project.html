@@ -850,10 +850,10 @@ plotOptions: {
           $("#card-div").append(`<div class="col-span-9 mb-2">${summary_alert}</div>`)
 
           $("#card-div").append(`<div class="grid grid-cols-8 col-span-full gap-x-4">
-            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip" data-tip="Progress of your project completion">Complete Progress</div></h2><div class="text-center"><div id="complete-progress"></div></div></div></div></div>
-            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip" data-tip="Progress of controls that are implemented">Implemented Progress</div></h2><div class="text-center"><div id="implemented-progress"></div></div></div></div></div>
-            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip" data-tip="Progress of evidence collected for controls">Evidence Progress</div></h2><div class="text-center"><div id="evidence-progress"></div></div></div></div></div>
-            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip" data-tip="Progress between InfoSec and Auditor">Review Progress</div></h2><div class="text-center"><div id="review-progress"></div></div></div></div></div>
+            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip w-full" data-tip="Progress of your project completion">Complete Progress</div></h2><div class="text-center"><div id="complete-progress"></div></div></div></div></div>
+            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip w-full" data-tip="Progress of controls that are implemented">Controls Implemented</div></h2><div class="text-center"><div id="implemented-progress"></div></div></div></div></div>
+            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip w-full" data-tip="Progress of evidence collected for controls">Evidence Gathered</div></h2><div class="text-center"><div id="evidence-progress"></div></div></div></div></div>
+            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip w-full" data-tip="Progress between InfoSec and Auditor">Controls Reviewed</div></h2><div class="text-center"><div id="review-progress"></div></div></div></div></div>
           </div>`)
 
           var auditor_alert = "";
@@ -967,16 +967,17 @@ plotOptions: {
           var review_chart = new ApexCharts(document.querySelector("#review-progress"), review_options);
 
           setTimeout(() => {
-            $("#complete-progress").html("")
-            $("#implemented-progress").html("")
-            $("#evidence-progress").html("")
-            $("#review-progress").html("")
+            $("#complete-progress").html("");
+            $("#implemented-progress").html("");
+            $("#evidence-progress").html("");
+            $("#review-progress").html("");
             complete_chart.render();
             implemented_chart.render();
             evidence_chart.render();
             review_chart.render();
-          },2000)
-          return(data)
+          }, 200);
+
+          return(data);
     },
     error: function(errMsg) {
         return(errMsg);
