@@ -177,3 +177,6 @@ def get_content_type_for_extension(filename: str) -> Optional[str]:
         return document_format.value
     
     return None
+
+def calculate_percentage(total: int, count: int) -> float:
+    return round((count or 0) / total * 100 if total else 0, 2)

@@ -967,16 +967,17 @@ plotOptions: {
           var review_chart = new ApexCharts(document.querySelector("#review-progress"), review_options);
 
           setTimeout(() => {
-            $("#complete-progress").html("")
-            $("#implemented-progress").html("")
-            $("#evidence-progress").html("")
-            $("#review-progress").html("")
+            $("#complete-progress").html("");
+            $("#implemented-progress").html("");
+            $("#evidence-progress").html("");
+            $("#review-progress").html("");
             complete_chart.render();
             implemented_chart.render();
             evidence_chart.render();
             review_chart.render();
-          },2000)
-          return(data)
+          }, 200);
+
+          return(data);
     },
     error: function(errMsg) {
         return(errMsg);

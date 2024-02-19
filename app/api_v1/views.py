@@ -503,11 +503,9 @@ def delete_user_in_tenant(uid, tid):
 @api.route('/projects/<int:pid>', methods=['GET'])
 @login_required
 def project(pid):
-    result = Authorizer(current_user).can_user_access_project(pid)
-    review_summary = request.args.get("review-summary", False)
-    if review_summary:
-        review_summary = True
-    return jsonify(result["extra"]["project"].as_dict(with_review_summary=review_summary))
+    AuthorizationService(current_user).can_user_access_project(pid)
+    result: dict = ProjectService.get_project_summary(pid)
+    return jsonify(result)
 
 @api.route('/projects/<int:pid>', methods=['DELETE'])
 @login_required
@@ -693,9 +691,9 @@ def control(cid):
 
 @api.route('/tenants/<int:tid>/projects', methods=['GET'])
 @login_required
-def get_projects_in_tenant_v2(tid):
+def get_projects_in_tenant(tid):
     AuthorizationService(current_user).can_user_access_tenant(tid)
-    projects: List[dict] = ProjectService.get_tenant_project_summaries(current_user, tid)
+    projects: List[dict] = ProjectService.get_tenant_project_summaries(tid)
     return jsonify(projects)
 
 @api.route('/tenants/<int:tid>/projects', methods=['POST'])
