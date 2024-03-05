@@ -179,4 +179,7 @@ def get_content_type_for_extension(filename: str) -> Optional[str]:
     return None
 
 def calculate_percentage(total: int, count: int) -> float:
-    return round((count or 0) / total * 100 if total else 0, 2)
+    return round((count or 0) / total * 100, 2) if total else 0.0
+
+def obj_to_dict(obj: object) -> dict:
+    return {c.name: getattr(obj, c.name) for c in obj.__table__.columns}

@@ -1,11 +1,13 @@
-from flask import Flask,request,render_template,jsonify
-from config import config
-from flask_babel import Babel, lazy_gettext as _l
+from flask import current_app, Flask, jsonify, render_template, request
 import json
+
+from flask_babel import Babel
 
 from app.db import db
 from app.login import login
 from app.utils.custom_errors import CustomError
+from config import config
+
 
 babel = Babel()
 
@@ -20,10 +22,11 @@ def create_app(config_name="default"):
 
     @app.errorhandler(Exception)
     def handle_error(error):
+        current_app.logger.error(f"{type(error).__name__}: {error.message}", exc_info=True)
         if isinstance(error, CustomError):
             message = error.message
             status = error.status
-            response = jsonify({"error": message})
+            response = jsonify({"message" : message})
             response.status_code = status
             return response
         return None

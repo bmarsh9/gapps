@@ -50,7 +50,7 @@ class AuthorizationService:
         raise AuthorizationError("User is not authorized to view the tenant")
     
     # Project access
-    def can_user_access_project(self, project_id: int):
+    def can_user_access_project(self, project_id: int) -> bool:
         if self._is_super_user():
             return True
         
@@ -67,4 +67,14 @@ class AuthorizationService:
         current_app.logger.error(f"User({self.user.id}) does not have permission to access project({project.id}) in tenant({project.tenant_id})")
         raise AuthorizationError("User is not authorized to view the project")
 
-    
+    # Expand access as needed
+    def can_user_view_projects(self, project_id: int) -> bool:
+        return self.can_user_access_project(project_id)
+    def can_user_view_project_summary(self, project_id: int) -> bool:
+        return self.can_user_access_project(project_id)
+    def can_user_view_project_controls(self, project_id: int) -> bool:
+        return self.can_user_access_project(project_id)
+    def can_user_view_project_subcontrols(self, project_id: int) -> bool:
+        return self.can_user_access_project(project_id)
+
+

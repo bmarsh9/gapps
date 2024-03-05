@@ -53,7 +53,7 @@
     </span>
   </div>
 </div>
-    <div class="flex flex-row border-b border-base-300 py-3">
+    <div class="flex flex-row py-3">
       <div class="flex gap-x-1 py-1 pr-2 tooltip" data-tip="Framework">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
         <span class="text-sm font-medium uppercase">{{project.framework.name}}</span>
@@ -79,20 +79,10 @@
         {%endfor%}
       </div>
     </div>
-    <div class="flex flex-row rounded-md border-b border-r border-l border-base-300 p-3">
-      <div class="flex gap-x-1 py-1 tooltip font-medium text-sm" data-tip="Quick filters for the controls">
-      Quick Filters
-      </div>
+    <div class="flex flex-row rounded-md border border-base-300 p-3">
+      <div class="flex gap-x-1 py-1 tooltip font-medium text-sm" data-tip="Quick filters for the controls">Quick Filters</div>
       <div class="divider divider-horizontal mx-0"></div>
-      <div class="flex gap-x-4 tabs">
-        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&owner={{current_user.email}}">Control's I Own</a>
-        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&operator={{current_user.email}}">Control's I Operate</a>
-        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=12">InfoSec: Not Started</a>
-        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=13">InfoSec: In Progress</a>
-        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=14">InfoSec: Action</a>
-        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=15">Auditor: Ready for Auditor</a>
-        <a class="btn btn-xs btn-ghost border border-base-300" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=16">Complete</a>
-      </div>
+      <div id="quick-filters" class="flex gap-x-4 tabs"></div>
     </div>
 
   </div>
@@ -190,14 +180,14 @@
       </div>
     </div>
     <div class="grid grid-cols-6 gap-6">
-        <div class="col-span-6 sm:col-span-3">
-          <label class="block text-sm font-medium  mb-2">Name</label>
-          <span id="tenant-select-div" class=""></span>
-        </div>
-        <div class="col-span-6 sm:col-span-3">
-          <label class="block text-sm font-medium  mb-2"></label>
-          <span id="framework-select-div" class=""></span>
-        </div>
+      <div class="col-span-6 sm:col-span-3">
+        <label class="block text-sm font-medium  mb-2">Name</label>
+        <span id="tenant-select-div" class=""></span>
+      </div>
+      <div class="col-span-6 sm:col-span-3">
+        <label class="block text-sm font-medium  mb-2"></label>
+        <span id="framework-select-div" class=""></span>
+      </div>
     </div>
     <div class="modal-action">
       <a id="view-policy" href="#" class="btn btn-primary">View</a>
@@ -216,21 +206,19 @@
     </div>
     <div class="grid grid-cols-6 gap-6">
       <div class="col-span-6">
-<div class="">
-  <table class="table w-full">
-    <!-- head -->
-    <thead>
-      <tr>
-        <th class="w-1"></th>
-        <th>Name</th>
-        <th class="w-1">View</th>
-      </tr>
-    </thead>
-    <tbody id="owner-modal-body"></tbody>
-  </table>
-</div>
-
-
+        <div class="">
+          <table class="table w-full">
+            <!-- head -->
+            <thead>
+              <tr>
+                <th class="w-1"></th>
+                <th>Name</th>
+                <th class="w-1">View</th>
+              </tr>
+            </thead>
+            <tbody id="owner-modal-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </label>
@@ -246,21 +234,19 @@
     </div>
     <div class="grid grid-cols-6 gap-6">
       <div class="col-span-6">
-<div class="">
-  <table class="table w-full">
-    <!-- head -->
-    <thead>
-      <tr>
-        <th class="w-1"></th>
-        <th>Name</th>
-        <th class="w-1">View</th>
-      </tr>
-    </thead>
-    <tbody id="operator-modal-body"></tbody>
-  </table>
-</div>
-
-
+        <div class="">
+          <table class="table w-full">
+            <!-- head -->
+            <thead>
+              <tr>
+                <th class="w-1"></th>
+                <th>Name</th>
+                <th class="w-1">View</th>
+              </tr>
+            </thead>
+            <tbody id="operator-modal-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </label>
@@ -268,6 +254,249 @@
 {%endblock%}
 {%block extrajs%}
 <script>
+
+  /** Region: Data */
+
+  const projectTabs = {
+    SUMMARY: "summary",
+    CONTROLS: "controls",
+    POLICIES: "policies",
+    EVIDENCE: "evidence",
+    RESPONSIBILITY_MATRIX: "matrix",
+    SCRATCHPAD: "scratchpad",
+    COMMENT: "comment",
+    REPORT: "report",
+    SETTINGS: "settings",
+  }
+
+  const controlsGrouping = {
+    CONTROLS: "controls",
+    SUBCONTROLS: "subcontrols"
+  };
+
+  const controlSelectOptions = {
+    all: 'All',
+    has_evidence: "Has Evidence",
+    missing_evidence: "Missing Evidence",
+    implemented: "Implemented",
+    not_implemented: "Not Implemented",
+    is_applicable: "Is applicable",
+    not_applicable: "Not applicable",
+    complete: 'Complete',
+    not_complete: 'Not Complete'
+  };
+
+  const subControlSelectOptions = {
+    all: 'All',
+    am_owner: "Controls I own",
+    am_operator: "Controls I operate",
+    is_applicable: "Is applicable",
+    not_applicable: "Not applicable",
+    has_evidence: "Has Evidence",
+    missing_evidence: "Missing Evidence",
+    complete: 'Complete',
+    not_complete: 'Not Complete',
+    implemented: "Implemented",
+    not_implemented: "Not Implemented",
+    review_not_started: "Review: Not Started",
+    review_infosec_action: "Review: InfoSec Action",
+    review_action_required: "Review: Action Required",
+    review_ready_for_auditor: "Review: Ready for Auditor",
+    review_complete: "Review: Complete"
+  };
+
+  const quickFiltersData = {
+    am_owner: "Controls I own",
+    am_operator: "Controls I operate",
+    review_not_started: "Not started",
+    not_implemented: "In progress",
+    review_action_required: "Action Required",
+    review_ready_for_auditor: "Ready for Auditor",
+    complete: 'Complete'
+  }
+
+  /** End Region: Data */
+
+  /** Region: HTML Fragments */
+
+  const iconCheckmark = (`
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-green-600">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    </svg>
+  `);
+
+  const iconNegative = (`
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-red-600">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  `);
+
+  const iconNotApplicable = (`
+    <div class="tooltip" data-tip="Not Applicable">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-gray-600">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+      </svg>
+    </div>`
+  );
+
+  const iconNoAvatar = (`
+    <div class="avatar placeholder font-semibold">
+      <div class="text-gray-600 bg-gray-400/20 rounded-full w-8">
+        <span class="text-xs capitalize">?</span>
+      </div>
+    </div>
+  `);
+
+  const iconAvatar = (userEmail) => (`
+    <div class="avatar placeholder font-semibold">
+      <div class="text-green-600 bg-green-400/20 rounded-full w-8">
+        <span class="text-xs capitalize">${userEmail[0]}</span>
+      </div>
+    </div>
+  `);
+
+  const cardBlock = (`
+    <div class="col-span-9 mx-auto mt-10">
+      <div class="justify-center flex" role="status">
+        <svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+          <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+        </svg>
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+  `);
+
+  /** Endregion: HTML Fragments */
+
+  /** Region: Helper methods */
+
+  const changeTab = (tab) => {
+    $(".tabs span").removeClass("bg-base-200");
+    $(`#tab-${tab}`).addClass("bg-base-200");
+    resetUrlQueryString(tab);
+    loadPageElements(tab);
+    updateActiveQuickFilter();
+  }
+
+  const loadQuickFilters = () => {
+    const projectId = "{{project.id}}";
+    const baseUrl = `/projects/${projectId}?tab=controls&grouping=subcontrols`;
+    const $quickFilterButtonContainer = $("#quick-filters");
+    $quickFilterButtonContainer.empty();
+
+    for (const [key, value] of Object.entries(quickFiltersData)) {
+      const $button = $("<a>", {
+        id: `qf-${key}`,
+        text: value,
+        class: `btn btn-xs btn-ghost border border-base-300`,
+        href: `${baseUrl}&filter=${key}`
+      });
+      $quickFilterButtonContainer.append($button);
+    }
+    updateActiveQuickFilter();
+  }
+
+  const updateActiveQuickFilter = () => {
+    const params = new window.URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    const grouping = params.get("grouping");
+    const filter = params.get("filter");
+
+    $("#quick-filters a").each(function() {
+      $(this).removeClass("btn-primary").addClass("btn-ghost");
+    });
+
+    if (tab === projectTabs.CONTROLS && grouping === controlsGrouping.SUBCONTROLS && filter) {
+      const $quickFilterLink = $(`#qf-${filter}`);
+      if ($quickFilterLink) {
+        $quickFilterLink.removeClass("btn-ghost").addClass("btn-primary");
+      }
+    }
+  };
+
+  const resetUrlQueryString = (tab) => {
+    const noQueryUrl = window.location.origin + window.location.pathname;
+    const baseUrl = `${noQueryUrl}?tab=${tab}`;
+    window.history.replaceState({}, document.title, noQueryUrl);
+  };
+
+  const setUrlParams = (params) => {
+    const baseUrl = window.location.origin + window.location.pathname;
+    const newUrl = baseUrl + '?' + params.toString();
+    window.history.replaceState({}, document.title, newUrl);
+  };
+
+  const setDefaultGrouping = () => {
+    const params = new window.URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+    const grouping = params.get("grouping");
+    const filter = params.get("filter");
+    
+    if (!tab) {
+      params.set("tab", controlsGrouping.CONTROLS);
+    }
+    if (!grouping) {
+      params.set("grouping", controlsGrouping.CONTROLS);
+    }
+    if (!filter) {
+      params.set("filter", "all");
+    }
+    setUrlParams(params);
+  };
+
+  const getControlStatusColor = (status) => {
+    const statusColors = {
+      "default": "gray",
+      "complete": "green",
+      "in progress": "yellow",
+      "not applicable": "red",
+    };
+    if (statusColors.hasOwnProperty(status)) {
+      return statusColors[status];
+    }
+    return statusColors["default"];
+  };
+
+  const getSubControlStatusColor = (status) => {
+    const statusColors = {
+      "default": "gray",
+      "complete": "green",
+      "action required": "red",
+      "infosec action": "yellow",
+      "ready for auditor": "blue"
+    };
+    if (statusColors.hasOwnProperty(status)) {
+      return statusColors[status];
+    }
+    return statusColors["default"];
+  };
+
+  const getControlsFilterSelectOptions = () => {
+    const params = new window.URLSearchParams(window.location.search);
+    const grouping = params.get("grouping");
+    const listToUse = grouping && grouping === controlsGrouping.SUBCONTROLS ? subControlSelectOptions : controlSelectOptions;
+
+    let options = "";
+    for (const [key, value] of Object.entries(listToUse)) {
+      options = options.concat(`<option value="${key}">${value}</option>`);
+    }
+    return options;
+  };
+
+  const getGroupingFilterSelectOptions = () => {
+    const params = new window.URLSearchParams(window.location.search);
+    const grouping = params.get("grouping");
+
+    let options = "";
+    for (const [key, value] of Object.entries(controlsGrouping)) {
+      options = options.concat(`<option value="${value}">Grouping: ${value.charAt(0).toUpperCase() + value.slice(1)}</option>`);
+    }
+    return options;
+  };
+
+  /** End Region: Helper methods */
+
 function loadUsers(reload=false) {
     var users = localStorage.getItem("tenant-users-{{project.tenant_id}}");
     if (reload || !users) {
@@ -287,8 +516,7 @@ function loadUsers(reload=false) {
       })
     } 
 }
-</script>
-<script>
+
   function populateOwnerModal(id, owner, operator){
     $("#ownerModalBody").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
     document.getElementById('ownerModal').checked = true;
@@ -315,8 +543,6 @@ function loadUsers(reload=false) {
     $("#ownerModalBody").html(ownerSelect);
     $("#ownerModalBody").append(operatorSelect);
   }
-</script>
-<script>
 function saveScratchPad(showToast=true) {
     var data = {"data":tinymce.get("scratchpad-editor").getContent()}
     $.ajax({
@@ -386,81 +612,85 @@ function blurOwnerFilter(e) {
 }
 
 function blurOperatorFilter(e) {
-  var operator = e.target.value;
-  var owner = $('.owner-filter').val();
-  var filter = $('.controls-filter').val();
-  var grouping = $('.grouping-filter').val();
-  var queryParams = new URLSearchParams(window.location.search);
-  queryParams.set("filter", filter);
-  queryParams.set("grouping", grouping);
+  const operator = e.target.value;
+  const owner = $('.owner-filter').val();
+  const filter = $('.controls-filter').val();
+  const grouping = $('.grouping-filter').val();
+
+  const params = new URLSearchParams(window.location.search);
+  params.set("filter", filter);
+  params.set("grouping", grouping);
+  params.delete("owner");
+  params.delete("operator");
+
   if (owner) {
-    queryParams.set("owner", owner);
-  } else {
-    queryParams.delete("owner");
+    params.set("owner", owner);
   }
   if (operator) {
-    queryParams.set("operator", operator);
-  } else {
-    queryParams.delete("operator");
+    params.set("operator", operator);
   }
-  history.replaceState(null, null, "?"+queryParams.toString());
-  if (grouping === "subcontrols") {
-    loadControls()
-  } else {
-    loadControls(reload=true)
-  }
+
+  setUrlParams(params);
+  loadControls();
 }
 
-$(document).on('change', '.controls-filter', function() {
-  var filter = $(this).val();
-  var grouping = $('.grouping-filter').val();
-  var queryParams = new URLSearchParams(window.location.search);
-  queryParams.set("filter", filter);
-  queryParams.set("grouping", grouping);
-  history.replaceState(null, null, "?"+queryParams.toString());
-  if (grouping === "subcontrols") {
-    loadControls()
-  } else {
-    loadControls(reload=true)
-  }
-});
-$(document).on('change', '.grouping-filter', function() {
-  var grouping = $(this).val();
-  var filter = "1";
-  var queryParams = new URLSearchParams(window.location.search);
-  queryParams.set("grouping", grouping);
-  queryParams.set("filter", filter);
-  //queryParams.delete("filter");
-  history.replaceState(null, null, "?"+queryParams.toString());
-  loadControls(reload=true)
-});
-function changeTab(tab) {
-  $(".tabs span").removeClass("bg-base-200");
-  $(`#tab-${tab}`).addClass("bg-base-200")
-  loadPageElements(tab)
-}
-$(document).on('change', '.tab-select', function() {
-  var tab = $(this).val();
-  $(".tabs span").removeClass("bg-base-200");
-  $(`#tab-${tab}`).addClass("bg-base-200")
-  loadPageElements(tab)
-});
-$(document).on('click', '.reload-button', function() {
-  localStorage.removeItem("project-controls-{{project.uuid}}")
-  localStorage.removeItem("tenant-users-{{project.tenant_id}}")
-  var tab = $(".tab-select").val();
-  loadUsers(reload=true)
-  loadPageElements(tab)
-});
-$(document).on('click', '.remove-control-filter', function() {
-  var queryParams = new URLSearchParams(window.location.search);
-  queryParams.delete("grouping")
-  queryParams.delete("filter")
-  queryParams.delete("owner")
-  queryParams.delete("operator")
-  history.replaceState(null, null, "?"+queryParams.toString());
-  loadControls(reload=true)
-});
+/** Region: Events */
+
+  $(document).on("change", ".controls-filter", function() {
+    const filter = $(this).val();
+    const params = new URLSearchParams(window.location.search);
+    params.set("filter", filter);
+    setUrlParams(params);
+    loadControls();
+    updateActiveQuickFilter();
+  });
+
+  $(document).on("change", ".grouping-filter", function() {
+    const grouping = $(this).val();
+    if (!grouping) {
+      setDefaultGrouping();
+    } else {
+      const params = new URLSearchParams(window.location.search);
+      params.set("grouping", grouping);
+      params.set("filter", "all")
+      setUrlParams(params);
+    }
+    loadControls();
+    updateActiveQuickFilter();
+  });
+
+  $(document).on("change", ".tab-select", function() {
+    const tab = $(this).val();
+    changeTab(tab);
+  });
+
+  $(document).on("click", ".reload-button", function() {
+    const keys = Object.keys(localStorage);
+    const projectId = "{{project.id}}";
+    const tenantId = "{{project.tenant_id}}";
+
+    keys.forEach((key) => {
+      if (key.startsWith(`grc-project-${projectId}-control-`)) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    localStorage.removeItem(`tenant-users-${tenantId}`)
+    const tab = $(".tab-select").val();
+    loadUsers(reload=true);
+    loadPageElements(tab);
+  });
+
+  $(document).on("click", ".remove-control-filter", function() {
+    const params = new URLSearchParams(window.location.search);
+    params.set("filter", "all");
+    params.delete("owner");
+    params.delete("operator");
+    setUrlParams(params);
+    loadControls();
+  });
+
+/** Endregion: Events */
 
 function toggleScratchPad(e=false) {
   if (!e || !e.target.checked) {
@@ -1069,297 +1299,516 @@ function loadEvidence() {
       })
 }
 
-function buildSubControlsTable(data) {
-    var params = new window.URLSearchParams(window.location.search);
-    var filter = params.get('filter');
-    var grouping = params.get('grouping');
-    var owner = params.get('owner');
-    var operator = params.get('operator');
-    var subSelectList = '<select class="select select-sm select-bordered controls-filter"><option value="1">All</option><option value="10">Complete</option><option value="11">Not Complete</option><option value="12">Review: Not Started</option><option value="13">Review: InfoSec Action</option><option value="14">Review: Action Required</option><option value="15">Review: Ready for Auditor</option><option value="16">Review: Complete</option></select>';
-    var selectGrouping = `<select class="select select-sm select-bordered grouping-filter"><option value="subcontrols">Grouping: Subcontrols</option><option value="controls">Grouping: Controls</option></select>`;
-    var selectOwner = `<div><input @blur="blurOwnerFilter" type="text" placeholder="Search Owner" class="input input-bordered input-sm w-full owner-filter" /></div>`;
-    var selectOperator = `<div><input @blur="blurOperatorFilter" type="text" placeholder="Search Operator" class="input input-bordered input-sm w-full operator-filter" /></div>`;
-    $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300 p-5"><div><div class="justify-between flex"><div><h2 class="card-title mb-4 control-title"></h2></div><div class="flex flex-row gap-x-2">${selectOwner}${selectOperator}<div>${selectGrouping}</div>${subSelectList}<div class="space-x-2"><button class="btn btn-sm btn-ghost border border-base-300 capitalize reload-button tooltip" data-tip="Refresh Data"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg></button><button class="btn btn-sm btn-ghost border border-base-300 capitalize remove-control-filter tooltip" data-tip="Remove Filter"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div></div></div><table class="table table-vcenter " id="project-table" style="width:100%"><thead><tr><th class="bg-base-200">ID</th><th class="bg-base-200">Ref Code</th><th class="bg-base-200">Subcontrol</th><th class="bg-base-200 w-1"><div class="tooltip" data-tip="Owner/Operator">O/Op</div></th><th class="bg-base-200 w-1">Complete</th><th class="bg-base-200 w-1"><div class="tooltip" data-tip="Review status with auditor">Review</div></th><th class="bg-base-200 w-1"><div class="tooltip" data-tip="Progress of the control">Progress</div></th><th class="bg-base-200 w-1"><div class="tooltip" data-tip="Action Items from Auditor">Todo</div></th><th class="bg-base-200 w-1">Evidence</th><th class="bg-base-200 w-1">View</th></tr></thead><tbody id="project-table-body"></tbody></table></div></div></div>`);
+  /** Region: Controls & Subcontrols */
 
-    setTimeout(()=>$(".controls-filter").val(filter),100);
-    setTimeout(()=>$(".grouping-filter").val(grouping),100);
-    setTimeout(()=>$(".owner-filter").val(owner),100);
-    setTimeout(()=>$(".operator-filter").val(operator),100);
+  function buildSubControlsTable(data) {
+    const params = new window.URLSearchParams(window.location.search);
+    const filter = params.get("filter");
+    const grouping = params.get("grouping");
+    const owner = params.get("owner");
+    const operator = params.get("operator");
 
-    var total_subcontrols = 0;
-    for (var i in data) {
-        var control = data[i];
-        for (var record in control.subcontrols) {
-          var obj = control.subcontrols[record];
-          // todo - improve this ugly, filtering hack
-          if (filter !== "1" && filter == "10" && !obj.complete) {
-            continue;
-          }
-          if (filter !== "1" && filter == "11" && obj.complete) {
-            continue;
-          }
-          if (filter !== "1" && filter == "12" && obj.review_status != "not started") {
-            continue;
-          }
-          if (filter !== "1" && filter == "13" && obj.review_status != "infosec action") {
-            continue;
-          }
-          if (filter !== "1" && filter == "14" && obj.review_status != "action required") {
-            continue;
-          }
-          if (filter !== "1" && filter == "15" && obj.review_status != "ready for auditor") {
-            continue;
-          }
-          if (filter !== "1" && filter == "16" && obj.review_status != "complete") {
-            continue;
-          }
-          if (owner && !obj.owner.includes(owner)) {
-            continue
-          }
-          if (operator && !obj.operator.includes(operator)) {
-            continue
-          }
-          total_subcontrols += 1;
-          var completeColor = obj.is_complete ? "green":"red";
-          var reviewColor = "gray";
-          if (obj.review_status === "complete") {
-            var reviewColor = "green";
-          } else if (obj.review_status === "action required") {
-            var reviewColor = "red";
-          } else if (obj.review_status === "infosec action") {
-            var reviewColor = "yellow";
-          } else if (obj.review_status === "ready for auditor") {
-            var reviewColor = "blue";
-          }
-          if (obj.has_evidence) {
-            var evidence_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>'
-          } else {
-            var evidence_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
-          }
-          if (obj.is_applicable) {
-            if (obj.has_evidence) {
-              var complete_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>'
-            } else {
-              var complete_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
-            }
-          } else {
-              var complete_icon = '<div class="tooltip" data-tip="Not Applicable"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg></div>'
-          }
-          if (obj.owner.startsWith("Missing")) {
-            var owner_avatar = `<div class="avatar placeholder font-semibold"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
-          } else {
-            var owner_avatar = `<div class="avatar placeholder font-semibold"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${obj.owner[0]}</span></div></div>`;
-          }
-          if (obj.operator.startsWith("Missing")) {
-            var operator_avatar = `<div class="avatar placeholder font-semibold"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
-          } else {
-            var operator_avatar = `<div class="avatar placeholder font-semibold"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${obj.operator[0]}</span></div></div>`;
-          }
-          $("#project-table-body").append(`<tr><td class="text-sm font-medium">${obj.id}</td><td class="text-sm font-medium uppercase"><p class="text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${clean(obj.ref_code)}</p></td><td class="text-sm font-medium whitespace-normal">${clean(obj.name)}</td><td><div data-id="${obj.id}" data-owner="${obj.owner}" data-operator="${obj.operator}" class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 populate-owner-modal">${owner_avatar}${operator_avatar}</div></td><td class="text-sm font-medium capitalize text-center">${complete_icon}</td><td class="text-sm font-medium capitalize"><p class="py-1 px-3 w-fit text-${reviewColor}-600 bg-${reviewColor}-400/10 rounded-full">${obj.review_status}</p></td><td class="text-sm font-medium capitalize text-center">${obj.implemented}%</td><td class="text-sm font-medium text-center">${obj.complete_feedback}/${obj.feedback}</td><td>${evidence_icon}</td><td class="text-sm font-medium"><a target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-ghost" href="/projects/{{project.id}}/controls/${obj.id}/subcontrols/${obj.id}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td></tr>`)
-      }
+    const subSelectOptions = getControlsFilterSelectOptions();
+    const selectGroupingOptions = getGroupingFilterSelectOptions();
+    const subSelectList = `<select class="select select-sm select-bordered controls-filter">${subSelectOptions}</select>`;
+    const selectGrouping = `<select class="select select-sm select-bordered grouping-filter">${selectGroupingOptions}</select>`;
+    const selectOwner = (`
+      <div>
+        <input @blur="blurOwnerFilter" type="text" placeholder="Search Owner" class="input input-bordered input-sm w-full owner-filter" />
+      </div>
+    `);
+    const selectOperator = (`
+      <div>
+        <input @blur="blurOperatorFilter" type="text" placeholder="Search Operator" class="input input-bordered input-sm w-full operator-filter" />
+      </div>
+    `);
+    
+    $("#card-div").html(`
+      <div class="col-span-9">
+        <div class="card shadow-md card-body border border-base-300 p-5">
+          <div>
+            <div class="justify-between flex">
+              <div>
+                <h2 class="card-title mb-4 control-title"></h2>
+              </div>
+              <div class="flex flex-row gap-x-2">
+                ${selectOwner}
+                ${selectOperator}
+                <div>${selectGrouping}</div>
+                ${subSelectList}
+                <div class="space-x-2">
+                  <button class="btn btn-sm btn-ghost border border-base-300 capitalize reload-button tooltip" data-tip="Refresh Data">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-600">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                  </button>
+                  <button class="btn btn-sm btn-ghost border border-base-300 capitalize remove-control-filter tooltip" data-tip="Remove Filter">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <table class="table table-vcenter " id="project-table" style="width:100%">
+              <thead>
+                <tr>
+                  <th class="bg-base-200">ID</th>
+                  <th class="bg-base-200">Ref Code</th>
+                  <th class="bg-base-200">Subcontrol</th>
+                  <th class="bg-base-200 w-1">
+                    <div class="tooltip" data-tip="Owner/Operator">O/Op</div>
+                  </th>
+                  <th class="bg-base-200 w-1">Complete</th>
+                  <th class="bg-base-200 w-1">
+                    <div class="tooltip" data-tip="Review status with auditor">Review</div>
+                  </th>
+                  <th class="bg-base-200 w-1">
+                    <div class="tooltip" data-tip="Progress of the control">Progress</div>
+                  </th>
+                  <th class="bg-base-200 w-1">
+                    <div class="tooltip" data-tip="Action Items from Auditor">Todo</div>
+                  </th>
+                  <th class="bg-base-200 w-1">Evidence</th>
+                  <th class="bg-base-200 w-1">View</th>
+                </tr>
+              </thead>
+              <tbody id="project-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `);
+    
+    $(".controls-filter").val(filter ? filter : "all");
+    $(".grouping-filter").val(grouping);
+    $(".owner-filter").val(owner);
+    $(".operator-filter").val(operator);
+
+    for (let i in data) {
+      const subcontrol = data[i];
+      const completeColor = subcontrol.is_complete ? "green" : "red";
+      const reviewColor = getSubControlStatusColor(subcontrol.review_status);
+      const evidenceIcon = subcontrol.has_evidence ? iconCheckmark : iconNegative;
+      const completeIcon = subcontrol.is_applicable ? (subcontrol.is_complete ? iconCheckmark : iconNegative) : iconNotApplicable;
+      const ownerAvatar = (subcontrol.owner && !subcontrol.owner.startsWith("Missing")) ? iconAvatar(subcontrol.owner) : iconNoAvatar;
+      const operatorAvatar = (subcontrol.operator && !subcontrol.operator.startsWith("Missing")) ? iconAvatar(subcontrol.operator) : iconNoAvatar;
+      
+      $("#project-table-body").append(`
+        <tr>
+          <td class="text-sm font-medium">${subcontrol.id}</td>
+          <td class="text-sm font-medium uppercase">
+            <p class="text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${clean(subcontrol.ref_code)}</p>
+          </td>
+          <td class="text-sm font-medium whitespace-normal">${clean(subcontrol.name)}</td>
+          <td>
+            <div data-id="${subcontrol.id}" data-owner="${subcontrol.owner}" data-operator="${subcontrol.operator}" class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 populate-owner-modal">${ownerAvatar}${operatorAvatar}</div>
+          </td>
+          <td class="text-sm font-medium capitalize text-center">${completeIcon}</td>
+          <td class="text-sm font-medium capitalize">
+            <p class="py-1 px-3 w-fit text-${reviewColor}-600 bg-${reviewColor}-400/10 rounded-full">${subcontrol.review_status}</p>
+          </td>
+          <td class="text-sm font-medium capitalize text-center">${subcontrol.implemented}%</td>
+          <td class="text-sm font-medium text-center">${subcontrol.complete_feedback}/${subcontrol.feedback}</td>
+          <td>${evidenceIcon}</td>
+          <td class="text-sm font-medium">
+            <a target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-ghost" href="/projects/${subcontrol.project_id}}/controls/${subcontrol.project_control_id}/subcontrols/${subcontrol.id}">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+              </svg>
+            </a>
+          </td>
+        </tr>
+      `);
     }
-    table = $("#project-table").DataTable({"pageLength":25,"order": [[ 0, "asc" ]]});
-    $(".control-title").html(`Project Subcontrols (${total_subcontrols})`)
-}
-
-function buildControlsTable(data) {
-      var params = new window.URLSearchParams(window.location.search);
-      var filter = params.get('filter');
-      var grouping = params.get('grouping');
-      var selectList = '<select class="select select-sm select-bordered controls-filter"><option value="1">All</option><option value="2">With Evidence</option><option value="3">Missing Evidence</option><option value="4">Not Implemented</option><option value="5">Implemented</option><option value="6">Applicable</option><option value="7">Not Applicable</option><option value="8">Complete</option><option value="9">Not Complete</option></select>';
-      var selectGrouping = `<select class="select select-sm select-bordered grouping-filter"><option value="controls">Grouping: Controls</option><option value="subcontrols">Grouping: Subcontrols</option></select>`;
-      $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300 p-5"><div><div class="justify-between flex"><div><h2 class="card-title mb-4">Project Controls (${Object.keys(data).length})</h2></div><div class="flex flex-row gap-x-2"><div>${selectGrouping}</div>${selectList}<div class="space-x-2"><button class="btn btn-sm btn-ghost border border-base-300 capitalize reload-button tooltip" data-tip="Refresh data"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg></button><button class="btn btn-sm btn-ghost border border-base-300 capitalize remove-control-filter tooltip" data-tip="Remove filter"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div></div></div><table class="table table-vcenter " id="project-table" style="width:100%"><thead><tr><th class="w-1 bg-base-200">ID</th><th class="w-1 bg-base-200">Ref Code</th><th class="bg-base-200">Name</th><th class="w-1 bg-base-200"><div class="tooltip" data-tip="Status of the control">Status</div></th><th class="w-1 bg-base-200"><div class="tooltip" data-tip="Review status with auditor">Review</div></th><th class="w-1 bg-base-200"><div class="tooltip" data-tip="Action items from auditor">Todo</div></th><th class="w-1 bg-base-200"><div class="tooltip" data-tip="% of control implemented">Implemented</div></th><th class="w-1 bg-base-200">View</th></tr></thead><tbody id="project-table-body"></tbody></table></div></div></div>`);
-
-      $(".controls-filter").val(filter);
-      $(".grouping-filter").val(grouping);
-
-      if (!filter) {
-        filter = "1";
-      }
-      if (!grouping) {
-        grouping = "controls";
-      }
-      setTimeout(()=>$(".controls-filter").val(filter),100);
-      setTimeout(()=>$(".grouping-filter").val(grouping),100);
-
-      for (var record in data) {
-        var obj = data[record]
-        if (obj.status === "complete") {
-          var statusColor = "green"
-        } else if (obj.status === "in progress") {
-          var statusColor = "yellow"
-        } else if (obj.status === "not applicable") {
-          var statusColor = "red"
-        } else {
-          var statusColor = "gray"
-        }
-        total_reviews = obj.subcontrols.length;
-        complete_reviews = 0;
-        total_feedback = 0;
-        complete_feedback = 0;
-        for (var record in obj.subcontrols) {
-          total_feedback += obj.subcontrols[record].feedback;
-          complete_feedback += obj.subcontrols[record].complete_feedback;
-          if (obj.subcontrols[record].review_status === "complete"){
-            complete_reviews += 1
-          }
-        }
-        var modal_icon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
-        $("#project-table-body").append(`<tr><td class="text-sm font-medium uppercase dt-control"><b class="ml-2">${obj.id}</b></td><td class="text-sm font-medium uppercase"><p class="text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${clean(obj.ref_code)}</p></td><td class="text-sm font-medium whitespace-normal capitalize">${clean(obj.name)}</td><td class="text-sm font-medium capitalize"><p class="text-${statusColor}-600 bg-${statusColor}-400/10 rounded-full py-1 px-3 w-fit">${obj.status}</p></td><td class="text-sm font-medium text-center">${complete_reviews}/${total_reviews}</td><td><div class="text-sm font-medium text-center">${complete_feedback}/${total_feedback}</div></td><td><div class="flex flex-col"><b class="text-xs font-medium">${obj.progress_implemented}</b><progress class="progress progress-primary w-28" value="${obj.progress_implemented}" max="100"/></div></td><td class=""><a data-id="${obj.id}" class="btn btn-xs btn-ghost control-modal-btn" href="#">${modal_icon}</a></td></tr>`);
-      }
-      table = $("#project-table").DataTable({"pageLength":25,"order": [[ 0, "asc" ]]});
-      function format(d) {
-        // hack to get ID from formatted HTML
-        var id = parseInt(d[0].split(">")[1].split("<")[0]);
-        obj = JSON.parse(localStorage.getItem("project-controls-{{project.uuid}}"))[id];
-        var subcontrol_body = "";
-        var comment_count = 0;
-        var feedback_count = 0;
-        var evidence_count = 0;
-        for (var record in obj.subcontrols) {
-          var sub = obj.subcontrols[record];
-          comment_count += sub.comments;
-          feedback_count += sub.feedback;
-          evidence_count += sub.evidence;
-          var completeColor = sub.is_complete ? "green":"red";
-          var reviewColor = "gray";
-          if (sub.review_status === "complete") {
-            var reviewColor = "green";
-          } else if (sub.review_status === "action required") {
-            var reviewColor = "red";
-          } else if (sub.review_status === "infosec action") {
-            var reviewColor = "yellow";
-          } else if (sub.review_status === "ready for auditor") {
-            var reviewColor = "blue";
-          }
-          if (sub.has_evidence) {
-            var evidence_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>'
-          } else {
-            var evidence_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
-          }
-          if (sub.is_applicable) {
-            if (sub.is_complete) {
-              var complete_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-green-600"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>'
-            } else {
-              var complete_icon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>'
-            }
-          } else {
-              var complete_icon = '<div class="tooltip" data-tip="Not Applicable"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-gray-600"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg></div>'
-          }
-          if (sub.owner.startsWith("Missing")) {
-            var owner_avatar = `<div class="avatar placeholder font-semibold"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
-          } else {
-            var owner_avatar = `<div class="avatar placeholder font-semibold"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${sub.owner[0]}</span></div></div>`;
-          }
-          if (sub.operator.startsWith("Missing")) {
-            var operator_avatar = `<div class="avatar placeholder font-semibold"><div class="text-gray-600 bg-gray-400/20 rounded-full w-8"><span class="text-xs capitalize">?</span></div></div>`;
-          } else {
-            var operator_avatar = `<div class="avatar placeholder font-semibold"><div class="text-green-600 bg-green-400/20 rounded-full w-8"><span class="text-xs capitalize">${sub.operator[0]}</span></div></div>`;
-          }
-          subcontrol_body += `<tr><td @dblclick="" class="text-sm font-medium whitespace-normal">${sub.name}</td><td><div data-id="${sub.id}" data-owner="${sub.owner}" data-operator="${sub.operator}" class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 populate-owner-modal">${owner_avatar}${operator_avatar}</div></td><td class="text-sm font-medium capitalize text-center">${complete_icon}</td><td class="text-sm font-medium capitalize"><p class="py-1 px-3 w-fit text-${reviewColor}-600 bg-${reviewColor}-400/10 rounded-full">${sub.review_status}</p></td><td class="text-sm font-medium capitalize text-center">${sub.implemented}%</td><td class="text-sm font-medium text-center">${sub.complete_feedback}/${sub.feedback}</td><td>${evidence_icon}</td><td class="text-sm font-medium"><a target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-ghost" href="/projects/{{project.id}}/controls/${sub.id}/subcontrols/${sub.id}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td></tr>`
-        }
-        return (`
-          <div class="col-span-9"><div class="card card-body border border-slate-200"><div class="justify-between flex mb-2 my-auto"><div><h2 class="card-title mb-2">Details</h2><p class="text-sm">View the subcontrols below and the summary details.</p></div><div><a href="/projects/{{project.id}}/controls/${obj.id}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">View Control</a></div></div><div class="grid grid-cols-10 gap-x-2 gap-y-5"><div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg></div><div class="ml-4"><h2 class="font-semibold">Complete</h2><p class="mt-2 text-sm">${obj.stats.subcontrols_complete}/${obj.stats.subcontrols} complete</p></div></div></div><div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></div><div class="ml-4"><h2 class="font-semibold">Inapplicable</h2><p class="mt-2 text-sm">${obj.stats.inapplicable_subcontrols}/${obj.stats.subcontrols} inapplicable</p></div></div></div><div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg></div><div class="ml-4"><h2 class="font-semibold">Feedback</h2><p class="mt-2 text-sm">${feedback_count} action items</p></div></div></div><div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg></div><div class="ml-4"><h2 class="font-semibold">Comments</h2><p class="mt-2 text-sm">${comment_count} comments</p></div></div></div><div class="col-span-2"><div class="flex items-start rounded-xl py-4 px-3 border border-base-300"><div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/></svg></div><div class="ml-4"><h2 class="font-semibold">Evidence</h2><p class="mt-2 text-sm">${evidence_count} evidence</p></div></div></div><div class="col-span-10"><div class="overflow-x-auto"><table class="table w-full"><thead><tr><th class="bg-base-200">Subcontrol Name</th><th class="bg-base-200 w-1"><div class="tooltip tooltip-right" data-tip="Owner/Operator">O/OP</div></th><th class="bg-base-200 w-1">Complete</th><th class="bg-base-200 w-1"><div class="tooltip tooltip-right" data-tip="Review status with auditor">Review</div></th><th class="bg-base-200 w-1"><div class="tooltip tooltip-right" data-tip="Progress of the control">Progress</div></th><th class="bg-base-200 w-1"><div class="tooltip tooltip-left" data-tip="Action items from auditor">Todo</div></th><th class="bg-base-200 w-1">Evidence</th><th class="bg-base-200 w-1">View</th></tr></thead><tbody>${subcontrol_body}</tbody></table></div></div>
-          <div class="col-span-10"><div class="overflow-x-auto"><table class="table w-full"><thead><tr><th class="w-2 bg-base-200">Key</th><th class="bg-base-200">Value</th></tr></thead><tbody>
-            <tr><td class="text-sm font-medium text-primary">Description</td><td class="whitespace-normal text-sm font-medium">${obj.description}</td></tr>
-            <tr><td class="text-sm font-medium text-primary">Status</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.status}</td></tr>
-            <tr><td class="text-sm font-medium text-primary">Applicable</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.is_applicable}</td></tr>
-            <tr><td class="text-sm font-medium text-primary">Complete</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.is_complete}</td></tr>
-            <tr><td class="text-sm font-medium text-primary">Reference</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.ref_code}</td></tr>
-            <tr><td class="text-sm font-medium text-primary">Category</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.category}</td></tr>
-            <tr><td class="text-sm font-medium text-primary">Subcategory</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.subcategory}</td></tr>
-            <tr><td class="text-sm font-medium text-primary">Updated</td><td class="whitespace-normal text-sm font-medium capitalize">${obj.date_updated}</td></tr>
-          </tbody></table></div></div></div></div></div>
-       `)
-      }
-      $('#project-table tbody').on('click', 'td.dt-control', function () {
-        var tr = $(this).closest('tr');
-        var row = table.row(tr);
- 
-        if (row.child.isShown()) {
-            // This row is already open - close it
-            row.child.hide();
-            tr.removeClass('shown');
-        } else {
-            // Open this row
-            row.child(format(row.data())).show();
-            tr.addClass('shown');
-        }
-      });
-
-      return
-}
-function loadControls(reload=false) {
-  var params = new window.URLSearchParams(window.location.search);
-  var filter = params.get('filter');
-  var grouping = params.get('grouping');
-  if (grouping === undefined || grouping === null || grouping === "null") {
-    grouping = "controls";
-  }
-  if (filter === undefined || filter === null || filter === "null") {
-    filter = "1";
-  }
-  setTimeout(()=>$(".controls-filter").val(filter),500);
-  setTimeout(()=>$(".grouping-filter").val(grouping),100);
-
-  console.log(`Loading controls with grouping:${grouping} and filter:${filter}`)
-  controls_grouping = true;
-  if (grouping === "subcontrols"){
-    controls_grouping = false;
+    table = $("#project-table").DataTable({"pageLength": 25, "order": [[0, "asc"]]});
+    $(".control-title").html(`Project Subcontrols (${data.length})`);
   }
 
-  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
-  // check if controls are in local storage
+  function buildControlsTable(data) {
+    const params = new window.URLSearchParams(window.location.search);
+    const filter = params.get("filter");
+    const grouping = params.get("grouping");
 
-  if (localStorage.getItem("project-controls-{{project.uuid}}") && !reload) {
-    console.log("Pulling controls from local storage")
-    data = JSON.parse(localStorage.getItem("project-controls-{{project.uuid}}"))
-    controls_grouping ? buildControlsTable(data):buildSubControlsTable(data)
-  } else {
-    console.log("Pulling controls from API")
-    //load controls in table format for the project
-    if (filter === "1"){
-      var url = "/api/v1/projects/{{project.id}}/controls?stats=yes"
-    } else if (filter === "2"){
-      var url = "/api/v1/projects/{{project.id}}/controls?view=with-evidence&stats=yes"
-    } else if (filter === "3"){
-      var url = "/api/v1/projects/{{project.id}}/controls?view=missing-evidence&stats=yes"
-    } else if (filter === "4"){
-      var url = "/api/v1/projects/{{project.id}}/controls?view=not-implemented&stats=yes"
-    } else if (filter === "5"){
-      var url = "/api/v1/projects/{{project.id}}/controls?view=implemented&stats=yes"
-    } else if (filter === "6"){
-      var url = "/api/v1/projects/{{project.id}}/controls?view=applicable&stats=yes"
-    } else if (filter === "7"){
-      var url = "/api/v1/projects/{{project.id}}/controls?view=not-applicable&stats=yes"
-    } else if (filter === "8"){
-      var url = "/api/v1/projects/{{project.id}}/controls?view=complete&stats=yes"
-    } else if (filter === "9"){
-      var url = "/api/v1/projects/{{project.id}}/controls?view=not-complete&stats=yes"
-    } else {
-      var url = "/api/v1/projects/{{project.id}}/controls?stats=yes"
+    const subSelectOptions = getControlsFilterSelectOptions();
+    const selectGroupingOptions = getGroupingFilterSelectOptions();
+    const selectList = `<select class="select select-sm select-bordered controls-filter">${subSelectOptions}</select>`;
+    const selectGrouping = `<select class="select select-sm select-bordered grouping-filter">${selectGroupingOptions}</select>`;
+    const modalIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
+    
+    $("#card-div").html(`
+      <div class="col-span-9">
+        <div class="card shadow-md card-body border border-base-300 p-5">
+          <div>
+            <div class="justify-between flex">
+              <div>
+                <h2 class="card-title mb-4">Project Controls (${data.length})</h2>
+              </div>
+              <div class="flex flex-row gap-x-2">
+                <div>${selectGrouping}</div>
+                ${selectList}
+                <div class="space-x-2">
+                  <button class="btn btn-sm btn-ghost border border-base-300 capitalize reload-button tooltip" data-tip="Refresh data">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-600">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                  </button>
+                  <button class="btn btn-sm btn-ghost border border-base-300 capitalize remove-control-filter tooltip" data-tip="Remove filter">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <table class="table table-vcenter " id="project-table" style="width:100%">
+              <thead>
+                <tr>
+                  <th class="w-1 bg-base-200">ID</th>
+                  <th class="w-1 bg-base-200">Ref Code</th>
+                  <th class="bg-base-200">Name</th>
+                  <th class="w-1 bg-base-200">
+                    <div class="tooltip" data-tip="Status of the control">Status</div>
+                  </th>
+                  <th class="w-1 bg-base-200">
+                    <div class="tooltip" data-tip="Review status with auditor">Review</div>
+                  </th>
+                  <th class="w-1 bg-base-200">
+                    <div class="tooltip" data-tip="Action items from auditor">Todo</div>
+                  </th>
+                  <th class="w-1 bg-base-200">
+                    <div class="tooltip" data-tip="% of control implemented">Implemented</div>
+                  </th>
+                  <th class="w-1 bg-base-200">View</th>
+                </tr>
+              </thead>
+              <tbody id="project-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `);
+    
+    $(".controls-filter").val(filter ? filter : "all");
+    $(".grouping-filter").val(grouping);
+
+    for (let i in data) {
+      const control = data[i]
+      const statusColor = getControlStatusColor(control.status);
+      const totalReviews = control.stats.subcontrols;
+      const totalFeedback = control.stats.feedback;
+      const completeReviews = control.stats.subcontrols_complete
+      const completeFeedback = 0;
+
+      const controlRow = (`
+        <tr data-project-id="${control.project_id}" data-control-id="${control.id}">
+          <td class="text-sm font-medium uppercase dt-control">
+            <b class="ml-2">${control.id}</b>
+          </td>
+          <td class="text-sm font-medium uppercase">
+            <p class="text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${clean(control.ref_code)}</p>
+          </td>
+          <td class="text-sm font-medium whitespace-normal capitalize">${clean(control.name)}</td>
+          <td class="text-sm font-medium capitalize">
+            <p class="text-${statusColor}-600 bg-${statusColor}-400/10 rounded-full py-1 px-3 w-fit">${control.status}</p>
+          </td>
+          <td class="text-sm font-medium text-center">${completeReviews}/${totalReviews}</td>
+          <td>
+            <div class="text-sm font-medium text-center">${completeFeedback}/${totalFeedback}</div>
+          </td>
+          <td>
+            <div class="flex flex-col">
+              <b class="text-xs font-medium">${control.progress_implemented}</b>
+              <progress class="progress progress-primary w-28" value="${control.progress_implemented}" max="100"/>
+            </div>
+          </td>
+          <td class="">
+            <a data-id="${control.id}" class="btn btn-xs btn-ghost control-modal-btn" href="#">${modalIcon}</a>
+          </td>
+        </tr>
+      `);
+
+      $("#project-table-body").append(controlRow);
+
+      localStorage.setItem(`grc-project-${control.project_id}-control-${control.id}`, JSON.stringify(control));
     }
+
+    $("#project-table tbody").on("click", "td.dt-control", function () {
+      const tr = $(this).closest("tr");
+      const row = table.row(tr);
+      const projectId = tr.data("project-id");
+      const controlId = tr.data("control-id");
+
+      if (row.child.isShown()) {
+        row.child.hide();
+        tr.removeClass("shown");
+      } else {
+        row.child(populateSubcontrolList(projectId, controlId)).show();
+        tr.addClass("shown");
+      }
+    });
+    
+    const table = $("#project-table").DataTable({
+      "pageLength": 25,
+      "order": [[0, "asc"]],
+    });
+  }
+
+  function populateSubcontrolList(projectId, controlId) {
+    const control = JSON.parse(localStorage.getItem(`grc-project-${projectId}-control-${controlId}`));    
+    let subControlsBody = "";
+
+    for (let i in control.subcontrols) {
+      const subcontrol = control.subcontrols[i];
+      const completeColor = subcontrol.is_complete ? "green" : "red";
+      const reviewColor = getSubControlStatusColor(subcontrol.review_status);
+      const evidenceIcon = subcontrol.has_evidence ? iconCheckmark : iconNegative;
+      const completeIcon = subcontrol.is_applicable ? (subcontrol.is_complete ? iconCheckmark : iconNegative) : iconNotApplicable;
+      const ownerAvatar = (subcontrol.owner && !subcontrol.owner.startsWith("Missing")) ? iconAvatar(subcontrol.owner) : iconNoAvatar;
+      const operatorAvatar = (subcontrol.operator && !subcontrol.operator.startsWith("Missing")) ? iconAvatar(subcontrol.operator) : iconNoAvatar;
+
+      subControlsBody += (`
+        <tr>
+          <td class="text-sm font-medium capitalize text-center">
+            <b class="ml-2">${subcontrol.id}</b>
+          </td>
+          <td class="text-sm font-medium whitespace-normal">${subcontrol.name}</td>
+          <td>
+            <div data-id="${subcontrol.id}" data-owner="${subcontrol.owner}" data-operator="${subcontrol.operator}" class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 populate-owner-modal">${ownerAvatar}${operatorAvatar}</div>
+          </td>
+          <td class="text-sm font-medium capitalize text-center">${completeIcon}</td>
+          <td class="text-sm font-medium capitalize">
+            <p class="py-1 px-3 w-fit text-${reviewColor}-600 bg-${reviewColor}-400/10 rounded-full">${subcontrol.review_status}</p>
+          </td>
+          <td class="text-sm font-medium capitalize text-center">${subcontrol.implemented}%</td>
+          <td class="text-sm font-medium text-center">${subcontrol.complete_feedback}/${subcontrol.feedback}</td>
+          <td>${evidenceIcon}</td>
+          <td class="text-sm font-medium">
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-xs btn-ghost"
+              href="/projects/${subcontrol.project_id}/controls/${subcontrol.project_control_id}/subcontrols/${subcontrol.id}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+              </svg>
+            </a>
+          </td>
+        </tr>
+      `);
+    }
+
+    return (`
+      <div class="col-span-9">
+        <div class="card card-body border border-slate-200">
+          <div class="justify-between flex mb-2 my-auto">
+            <div>
+              <h2 class="card-title mb-2">Details</h2>
+              <p class="text-sm">View the subcontrols below and the summary details.</p>
+            </div>
+            <div>
+              <a href="/projects/${control.project_id}/controls/${control.id}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">View Control</a>
+            </div>
+          </div>
+          <div class="grid grid-cols-10 gap-x-2 gap-y-5"><div class="col-span-2">
+            <div class="flex items-start rounded-xl py-4 px-3 border border-base-300">
+              <div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+                </svg>
+              </div>
+              <div class="ml-4">
+                <h2 class="font-semibold">Complete</h2>
+                <p class="mt-2 text-sm">${control.stats.subcontrols_complete}/${control.stats.subcontrols} complete</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <div class="flex items-start rounded-xl py-4 px-3 border border-base-300">
+              <div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <div class="ml-4">
+                <h2 class="font-semibold">Inapplicable</h2>
+                <p class="mt-2 text-sm">${control.stats.inapplicable_subcontrols}/${control.stats.subcontrols} inapplicable</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <div class="flex items-start rounded-xl py-4 px-3 border border-base-300">
+              <div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+                </svg>
+              </div>
+              <div class="ml-4">
+                <h2 class="font-semibold">Feedback</h2>
+                <p class="mt-2 text-sm">${control.stats.feedback} action items</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <div class="flex items-start rounded-xl py-4 px-3 border border-base-300">
+              <div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
+                </svg>
+              </div>
+              <div class="ml-4">
+                <h2 class="font-semibold">Comments</h2>
+                <p class="mt-2 text-sm">${control.stats.comments} comments</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <div class="flex items-start rounded-xl py-4 px-3 border border-base-300">
+              <div class="flex h-8 w-8 my-auto items-center justify-center rounded-full bg-base-200 border border-base-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="text-gray-400 w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/>
+                </svg>
+              </div>
+              <div class="ml-4">
+                <h2 class="font-semibold">Evidence</h2>
+                <p class="mt-2 text-sm">${control.stats.evidence} evidence</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-10"><div class="overflow-x-auto">
+            <table class="table w-full">
+              <thead>
+                <tr>
+                  <th class="bg-base-200 w-1">ID</th>
+                  <th class="bg-base-200 w-1">Subcontrol Name</th>
+                  <th class="bg-base-200 w-1">
+                    <div class="tooltip tooltip-right" data-tip="Owner/Operator">O/OP</div>
+                  </th>
+                  <th class="bg-base-200 w-1">Complete</th>
+                  <th class="bg-base-200 w-1">
+                    <div class="tooltip tooltip-right" data-tip="Review status with auditor">Review</div>
+                  </th>
+                  <th class="bg-base-200 w-1">
+                    <div class="tooltip tooltip-right" data-tip="Progress of the control">Progress</div>
+                  </th>
+                  <th class="bg-base-200 w-1">
+                    <div class="tooltip tooltip-left" data-tip="Action items from auditor">Todo</div>
+                  </th>
+                  <th class="bg-base-200 w-1">Evidence</th>
+                  <th class="bg-base-200 w-1">View</th>
+                </tr>
+              </thead>
+              <tbody>${subControlsBody}</tbody>
+            </table>
+          </div>
+        </div>
+        <div class="col-span-10">
+          <div class="overflow-x-auto">
+            <table class="table w-full">
+              <thead>
+                <tr>
+                  <th class="w-2 bg-base-200">Key</th>
+                  <th class="bg-base-200">Value</th>
+                </tr>
+              </thead>
+            <tbody>
+              <tr>
+                <td class="text-sm font-medium text-primary">Description</td>
+                <td class="whitespace-normal text-sm font-medium">${control.description}</td>
+              </tr>
+              <tr>
+                <td class="text-sm font-medium text-primary">Status</td>
+                <td class="whitespace-normal text-sm font-medium capitalize">${control.status}</td>
+              </tr>
+              <tr>
+                <td class="text-sm font-medium text-primary">Applicable</td>
+                <td class="whitespace-normal text-sm font-medium capitalize">${control.is_applicable}</td>
+              </tr>
+              <tr>
+                <td class="text-sm font-medium text-primary">Complete</td>
+                <td class="whitespace-normal text-sm font-medium capitalize">${control.is_complete}</td>
+              </tr>
+              <tr>
+                <td class="text-sm font-medium text-primary">Reference</td>
+                <td class="whitespace-normal text-sm font-medium capitalize">${control.ref_code}</td>
+              </tr>
+              <tr>
+                <td class="text-sm font-medium text-primary">Category</td>
+                <td class="whitespace-normal text-sm font-medium capitalize">${control.category}</td>
+              </tr>
+              <tr>
+                <td class="text-sm font-medium text-primary">Subcategory</td>
+                <td class="whitespace-normal text-sm font-medium capitalize">${control.subcategory}</td>
+              </tr>
+              <tr>
+                <td class="text-sm font-medium text-primary">Updated</td>
+                <td class="whitespace-normal text-sm font-medium capitalize">${control.date_updated}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `);
+  }
+
+  function loadControls(reload=false) {
+    const params = new window.URLSearchParams(window.location.search);
+    const grouping = params.get("grouping");
+    const filter = params.get("filter");
+    const owner = params.get("owner");
+    const operator = params.get("operator");
+    const projectId = "{{project.id}}"
+
+    const apiUrl = `/api/v1/projects/${projectId}`;
+    let url = null;
+
+    switch (grouping) {
+      case (controlsGrouping.SUBCONTROLS):
+        url = `${apiUrl}/${controlsGrouping.SUBCONTROLS}`;
+        break;
+      case (controlsGrouping.CONTROLS):
+        url = `${apiUrl}/${controlsGrouping.CONTROLS}`;
+        break;
+      default:
+        setDefaultGrouping();
+        url = `${apiUrl}/${controlsGrouping.CONTROLS}`;
+    }
+
+    $("#card-div").html(cardBlock);
+
+    const queryParams = [
+      filter && `filter=${filter}`,
+      owner && `owner=${owner}`,
+      operator && `operator=${operator}`
+    ].filter(Boolean);
+
+    if (queryParams.length > 0) {
+      url += `?${queryParams.join('&')}`;
+    }
+
     $.ajax({
       type: "GET",
       url: url,
       contentType: "application/json; charset=utf-8",
       dataType: "json",
-      success: function(data){
-        // build hash table for easy access
-        controls = {};
-        for (var control in data) {
-          controls[data[control].id] = data[control]
-        }
-        localStorage.setItem('project-controls-{{project.uuid}}', JSON.stringify(controls));
-        controls_grouping ? buildControlsTable(data):buildSubControlsTable(data)
-        return(data)
+      success: function(data) {
+        (grouping == controlsGrouping.SUBCONTROLS) ? buildSubControlsTable(data) : buildControlsTable(data);
+        updateActiveQuickFilter();
+        return(data);
       },
       error: function(errMsg) {
+        (grouping == controlsGrouping.SUBCONTROLS) ? buildSubControlsTable([]) : buildControlsTable([]);
+        toast(errMsg["responseJSON"]["message"],"error");
         return(errMsg);
       }
-    })
+    });
+
+    $("#card-div").html(cardBlock);
   }
-}
+
+  /** EndRegion: Controls & Subcontrols */
+
 
 function loadPolicies() {
   //load policies in table format for the project
@@ -1483,7 +1932,6 @@ function addMembers() {
     },
   })
 }
-
 function loadMatrix() {
   //load matrix for the project
   $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
@@ -1827,7 +2275,8 @@ function loadPageElements(tab) {
 };
 var params = new window.URLSearchParams(window.location.search);
 var tab = params.get('tab');
-loadUsers(reload=true)
-loadPageElements(tab)
+loadUsers(reload=true);
+loadPageElements(tab);
+loadQuickFilters();
 </script>
 {%endblock%}

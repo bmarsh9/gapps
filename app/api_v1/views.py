@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from flask import jsonify, request, current_app, abort, render_template, session
+from flask import abort, current_app, jsonify, make_response, render_template, request, session
 from flask_login import current_user
 from sqlalchemy import func
 
@@ -9,9 +9,12 @@ from app import models, db
 from app.integrations.aws.src.s3_client import S3
 from app.service.authorization import AuthorizationService
 from app.service.project import ProjectService
+from app.service.project_control import ProjectControlService
+from app.service.project_subcontrol import ProjectSubControlService
 from app.utils.authorizer import Authorizer
+from app.utils.custom_errors import CustomError
 from app.utils.decorators import login_required
-from app.utils.enums import FileType
+from app.utils.enums import FileType, ProjectControlsFilter, ProjectSubControlsFilter
 from app.utils.misc import get_content_type_for_extension, get_file_type_by_extensions, get_users_from_text, project_creation
 from app.utils.notification_service import NotificationService
 from app.utils.reports import Report
@@ -726,39 +729,39 @@ def update_settings_in_project(pid):
     db.session.commit()
     return jsonify({"message": "ok"})
 
-@api.route('/projects/<int:pid>/controls', methods=['GET'])
+@api.route('/projects/<int:project_id>/subcontrols', methods=['GET'])
 @login_required
-def get_controls_for_project(pid):
-    result = Authorizer(current_user).can_user_access_project(pid)
-    data = []
-    view = request.args.get("view")
-    if view == "all":
-        view = None
-    stats = request.args.get("stats", False)
-    if stats:
-        stats = True
-    for control in result["extra"]["project"].controls.all():
-        record = control.as_dict(include_subcontrols=True, stats=stats)
-        if view:
-            if view == "with-evidence" and record["progress_evidence"] > 0:
-                data.append(record)
-            elif view == "missing-evidence" and record["progress_evidence"] == 0:
-                data.append(record)
-            elif view == "not-implemented" and record["progress_implemented"] == 0:
-                data.append(record)
-            elif view == "implemented" and record["progress_implemented"] == 100:
-                data.append(record)
-            elif view == "applicable" and record["is_applicable"]:
-                data.append(record)
-            elif view == "not-applicable" and not record["is_applicable"]:
-                data.append(record)
-            elif view == "complete" and record["is_complete"]:
-                data.append(record)
-            elif view == "not-complete" and not record["is_complete"]:
-                data.append(record)
-        else:
-            data.append(record)
-    return jsonify(data)
+def get_subcontrols_for_project(project_id):
+    AuthorizationService(current_user).can_user_view_project_subcontrols(project_id)
+    
+    filter = request.args.get("filter")
+    by_owner = request.args.get("owner")
+    by_operator = request.args.get("operator")
+
+    extra_filters = {}
+    if filter and filter in ProjectSubControlsFilter.values():
+        extra_filters['filter'] = filter
+    if by_owner:
+        extra_filters['owner'] = by_owner
+    if by_operator:
+        extra_filters['operator'] = by_operator
+        
+    result: List[dict] = ProjectSubControlService.get_project_subcontrol_summary(project_id, extra_filters)
+    return jsonify(result)
+
+@api.route('/projects/<int:project_id>/controls', methods=['GET'])
+@login_required
+def get_controls_for_project(project_id):
+    AuthorizationService(current_user).can_user_view_project_controls(project_id)
+    
+    filter = request.args.get("filter")
+
+    extra_filter = None
+    if filter and filter in ProjectControlsFilter.values():
+        extra_filter = filter
+
+    result: List[dict] = ProjectControlService.get_project_control_summary(project_id, extra_filter)
+    return jsonify(result)
 
 @api.route('/projects/<int:pid>/policies', methods=['GET'])
 @login_required
