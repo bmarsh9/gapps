@@ -2,7 +2,7 @@ from typing import List
 
 from flask import current_app
 from flask_login import current_user
-from sqlalchemy import and_, case, distinct, func
+from sqlalchemy import and_, case, distinct, func, or_
 from sqlalchemy.exc import SQLAlchemyError
 
 from app import db
@@ -39,22 +39,6 @@ class ProjectControlRepository:
 
         subcontrol_alias = db.aliased(ProjectSubControl)
         evidence_association_alias = db.aliased(EvidenceAssociation)
-
-        filters = [
-            ProjectControl.project_id == project_id,
-        ]
-        
-        if extra_filter == ProjectControlsFilter.IS_APPLICABLE.value:
-            filters.append(subcontrol_alias.is_applicable.is_(True))
-
-        elif extra_filter == ProjectControlsFilter.NOT_APPLICABLE.value:
-            filters.append(subcontrol_alias.is_applicable.isnot(True))
-
-        elif extra_filter == ProjectControlsFilter.IMPLEMENTED.value:
-            filters.append(subcontrol_alias.implemented == 100)
-
-        elif extra_filter == ProjectControlsFilter.NOT_IMPLEMENTED.value:
-            filters.append(subcontrol_alias.implemented < 100)
 
         query = (
             db.session.query(
@@ -97,7 +81,6 @@ class ProjectControlRepository:
             .join(Project, Project.id == ProjectControl.project_id)
             .join(Framework, Framework.id == Project.framework_id)
             .join(Control, ProjectControl.control_id == Control.id)
-            .filter(*filters)
             .group_by(
                 ProjectControl.id,
                 Project.id,
@@ -108,8 +91,106 @@ class ProjectControlRepository:
             .order_by(ProjectControl.id)
         )
 
+        filters = [
+            ProjectControl.project_id == project_id,
+        ]
+        
+        if extra_filter == ProjectControlsFilter.IS_APPLICABLE.value:
+            filters.append(subcontrol_alias.is_applicable.is_(True))
+
+        elif extra_filter == ProjectControlsFilter.NOT_APPLICABLE.value:
+            filters.append(subcontrol_alias.is_applicable.isnot(True))
+
+        elif extra_filter == ProjectControlsFilter.IMPLEMENTED.value:
+            subquery_fully_implemented = (
+                db.session.query(ProjectSubControl.project_control_id)
+                .filter(ProjectSubControl.implemented != 100)
+                .distinct()
+                .subquery()
+            )
+            query = (
+                query
+                .filter(~ProjectControl.id.in_(subquery_fully_implemented))
+            )
+
+        elif extra_filter == ProjectControlsFilter.NOT_IMPLEMENTED.value:
+            subquery_not_implemented = (
+                db.session.query(ProjectSubControl.project_control_id)
+                .filter(ProjectSubControl.implemented < 100)
+                .distinct()
+                .subquery()
+            )
+            query = (
+                query
+                .filter(ProjectControl.id.in_(subquery_not_implemented))
+            )
+
+        elif extra_filter == ProjectControlsFilter.HAS_EVIDENCE.value:
+            subquery_has_evidence = (
+                db.session.query(ProjectSubControl.project_control_id)
+                .filter(ProjectSubControl.id.notin_(
+                    db.session.query(EvidenceAssociation.control_id)
+                    .distinct()
+                ))
+                .distinct()
+                .subquery()
+            )
+            query = (
+                query
+                .filter(~ProjectControl.id.in_(subquery_has_evidence))
+            )
+
+        elif extra_filter == ProjectControlsFilter.MISSING_EVIDENCE.value:
+            subquery_missing_evidence = (
+                db.session.query(ProjectSubControl.project_control_id)
+                .outerjoin(EvidenceAssociation, ProjectSubControl.id == EvidenceAssociation.control_id)
+                .group_by(ProjectSubControl.project_control_id)
+                .having(func.count(EvidenceAssociation.id) < func.count(ProjectSubControl.id))
+                .subquery()
+            )
+            query = (
+                query
+                .filter(ProjectControl.id.in_(subquery_missing_evidence))
+            )
+            
+        if extra_filter == ProjectControlsFilter.COMPLETE.value:
+            subquery_complete = (
+                db.session.query(ProjectSubControl.project_control_id)
+                .outerjoin(EvidenceAssociation, ProjectSubControl.id == EvidenceAssociation.control_id)
+                .group_by(ProjectSubControl.project_control_id)
+                .having(
+                    and_(
+                        func.bool_and(ProjectSubControl.implemented == 100),
+                        func.count(EvidenceAssociation.id) == func.count(ProjectSubControl.id)
+                    )
+                )
+                .subquery()
+            )
+            query = (
+                query
+                .filter(ProjectControl.id.in_(subquery_complete))
+            )
+
+        elif extra_filter == ProjectControlsFilter.NOT_COMPLETE.value:
+            subquery_not_complete = (
+                db.session.query(ProjectSubControl.project_control_id)
+                .outerjoin(EvidenceAssociation, ProjectSubControl.id == EvidenceAssociation.control_id)
+                .group_by(ProjectSubControl.project_control_id)
+                .having(
+                    or_(
+                        func.bool_and(ProjectSubControl.implemented != 100),
+                        func.count(EvidenceAssociation.id) < func.count(ProjectSubControl.id)
+                    )
+                )
+                .subquery()
+            )
+            query = (
+                query
+                .filter(ProjectControl.id.in_(subquery_not_complete))
+            )
+
         try:
-            return query.all()
-        except SQLAlchemyError as e:
+            return query.filter(*filters).all()
+        except SQLAlchemyError:
             current_app.logger.error(f"Postgres READ operation failed failed for user({current_user.id})")
             raise PostgresError("An error occurred while attempting to fetch project controls with summaries.")

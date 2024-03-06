@@ -67,9 +67,35 @@ class ProjectSubControlRepository:
             .subquery()
         )
 
-
         owner_alias = db.aliased(User)
         operator_alias = db.aliased(User)
+
+        query = (
+            db.session.query(
+                ProjectSubControl,
+                SubControl,
+                Control.name.label("parent_control_name"),
+                Project.name.label("project_name"),
+                Framework.name.label("framework_name"),
+                owner_alias.email.label("owner_email"),
+                operator_alias.email.label("operator_email"),
+                comment_count_subquery.c.subcontrol_comment_count,
+                auditor_feedback_counts_subquery.c.auditor_feedback_total_count,
+                auditor_feedback_counts_subquery.c.auditor_feedback_complete_count,
+                evidence_count_subquery.c.evidence_count
+            )
+            .outerjoin(comment_count_subquery, ProjectSubControl.id == comment_count_subquery.c.subcontrol_id)
+            .outerjoin(auditor_feedback_counts_subquery, ProjectSubControl.id == auditor_feedback_counts_subquery.c.subcontrol_id)
+            .join(SubControl, ProjectSubControl.subcontrol_id == SubControl.id)
+            .join(ProjectControl, ProjectSubControl.project_control_id == ProjectControl.id)
+            .join(Control, ProjectControl.control_id == Control.id)
+            .join(Project, ProjectSubControl.project_id == Project.id)
+            .join(Framework, Project.framework_id == Framework.id)
+            .outerjoin(owner_alias, ProjectSubControl.owner_id == owner_alias.id)
+            .outerjoin(operator_alias, ProjectSubControl.operator_id == operator_alias.id)
+            .outerjoin(evidence_count_subquery, ProjectSubControl.id == evidence_count_subquery.c.control_id)
+            .order_by(ProjectSubControl.id)
+        )
 
         filters = [
             ProjectSubControl.project_id == project_id,
@@ -161,36 +187,8 @@ class ProjectSubControlRepository:
         if operator is not None:
             filters.append(func.lower(operator_alias.email).ilike(func.lower(f"%{operator}%")))
 
-        query = (
-            db.session.query(
-                ProjectSubControl,
-                SubControl,
-                Control.name.label("parent_control_name"),
-                Project.name.label("project_name"),
-                Framework.name.label("framework_name"),
-                owner_alias.email.label("owner_email"),
-                operator_alias.email.label("operator_email"),
-                comment_count_subquery.c.subcontrol_comment_count,
-                auditor_feedback_counts_subquery.c.auditor_feedback_total_count,
-                auditor_feedback_counts_subquery.c.auditor_feedback_complete_count,
-                evidence_count_subquery.c.evidence_count
-            )
-            .outerjoin(comment_count_subquery, ProjectSubControl.id == comment_count_subquery.c.subcontrol_id)
-            .outerjoin(auditor_feedback_counts_subquery, ProjectSubControl.id == auditor_feedback_counts_subquery.c.subcontrol_id)
-            .join(SubControl, ProjectSubControl.subcontrol_id == SubControl.id)
-            .join(ProjectControl, ProjectSubControl.project_control_id == ProjectControl.id)
-            .join(Control, ProjectControl.control_id == Control.id)
-            .join(Project, ProjectSubControl.project_id == Project.id)
-            .join(Framework, Project.framework_id == Framework.id)
-            .outerjoin(owner_alias, ProjectSubControl.owner_id == owner_alias.id)
-            .outerjoin(operator_alias, ProjectSubControl.operator_id == operator_alias.id)
-            .outerjoin(evidence_count_subquery, ProjectSubControl.id == evidence_count_subquery.c.control_id)
-            .filter(*filters)
-            .order_by(ProjectSubControl.id)
-        )
-
         try:
-            return query.all()
-        except SQLAlchemyError as e:
+            return query.filter(*filters).all()
+        except SQLAlchemyError:
             current_app.logger.error(f"Postgres READ operation failed failed for user({current_user.id})")
             raise PostgresError("An error occurred while attempting to fetch project subcontrols with summaries.")
