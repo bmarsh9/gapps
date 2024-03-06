@@ -153,7 +153,7 @@ class ProjectControlRepository:
                 .filter(ProjectControl.id.in_(subquery_missing_evidence))
             )
             
-        if extra_filter == ProjectControlsFilter.COMPLETE.value:
+        elif extra_filter == ProjectControlsFilter.COMPLETE.value:
             subquery_complete = (
                 db.session.query(ProjectSubControl.project_control_id)
                 .outerjoin(EvidenceAssociation, ProjectSubControl.id == EvidenceAssociation.control_id)
