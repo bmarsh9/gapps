@@ -22,7 +22,7 @@ def create_app(config_name="default"):
 
     @app.errorhandler(Exception)
     def handle_error(error):
-        current_app.logger.error(f"{type(error).__name__}: {error.message}", exc_info=True)
+        current_app.logger.error(f"{type(error).__name__}: {str(error)}", exc_info=True)
         if isinstance(error, CustomError):
             message = error.message
             status = error.status
