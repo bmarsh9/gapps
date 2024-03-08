@@ -109,17 +109,6 @@
   </div>
 </div>
 
-<input type="checkbox" id="ownerModal" class="modal-toggle" />
-<div class="modal">
-  <div class="modal-box">
-    <label for="ownerModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-    <div id="ownerModalBody"></div>
-    <div class="modal-action">
-      <button data-id="" class="btn btn-primary save-owner-btn">Save</button>
-    </div>
-  </div>
-</div>
-
 <input type="checkbox" id="control-modal" class="modal-toggle" />
 <label for="control-modal" class="modal cursor-pointer">
   <label class="modal-box relative w-11/12 max-w-5xl" for="">
@@ -315,6 +304,11 @@
     complete: 'Complete'
   }
 
+  const actions = {
+    POPULATE_OWNER_OPERATOR_MODAL: "action-populate-owner-operator-modal",
+    UPDATE_OWNER_OPERATOR: "action-update-owner-operator",
+  }
+
   /** End Region: Data */
 
   /** Region: HTML Fragments */
@@ -355,15 +349,19 @@
     </div>
   `);
 
+  const loadingAnimation = (`
+    <div class="justify-center flex" role="status">
+      <svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+      </svg>
+      <span class="sr-only">Loading...</span>
+    </div>
+  `);
+
   const cardBlock = (`
     <div class="col-span-9 mx-auto mt-10">
-      <div class="justify-center flex" role="status">
-        <svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-          <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-        </svg>
-        <span class="sr-only">Loading...</span>
-      </div>
+    ${loadingAnimation}
     </div>
   `);
 
@@ -374,7 +372,7 @@
   const changeTab = (tab) => {
     $(".tabs span").removeClass("bg-base-200");
     $(`#tab-${tab}`).addClass("bg-base-200");
-    resetUrlQueryString(tab);
+    resetUrlQueryString();
     loadPageElements(tab);
     updateActiveQuickFilter();
   }
@@ -415,9 +413,11 @@
     }
   };
 
-  const resetUrlQueryString = (tab) => {
+  const resetUrlQueryString = () => {
+    const params = new window.URLSearchParams(window.location.search);
+    const tab = params.get("tab");
     const noQueryUrl = window.location.origin + window.location.pathname;
-    const baseUrl = `${noQueryUrl}?tab=${tab}`;
+    const baseUrl = `${noQueryUrl}?tab=${tab ? tab : projectTabs.SUMMARY}`;
     window.history.replaceState({}, document.title, noQueryUrl);
   };
 
@@ -497,6 +497,35 @@
 
   /** End Region: Helper methods */
 
+  /** Region: Modals */
+
+  const createModal = (subControlId, controlId, title, action, $body) => {
+    destroyModal();
+    const $wrapper = $("<div>").attr({"id": "customModal"}).addClass("modal cursor-pointer visible opacity-100 pointer-events-auto");
+    const $container = $("<div>").addClass("modal-box");
+    const $header = $("<div>").addClass("w-full mb-6 flex flex-row-reverse");
+    const $title = $("<h2>").addClass("card-title flex-1").text(title);
+    const $closeBtn = $("<label>").addClass("btn btn-sm btn-circle").text("✕").on("click", destroyModal);
+    const $buttonGroup = $("<div>").addClass("modal-action");
+    const $saveBtn = $("<button>").attr({"data-id": subControlId, "data-control-id": controlId}).addClass(`btn btn-primary ${action}`).text("Save");
+    $header.append($closeBtn, $title);
+    $buttonGroup.append($saveBtn);
+    $container.append($header, $body, $buttonGroup);
+    $wrapper.append($container);
+    $("main").append($wrapper);
+    $wrapper.on("click", (event) => {
+      if ($(event.target).hasClass("modal")) {
+        destroyModal();
+      }
+    });
+  };
+
+  const destroyModal = () => {
+    $('#customModal').remove();
+  }
+
+  /** End Region: Modals */
+
 function loadUsers(reload=false) {
     var users = localStorage.getItem("tenant-users-{{project.tenant_id}}");
     if (reload || !users) {
@@ -517,32 +546,6 @@ function loadUsers(reload=false) {
     } 
 }
 
-  function populateOwnerModal(id, owner, operator){
-    $("#ownerModalBody").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
-    document.getElementById('ownerModal').checked = true;
-    var users = JSON.parse(localStorage.getItem("tenant-users-{{project.tenant_id}}"));
-    $(".save-owner-btn").data("id", id)
-    ownerSelect = '<label class="block text-sm font-medium mb-2">Owner of the Control</label><select class="select select-md w-full max-w-xs select-bordered owner-id"><option value="empty">Select an Owner</option>'
-    for(var user in users) {
-      if (users[user].email === owner) {
-        ownerSelect+=`<option value="${users[user].id}" selected>${users[user].email}</option>`
-      } else {
-        ownerSelect+=`<option value="${users[user].id}">${users[user].email}</option>`
-      }
-    }
-    ownerSelect+='</select>'
-    operatorSelect = '<label class="block text-sm font-medium mb-2 mt-5">Operator of the Control</label><select class="select select-md w-full max-w-xs select-bordered operator-id"><option value="empty">Select an Operator</option>'
-    for(var user in users) {
-      if (users[user].email === operator) {
-        operatorSelect+=`<option value="${users[user].id}" selected>${users[user].email}</option>`
-      } else {
-        operatorSelect+=`<option value="${users[user].id}">${users[user].email}</option>`
-      }
-    }
-    operatorSelect+='</select>'
-    $("#ownerModalBody").html(ownerSelect);
-    $("#ownerModalBody").append(operatorSelect);
-  }
 function saveScratchPad(showToast=true) {
     var data = {"data":tinymce.get("scratchpad-editor").getContent()}
     $.ajax({
@@ -583,55 +586,6 @@ function createReport() {
             return(errMsg);
           }
     })
-}
-
-function blurOwnerFilter(e) {
-  var owner = e.target.value;
-  var operator = $('.operator-filter').val();
-  var filter = $('.controls-filter').val();
-  var grouping = $('.grouping-filter').val();
-  var queryParams = new URLSearchParams(window.location.search);
-  queryParams.set("filter", filter);
-  queryParams.set("grouping", grouping);
-  if (owner) {
-    queryParams.set("owner", owner);
-  } else {
-    queryParams.delete("owner");
-  }
-  if (operator) {
-    queryParams.set("operator", operator);
-  } else {
-    queryParams.delete("operator");
-  }
-  history.replaceState(null, null, "?"+queryParams.toString());
-  if (grouping === "subcontrols") {
-    loadControls()
-  } else {
-    loadControls(reload=true)
-  }
-}
-
-function blurOperatorFilter(e) {
-  const operator = e.target.value;
-  const owner = $('.owner-filter').val();
-  const filter = $('.controls-filter').val();
-  const grouping = $('.grouping-filter').val();
-
-  const params = new URLSearchParams(window.location.search);
-  params.set("filter", filter);
-  params.set("grouping", grouping);
-  params.delete("owner");
-  params.delete("operator");
-
-  if (owner) {
-    params.set("owner", owner);
-  }
-  if (operator) {
-    params.set("operator", operator);
-  }
-
-  setUrlParams(params);
-  loadControls();
 }
 
 /** Region: Events */
@@ -690,6 +644,86 @@ function blurOperatorFilter(e) {
     loadControls();
   });
 
+  $(document).on("click", `.${actions.POPULATE_OWNER_OPERATOR_MODAL}`, function() {
+    const subControlId = $(this).data("id");
+    const controlId = $(this).data("control-id");
+    populateOwnerAndOperatorModal(subControlId, controlId);
+  });
+
+  $(document).on("click", `.${actions.UPDATE_OWNER_OPERATOR}`, function() {
+    $(this).prop("disabled", true).html(loadingAnimation);
+    const subControlId = $(this).data("id");
+    const controlId = $(this).data("control-id");
+    const projectId = "{{project.id}}";
+    const ownerId = getNumberOrNull($(".owner-id").val());
+    const operatorId = getNumberOrNull($(".operator-id").val());
+
+    $.ajax({
+      type: "PUT",
+      url: `/api/v1/project-controls/${projectId}/subcontrols/${subControlId}`,
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify({
+        "owner-id": ownerId === "" ? null : ownerId,
+        "operator-id": operatorId === "" ? null : operatorId,
+      }),
+      success: function(data) {
+        toast("Subcontrol ownership information updated.");
+        
+        const ownerEmail = $(".owner-id option:selected").text();
+        const operatorEmail = $(".operator-id option:selected").text();
+        
+        // Updates avatar icons locally
+        const selector = `.avatar-group[data-id="${subControlId}"]`;
+        const $avatarGroup = $(selector);
+        $avatarGroup.empty();
+        $avatarGroup.append(
+          !ownerId ? iconNoAvatar : iconAvatar(ownerEmail),
+          !operatorId ? iconNoAvatar : iconAvatar(operatorEmail),
+        );
+
+        // Update locally cached subcontrol information
+        const control = JSON.parse(localStorage.getItem(`grc-project-${projectId}-control-${controlId}`)); 
+        const matchingSubcontrol = control.subcontrols.find(subcontrol => subcontrol.id === subControlId);
+        matchingSubcontrol.owner_id = ownerId || null;
+        matchingSubcontrol.owner = ownerEmail.startsWith("Select") ? "Missing Owner" : ownerEmail;
+        matchingSubcontrol.operator_id = operatorId || null;
+        matchingSubcontrol.operator = operatorEmail.startsWith("Select") ? "Missing Operator" : operatorEmail;
+        localStorage.setItem(`grc-project-${projectId}-control-${controlId}`, JSON.stringify(control));
+
+        destroyModal();
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        $(this).prop("disabled", false);
+      }
+    })
+  });
+
+  const updateOwnerAndOperatorFilters = () => {
+    const owner = $(".owner-filter").val();
+    const operator = $(".operator-filter").val();
+
+    const filter = $(".controls-filter").val();
+    const grouping = $(".grouping-filter").val();
+
+    const params = new URLSearchParams(window.location.search);
+    params.set("filter", filter);
+    params.set("grouping", grouping);
+    params.delete("owner");
+    params.delete("operator");
+
+    if (owner) {
+      params.set("owner", owner);
+    }
+    if (operator) {
+      params.set("operator", operator);
+    }
+
+    setUrlParams(params);
+    loadControls();
+  }
+
 /** Endregion: Events */
 
 function toggleScratchPad(e=false) {
@@ -710,7 +744,7 @@ function loadScratchPad() {
     $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
     return
     {%endif%}
-    $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+    $("#card-div").html(cardBlock)
     $.ajax({
         type: "GET",
         url: "/api/v1/projects/{{project.id}}/scratchpad",
@@ -840,7 +874,7 @@ function loadComments() {
     $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
     return
     {%endif%}
-    $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+    $("#card-div").html(cardBlock)
     $.ajax({
         type: "GET",
         url: "/api/v1/projects/{{project.id}}/comments",
@@ -900,7 +934,7 @@ function loadSummary() {
 </div>
 ` 
 
-  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+  $("#card-div").html(cardBlock)
   $.ajax({
     type: "GET",
     url: url.toString(),
@@ -1187,10 +1221,10 @@ plotOptions: {
             <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Creation</strong><span class="text-sm">${data.date_added}</span></div></div>
           </div></div></div></div>`);
           $("#project-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Name</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.name}</dd></div>`)
-          $("#complete-progress").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
-          $("#implemented-progress").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
-          $("#evidence-progress").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
-          $("#review-progress").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+          $("#complete-progress").html(cardBlock)
+          $("#implemented-progress").html(cardBlock)
+          $("#evidence-progress").html(cardBlock)
+          $("#review-progress").html(cardBlock)
           var complete_chart = new ApexCharts(document.querySelector("#complete-progress"), complete_options);
           var implemented_chart = new ApexCharts(document.querySelector("#implemented-progress"), implemented_options);
           var evidence_chart = new ApexCharts(document.querySelector("#evidence-progress"), evidence_options);
@@ -1217,11 +1251,11 @@ plotOptions: {
 
 function loadEvidence() {
       //load evidence in table format for the project
-      $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+      $("#card-div").html(cardBlock)
       $("#card-div").html("");
       // top left
       $("#card-div").append('<div class="col-span-3"><div class="card shadow border border-base-200"><div class="p-5"><h2 class="card-title capitalize text-lg">Evidence Progress</h2><div class="text-center"><div id="evidence-progress"></div></div></div></div></div>')
-      $("#evidence-progress").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+      $("#evidence-progress").html(cardBlock)
       $.ajax({
         type: "GET",
         url: "/api/v1/projects/{{project.id}}",
@@ -1314,12 +1348,12 @@ function loadEvidence() {
     const selectGrouping = `<select class="select select-sm select-bordered grouping-filter">${selectGroupingOptions}</select>`;
     const selectOwner = (`
       <div>
-        <input @blur="blurOwnerFilter" type="text" placeholder="Search Owner" class="input input-bordered input-sm w-full owner-filter" />
+        <input @blur="updateOwnerAndOperatorFilters" type="text" placeholder="Search Owner" class="input input-bordered input-sm w-full owner-filter" />
       </div>
     `);
     const selectOperator = (`
       <div>
-        <input @blur="blurOperatorFilter" type="text" placeholder="Search Operator" class="input input-bordered input-sm w-full operator-filter" />
+        <input @blur="updateOwnerAndOperatorFilters" type="text" placeholder="Search Operator" class="input input-bordered input-sm w-full operator-filter" />
       </div>
     `);
     
@@ -1402,7 +1436,13 @@ function loadEvidence() {
           </td>
           <td class="text-sm font-medium whitespace-normal">${clean(subcontrol.name)}</td>
           <td>
-            <div data-id="${subcontrol.id}" data-owner="${subcontrol.owner}" data-operator="${subcontrol.operator}" class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 populate-owner-modal">${ownerAvatar}${operatorAvatar}</div>
+            <div
+              data-id="${subcontrol.id}"
+              data-owner="${subcontrol.owner}"
+              data-operator="${subcontrol.operator}"
+              data-control-id="${subcontrol.project_control_id}"
+              class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 ${actions.POPULATE_OWNER_OPERATOR_MODAL}"
+            >${ownerAvatar}${operatorAvatar}</div>
           </td>
           <td class="text-sm font-medium capitalize text-center">${completeIcon}</td>
           <td class="text-sm font-medium capitalize">
@@ -1555,7 +1595,7 @@ function loadEvidence() {
   }
 
   function populateSubcontrolList(projectId, controlId) {
-    const control = JSON.parse(localStorage.getItem(`grc-project-${projectId}-control-${controlId}`));    
+    const control = JSON.parse(localStorage.getItem(`grc-project-${projectId}-control-${controlId}`));
     let subControlsBody = "";
 
     for (let i in control.subcontrols) {
@@ -1574,7 +1614,13 @@ function loadEvidence() {
           </td>
           <td class="text-sm font-medium whitespace-normal">${subcontrol.name}</td>
           <td>
-            <div data-id="${subcontrol.id}" data-owner="${subcontrol.owner}" data-operator="${subcontrol.operator}" class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 populate-owner-modal">${ownerAvatar}${operatorAvatar}</div>
+            <div
+              data-id="${subcontrol.id}"
+              data-control-id="${subcontrol.project_control_id}"
+              data-owner="${subcontrol.owner}"
+              data-operator="${subcontrol.operator}"
+              class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 ${actions.POPULATE_OWNER_OPERATOR_MODAL}"
+            >${ownerAvatar}${operatorAvatar}</div>
           </td>
           <td class="text-sm font-medium capitalize text-center">${completeIcon}</td>
           <td class="text-sm font-medium capitalize">
@@ -1807,12 +1853,56 @@ function loadEvidence() {
     $("#card-div").html(cardBlock);
   }
 
+  function populateOwnerAndOperatorModal(subControlId, controlId) {
+    const projectId = "{{project.id}}";
+    const title = "Manage subcontrol Owner and Operator";
+    const users = JSON.parse(localStorage.getItem("tenant-users-{{project.tenant_id}}"));
+    const control = JSON.parse(localStorage.getItem(`grc-project-${projectId}-control-${controlId}`)); 
+    const subcontrol = control.subcontrols.find(subcontrol => subcontrol.id === subControlId);
+
+    const modalData = {
+      owner: {
+        id: "owner-id",
+        label: "Owner of the Control",
+        defaultOptionText: "Select an Owner",
+      },
+      operator: {
+        id: "operator-id",
+        label: "Operator of the Control",
+        defaultOptionText: "Select an Operator",
+      }
+    };
+
+    const $newModalBody = $("<div>");
+
+    for (let key in modalData) {
+      const $label = $("<label>").addClass("block text-sm font-medium mb-2").text(modalData[key].label);
+      const $select = $("<select>").addClass(`select select-md w-full mb-6 select-bordered ${modalData[key].id}`);
+      const $defaultOption = $("<option>").attr({"value": "", "selected": "selected"}).text(modalData[key].defaultOptionText); 
+      $select.append($defaultOption);
+
+      for (let user in users) {
+        const $userOption = $("<option>").attr({"value": users[user].id}).text(users[user].email);
+        if (
+          (key == "owner" && users[user].email === subcontrol.owner) ||
+          (key == "operator" && users[user].email === subcontrol.operator)
+        ){
+          $userOption.attr({"selected": "selected"})
+        }
+        $select.append($userOption);
+        $newModalBody.append($label, $select);
+      }
+    }
+
+    createModal(subControlId, controlId, title, actions.UPDATE_OWNER_OPERATOR, $newModalBody);
+  }
+
   /** EndRegion: Controls & Subcontrols */
 
 
 function loadPolicies() {
   //load policies in table format for the project
-  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+  $("#card-div").html(cardBlock)
   $.ajax({
     type: "GET",
     url: "/api/v1/projects/{{project.id}}/policies",
@@ -1934,7 +2024,7 @@ function addMembers() {
 }
 function loadMatrix() {
   //load matrix for the project
-  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+  $("#card-div").html(cardBlock)
   $.ajax({
     type: "GET",
     url: "/api/v1/projects/{{project.id}}/matrix/summary",
@@ -2042,7 +2132,7 @@ function loadSettings() {
   return
   {%endif%}
   //load settings for the project
-  $("#card-div").html('<div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+  $("#card-div").html(cardBlock)
   $.ajax({
     type: "GET",
     url: "/api/v1/projects/{{project.id}}",
@@ -2119,39 +2209,6 @@ $(document).on('click', '.save-btn', function() {
       enableButton('.save-btn');
     },
   })
-});
-
-$(document).on('click', '.save-owner-btn', function() {
-  var id = $(this).data("id")
-  var owner = $(".owner-id").val();
-  var operator = $(".operator-id").val();
-  data = {}
-  if(owner === "empty") {
-    owner = null;
-  }
-  if(operator === "empty") {
-    operator = null;
-  }
-  data["owner-id"] = owner;
-  data["operator-id"] = operator;
-  $.ajax({
-    type: "PUT",
-    url: `/api/v1/project-controls/{{project.id}}/subcontrols/${id}`,
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    data: JSON.stringify(data),
-    success: function(data){
-      toast('Updated subcontrol. You may need to refresh the data.')
-    },
-    error: function(errMsg) {
-      toast(errMsg["responseJSON"]["message"],"error")
-    }
-  })
-  document.getElementById('ownerModal').checked = false;
-});
-
-$(document).on('click', '.populate-owner-modal', function() {
-  populateOwnerModal($(this).data("id"),$(this).data('owner'),$(this).data('operator'))
 });
 
 
