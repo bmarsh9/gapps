@@ -597,6 +597,19 @@ class Control(LogMixin, db.Model):
 
     def in_policy(self, policy_id):
         return policy_id in self.policies(as_id_list=True)
+    
+    def get_parent_data_as_dict(self):
+        return {
+            'name': self.name,
+            'description': self.description,
+            'ref_code': self.ref_code,
+            'category': self.category,
+            'subcategory': self.subcategory,
+            'dti': self.dti,
+            'dtc': self.dtc,
+            'system_level': self.system_level,
+            'guidance': self.guidance,
+        }
 
     @staticmethod
     def create(data, tenant_id):
@@ -680,6 +693,15 @@ class SubControl(LogMixin, db.Model):
             if c.name in include or not include:
                 data[c.name] = getattr(self, c.name)
         return data
+    
+
+    def get_parent_data_as_dict(self):
+        return {
+            'name': self.name,
+            'description': self.description,
+            'ref_code': self.ref_code,
+            'mitigation': self.mitigation
+        }
 
 class ProjectMember(LogMixin, db.Model):
     __tablename__ = 'project_members'
