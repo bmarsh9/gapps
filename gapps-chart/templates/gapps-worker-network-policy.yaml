@@ -1,0 +1,30 @@
+{{- if .Values.gappsWorker.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gapps-worker-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: gapps-worker
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from: []  # Add specific rules or leave empty to allow all incoming traffic
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+    ports:
+    - protocol: UDP
+      port: 53  # Port for DNS
+{{- end }}

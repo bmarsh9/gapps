@@ -1,0 +1,8 @@
+{{- if .Values.gapps.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gapps-config
+data:
+  {{- toYaml .Values.gapps.config | nindent 2 }}
+{{- end }}
