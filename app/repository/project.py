@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Dict, List, Optional, Tuple, Union
 
 from flask_login import current_user
 from sqlalchemy import asc, func
@@ -25,11 +25,11 @@ class ProjectRepository:
         return Project.query.get(project_id)
 
     @staticmethod
-    def get_project_summary(project_id: int):
+    def get_project_summary(project_id: int) -> List[Tuple[str, Union[Project, str, int, Optional[Dict[str, Union[str, int]]]]]]:
         return ProjectRepository._get_project_summary_query().filter(Project.id == project_id).all()
     
     @staticmethod
-    def get_tenant_project_summaries(tenant_id: int):
+    def get_tenant_project_summaries(tenant_id: int) -> List[Tuple[str, Union[Project, str, int, Optional[Dict[str, Union[str, int]]]]]]:
         query = ProjectRepository._get_project_summary_query(tenant_id).filter(Project.tenant_id == tenant_id)
 
         tenant = TenantRepository.get_tenant_by_id(tenant_id)
@@ -48,7 +48,7 @@ class ProjectRepository:
         return query.all()
 
     @staticmethod
-    def _get_project_summary_query(tenant_id=None):
+    def _get_project_summary_query(tenant_id=None) -> List[Tuple[str, Union[Project, str, int, Optional[Dict[str, Union[str, int]]]]]]:
         control_subquery = (
             db.session.query(
                 Project.id.label('project_id'),

@@ -4,7 +4,7 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True,select2=True,apex=True,editor=True,mentions=True,utils=True) }}
+  {{ macro.filehelper(datatables=True,select2=True,apex=True,editor=True,mentions=True,utils=True, apimap=True) }}
   <style>
     .breadcrumbs>ul>li+:before {
       margin-top: 5px;
@@ -20,39 +20,42 @@
 {%block content%}
 <div class="grid grid-cols-9 gap-8">
   <div class="col-span-9">
-<div class="lg:flex lg:items-center lg:justify-between">
-  <div class="min-w-0 flex-1">
-    <div class="breadcrumbs text-2xl font-bold sm:tracking-tight py-0">
-      <ul>
-        <li><a>Home</a></li>
-        <li><a href="{{url_for("main.projects")}}">Projects</a></li>
-        <li><a class="capitalize" href="{{url_for("main.view_project",pid=project.id)}}">{{project.name}}</a></li>
-        <li>
-          <select class="select text-2xl font-bold text-primary sm:tracking-tight pl-0 focus:border-transparent focus:outline-none tab-select hover:text-secondary">
-            <option selected value="summary">Summary</option>
-            <option value="controls">Controls</option>
-            <option value="policies">Policies</option>
-            <option value="evidence">Evidence</option>
-            <option value="matrix">Resp. Matrix</option>
-            <option value="scratchpad">Scratchpad</option>
-            <option value="comments">Comments</option>
-            <option value="report">Report</option>
-            <option value="settings">Settings</option>
-          </select>
-        </li>
-      </ul>
+    <div class="lg:flex lg:items-center lg:justify-between">
+      <div class="min-w-0 flex-1">
+        <div class="breadcrumbs text-2xl font-bold sm:tracking-tight py-0">
+          <ul>
+            <li><a>Home</a></li>
+            <li><a href="{{url_for("main.projects")}}">Projects</a></li>
+            <li><a class="capitalize" href="{{url_for("main.view_project",pid=project.id)}}">{{project.name}}</a></li>
+            <li>
+              <select class="select text-2xl font-bold text-primary sm:tracking-tight pl-0 focus:border-transparent focus:outline-none tab-select hover:text-secondary">
+                <option selected value="summary">Summary</option>
+                <option value="controls">Controls</option>
+                <option value="policies">Policies</option>
+                <option value="evidence">Evidence</option>
+                <option value="matrix">Resp. Matrix</option>
+                <option value="scratchpad">Scratchpad</option>
+                <option value="comments">Comments</option>
+                <option value="report">Report</option>
+                <option value="settings">Settings</option>
+              </select>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="flex">
+        <span class="ml-3 hidden sm:block">
+          <div class="tooltip tooltip-left" data-tip="Generate PDF report">
+            <button class="btn btn-ghost border border-base-300 btn-sm" @click="createReport">Generate Report</button>
+          </div>
+        </span>
+        <span class="ml-3 hidden sm:block">
+          <div class="tooltip tooltip-left" data-tip="Refresh data from Server">
+            <button class="format-btn btn btn-sm btn-primary reload-button">Refresh Data</button>
+          </div>
+        </span>
+      </div>
     </div>
-
-  </div>
-  <div class="flex">
-    <span class="ml-3 hidden sm:block">
-      <div class="tooltip tooltip-left" data-tip="Generate PDF report"><button class="btn btn-ghost border border-base-300 btn-sm" @click="createReport">Generate Report</button></div>
-    </span>
-    <span class="ml-3 hidden sm:block">
-      <div class="tooltip tooltip-left" data-tip="Refresh data from Server"><button class="format-btn btn btn-sm btn-primary reload-button">Refresh Data</button></div>
-    </span>
-  </div>
-</div>
     <div class="flex flex-row py-3">
       <div class="flex gap-x-1 py-1 pr-2 tooltip" data-tip="Framework">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
@@ -84,15 +87,14 @@
       <div class="divider divider-horizontal mx-0"></div>
       <div id="quick-filters" class="flex gap-x-4 tabs"></div>
     </div>
+  </div>
+</div>
 
-  </div>
-  </div>
-  <div id="page-div">
-    <div class="grid grid-cols-9 gap-4" id="alert-div"></div>
-    <div class="grid grid-cols-9 gap-4" id="summary-div"></div>
-    <div class="grid grid-cols-9 gap-4 mt-4 pb-10" id="card-div">
-      <div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>
-    </div>
+<div id="page-div">
+  <div class="grid grid-cols-9 gap-4" id="alert-div"></div>
+  <div class="grid grid-cols-9 gap-4" id="summary-div"></div>
+  <div class="grid grid-cols-9 gap-4 mt-4 pb-10" id="card-div">
+    <div class="col-span-9 mx-auto mt-10"><div class="justify-center flex" role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8  animate-spin fill-blue-600 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>
   </div>
 </div>
 
@@ -246,7 +248,7 @@
 
   /** Region: Data */
 
-  const projectTabs = {
+  const selectOptionsForProjectTabs = {
     SUMMARY: "summary",
     CONTROLS: "controls",
     POLICIES: "policies",
@@ -255,15 +257,15 @@
     SCRATCHPAD: "scratchpad",
     COMMENT: "comment",
     REPORT: "report",
-    SETTINGS: "settings",
-  }
+    SETTINGS: "settings"
+  };
 
-  const controlsGrouping = {
+  const selectOptionsForGrouping = {
     CONTROLS: "controls",
     SUBCONTROLS: "subcontrols"
   };
 
-  const controlSelectOptions = {
+  const selectOptionsForControlFilter = {
     all: 'All',
     has_evidence: "Has Evidence",
     missing_evidence: "Missing Evidence",
@@ -275,7 +277,7 @@
     not_complete: 'Not Complete'
   };
 
-  const subControlSelectOptions = {
+  const selectOptionsForSubControlFilter = {
     all: 'All',
     am_owner: "Controls I own",
     am_operator: "Controls I operate",
@@ -294,22 +296,47 @@
     review_complete: "Review: Complete"
   };
 
-  const quickFiltersData = {
+  const selectOptionsForQuickFilter = {
     am_owner: "Controls I own",
     am_operator: "Controls I operate",
     review_not_started: "Not started",
     not_implemented: "In progress",
     review_action_required: "Action Required",
     review_ready_for_auditor: "Ready for Auditor",
-    complete: 'Complete'
-  }
+    complete: "Complete"
+  };
 
   const actions = {
     POPULATE_OWNER_OPERATOR_MODAL: "action-populate-owner-operator-modal",
-    UPDATE_OWNER_OPERATOR: "action-update-owner-operator",
-  }
+    UPDATE_OWNER_OPERATOR: "action-update-owner-operator"
+  };
 
-  /** End Region: Data */
+  const defaultCompletionChartOptions = {
+    legend: { show: false },
+    dataLabels: { enabled: false },
+    chart: { type: 'donut', height: 200, /* redrawOnParentResize: true */},
+    plotOptions: {
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            value: { offsetY: -8, color:'#6b6a6e' },
+            total: { show: true, label: '' }
+          }
+        }
+      }
+    },
+    labels: ['Incomplete', 'Complete' ],
+    fill: { colors: ['#f3f4f6', '#4ade80'] },
+    responsive: [
+      {
+        breakpoint: 300,
+        options: { chart: { width: 100 } }
+      }
+    ]
+  };
+
+  /** Endregion: Data */
 
   /** Region: HTML Fragments */
 
@@ -359,15 +386,180 @@
     </div>
   `);
 
-  const cardBlock = (`
+  const loadingAnimationBlock = (`
     <div class="col-span-9 mx-auto mt-10">
     ${loadingAnimation}
     </div>
   `);
 
+  const iconLinkNewWindow = (`
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+    </svg>
+  `);
+
+  const iconLinkModal = (`
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+    </svg>
+  `);
+
+  const iconLinkArrow = (`
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
+    </svg>
+  `);
+
+  const buttonFilterRefresh = (`
+    <button class="btn btn-sm btn-ghost border border-base-300 capitalize reload-button tooltip" data-tip="Refresh data">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-600">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+    </button>
+  `);
+
+  const buttonFilterReset = (`
+    <button class="btn btn-sm btn-ghost border border-base-300 capitalize remove-control-filter tooltip" data-tip="Remove filter">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  `);
+
   /** Endregion: HTML Fragments */
 
-  /** Region: Helper methods */
+  /** Region: Wrapped/Extended Components */
+
+  const ContentContainer = {
+    id: "card-div",
+    get: function() {
+      return $(`#${this.id}`);
+    },
+    empty: function() {
+      return this.get().empty();
+    },
+    text: function() {
+      return this.get().text();
+    },
+    html: function(value) {
+      return this.get().html(value);
+    },
+    append: function(value) {
+      return this.get().append(value);
+    },
+    prepend: function(value) {
+      return this.get().prepend(value);
+    },
+    reset: function() {
+      this.get().empty();
+      this.get().html(loadingAnimationBlock);
+      return this;
+    }
+  }
+
+  const ContentTable = {
+    id: "content-table",
+    bodyId: "content-table-body",
+    get: function() {
+      return $(`#${this.id}`);
+    },
+    build: function(options) {
+      const defaultOptions = {
+        "pageLength": 25,
+        "order": [
+          [0, "asc"]
+        ]
+      };
+      return $(`#${this.id}`).DataTable(options ? options : defaultOptions);
+    },
+    getBody: function() {
+      return $(`#${this.bodyId}`);
+    },
+  }
+
+  const FormManager = {
+    selectGrouping: {
+      id: "grouping-filter",
+      get: function() {
+        return $(`#${this.id}`);
+      },
+      getValue: function() {
+        return this.get().val();
+      },
+      setValue: function(value) {
+        const isValid = Object.values(this.getOptions()).includes(value);
+        this.get().val(isValid ? value : selectOptionsForGrouping.CONTROLS);
+      },
+      getOptions: () => selectOptionsForGrouping,
+    },
+
+    selectFilter: {
+      id: "controls-filter",
+      get: function() {
+        return $(`#${this.id}`);
+      },
+      getValue: function() {
+        return this.get().val();
+      },
+      setValue: function(value) {
+        const currentGrouping = FormManager.selectGrouping.getValue();
+        if (
+          (
+            currentGrouping === selectOptionsForGrouping.CONTROLS &&
+            Object.keys(this.getControlOptions()).includes(value)
+          ) || (
+            currentGrouping === selectOptionsForGrouping.SUBCONTROLS &&
+            Object.keys(this.getSubControlOptions()).includes(value))
+        ) {
+          this.get().val(value);
+        } else {
+          this.get().val("all");
+        }
+      },
+      getOptions: () => {
+        switch(FormManager.selectGrouping.getValue()) {
+          case(selectOptionsForGrouping.CONTROLS):
+            return this.getControlOptions();
+          case(selectOptionsForGrouping.SUBCONTROLS):
+            return this.getSubControlOptions();
+          default:
+            return;
+        }
+      },
+      getControlOptions: () => selectOptionsForControlFilter,
+      getSubControlOptions: () => selectOptionsForSubControlFilter
+    },
+
+    inputOwner: {
+      id: "owner-filter",
+      get: function() {
+        return $(`#${this.id}`);
+      },
+      getValue: function() {
+        return this.get().val();
+      },
+      setValue: function(newValue) {
+        this.get().val(newValue);
+      }
+    },
+
+    inputOperator: {
+      id: "operator-filter",
+      get: function() {
+        return $(`#${this.id}`);
+      },
+      getValue: function() {
+        return this.get().val();
+      },
+      setValue: function(newValue) {
+        this.get().val(newValue);
+      }
+    },
+  };
+
+  /** Endegion: Wrapped/Extended Components */
+
+  /** Region: Helper Methods */
 
   const changeTab = (tab) => {
     $(".tabs span").removeClass("bg-base-200");
@@ -383,7 +575,7 @@
     const $quickFilterButtonContainer = $("#quick-filters");
     $quickFilterButtonContainer.empty();
 
-    for (const [key, value] of Object.entries(quickFiltersData)) {
+    for (const [key, value] of Object.entries(selectOptionsForQuickFilter)) {
       const $button = $("<a>", {
         id: `qf-${key}`,
         text: value,
@@ -395,29 +587,15 @@
     updateActiveQuickFilter();
   }
 
-  const updateActiveQuickFilter = () => {
-    const params = new window.URLSearchParams(window.location.search);
-    const tab = params.get("tab");
-    const grouping = params.get("grouping");
-    const filter = params.get("filter");
-
-    $("#quick-filters a").each(function() {
-      $(this).removeClass("btn-primary").addClass("btn-ghost");
-    });
-
-    if (tab === projectTabs.CONTROLS && grouping === controlsGrouping.SUBCONTROLS && filter) {
-      const $quickFilterLink = $(`#qf-${filter}`);
-      if ($quickFilterLink) {
-        $quickFilterLink.removeClass("btn-ghost").addClass("btn-primary");
-      }
-    }
-  };
+  const getUrlParams = () => {
+    return new window.URLSearchParams(window.location.search);
+  }
 
   const resetUrlQueryString = () => {
-    const params = new window.URLSearchParams(window.location.search);
+    const params = getUrlParams();
     const tab = params.get("tab");
     const noQueryUrl = window.location.origin + window.location.pathname;
-    const baseUrl = `${noQueryUrl}?tab=${tab ? tab : projectTabs.SUMMARY}`;
+    const baseUrl = `${noQueryUrl}?tab=${tab ? tab : selectOptionsForProjectTabs.SUMMARY}`;
     window.history.replaceState({}, document.title, noQueryUrl);
   };
 
@@ -427,17 +605,35 @@
     window.history.replaceState({}, document.title, newUrl);
   };
 
+  const updateActiveQuickFilter = () => {
+    const params = getUrlParams();
+    const tab = params.get("tab");
+    const grouping = params.get("grouping");
+    const filter = params.get("filter");
+
+    $("#quick-filters a").each(function() {
+      $(this).removeClass("btn-primary").addClass("btn-ghost");
+    });
+
+    if (tab === selectOptionsForProjectTabs.CONTROLS && grouping === selectOptionsForGrouping.SUBCONTROLS && filter) {
+      const $quickFilterLink = $(`#qf-${filter}`);
+      if ($quickFilterLink) {
+        $quickFilterLink.removeClass("btn-ghost").addClass("btn-primary");
+      }
+    }
+  };
+
   const setDefaultGrouping = () => {
-    const params = new window.URLSearchParams(window.location.search);
+    const params = getUrlParams();
     const tab = params.get("tab");
     const grouping = params.get("grouping");
     const filter = params.get("filter");
     
     if (!tab) {
-      params.set("tab", controlsGrouping.CONTROLS);
+      params.set("tab", selectOptionsForProjectTabs.CONTROLS);
     }
     if (!grouping) {
-      params.set("grouping", controlsGrouping.CONTROLS);
+      params.set("grouping", selectOptionsForGrouping.CONTROLS);
     }
     if (!filter) {
       params.set("filter", "all");
@@ -472,10 +668,10 @@
     return statusColors["default"];
   };
 
-  const getControlsFilterSelectOptions = () => {
-    const params = new window.URLSearchParams(window.location.search);
+  const buildSelectFilterOptions = () => {
+    const params = getUrlParams();
     const grouping = params.get("grouping");
-    const listToUse = grouping && grouping === controlsGrouping.SUBCONTROLS ? subControlSelectOptions : controlSelectOptions;
+    const listToUse = grouping && grouping === selectOptionsForGrouping.SUBCONTROLS ? selectOptionsForSubControlFilter : selectOptionsForControlFilter;
 
     let options = "";
     for (const [key, value] of Object.entries(listToUse)) {
@@ -484,12 +680,9 @@
     return options;
   };
 
-  const getGroupingFilterSelectOptions = () => {
-    const params = new window.URLSearchParams(window.location.search);
-    const grouping = params.get("grouping");
-
+  const buildSelectGroupingOptions = () => {
     let options = "";
-    for (const [key, value] of Object.entries(controlsGrouping)) {
+    for (const [key, value] of Object.entries(selectOptionsForGrouping)) {
       options = options.concat(`<option value="${value}">Grouping: ${value.charAt(0).toUpperCase() + value.slice(1)}</option>`);
     }
     return options;
@@ -529,7 +722,6 @@
 function loadUsers(reload=false) {
     var users = localStorage.getItem("tenant-users-{{project.tenant_id}}");
     if (reload || !users) {
-      console.log("Pulling users from API")
       $.ajax({
         type: "GET",
         url: `/api/v1//tenants/{{project.tenant_id}}/users`,
@@ -590,23 +782,23 @@ function createReport() {
 
 /** Region: Events */
 
-  $(document).on("change", ".controls-filter", function() {
+  $(document).on("change", `#${FormManager.selectFilter.id}`, function() {
     const filter = $(this).val();
-    const params = new URLSearchParams(window.location.search);
+    const params = getUrlParams();
     params.set("filter", filter);
     setUrlParams(params);
     loadControls();
     updateActiveQuickFilter();
   });
 
-  $(document).on("change", ".grouping-filter", function() {
+  $(document).on("change", `#${FormManager.selectGrouping.id}`, function() {
     const grouping = $(this).val();
     if (!grouping) {
       setDefaultGrouping();
     } else {
-      const params = new URLSearchParams(window.location.search);
+      const params = getUrlParams();
       params.set("grouping", grouping);
-      params.set("filter", "all")
+      params.set("filter", "all");
       setUrlParams(params);
     }
     loadControls();
@@ -636,7 +828,7 @@ function createReport() {
   });
 
   $(document).on("click", ".remove-control-filter", function() {
-    const params = new URLSearchParams(window.location.search);
+    const params = getUrlParams();
     params.set("filter", "all");
     params.delete("owner");
     params.delete("operator");
@@ -701,25 +893,17 @@ function createReport() {
   });
 
   const updateOwnerAndOperatorFilters = () => {
-    const owner = $(".owner-filter").val();
-    const operator = $(".operator-filter").val();
-
-    const filter = $(".controls-filter").val();
-    const grouping = $(".grouping-filter").val();
-
-    const params = new URLSearchParams(window.location.search);
-    params.set("filter", filter);
+    const grouping = FormManager.selectGrouping.getValue();
+    const filter = FormManager.selectFilter.getValue();
+    const owner = FormManager.inputOwner.getValue();
+    const operator = FormManager.inputOperator.getValue();
+    
+    const params = getUrlParams();
     params.set("grouping", grouping);
-    params.delete("owner");
-    params.delete("operator");
-
-    if (owner) {
-      params.set("owner", owner);
-    }
-    if (operator) {
-      params.set("operator", operator);
-    }
-
+    params.set("filter", filter);
+    owner ? params.set("owner", owner) : params.delete("owner");
+    operator ? params.set("operator", operator) : params.delete("operator");
+    
     setUrlParams(params);
     loadControls();
   }
@@ -744,7 +928,7 @@ function loadScratchPad() {
     $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
     return
     {%endif%}
-    $("#card-div").html(cardBlock)
+    $("#card-div").html(loadingAnimationBlock)
     $.ajax({
         type: "GET",
         url: "/api/v1/projects/{{project.id}}/scratchpad",
@@ -874,7 +1058,7 @@ function loadComments() {
     $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
     return
     {%endif%}
-    $("#card-div").html(cardBlock)
+    $("#card-div").html(loadingAnimationBlock)
     $.ajax({
         type: "GET",
         url: "/api/v1/projects/{{project.id}}/comments",
@@ -918,473 +1102,343 @@ function loadComments() {
           toast(errMsg["responseJSON"]["message"],"error")
         }
     })
-
-
 }
-function loadSummary() {
-  $("#summary-div").html("");
-  var url = new URL(location.protocol + '//' + location.host + "/api/v1/projects/{{project.id}}?review-summary=true");
 
-  var summary_alert = `
-<div class="alert alert-primary shadow-sm border border-base-300 rounded-md">
-  <div>
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-    <span>Get started by <a class="underline text-primary" href="{{url_for("main.view_project",pid=project.id,tab='controls')}}">viewing the controls in your project.</a> Add members & auditors to your project under <a class="underline text-primary" href="{{url_for("main.view_project",pid=project.id,tab='settings')}}">settings.</a> You can also view the responsibilities for each control <a class="underline text-primary" href="{{url_for("main.view_project",pid=project.id,tab='matrix')}}">under the matrix.</a> </span>
-  </div>
-</div>
-` 
+  /** Region: Summary */
 
-  $("#card-div").html(cardBlock)
-  $.ajax({
-    type: "GET",
-    url: url.toString(),
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-      $("#card-div").html("");
-	  var complete_options = {
-            series: [100-data.completion_progress,data.completion_progress],
-            legend: {
-	      show: false
-	    },
-            dataLabels: {
-              enabled: false
-            },
-	    chart: {
-	      type: 'donut',
-              height: 200
-              //redrawOnParentResize: true
-	    },
-plotOptions: {
-    pie: {
-      donut: {
-        labels: {
-          show: true,
-        value:{
-          offsetY: -8,
-          color:'#6b6a6e'
-        },
-          total: {
-            show: true,
-            label: '',
-            formatter: () => `${data.completion_progress}%`
-          }
-        }
-      }
-    }
-  },
-            labels: ['Uncomplete', 'Complete'],
-            fill:{colors:['#f3f4f6', '#4ade80']},
-            responsive: [{
-	      breakpoint: 300,
-	      options: {
-	        chart: {
-	          width: 100
-	        }
-	      }
-  	    }]
-	  };
-	  var implemented_options = {
-            series: [100-data.implemented_progress,data.implemented_progress],
-            legend: {
-	      show: false
-	    },
-            dataLabels: {
-              enabled: false
-            },
-	    chart: {
-	      type: 'donut',
-              height: 200
-              //redrawOnParentResize: true
-	    },
-plotOptions: {
-    pie: {
-      donut: {
-        labels: {
-          show: true,
-        value:{
-          offsetY: -8,
-          color:'#6b6a6e'
-        },
-          total: {
-            show: true,
-            label: '',
-            formatter: () => `${data.implemented_progress}%`
-          }
-        }
-      }
-    }
-  },
-            labels: ['Uncomplete', 'Complete'],
-            fill:{colors:['#f3f4f6', '#4ade80']},
-            responsive: [{
-	      breakpoint: 300,
-	      options: {
-	        chart: {
-	          width: 100
-	        }
-	      }
-  	    }]
-	  };
-	  var evidence_options = {
-            series: [100-data.evidence_progress,data.evidence_progress],
-            legend: {
-	      show: false
-	    },
-            dataLabels: {
-              enabled: false
-            },
-	    chart: {
-	      type: 'donut',
-              height: 200
-              //redrawOnParentResize: true
-	    },
-plotOptions: {
-    pie: {
-      donut: {
-        labels: {
-          show: true,
-        value:{
-          offsetY: -8,
-          color:'#6b6a6e'
-        },
-          total: {
-            show: true,
-            label: '',
-            formatter: () => `${data.evidence_progress}%`
-          }
-        }
-      }
-    }
-  },
-            labels: ['Uncomplete', 'Complete'],
-            fill:{colors:['#f3f4f6', '#4ade80']},
-            responsive: [{
-              breakpoint: 300,
-	      options: {
-	        chart: {
-	          width: 100
-	        }
-	      }
-  	    }]
-	  };
-          var review_complete = Number(parseFloat(((data.review_summary["complete"]||0)/data.review_summary["total"])*100).toFixed(2));
-	  var review_options = {
-            series: [100-review_complete,review_complete],
-            legend: {
-	      show: false
-	    },
-            dataLabels: {
-              enabled: false
-            },
-	    chart: {
-	      type: 'donut',
-              height: 200
-              //redrawOnParentResize: true
-	    },
-plotOptions: {
-    pie: {
-      donut: {
-        labels: {
-          show: true,
-        value:{
-          offsetY: -8,
-          color:'#6b6a6e'
-        },
-          total: {
-            show: true,
-            label: '',
-            formatter: () => `${review_complete}%`
-          }
-        }
-      }
-    }
-  },
-            labels: ['Uncomplete', 'Complete'],
-            fill:{colors:['#f3f4f6', '#4ade80']},
-            responsive: [{
-              breakpoint: 300,
-	      options: {
-	        chart: {
-	          width: 100
-	        }
-	      }
-  	    }]
-	  };
-          $("#card-div").append(`<div class="col-span-9 mb-2">${summary_alert}</div>`)
+  function buildSummary(data) {
+    const projectId = "{{project.id}}";
+    ContentContainer.empty();
 
-          $("#card-div").append(`<div class="grid grid-cols-8 col-span-full gap-x-4">
-            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip w-full" data-tip="Progress of your project completion">Complete Progress</div></h2><div class="text-center"><div id="complete-progress"></div></div></div></div></div>
-            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip w-full" data-tip="Progress of controls that are implemented">Controls Implemented</div></h2><div class="text-center"><div id="implemented-progress"></div></div></div></div></div>
-            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip w-full" data-tip="Progress of evidence collected for controls">Evidence Gathered</div></h2><div class="text-center"><div id="evidence-progress"></div></div></div></div></div>
-            <div class="col-span-2"><div class="card border border-base-300"><div class="p-5"><h2 class="card-title capitalize text-lg"><div class="tooltip w-full" data-tip="Progress between InfoSec and Auditor">Controls Reviewed</div></h2><div class="text-center"><div id="review-progress"></div></div></div></div></div>
-          </div>`)
+    const completeOptions = deepCopy(defaultCompletionChartOptions);
+    completeOptions.series = [100 - data.completion_progress, data.completion_progress];
+    completeOptions.plotOptions.pie.donut.labels.total.formatter = () => `${data.completion_progress}%`;
 
-          var auditor_alert = "";
-          if (data.auditors === undefined || data.auditors.length == 0) {
-            var auditor_alert = `<div class="alert shadow-sm mb-2"><div><span>Please <a class="underline text-primary" href="/projects/{{project.id}}?tab=settings">add an auditor</a> to your project.</span></div></div>`;
-          }
+    const implementedOptions = deepCopy(defaultCompletionChartOptions);
+    implementedOptions.series = [100 - data.implemented_progress, data.implemented_progress];
+    implementedOptions.plotOptions.pie.donut.labels.total.formatter = () => `${data.implemented_progress}%`;
 
-          $("#card-div").append(`<div class="grid grid-cols-6 col-span-full gap-x-4">
-            <div class="col-span-3">
-<div class="card border border-base-300">
-  <div class="card-body">
-    <div class="card-title mb-4 justify-between">
-      <h2 class="card-title">InfoSec Summary</h2>
-      <div>
-        <a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls" class="btn btn-sm btn-ghost border border-base-300">View Controls<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a>
-      </div>
-    </div>
-    <div class="font-medium text-md">
-<div class="overflow-x-auto">
-  <table class="table w-full">
-    <thead>
-      <tr>
-        <th>Metric</th>
-        <th># of Controls</th>
-        <th>View</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><div class="tooltip tooltip-right" data-tip="Control has not been started">Not Started</div></td>
-        <td>${data.review_summary["not started"]||0}</td>
-        <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=12" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg></a></td>
-      </tr>
-      <tr>
-        <td><div class="tooltip tooltip-right" data-tip="InfoSec team is working on the control">InfoSec Action</div></td>
-        <td>${data.review_summary["infosec action"]||0}</td>
-        <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=13" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg></a></td>
-      </tr>
-      <tr>
-        <td><div class="tooltip tooltip-right" data-tip="Auditor says that Action is required from you">Action Required</div></td>
-        <td>${data.review_summary["action required"]||0}</td>
-        <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=14" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg></a></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-    </div>
-  </div>
-</div>
+    const evidenceOptions = deepCopy(defaultCompletionChartOptions);
+    evidenceOptions.series = [100 - data.evidence_progress, data.evidence_progress];
+    evidenceOptions.plotOptions.pie.donut.labels.total.formatter = () => `${data.evidence_progress}%`;
+
+    const reviewComplete = Number(parseFloat(((data.review_summary["complete"]||0)/data.review_summary["total"])*100).toFixed(2));
+    const reviewOptions = deepCopy(defaultCompletionChartOptions);
+    reviewOptions.series = [100 - reviewComplete, reviewComplete];
+    reviewOptions.plotOptions.pie.donut.labels.total.formatter = () => `${reviewComplete}%`;
+
+    const chartData = [
+      { id: "complete-progress", dataTip: "Progress of your project completion", label: "Complete Progress" },
+      { id: "implemented-progress", dataTip: "Progress of controls that are implemented", label: "Controls Implemented" },
+      { id: "evidence-progress", dataTip: "Progress of evidence collected for controls", label: "Evidence Gathered" },
+      { id: "review-progress", dataTip: "Progress between InfoSec and Auditor", label: "Controls Reviewed" },
+    ];
+
+    let charts = "";
+    for (const chart of chartData) {
+      charts += (`
+        <div class="col-span-2">
+          <div class="card border border-base-300">
+            <div class="p-5">
+              <h2 class="card-title capitalize text-lg">
+                <div class="tooltip w-full" data-tip="${chart.dataTip}">${chart.label}</div>
+              </h2>
+              <div class="text-center">
+                <div id="${chart.id}"></div>
+              </div>
             </div>
-            <div class="col-span-3">
-<div class="card border border-base-300">
-  <div class="card-body">
-    <div class="card-title mb-4 justify-between">
-      <h2 class="card-title">Auditor Summary</h2>
-      <div>
-        <a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls" class="btn btn-sm btn-ghost border border-base-300">View Controls<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a>
-      </div>
-    </div>
-    ${auditor_alert}
-    <div class="font-medium text-md">
-<div class="overflow-x-auto">
-  <table class="table w-full">
-    <thead>
-      <tr>
-        <th>Metric</th>
-        <th># of Controls</th>
-        <th>View</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><div class="tooltip tooltip-right" data-tip="Control is waiting for the auditor to review">Ready for Auditor</div></td>
-        <td>${data.review_summary["ready for auditor"]||0}</div></td>
-        <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=15" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg></a></td>
-      </tr>
-      <tr>
-        <td><div class="tooltip tooltip-right" data-tip="Auditor has marked the review as complete">Complete</div></td>
-        <td>${data.review_summary["complete"]||0}</td>
-        <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=16" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg></a></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-    </div>
-  </div>
-</div>
-            </div>
-          </div>`);
-
-          $("#card-div").append(`
-            <div class="col-span-9"><div class="overflow-hidden shadow sm:rounded-lg border border-base-200"><div class="px-4 py-6 sm:px-6"><h3 class="text-lg font-medium leading-6">Project Details</h3><p class="mt-1 max-w-2xl text-sm">Overview of your project details and status</p></div><div class="border-t border-base-300"><div class="grid grid-cols-9 px-6 py-5 gap-y-8">
-            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Name</strong><span class="text-sm capitalize">${data.name}</span></div></div>
-            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Tenant</strong><span class="text-sm capitalize">${data.tenant}</span></div></div>
-            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Framework</strong><a href="/frameworks/${data.framework}" class="text-sm uppercase text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${data.framework}</a></div></div>
-            <div class="col-span-9"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Description</strong><span class="text-sm rounded-md border border-base-200 p-4 mt-2">${data.description}</span></div></div>
-            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Owner</strong><span class="text-sm">${data.owner}</span></div></div>
-            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Controls</strong><span class="text-sm">${data.total_controls}</span></div></div>
-            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Policies</strong><span class="text-sm">${data.total_policies}</span></div></div>
-            <div class="col-span-3"><div class="flex flex-col"><strong class="font-semibold text-primary text-sm">Creation</strong><span class="text-sm">${data.date_added}</span></div></div>
-          </div></div></div></div>`);
-          $("#project-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Name</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.name}</dd></div>`)
-          $("#complete-progress").html(cardBlock)
-          $("#implemented-progress").html(cardBlock)
-          $("#evidence-progress").html(cardBlock)
-          $("#review-progress").html(cardBlock)
-          var complete_chart = new ApexCharts(document.querySelector("#complete-progress"), complete_options);
-          var implemented_chart = new ApexCharts(document.querySelector("#implemented-progress"), implemented_options);
-          var evidence_chart = new ApexCharts(document.querySelector("#evidence-progress"), evidence_options);
-          var review_chart = new ApexCharts(document.querySelector("#review-progress"), review_options);
-
-          setTimeout(() => {
-            $("#complete-progress").html("");
-            $("#implemented-progress").html("");
-            $("#evidence-progress").html("");
-            $("#review-progress").html("");
-            complete_chart.render();
-            implemented_chart.render();
-            evidence_chart.render();
-            review_chart.render();
-          }, 200);
-
-          return(data);
-    },
-    error: function(errMsg) {
-        return(errMsg);
+          </div>
+        </div>
+      `);
     }
-  })
-}
+    
+    const summaryAlert = (`
+      <div class="alert alert-primary shadow-sm border border-base-300 rounded-md">
+        <div>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current flex-shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+            </path>
+          </svg>
+          <span>Get started by <a class="underline text-primary" href="{{url_for("main.view_project",pid=project.id,tab='controls')}}">viewing the controls in your project.</a> Add members & auditors to your project under <a class="underline text-primary" href="{{url_for("main.view_project",pid=project.id,tab='settings')}}">settings.</a> You can also view the responsibilities for each control <a class="underline text-primary" href="{{url_for("main.view_project",pid=project.id,tab='matrix')}}">under the matrix.</a> </span>
+        </div>
+      </div>
+    `);
 
-function loadEvidence() {
-      //load evidence in table format for the project
-      $("#card-div").html(cardBlock)
-      $("#card-div").html("");
-      // top left
-      $("#card-div").append('<div class="col-span-3"><div class="card shadow border border-base-200"><div class="p-5"><h2 class="card-title capitalize text-lg">Evidence Progress</h2><div class="text-center"><div id="evidence-progress"></div></div></div></div></div>')
-      $("#evidence-progress").html(cardBlock)
-      $.ajax({
-        type: "GET",
-        url: "/api/v1/projects/{{project.id}}",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-	  var evidence_options = {
-            series: [100-data.evidence_progress,data.evidence_progress],
-            legend: {
-	      show: false
-	    },
-            dataLabels: {
-              enabled: false
-            },
-	    chart: {
-	      type: 'donut',
-              height: 350
-	    },
-            plotOptions: {
-                pie: {
-                  donut: {
-                    labels: {
-                      show: true,
-                    value:{
-                      offsetY: -8,
-                      color:'#6b6a6e'
-                    },
-                      total: {
-                        show: true,
-                        label: '',
-                        formatter: () => `${data.evidence_progress}%`
-                      }
-                    }
-                  }
-                }
-            },
-            labels: ['Uncomplete', 'Complete'],
-            fill:{colors:['#f3f4f6', '#4ade80']},
-            responsive: [{
-              breakpoint: 300,
-	      options: {
-	        chart: {
-	          width: 100
-	        }
-	      }
-  	    }]
-	  };
-          var evidence_chart = new ApexCharts(document.querySelector("#evidence-progress"), evidence_options);
+    let auditorAlert = "";
+    if (data.auditors === undefined || data.auditors.length == 0) {
+      auditorAlert = (`
+        <div class="alert shadow-sm mb-2">
+          <div>
+            <span>Please <a class="underline text-primary" href="/projects/${project.id}?tab=settings">add an auditor</a> to your project.</span>
+          </div>
+        </div>
+      `);
+    }
 
-          setTimeout(() => {
-            $("#evidence-progress").html("")
-            evidence_chart.render();
-          },2000)
-        },
-        error: function(errMsg) {
-          return(errMsg);
-        }
-      });
+    ContentContainer.append(`<div class="col-span-9 mb-2">${summaryAlert}</div>`);
+    ContentContainer.append(`<div class="grid grid-cols-8 col-span-full gap-x-4">${charts}</div>`);
+    ContentContainer.append(`
+      <div class="grid grid-cols-6 col-span-full gap-x-4">
+        <div class="col-span-3">
+          <div class="card border border-base-300">
+            <div class="card-body">
+              <div class="card-title mb-4 justify-between">
+                <h2 class="card-title">InfoSec Summary</h2>
+                <div>
+                  <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls" class="btn btn-sm btn-ghost border border-base-300">
+                    View Controls
+                    <span class="ml-2">${iconLinkNewWindow}<span>
+                  </a>
+                </div>
+              </div>
+              <div class="font-medium text-md">
+                <div class="overflow-x-auto">
+                  <table class="table w-full">
+                    <thead>
+                      <tr>
+                        <th>Metric</th>
+                        <th># of Controls</th>
+                        <th>View</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <div class="tooltip tooltip-right" data-tip="Control has not been started">Not Started</div>
+                        </td>
+                        <td>${data.review_summary["not started"]||0}</td>
+                        <td>
+                          <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls&grouping=subcontrols&filter=review_not_started" class="btn btn-sm btn-ghost">${iconLinkArrow}</a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="tooltip tooltip-right" data-tip="InfoSec team is working on the control">InfoSec Action</div>
+                        </td>
+                        <td>${data.review_summary["infosec action"]||0}</td>
+                        <td>
+                          <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls&grouping=subcontrols&filter=review_infosec_action" class="btn btn-sm btn-ghost">${iconLinkArrow}</a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="tooltip tooltip-right" data-tip="Auditor says that Action is required from you">Action Required</div>
+                        </td>
+                        <td>${data.review_summary["action required"]||0}</td>
+                        <td>
+                          <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls&grouping=subcontrols&filter=review_action_required" class="btn btn-sm btn-ghost">${iconLinkArrow}</a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-span-3">
+          <div class="card border border-base-300">
+            <div class="card-body">
+              <div class="card-title mb-4 justify-between">
+                <h2 class="card-title">Auditor Summary</h2>
+                <div>
+                  <a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls" class="btn btn-sm btn-ghost border border-base-300">
+                    View Controls
+                    <span class="ml-2">${iconLinkNewWindow}<span>
+                  </a>
+                </div>
+              </div>
+              ${auditorAlert}
+              <div class="font-medium text-md">
+                <div class="overflow-x-auto">
+                  <table class="table w-full">
+                    <thead>
+                      <tr>
+                        <th>Metric</th>
+                        <th># of Controls</th>
+                        <th>View</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <div class="tooltip tooltip-right" data-tip="Control is waiting for the auditor to review">Ready for Auditor</div>
+                        </td>
+                        <td>${data.review_summary["ready for auditor"]||0}</td>
+                        <td>
+                          <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls&grouping=subcontrols&filter=review_ready_for_auditor" class="btn btn-sm btn-ghost">${iconLinkArrow}</a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="tooltip tooltip-right" data-tip="Auditor has marked the review as complete">Complete</div>
+                        </td>
+                        <td>${data.review_summary["complete"]||0}</td>
+                        <td>
+                          <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls&grouping=subcontrols&filter=review_complete" class="btn btn-sm btn-ghost">${iconLinkArrow}</a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
 
-      $("#card-div").append(`<div class="col-span-6"><div class="card shadow-md card-body border border-base-300"><div class=""><h2 class="card-title mb-4">Evidence by Controls</h2><table class="table table-vcenter " id="evidence-table" style="width:100%"><thead><tr><th class="bg-base-200">Name</th><th class="w-1 bg-base-200"># of Controls</th></tr></thead><tbody id="evidence-table-body"></tbody></table></div></div></div>`);
-      $.ajax({
-        type: "GET",
-        url: "/api/v1/projects/{{project.id}}/evidence/controls",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-          for (var record in data) {
-            $("#evidence-table-body").append(`<tr><td class="text-sm font-medium capitalize whitespace-normal">${clean(data[record].name)}</td><td class="text-sm font-semibold">${data[record].count}</td></tr>`);
-          }
-          $("#evidence-table").DataTable({"pageLength":10,"order": [[ 0, "desc" ]]});
+    ContentContainer.append(`
+      <div class="col-span-9">
+        <div class="overflow-hidden shadow sm:rounded-lg border border-base-200">
+          <div class="px-4 py-6 sm:px-6">
+            <h3 class="text-lg font-medium leading-6">Project Details</h3>
+            <p class="mt-1 max-w-2xl text-sm">Overview of your project details and status</p>
+          </div>
+          <div class="border-t border-base-300">
+            <div class="grid grid-cols-9 px-6 py-5 gap-y-8">
+              <div class="col-span-3">
+                <div class="flex flex-col">
+                  <strong class="font-semibold text-primary text-sm">Name</strong>
+                  <span class="text-sm capitalize">${data.name}</span>
+                </div>
+              </div>
+              <div class="col-span-3">
+                <div class="flex flex-col">
+                  <strong class="font-semibold text-primary text-sm">Tenant</strong>
+                  <span class="text-sm capitalize">${data.tenant}</span>
+                </div>
+              </div>
+              <div class="col-span-3">
+                <div class="flex flex-col">
+                  <strong class="font-semibold text-primary text-sm">Framework</strong>
+                  <a href="/frameworks/${data.framework}" class="text-sm uppercase text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${data.framework}</a>
+                </div>
+              </div>
+              <div class="col-span-9">
+                <div class="flex flex-col">
+                  <strong class="font-semibold text-primary text-sm">Description</strong>
+                  <span class="text-sm rounded-md border border-base-200 p-4 mt-2">${data.description}</span>
+                </div>
+              </div>
+              <div class="col-span-3">
+                <div class="flex flex-col">
+                  <strong class="font-semibold text-primary text-sm">Owner</strong>
+                  <span class="text-sm">${data.owner}</span>
+                </div>
+              </div>
+              <div class="col-span-3">
+                <div class="flex flex-col">
+                  <strong class="font-semibold text-primary text-sm">Controls</strong>
+                  <span class="text-sm">${data.total_controls}</span>
+                </div>
+              </div>
+              <div class="col-span-3">
+                <div class="flex flex-col">
+                  <strong class="font-semibold text-primary text-sm">Policies</strong>
+                  <span class="text-sm">${data.total_policies}</span>
+                </div>
+              </div>
+              <div class="col-span-3">
+                <div class="flex flex-col">
+                  <strong class="font-semibold text-primary text-sm">Creation</strong>
+                  <span class="text-sm">${data.date_added}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
 
-        },
-        error: function(errMsg) {
-        }
-      })
-}
+    $("#project-details").append(`
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium">Name</dt>
+        <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.name}</dd>
+      </div>
+    `);
+
+    $("#complete-progress").html(loadingAnimationBlock)
+    $("#implemented-progress").html(loadingAnimationBlock)
+    $("#evidence-progress").html(loadingAnimationBlock)
+    $("#review-progress").html(loadingAnimationBlock)
+    const completeChart = new ApexCharts(document.querySelector("#complete-progress"), completeOptions);
+    const implementedChart = new ApexCharts(document.querySelector("#implemented-progress"), implementedOptions);
+    const evidenceChart = new ApexCharts(document.querySelector("#evidence-progress"), evidenceOptions);
+    const reviewChart = new ApexCharts(document.querySelector("#review-progress"), reviewOptions);
+    setTimeout(() => {
+      $("#complete-progress").html("");
+      $("#implemented-progress").html("");
+      $("#evidence-progress").html("");
+      $("#review-progress").html("");
+      completeChart.render();
+      implementedChart.render();
+      evidenceChart.render();
+      reviewChart.render();
+    }, 100);
+  }
+
+  function loadSummary() {
+    const projectId = "{{project.id}}";
+    const url = apiMap.getProjectSummaryUrl(projectId);
+
+    $("#summary-div").empty();
+    ContentContainer.reset();
+
+    $.ajax({
+      type: "GET",
+      url: url,
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        buildSummary(data);
+        return data;
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
+      }
+    })
+  }
+
+  /** Endregion: Summary */
 
   /** Region: Controls & Subcontrols */
 
   function buildSubControlsTable(data) {
-    const params = new window.URLSearchParams(window.location.search);
+    const params = getUrlParams();
     const filter = params.get("filter");
     const grouping = params.get("grouping");
     const owner = params.get("owner");
     const operator = params.get("operator");
 
-    const subSelectOptions = getControlsFilterSelectOptions();
-    const selectGroupingOptions = getGroupingFilterSelectOptions();
-    const subSelectList = `<select class="select select-sm select-bordered controls-filter">${subSelectOptions}</select>`;
-    const selectGrouping = `<select class="select select-sm select-bordered grouping-filter">${selectGroupingOptions}</select>`;
-    const selectOwner = (`
-      <div>
-        <input @blur="updateOwnerAndOperatorFilters" type="text" placeholder="Search Owner" class="input input-bordered input-sm w-full owner-filter" />
-      </div>
-    `);
-    const selectOperator = (`
-      <div>
-        <input @blur="updateOwnerAndOperatorFilters" type="text" placeholder="Search Operator" class="input input-bordered input-sm w-full operator-filter" />
-      </div>
-    `);
+    const selectGroupingOptions = buildSelectGroupingOptions();
+    const selectFilterOptions = buildSelectFilterOptions();
+
+    const selectGrouping = `<select id="${FormManager.selectGrouping.id}" class="select select-sm select-bordered">${selectGroupingOptions}</select>`;
+    const selectFilter = `<select id="${FormManager.selectFilter.id}" class="select select-sm select-bordered">${selectFilterOptions}</select>`;
+    const inputOwner = `<input id=${FormManager.inputOwner.id} @blur="updateOwnerAndOperatorFilters" type="text" placeholder="Search Owner" class="input input-bordered input-sm w-full" />`;
+    const inputOperator = `<input id=${FormManager.inputOperator.id} @blur="updateOwnerAndOperatorFilters" type="text" placeholder="Search Operator" class="input input-bordered input-sm w-full" />`;
     
-    $("#card-div").html(`
+    ContentContainer.html(`
       <div class="col-span-9">
         <div class="card shadow-md card-body border border-base-300 p-5">
           <div>
             <div class="justify-between flex">
               <div>
-                <h2 class="card-title mb-4 control-title"></h2>
+                <h2 class="card-title mb-4 control-title">Project Subcontrols (${data.length})</h2>
               </div>
               <div class="flex flex-row gap-x-2">
-                ${selectOwner}
-                ${selectOperator}
+                <div>${inputOwner}</div>
+                <div>${inputOperator}</div>
                 <div>${selectGrouping}</div>
-                ${subSelectList}
+                <div>${selectFilter}</div>
                 <div class="space-x-2">
-                  <button class="btn btn-sm btn-ghost border border-base-300 capitalize reload-button tooltip" data-tip="Refresh Data">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-600">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                    </svg>
-                  </button>
-                  <button class="btn btn-sm btn-ghost border border-base-300 capitalize remove-control-filter tooltip" data-tip="Remove Filter">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                  ${buttonFilterRefresh}
+                  ${buttonFilterReset}
                 </div>
               </div>
             </div>
-            <table class="table table-vcenter " id="project-table" style="width:100%">
+            <table class="table table-vcenter w-full" id="${ContentTable.id}">
               <thead>
                 <tr>
                   <th class="bg-base-200">ID</th>
@@ -1407,17 +1461,17 @@ function loadEvidence() {
                   <th class="bg-base-200 w-1">View</th>
                 </tr>
               </thead>
-              <tbody id="project-table-body"></tbody>
+              <tbody id="${ContentTable.bodyId}"></tbody>
             </table>
           </div>
         </div>
       </div>
     `);
-    
-    $(".controls-filter").val(filter ? filter : "all");
-    $(".grouping-filter").val(grouping);
-    $(".owner-filter").val(owner);
-    $(".operator-filter").val(operator);
+
+    FormManager.selectGrouping.setValue(grouping);
+    FormManager.selectFilter.setValue(filter);
+    FormManager.inputOwner.setValue(owner);
+    FormManager.inputOperator.setValue(operator);
 
     for (let i in data) {
       const subcontrol = data[i];
@@ -1428,7 +1482,7 @@ function loadEvidence() {
       const ownerAvatar = (subcontrol.owner && !subcontrol.owner.startsWith("Missing")) ? iconAvatar(subcontrol.owner) : iconNoAvatar;
       const operatorAvatar = (subcontrol.operator && !subcontrol.operator.startsWith("Missing")) ? iconAvatar(subcontrol.operator) : iconNoAvatar;
       
-      $("#project-table-body").append(`
+      ContentTable.getBody().append(`
         <tr>
           <td class="text-sm font-medium">${subcontrol.id}</td>
           <td class="text-sm font-medium uppercase">
@@ -1442,7 +1496,10 @@ function loadEvidence() {
               data-operator="${subcontrol.operator}"
               data-control-id="${subcontrol.project_control_id}"
               class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 ${actions.POPULATE_OWNER_OPERATOR_MODAL}"
-            >${ownerAvatar}${operatorAvatar}</div>
+            >
+              ${ownerAvatar}
+              ${operatorAvatar}
+            </div>
           </td>
           <td class="text-sm font-medium capitalize text-center">${completeIcon}</td>
           <td class="text-sm font-medium capitalize">
@@ -1452,31 +1509,33 @@ function loadEvidence() {
           <td class="text-sm font-medium text-center">${subcontrol.complete_feedback}/${subcontrol.feedback}</td>
           <td>${evidenceIcon}</td>
           <td class="text-sm font-medium">
-            <a target="_blank" rel="noopener noreferrer" class="btn btn-xs btn-ghost" href="/projects/${subcontrol.project_id}/controls/${subcontrol.project_control_id}/subcontrols/${subcontrol.id}">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-              </svg>
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-xs btn-ghost"
+              href="/projects/${subcontrol.project_id}/controls/${subcontrol.project_control_id}/subcontrols/${subcontrol.id}"
+            >
+              ${iconLinkNewWindow}
             </a>
           </td>
         </tr>
       `);
     }
-    table = $("#project-table").DataTable({"pageLength": 25, "order": [[0, "asc"]]});
-    $(".control-title").html(`Project Subcontrols (${data.length})`);
+    ContentTable.build();
   }
 
   function buildControlsTable(data) {
-    const params = new window.URLSearchParams(window.location.search);
+    const params = getUrlParams();
     const filter = params.get("filter");
     const grouping = params.get("grouping");
 
-    const subSelectOptions = getControlsFilterSelectOptions();
-    const selectGroupingOptions = getGroupingFilterSelectOptions();
-    const selectList = `<select class="select select-sm select-bordered controls-filter">${subSelectOptions}</select>`;
-    const selectGrouping = `<select class="select select-sm select-bordered grouping-filter">${selectGroupingOptions}</select>`;
-    const modalIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg>`;
+    const selectGroupingOptions = buildSelectGroupingOptions();
+    const selectFilterOptions = buildSelectFilterOptions();
     
-    $("#card-div").html(`
+    const selectGrouping = `<select id="${FormManager.selectGrouping.id}" class="select select-sm select-bordered">${selectGroupingOptions}</select>`;
+    const selectFilter = `<select id="${FormManager.selectFilter.id}" class="select select-sm select-bordered">${selectFilterOptions}</select>`;
+    
+    ContentContainer.html(`
       <div class="col-span-9">
         <div class="card shadow-md card-body border border-base-300 p-5">
           <div>
@@ -1486,22 +1545,14 @@ function loadEvidence() {
               </div>
               <div class="flex flex-row gap-x-2">
                 <div>${selectGrouping}</div>
-                ${selectList}
+                <div>${selectFilter}</div>
                 <div class="space-x-2">
-                  <button class="btn btn-sm btn-ghost border border-base-300 capitalize reload-button tooltip" data-tip="Refresh data">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-green-600">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                    </svg>
-                  </button>
-                  <button class="btn btn-sm btn-ghost border border-base-300 capitalize remove-control-filter tooltip" data-tip="Remove filter">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-red-600">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+                  ${buttonFilterRefresh}
+                  ${buttonFilterReset}
                 </div>
               </div>
             </div>
-            <table class="table table-vcenter " id="project-table" style="width:100%">
+            <table class="table table-vcenter " id="${ContentTable.id}" style="width:100%">
               <thead>
                 <tr>
                   <th class="w-1 bg-base-200">ID</th>
@@ -1522,23 +1573,23 @@ function loadEvidence() {
                   <th class="w-1 bg-base-200">View</th>
                 </tr>
               </thead>
-              <tbody id="project-table-body"></tbody>
+              <tbody id="${ContentTable.bodyId}"></tbody>
             </table>
           </div>
         </div>
       </div>
     `);
-    
-    $(".controls-filter").val(filter ? filter : "all");
-    $(".grouping-filter").val(grouping);
+
+    FormManager.selectGrouping.setValue(grouping);
+    FormManager.selectFilter.setValue(filter);
 
     for (let i in data) {
-      const control = data[i]
+      const control = data[i];
       const statusColor = getControlStatusColor(control.status);
       const totalReviews = control.stats.subcontrols;
       const totalFeedback = control.stats.feedback;
-      const completeReviews = control.stats.complete_feedback;
-      const completeFeedback = 0;
+      const completeFeedback = control.stats.complete_feedback;
+      const completeReviews = control.stats.complete_reviews;
 
       const controlRow = (`
         <tr data-project-id="${control.project_id}" data-control-id="${control.id}">
@@ -1563,17 +1614,17 @@ function loadEvidence() {
             </div>
           </td>
           <td class="">
-            <a data-id="${control.id}" class="btn btn-xs btn-ghost control-modal-btn" href="#">${modalIcon}</a>
+            <a data-id="${control.id}" class="btn btn-xs btn-ghost control-modal-btn" href="#">${iconLinkModal}</a>
           </td>
         </tr>
       `);
 
-      $("#project-table-body").append(controlRow);
+      ContentTable.getBody().append(controlRow);
 
       localStorage.setItem(`grc-project-${control.project_id}-control-${control.id}`, JSON.stringify(control));
     }
 
-    $("#project-table tbody").on("click", "td.dt-control", function () {
+    ContentTable.getBody().on("click", "td.dt-control", function () {
       const tr = $(this).closest("tr");
       const row = table.row(tr);
       const projectId = tr.data("project-id");
@@ -1587,11 +1638,8 @@ function loadEvidence() {
         tr.addClass("shown");
       }
     });
-    
-    const table = $("#project-table").DataTable({
-      "pageLength": 25,
-      "order": [[0, "asc"]],
-    });
+
+    const table = ContentTable.build();
   }
 
   function populateSubcontrolList(projectId, controlId) {
@@ -1620,7 +1668,10 @@ function loadEvidence() {
               data-owner="${subcontrol.owner}"
               data-operator="${subcontrol.operator}"
               class="avatar-group -space-x-4 cursor-pointer transform transition duration-500 hover:scale-110 ${actions.POPULATE_OWNER_OPERATOR_MODAL}"
-            >${ownerAvatar}${operatorAvatar}</div>
+            >
+              ${ownerAvatar}
+              ${operatorAvatar}
+            </div>
           </td>
           <td class="text-sm font-medium capitalize text-center">${completeIcon}</td>
           <td class="text-sm font-medium capitalize">
@@ -1636,9 +1687,7 @@ function loadEvidence() {
               class="btn btn-xs btn-ghost"
               href="/projects/${subcontrol.project_id}/controls/${subcontrol.project_control_id}/subcontrols/${subcontrol.id}"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-              </svg>
+              ${iconLinkNewWindow}
             </a>
           </td>
         </tr>
@@ -1799,39 +1848,32 @@ function loadEvidence() {
   }
 
   function loadControls(reload=false) {
-    const params = new window.URLSearchParams(window.location.search);
+    const params = getUrlParams();
     const grouping = params.get("grouping");
     const filter = params.get("filter");
     const owner = params.get("owner");
     const operator = params.get("operator");
-    const projectId = "{{project.id}}"
+    const projectId = "{{project.id}}";
 
-    const apiUrl = `/api/v1/projects/${projectId}`;
-    let url = null;
-
-    switch (grouping) {
-      case (controlsGrouping.SUBCONTROLS):
-        url = `${apiUrl}/${controlsGrouping.SUBCONTROLS}`;
-        break;
-      case (controlsGrouping.CONTROLS):
-        url = `${apiUrl}/${controlsGrouping.CONTROLS}`;
-        break;
-      default:
-        setDefaultGrouping();
-        url = `${apiUrl}/${controlsGrouping.CONTROLS}`;
+    let url = "";
+    if (grouping === selectOptionsForGrouping.SUBCONTROLS) {
+      url = apiMap.getProjectSubControlsUrl(projectId);
+    } else {
+      url = apiMap.getProjectControlsUrl(projectId);
+      setDefaultGrouping();
     }
 
-    $("#card-div").html(cardBlock);
-
-    const queryParams = [
+    const apiQueryParams = [
       filter && `filter=${filter}`,
       owner && `owner=${owner}`,
       operator && `operator=${operator}`
     ].filter(Boolean);
 
-    if (queryParams.length > 0) {
-      url += `?${queryParams.join('&')}`;
+    if (apiQueryParams.length > 0) {
+      url += `?${apiQueryParams.join('&')}`;
     }
+
+    ContentContainer.reset();
 
     $.ajax({
       type: "GET",
@@ -1839,18 +1881,16 @@ function loadEvidence() {
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data) {
-        (grouping == controlsGrouping.SUBCONTROLS) ? buildSubControlsTable(data) : buildControlsTable(data);
+        (grouping == selectOptionsForGrouping.SUBCONTROLS) ? buildSubControlsTable(data) : buildControlsTable(data);
         updateActiveQuickFilter();
-        return(data);
+        return data;
       },
       error: function(errMsg) {
-        (grouping == controlsGrouping.SUBCONTROLS) ? buildSubControlsTable([]) : buildControlsTable([]);
-        toast(errMsg["responseJSON"]["message"],"error");
-        return(errMsg);
+        (grouping == selectOptionsForGrouping.SUBCONTROLS) ? buildSubControlsTable([]) : buildControlsTable([]);
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
       }
     });
-
-    $("#card-div").html(cardBlock);
   }
 
   function populateOwnerAndOperatorModal(subControlId, controlId) {
@@ -1864,12 +1904,12 @@ function loadEvidence() {
       owner: {
         id: "owner-id",
         label: "Owner of the Control",
-        defaultOptionText: "Select an Owner",
+        defaultOptionText: "Select an Owner"
       },
       operator: {
         id: "operator-id",
         label: "Operator of the Control",
-        defaultOptionText: "Select an Operator",
+        defaultOptionText: "Select an Operator"
       }
     };
 
@@ -1897,41 +1937,187 @@ function loadEvidence() {
     createModal(subControlId, controlId, title, actions.UPDATE_OWNER_OPERATOR, $newModalBody);
   }
 
-  /** EndRegion: Controls & Subcontrols */
+  /** Endregion: Controls & Subcontrols */
 
+  /** Region: Policies */
 
-function loadPolicies() {
-  //load policies in table format for the project
-  $("#card-div").html(cardBlock)
-  $.ajax({
-    type: "GET",
-    url: "/api/v1/projects/{{project.id}}/policies",
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-      $("#card-div").html("");
-      $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300"><div class=""><h2 class="card-title mb-4">Project Policies</h2><table class="table table-vcenter " id="project-table" style="width:100%"><thead><tr><th class="w-1 bg-base-200">Name</th><th class="bg-base-200">Description</th><th class="w-1 bg-base-200">Ref Code</th><th class="w-1 bg-base-200">Public</th><th class="w-1 bg-base-200">View</th></tr></thead><tbody id="project-table-body"></tbody></table></div></div></div>`);
-      for (var record in data) {
-        var obj = data[record];
+  function buildPoliciesTable(data) {
+    ContentContainer.empty();
+    ContentContainer.html(`
+      <div class="col-span-9">
+        <div class="card shadow-md card-body border border-base-300">
+          <div class="">
+            <h2 class="card-title mb-4">Project Policies</h2>
+            <table class="table table-vcenter" id="${ContentTable.id}" style="width:100%">
+              <thead>
+                <tr>
+                  <th class="bg-base-200 w-1">Name</th>
+                  <th class="bg-base-200">Description</th>
+                  <th class="bg-base-200 w-1">Ref Code</th>
+                  <th class="bg-base-200 w-1">Public</th>
+                  <th class="bg-base-200 w-1">View</th>
+                </tr>
+              </thead>
+              <tbody id="${ContentTable.bodyId}"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `);
+    
+    if (!data || data.length == 0) {
+      ContentContainer.prepend(`
+        <div class="alert shadow-lg col-span-9 alert-warning px-8 rounded-md">
+          <div>
+            <div>
+              <h3 class="font-bold">Your project does not have any policies!</h3>
+              <div class="text-xs">Please add policies to your project</div>
+            </div>
+          </div>
+          <div class="flex-none">
+            <a href="{{url_for("main.policies")}}" class="btn btn-sm btn-ghost">Add Policies</a>
+          </div>
+        </div>
+      `);
+    } else {
+      for (let i in data) {
+        const policy = data[i];
+        const publiclyViewableIcon = policy.public_viewable === true ? iconCheckmark : iconNegative;
 
-        if (obj.ref_code) {
-          var ref_code = obj.ref_code
-        } else {
-          var ref_code = "?"
-        }
-        $("#project-table-body").append(`<tr><td class="text-sm font-medium whitespace-normal capitalize">${clean(obj.name)}</td><td class="text-sm font-medium capitalize">${clean(obj.description)}</td><td class="text-sm font-medium capitalize"><p class="bg-base-200 rounded-full py-1 px-3 w-fit">${ref_code}</p></td><td class="text-sm font-medium"><p class="bg-base-200 rounded-full py-1 px-3 capitalize w-fit">${obj.public_viewable}</p></td><td class=""><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}/policies/${obj.id}" data-id="${obj.id}" class="btn btn-xs btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td></tr>`);
+        ContentTable.getBody().append(`
+          <tr>
+            <td class="text-sm font-medium whitespace-normal capitalize">${clean(policy.name)}</td>
+            <td class="text-sm font-medium capitalize">${clean(policy.description)}</td>
+            <td class="text-sm font-medium capitalize">
+              <p class="bg-base-200 rounded-full py-1 px-3 w-fit">${policy.ref_code ? policy.ref_code : "?"}</p>
+            </td>
+            <td class="text-sm font-medium">${publiclyViewableIcon}</td>
+            <td class="">
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="/projects/${policy.project_id}/policies/${policy.id}"
+                data-id="${policy.id}"
+                class="btn btn-xs btn-ghost"
+              >
+                ${iconLinkNewWindow}
+              </a>
+            </td>
+          </tr>
+        `);
       }
-      $("#project-table").DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
-      if (data === undefined || data.length == 0) {
-        $("#card-div").prepend('<div class="alert shadow-lg col-span-9 alert-warning px-8 rounded-md"><div><div><h3 class="font-bold">Your project does not have any policies!</h3> <div class="text-xs">Please add policies to your project</div> </div> </div> <div class="flex-none"> <a href="{{url_for("main.policies")}}" class="btn btn-sm btn-ghost">Add Policies</a> </div> </div>');
-      }
-      return(data)
-    },
-    error: function(errMsg) {
-        return(errMsg);
     }
-  })
-}
+
+    ContentTable.build();
+  }
+
+  function loadPolicies() {
+    const projectId = "{{project.id}}";
+    ContentContainer.reset();
+    $.ajax({
+      type: "GET",
+      url: apiMap.getProjectPoliciesUrl(projectId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data) {
+        buildPoliciesTable(data);
+        return data;
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
+      }
+    })
+  }
+
+  /** Endregion: Policies */
+
+  /** Region: Evidence */
+
+  function buildEvidence(data) {
+    ContentContainer.empty();
+
+    const evidenceOptions = deepCopy(defaultCompletionChartOptions);
+    evidenceOptions.series = [100 - data.evidence_progress, data.evidence_progress];
+    evidenceOptions.plotOptions.pie.donut.labels.total.formatter = () => `${data.evidence_progress}%`;
+    evidenceOptions.chart.height = 350;
+
+    const evidenceContainerId = "evidence-progress";
+    ContentContainer.append(`
+      <div class="col-span-3">
+        <div class="card shadow border border-base-200">
+          <div class="p-5">
+            <h2 class="card-title capitalize text-lg">Evidence Progress</h2>
+            <div class="text-center">
+              <div id="${evidenceContainerId}"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
+
+    const $evidenceProgressContainer = $(`${evidenceContainerId}`);
+    $evidenceProgressContainer.html(loadingAnimationBlock)
+    const evidenceChart = new ApexCharts(document.querySelector(`#${evidenceContainerId}`), evidenceOptions);
+    
+    setTimeout(() => {
+      $evidenceProgressContainer.empty()
+      evidenceChart.render();
+    }, 100);
+
+    ContentContainer.append(`
+      <div class="col-span-6">
+        <div class="card shadow-md card-body border border-base-300">
+          <div>
+            <h2 class="card-title mb-4">Evidence by Controls</h2>
+            <table class="table table-vcenter" id="${ContentTable.id}" style="width:100%">
+              <thead>
+                <tr>
+                  <th class="bg-base-200">Name</th>
+                  <th class="w-1 bg-base-200"># of Controls</th>
+                </tr>
+              </thead>
+              <tbody id="${ContentTable.bodyId}"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `);
+
+    for (let i in data.evidence) {
+      const evidence = data.evidence[i]
+      ContentTable.getBody().append(`
+        <tr>
+          <td class="text-sm font-medium capitalize whitespace-normal">${clean(evidence.name)}</td>
+          <td class="text-sm font-semibold">${evidence.associated_subcontrol_count}</td>
+        </tr>
+      `);
+    }
+    
+    ContentTable.build({"pageLength":10,"order": [[ 0, "asc" ]]});
+  }
+
+  function loadEvidence() {
+    ContentContainer.reset();
+    const projectId = "{{project.id}}";
+
+    $.ajax({
+      type: "GET",
+      url: apiMap.getProjectEvidenceUrl(projectId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data) {
+        buildEvidence(data);
+        return data;
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
+      }
+    });
+  }
+
+  /** Endregion: Evidence */
 
 function loadMembers() {
   $.ajax({
@@ -1948,7 +2134,6 @@ function loadMembers() {
         var options = "";
         if (data[user].member) {
           for(var role in roles) {
-            console.log(data[user].access_level)
             if (data[user].access_level === roles[role]) {
               options+=`<option selected="selected" value=${roles[role]}>${roles[role]}</option>`
             } else {
@@ -2024,7 +2209,7 @@ function addMembers() {
 }
 function loadMatrix() {
   //load matrix for the project
-  $("#card-div").html(cardBlock)
+  $("#card-div").html(loadingAnimationBlock)
   $.ajax({
     type: "GET",
     url: "/api/v1/projects/{{project.id}}/matrix/summary",
@@ -2132,7 +2317,7 @@ function loadSettings() {
   return
   {%endif%}
   //load settings for the project
-  $("#card-div").html(cardBlock)
+  $("#card-div").html(loadingAnimationBlock)
   $.ajax({
     type: "GET",
     url: "/api/v1/projects/{{project.id}}",

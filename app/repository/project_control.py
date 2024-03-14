@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional, Tuple, Union
 
 from flask import current_app
 from flask_login import current_user
@@ -24,7 +24,7 @@ class ProjectControlRepository:
         return ProjectControl.query.filter(ProjectControl.project_id == project_id).all()
 
     @staticmethod
-    def get_project_controls_with_summaries(project_id: int, extra_filter: str = None) -> dict:
+    def get_project_controls_with_summaries(project_id: int, extra_filter: str = None) -> List[Tuple[str, Optional[Union[ProjectControl, Control, bool, int]]]]:
 
         distinct_evidence_count_subquery = (
             db.session.query(

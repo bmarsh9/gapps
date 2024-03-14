@@ -1,10 +1,13 @@
-from flask import current_app
-from app import models, db
-from app.utils.enums import DocumentFormat, FileType
-from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
-from sqlalchemy import or_
 from typing import Optional
 import re
+
+from flask import current_app
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
+from sqlalchemy import or_
+
+from app import models
+from app.utils.enums import DocumentFormat, FileType
+from app.utils.types import SerializedObjectType
 
 def get_class_by_tablename(table):
     """Return class reference mapped to table.
@@ -178,8 +181,8 @@ def get_content_type_for_extension(filename: str) -> Optional[str]:
     
     return None
 
-def calculate_percentage(total: int, count: int) -> float:
-    return round((count or 0) / total * 100, 2) if total else 0.0
+def calculate_percentage(total: int, progres: int) -> float:
+    return round((progres or 0) / total * 100, 2) if total else 0.0
 
-def obj_to_dict(obj: object) -> dict:
+def obj_to_dict(obj: object) -> SerializedObjectType:
     return {c.name: getattr(obj, c.name) for c in obj.__table__.columns}

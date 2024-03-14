@@ -2,11 +2,12 @@ from typing import List
 
 from app.repository import ProjectSubControlRepository
 from app.utils.misc import obj_to_dict
+from app.utils.types import SerializedObjectType
 
 class ProjectSubControlService:
 
     @staticmethod
-    def get_project_subcontrol_summary(project_id: int, extra_filters: dict = {}) -> List[dict]:
+    def get_project_subcontrol_summary(project_id: int, extra_filters: dict = {}) -> SerializedObjectType:
         subcontrols_with_summaries = ProjectSubControlRepository.get_project_subcontrols_with_summaries(project_id, extra_filters)
 
         data = []
@@ -18,7 +19,7 @@ class ProjectSubControlService:
         return data
 
     @staticmethod
-    def create_subcontrol_dict(*subcontrol_data: tuple) -> dict:
+    def create_subcontrol_dict(*subcontrol_data: tuple) -> SerializedObjectType:
         project_subcontrol, parent_subcontrol, parent_control_name, project_name, framework_name, owner_email, \
         operator_email, subcontrol_comment_count, auditor_feedback_total_count, auditor_feedback_complete_count, \
         evidence_count = subcontrol_data
