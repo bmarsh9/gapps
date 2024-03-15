@@ -7,10 +7,15 @@ from sqlalchemy import func
 from . import api
 from app import models, db
 from app.integrations.aws.src.s3_client import S3
-from app.service.authorization import AuthorizationService
-from app.service.project import ProjectService
-from app.service.project_control import ProjectControlService
-from app.service.project_subcontrol import ProjectSubControlService
+from app.service import (
+    AuthorizationService,
+    EvidenceService,
+    ProjectService,
+    ProjectService,
+    ProjectControlService,
+    ProjectSubControlService,
+    ProjectPolicyService
+)
 from app.utils.authorizer import Authorizer
 from app.utils.custom_errors import CustomError
 from app.utils.decorators import login_required
@@ -753,24 +758,17 @@ def get_subcontrols_for_project(project_id):
 @login_required
 def get_controls_for_project(project_id):
     AuthorizationService(current_user).can_user_view_project_controls(project_id)
-    
     filter = request.args.get("filter")
-
-    extra_filter = None
-    if filter and filter in ProjectControlsFilter.values():
-        extra_filter = filter
-
-    result: List[dict] = ProjectControlService.get_project_control_summary(project_id, extra_filter)
+    extra_filter = filter if filter is not None and filter in ProjectControlsFilter.values() else None
+    result = ProjectControlService.get_project_control_summary(project_id, extra_filter)
     return jsonify(result)
 
-@api.route('/projects/<int:pid>/policies', methods=['GET'])
+@api.route('/projects/<int:project_id>/policies', methods=['GET'])
 @login_required
-def get_policies_for_project(pid):
-    result = Authorizer(current_user).can_user_access_project(pid)
-    data = []
-    for policy in result["extra"]["project"].policies.all():
-        data.append(policy.as_dict())
-    return jsonify(data)
+def get_policies_for_project(project_id):
+    AuthorizationService(current_user).can_user_view_project_policies(project_id)
+    result = ProjectPolicyService.get_project_policies_summary(project_id)
+    return jsonify(result)
 
 @api.route('/projects/<int:pid>/policies/<int:ppid>', methods=['GET'])
 @login_required
@@ -947,6 +945,13 @@ def delete_label_for_tenant(tid, lid):
     db.session.delete(result["extra"]["label"])
     db.session.commit()
     return jsonify({"message": "ok"})
+
+@api.route('/projects/<int:project_id>/evidence', methods=['GET'])
+@login_required
+def project_evidence_summary(project_id):
+    AuthorizationService(current_user).can_user_view_project_evidence(project_id)
+    result = EvidenceService.get_project_evidence_summary(project_id)
+    return jsonify(result)
 
 @api.route('/projects/<int:pid>/evidence/controls', methods=['GET'])
 @login_required

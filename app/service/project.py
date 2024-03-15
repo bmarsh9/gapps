@@ -4,11 +4,12 @@ from app.models import User
 from app.repository.project import ProjectRepository
 from app.utils.custom_errors import ProjectNotFound
 from app.utils.misc import calculate_percentage
+from app.utils.types import SerializedObjectType
 
 class ProjectService:
 
     @staticmethod
-    def get_project_summary(project_id) -> dict:
+    def get_project_summary(project_id) -> SerializedObjectType:
         project_summary =  ProjectRepository.get_project_summary(project_id)
 
         if project_summary is not None and len(project_summary) == 1:
@@ -17,7 +18,7 @@ class ProjectService:
         raise ProjectNotFound()
 
     @staticmethod
-    def get_tenant_project_summaries(tenant_id: int) -> List[dict]:
+    def get_tenant_project_summaries(tenant_id: int) -> List[SerializedObjectType]:
         project_summeries =  ProjectRepository.get_tenant_project_summaries(tenant_id)
 
         projects = []
@@ -28,7 +29,7 @@ class ProjectService:
         return projects
     
     @staticmethod
-    def _get_summary_as_dict(project_summary) -> dict:
+    def _get_summary_as_dict(project_summary) -> SerializedObjectType:
         (
             project,
             tenant_name,
@@ -58,11 +59,11 @@ class ProjectService:
         evidence_compleation_percentage = 0.0
         total_completion_percentage = 0.0
 
-        subcontrols_implementation_percentage = calculate_percentage(total=subcontrols_total, count=subcontrols_implemented)
-        subcontrols_completion_percentage = calculate_percentage(total=subcontrols_total, count=subcontrols_complete)
+        subcontrols_implementation_percentage = calculate_percentage(subcontrols_total, subcontrols_implemented)
+        subcontrols_completion_percentage = calculate_percentage(subcontrols_total, subcontrols_complete)
 
         if requires_evidence:
-            evidence_compleation_percentage = calculate_percentage(total=subcontrols_total, count=evidence_count)
+            evidence_compleation_percentage = calculate_percentage(subcontrols_total, evidence_count)
             total_completion_percentage = (subcontrols_implementation_percentage + subcontrols_completion_percentage + evidence_compleation_percentage) / 3
         else:
             total_completion_percentage = (subcontrols_implementation_percentage + subcontrols_completion_percentage) / 2

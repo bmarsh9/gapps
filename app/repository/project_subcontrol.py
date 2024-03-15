@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List, Optional, Tuple, Union
 
 from flask import current_app
 from flask_login import current_user
@@ -33,7 +33,10 @@ class ProjectSubControlRepository:
         return ProjectSubControl.query.filter_by(ProjectSubControl.project_control_id == control_id).all()
     
     @staticmethod
-    def get_project_subcontrols_with_summaries(project_id: int, extra_filters: dict = {}):
+    def get_project_subcontrols_with_summaries(
+        project_id: int,
+        extra_filters: Dict[str, str] = {}
+    ) -> List[Tuple[str, Optional[Union[ProjectSubControl, SubControl, str, int]]]]:
     
         filter = extra_filters.get('filter', None)
         owner = extra_filters.get('owner', None)
