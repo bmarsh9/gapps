@@ -946,7 +946,7 @@ def delete_label_for_tenant(tid, lid):
     db.session.commit()
     return jsonify({"message": "ok"})
 
-@api.route('/projects/<int:project_id>/evidence/', methods=['GET'])
+@api.route('/projects/<int:project_id>/evidence', methods=['GET'])
 @login_required
 def project_evidence_summary(project_id):
     AuthorizationService(current_user).can_user_view_project_evidence(project_id)
