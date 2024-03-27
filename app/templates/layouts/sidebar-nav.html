@@ -633,6 +633,12 @@
             clearTenant()
             toast('Please create a tenant <a href="/tenants" class="float-right btn btn-xs toggle-fa hover:bg-primary hover:border-primary ml-3 reload-button">Begin</a>',"warning")
           } else {
+
+            const currentlySelectedTenant = data.some(dict => dict.id === tenantId);
+            if (!currentlySelectedTenant) {
+              tenantId = data[0].id
+            }
+
             for (var tenant in data) {
               if (data[tenant].id === tenantId) {
                 $("#tenant-select").append(`<option class="capitalize" value="${data[tenant].id}" selected>${data[tenant].name}</option>`)
