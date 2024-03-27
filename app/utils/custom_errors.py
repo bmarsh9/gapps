@@ -12,13 +12,23 @@ class CustomError(ABC, Exception):
         self.status = status.value
         super().__init__(self.message)
 
-# 403 UNAUTHORISED
+# 400 BAD REQUEST
+
+class ValidationError(CustomError):
+    def __init__(self, message="Submitted data could not be validated", status=HttpResponseStatus.BAD_REQUEST):
+        super().__init__(message, status)
+
+# 403 FORBIDDEN
 
 class AuthorizationError(CustomError):
-    def __init__(self, message="Unauthorized access", status=HttpResponseStatus.UNAUTHORIZED):
+    def __init__(self, message="Unauthorized access", status=HttpResponseStatus.FORBIDDEN):
         super().__init__(message, status)
 
 # 404 NOT FOUND
+
+class ProjectCommentNotFound(CustomError):
+    def __init__(self, message="Project comment not found", status=HttpResponseStatus.NOT_FOUND):
+        super().__init__(message, status)
 
 class ProjectNotFound(CustomError):
     def __init__(self, message="Project not found", status=HttpResponseStatus.NOT_FOUND):
@@ -26,6 +36,10 @@ class ProjectNotFound(CustomError):
 
 class TenantNotFound(CustomError):
     def __init__(self, message="Tenant not found", status=HttpResponseStatus.NOT_FOUND):
+        super().__init__(message, status)
+
+class UserNotFound(CustomError):
+    def __init__(self, message="User not found", status=HttpResponseStatus.NOT_FOUND):
         super().__init__(message, status)
 
 # 500 INTERNAL SERVER ERROR

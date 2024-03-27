@@ -192,5 +192,5 @@ class ProjectControlRepository:
         try:
             return query.filter(*filters).all()
         except SQLAlchemyError:
-            current_app.logger.error(f"Postgres READ operation failed failed for user({current_user.id})")
-            raise PostgresError("An error occurred while attempting to fetch project controls with summaries.")
+            current_app.logger.error(f'Postgres READ operation failed failed for User({current_user.id})')
+            raise PostgresError('An error occurred while attempting to fetch project controls with summaries.')

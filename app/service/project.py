@@ -1,12 +1,19 @@
-from typing import List
+from typing import Dict, List, Union
 
-from app.models import User
-from app.repository.project import ProjectRepository
+from app.models import Project
+from app.repository import ProjectMemberRepository, ProjectRepository
 from app.utils.custom_errors import ProjectNotFound
-from app.utils.misc import calculate_percentage
+from app.utils.misc import calculate_percentage, obj_to_dict
 from app.utils.types import SerializedObjectType
 
 class ProjectService:
+
+    @staticmethod
+    def get_project_or_404(project_id: int) -> Project:
+        project = ProjectRepository.get_project(project_id)
+        if project is None:
+            raise ProjectNotFound()
+        return project
 
     @staticmethod
     def get_project_summary(project_id) -> SerializedObjectType:
@@ -29,6 +36,51 @@ class ProjectService:
         return projects
     
     @staticmethod
+    def get_project_notes(project_id: int) -> str:
+        notes = ProjectRepository.get_project_notes(project_id)
+        return notes if notes is not None else ""
+    
+    @staticmethod
+    def update_project_notes(project_id: int, notes: str) -> None:
+        ProjectRepository.update_project_notes(project_id, notes)
+
+    @staticmethod
+    def get_project_settings(project_id: int) -> SerializedObjectType:
+        settings = ProjectRepository.get_project_settings(project_id)
+        if not settings:
+            raise ProjectNotFound()
+        
+        project_members = ProjectMemberRepository.get_project_members_with_associated_user_data(project_id)
+
+        members = []
+        for project_member, user_id, user_email in project_members:
+            members.append({
+                "access_level": project_member.access_level,
+                "email": user_email,
+                "id": user_id,
+            })
+
+        settings_dict = {
+            "name": settings.name,
+            "description": settings.description,
+            "can_auditor_read_comments": settings.can_auditor_read_comments,
+            "can_auditor_write_comments": settings.can_auditor_write_comments,
+            "can_auditor_read_scratchpad": settings.can_auditor_read_scratchpad,
+            "can_auditor_write_scratchpad": settings.can_auditor_write_scratchpad,
+            "members": members
+        }
+
+        return settings_dict
+    
+    @staticmethod
+    def update_project_settings(project_id: int, update_data: Dict[str, Union[str, bool]]) -> None:
+        properties = {}
+        for name, new_value in update_data.items():
+            if new_value is not None:
+                properties[name] = new_value
+        ProjectRepository.update_project_settings(project_id, properties)
+
+    @staticmethod
     def _get_summary_as_dict(project_summary) -> SerializedObjectType:
         (
             project,
@@ -46,7 +98,7 @@ class ProjectService:
             evidence_count,
         ) = project_summary
 
-        data = {c.name: getattr(project, c.name) for c in project.__table__.columns}
+        data = obj_to_dict(project)
         data['auditors'] = auditor_emails if auditor_emails is not None else []
         data['tenant'] = tenant_name
         data['framework'] = framework_name

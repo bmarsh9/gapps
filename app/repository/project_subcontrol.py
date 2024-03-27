@@ -26,11 +26,15 @@ class ProjectSubControlRepository:
     
     @staticmethod
     def get_project_subcontrols(project_id: int) -> List[ProjectSubControl]:
-        return ProjectSubControl.query.filter_by(ProjectSubControl.project_id == project_id).all()
+        return ProjectSubControl.query.filter(ProjectSubControl.project_id == project_id).all()
+    
+    @staticmethod
+    def get_project_subcontrols_count(project_id: int) -> int:
+        return ProjectSubControl.query.filter(ProjectSubControl.project_id == project_id).count()
     
     @staticmethod
     def get_project_subcontrols_for_project_control(control_id: int) -> List[ProjectSubControl]:
-        return ProjectSubControl.query.filter_by(ProjectSubControl.project_control_id == control_id).all()
+        return ProjectSubControl.query.filter(ProjectSubControl.project_control_id == control_id).all()
     
     @staticmethod
     def get_project_subcontrols_with_summaries(
@@ -45,7 +49,7 @@ class ProjectSubControlRepository:
         comment_count_subquery = (
             db.session.query(
                 SubControlComment.subcontrol_id,
-                func.count().label("subcontrol_comment_count")
+                func.count().label('subcontrol_comment_count')
             )
             .group_by(SubControlComment.subcontrol_id)
             .subquery()
@@ -54,8 +58,8 @@ class ProjectSubControlRepository:
         auditor_feedback_counts_subquery = (
             db.session.query(
                 AuditorFeedback.subcontrol_id,
-                func.count().label("auditor_feedback_total_count"),
-                func.sum(case([(AuditorFeedback.auditor_complete == True, 1)], else_=0)).label("auditor_feedback_complete_count")
+                func.count().label('auditor_feedback_total_count'),
+                func.sum(case([(AuditorFeedback.auditor_complete == True, 1)], else_=0)).label('auditor_feedback_complete_count')
             )
             .group_by(AuditorFeedback.subcontrol_id)
             .subquery()
@@ -64,7 +68,7 @@ class ProjectSubControlRepository:
         evidence_count_subquery = (
             db.session.query(
                 EvidenceAssociation.control_id,
-                func.count().label("evidence_count")
+                func.count().label('evidence_count')
             )
             .group_by(EvidenceAssociation.control_id)
             .subquery()
@@ -77,11 +81,11 @@ class ProjectSubControlRepository:
             db.session.query(
                 ProjectSubControl,
                 SubControl,
-                Control.name.label("parent_control_name"),
-                Project.name.label("project_name"),
-                Framework.name.label("framework_name"),
-                owner_alias.email.label("owner_email"),
-                operator_alias.email.label("operator_email"),
+                Control.name.label('parent_control_name'),
+                Project.name.label('project_name'),
+                Framework.name.label('framework_name'),
+                owner_alias.email.label('owner_email'),
+                operator_alias.email.label('operator_email'),
                 comment_count_subquery.c.subcontrol_comment_count,
                 auditor_feedback_counts_subquery.c.auditor_feedback_total_count,
                 auditor_feedback_counts_subquery.c.auditor_feedback_complete_count,
@@ -148,6 +152,12 @@ class ProjectSubControlRepository:
         elif filter == ProjectSubControlsFilter.NOT_IMPLEMENTED.value:
             filters.append(ProjectSubControl.implemented < 100)
 
+        elif filter == ProjectSubControlsFilter.MISSING_OWNER.value:
+            filters.append(ProjectSubControl.owner_id.is_(None))
+
+        elif filter == ProjectSubControlsFilter.MISSING_OPERATOR.value:
+            filters.append(ProjectSubControl.operator_id.is_(None))
+
         elif filter == ProjectSubControlsFilter.NOT_COMPLETE.value:
             not_complete_condition = and_(
                 ProjectSubControl.is_applicable.is_(True),
@@ -185,13 +195,13 @@ class ProjectSubControlRepository:
                 filters.append(EvidenceAssociation.control_id == ProjectSubControl.id)
 
         if owner is not None:
-            filters.append(func.lower(owner_alias.email).ilike(func.lower(f"%{owner}%")))
+            filters.append(func.lower(owner_alias.email).ilike(func.lower(f'%{owner}%')))
 
         if operator is not None:
-            filters.append(func.lower(operator_alias.email).ilike(func.lower(f"%{operator}%")))
+            filters.append(func.lower(operator_alias.email).ilike(func.lower(f'%{operator}%')))
 
         try:
             return query.filter(*filters).all()
         except SQLAlchemyError:
-            current_app.logger.error(f"Postgres READ operation failed failed for user({current_user.id})")
-            raise PostgresError("An error occurred while attempting to fetch project subcontrols with summaries.")
+            current_app.logger.error(f'Postgres READ operation failed failed for user({current_user.id})')
+            raise PostgresError('An error occurred while attempting to fetch project subcontrols with summaries.')

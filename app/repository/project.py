@@ -1,7 +1,9 @@
 from typing import Dict, List, Optional, Tuple, Union
+import traceback
 
+from flask import current_app
 from flask_login import current_user
-from sqlalchemy import asc, func
+from sqlalchemy import and_, asc, func
 
 from app import db
 from app.models import (
@@ -12,16 +14,18 @@ from app.models import (
     ProjectMember,
     ProjectPolicy,
     ProjectSubControl,
+    Role,
     Tenant,
     User,
+    UserRole
 )
 from app.repository.tenant import TenantRepository
-from app.utils.custom_errors import TenantNotFound
+from app.utils.custom_errors import PostgresError, TenantNotFound
 
 class ProjectRepository:
 
     @staticmethod
-    def get_project_by_id(project_id) -> Optional[Project]:
+    def get_project(project_id) -> Optional[Project]:
         return Project.query.get(project_id)
 
     @staticmethod
@@ -37,7 +41,7 @@ class ProjectRepository:
             raise TenantNotFound()
 
         if not current_user.super and current_user.id != tenant.owner_id:
-            user_member_alias = db.aliased(User, name="user_member")
+            user_member_alias = db.aliased(User, name='user_member')
             query = (
                 query
                 .join(ProjectMember, ProjectMember.project_id == Project.id)
@@ -46,6 +50,42 @@ class ProjectRepository:
             )
 
         return query.all()
+    
+    @staticmethod
+    def get_project_notes(project_id: int) -> Optional[str]:
+        return Project.query.with_entities(Project.notes).filter_by(id=project_id).scalar()
+    
+    @staticmethod
+    def update_project_notes(project_id: int, notes: str):
+        try:
+            Project.query.filter_by(id=project_id).update({'notes': notes})
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(traceback.format_exc())
+            raise PostgresError('Failed to update project notes')
+        
+    @staticmethod
+    def get_project_settings(project_id: int) -> List[Tuple[str, bool]]:
+        return Project.query.with_entities(
+            Project.name,
+            Project.description,
+            Project.can_auditor_read_comments,
+            Project.can_auditor_write_comments,
+            Project.can_auditor_read_scratchpad,
+            Project.can_auditor_write_scratchpad
+        ).filter_by(id=project_id).first()
+    
+    @staticmethod
+    def update_project_settings(project_id: int, properties: Dict[str, Union[str, bool]]) -> None:
+        try:
+            Project.query.filter_by(id=project_id).update(properties)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(traceback.format_exc())
+            raise PostgresError('Failed to update project settings')
+
 
     @staticmethod
     def _get_project_summary_query(tenant_id=None) -> List[Tuple[str, Union[Project, str, int, Optional[Dict[str, Union[str, int]]]]]]:
@@ -100,7 +140,7 @@ class ProjectRepository:
             .select_from(Project)
             .join(ProjectMember, ProjectMember.project_id == Project.id)
             .join(User, User.id == ProjectMember.user_id)
-            .filter(ProjectMember.access_level == "auditor")
+            .filter(ProjectMember.access_level == 'auditor')
             .group_by(Project.id)
             .subquery()
         )
@@ -137,7 +177,7 @@ class ProjectRepository:
             .join(Framework)
             .join(ProjectSubControl)
             .filter(ProjectSubControl.is_applicable.is_(True))
-            .filter(ProjectSubControl.review_status == "complete")
+            .filter(ProjectSubControl.review_status == 'complete')
             .group_by(Project.id)
             .subquery()
         )
@@ -191,3 +231,24 @@ class ProjectRepository:
             query = query.filter(Project.tenant_id == tenant_id)
 
         return query
+    
+    @staticmethod
+    def get_project_with_tenant_and_user_roles(user_id: int, project_id: int) -> Tuple[str, Union[Optional[Tenant], Optional[Project], List[str]]]:
+        query_result = (
+            db.session.query(Project, Tenant, Role.name)
+            .join(Tenant, Tenant.id == Project.tenant_id)
+            .join(UserRole, and_(UserRole.tenant_id == Project.tenant_id, UserRole.user_id == user_id))
+            .join(Role, Role.id == UserRole.role_id)
+            .filter(Project.id == project_id)
+            .all()
+        )
+        
+        project: Optional[Project] = None
+        tenant: Optional[Tenant] = None
+        user_roles: List[str] = []
+
+        if query_result:
+            project, tenant, user_roles = query_result[0]
+            user_roles = [role_name for _, _, role_name in query_result]
+
+        return project, tenant, user_roles

@@ -2,20 +2,20 @@
 
 {% import "helpers/snippets.html" as snippet with context %}
 {% block before_head %}
-  {{ super() }}
-  {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True,select2=True,apex=True,editor=True,mentions=True,utils=True, apimap=True) }}
-  <style>
-    .breadcrumbs>ul>li+:before {
-      margin-top: 5px;
-    }
-  </style>
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(datatables=True,select2=True,apex=True,editor=True,mentions=True,utils=True,apimap=True) }}
+<style>
+  .breadcrumbs>ul>li+:before {
+    margin-top: 5px;
+  }
+</style>
 {% endblock %}
 
 {%block header%}{%endblock%}
 {%block page_header%}{%endblock%}
-
 {%block tenant_btn%}{%endblock%}
+
 {%set is_auditor = project.has_auditor(current_user)%}
 {%block content%}
 <div class="grid grid-cols-9 gap-8">
@@ -28,17 +28,7 @@
             <li><a href="{{url_for("main.projects")}}">Projects</a></li>
             <li><a class="capitalize" href="{{url_for("main.view_project",pid=project.id)}}">{{project.name}}</a></li>
             <li>
-              <select class="select text-2xl font-bold text-primary sm:tracking-tight pl-0 focus:border-transparent focus:outline-none tab-select hover:text-secondary">
-                <option selected value="summary">Summary</option>
-                <option value="controls">Controls</option>
-                <option value="policies">Policies</option>
-                <option value="evidence">Evidence</option>
-                <option value="matrix">Resp. Matrix</option>
-                <option value="scratchpad">Scratchpad</option>
-                <option value="comments">Comments</option>
-                <option value="report">Report</option>
-                <option value="settings">Settings</option>
-              </select>
+              <select id="select-project-tab" class="select text-2xl font-bold text-primary sm:tracking-tight pl-0 focus:border-transparent focus:outline-none tab-select hover:text-secondary"></select>
             </li>
           </ul>
         </div>
@@ -58,29 +48,33 @@
     </div>
     <div class="flex flex-row py-3">
       <div class="flex gap-x-1 py-1 pr-2 tooltip" data-tip="Framework">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+        </svg>
         <span class="text-sm font-medium uppercase">{{project.framework.name}}</span>
       </div>
       <div class="flex gap-x-1 py-1 px-2 tooltip" data-tip="Completion">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
         <span class="text-sm font-medium">{{project.progress("complete")}}%</span>
       </div>
       <div class="flex gap-x-1 py-1 px-2 tooltip" data-tip="Start Date">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+        </svg>
         <span class="text-sm font-medium">{{project.simple(project.date_added)}}</span>
       </div>
       {%if is_auditor%}
       <div class="flex gap-x-1 py-1 px-2">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+        </svg>
         <span class="text-sm font-medium">Auditor</span>
       </div>
       {%endif%}
       <div class="divider divider-horizontal mx-0"></div>
-      <div class="flex space-x-4 tabs">
-        {%for tab in ["summary","controls","policies","evidence","matrix","scratchpad","comments","report","settings"]%}
-        <span @click="changeTab('{{tab}}')" id="tab-{{tab}}" class="cursor-pointer rounded-md py-1 px-4 text-sm font-medium hover:bg-base-200 capitalize">{{tab}}</span>
-        {%endfor%}
-      </div>
+      <div id="tab-buttons" class="flex space-x-4 tabs"></div>
     </div>
     <div class="flex flex-row rounded-md border border-base-300 p-3">
       <div class="flex gap-x-1 py-1 tooltip font-medium text-sm" data-tip="Quick filters for the controls">Quick Filters</div>
@@ -89,7 +83,6 @@
     </div>
   </div>
 </div>
-
 <div id="page-div">
   <div class="grid grid-cols-9 gap-4" id="alert-div"></div>
   <div class="grid grid-cols-9 gap-4" id="summary-div"></div>
@@ -98,150 +91,6 @@
   </div>
 </div>
 
-<input type="checkbox" id="memberModal" class="modal-toggle" />
-<div class="modal">
-  <div class="modal-box w-8/12 max-w-4xl">
-    <label for="memberModal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-    <div id="memberModalBody">
-      <div class="grid grid-cols-6 gap-6"><div class="col-span-6"><label class="block font-medium mb-2">Add Members to Project</label><select class="input-members w-full" name="members[]" multiple="multiple"/></select></div></div>
-    </div>
-    <div class="modal-action">
-      <button @click="addMembers" class="btn btn-primary add-project-member-btn">Save</button>
-    </div>
-  </div>
-</div>
-
-<input type="checkbox" id="control-modal" class="modal-toggle" />
-<label for="control-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <div class="flex justify-between">
-      <div>
-        <h2 id="control-modal-title" class="card-title mb-2 capitalize"></h2>
-      </div>
-      <div>
-        <span id="control-modal-date" class="text-xs">?</span>
-      </div>
-    </div>
-    <div class="grid grid-cols-6 gap-4">
-      <div class="col-span-6" id="applicable-control"></div>
-      <div class="col-span-3">
-        <div class="card border border-base-300">
-          <div class="card-body p-5">
-            <div class="card-title justify-between">
-              <h2 class="card-title text-lg">Complete</h2>
-              <div id="complete-modal-icon"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-span-3">
-        <div class="card border border-base-300">
-          <div class="card-body p-5">
-            <div class="card-title justify-between">
-              <h2 class="card-title text-lg">Applicable</h2>
-              <div id="applicable-modal-icon"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-span-4">
-        <div class="overflow-hidden shadow sm:rounded-lg"><div class="px-4 py-5 sm:px-6"><h3 class="text-lg font-medium leading-6">Control Details</h3></div><div class="border-t border-base-300"><dl id="control-modal-details"></dl></div></div>
-      </div>
-      <div class="col-span-2 m-auto flex flex-col">
-        <div class="mx-auto" id="control-modal-completion"></div>
-        <div class="mx-auto mt-2 text-sm font-semibold">Progress of control</div>
-      </div>
-    </div>
-    <div class="modal-action">
-      <a id="view-control" href="" class="btn btn-primary">View</a>
-    </div>
-  </label>
-</label>
-
-<input type="checkbox" id="policy-modal" class="modal-toggle" />
-<label for="policy-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <div class="flex justify-between">
-      <div>
-        <p class="font-semibold text-primary text-sm" id="policy-subtitle"></p>
-        <h2 class="card-title mb-5">Policy</h2>
-      </div>
-      <div>
-        <span class="text-xs" id="policy-date"></span>
-      </div>
-    </div>
-    <div class="grid grid-cols-6 gap-6">
-      <div class="col-span-6 sm:col-span-3">
-        <label class="block text-sm font-medium  mb-2">Name</label>
-        <span id="tenant-select-div" class=""></span>
-      </div>
-      <div class="col-span-6 sm:col-span-3">
-        <label class="block text-sm font-medium  mb-2"></label>
-        <span id="framework-select-div" class=""></span>
-      </div>
-    </div>
-    <div class="modal-action">
-      <a id="view-policy" href="#" class="btn btn-primary">View</a>
-    </div>
-  </label>
-</label>
-
-<input type="checkbox" id="owner-modal" class="modal-toggle" />
-<label for="owner-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <div class="flex justify-between">
-      <div>
-        <p class="font-semibold text-primary text-sm"></p>
-        <h2 id="owner-modal-title" class="card-title mb-5">Owner</h2>
-      </div>
-    </div>
-    <div class="grid grid-cols-6 gap-6">
-      <div class="col-span-6">
-        <div class="">
-          <table class="table w-full">
-            <!-- head -->
-            <thead>
-              <tr>
-                <th class="w-1"></th>
-                <th>Name</th>
-                <th class="w-1">View</th>
-              </tr>
-            </thead>
-            <tbody id="owner-modal-body"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </label>
-</label>
-<input type="checkbox" id="operator-modal" class="modal-toggle" />
-<label for="operator-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <div class="flex justify-between">
-      <div>
-        <p class="font-semibold text-primary text-sm"></p>
-        <h2 id="operator-modal-title" class="card-title mb-5">Operator</h2>
-      </div>
-    </div>
-    <div class="grid grid-cols-6 gap-6">
-      <div class="col-span-6">
-        <div class="">
-          <table class="table w-full">
-            <!-- head -->
-            <thead>
-              <tr>
-                <th class="w-1"></th>
-                <th>Name</th>
-                <th class="w-1">View</th>
-              </tr>
-            </thead>
-            <tbody id="operator-modal-body"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </label>
-</label>
 {%endblock%}
 {%block extrajs%}
 <script>
@@ -255,7 +104,7 @@
     EVIDENCE: "evidence",
     RESPONSIBILITY_MATRIX: "matrix",
     SCRATCHPAD: "scratchpad",
-    COMMENT: "comment",
+    COMMENTS: "comments",
     REPORT: "report",
     SETTINGS: "settings"
   };
@@ -285,6 +134,8 @@
     not_applicable: "Not applicable",
     has_evidence: "Has Evidence",
     missing_evidence: "Missing Evidence",
+    missing_owner: "Missing Owner",
+    missing_operator: "Missing Operator",
     complete: 'Complete',
     not_complete: 'Not Complete',
     implemented: "Implemented",
@@ -306,6 +157,13 @@
     complete: "Complete"
   };
 
+  const projectMemberAccessLevels = [
+    "manager",
+    "contributor",
+    "viewer",
+    "auditor"
+  ];
+
   const actions = {
     POPULATE_OWNER_OPERATOR_MODAL: "action-populate-owner-operator-modal",
     UPDATE_OWNER_OPERATOR: "action-update-owner-operator"
@@ -314,7 +172,7 @@
   const defaultCompletionChartOptions = {
     legend: { show: false },
     dataLabels: { enabled: false },
-    chart: { type: 'donut', height: 200, /* redrawOnParentResize: true */},
+    chart: { type: 'donut', height: 200, redrawOnParentResize: true },
     plotOptions: {
       pie: {
         donut: {
@@ -349,6 +207,18 @@
   const iconNegative = (`
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mx-auto w-5 h-5 text-red-600">
       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  `);
+
+  const iconCheckmarkFlare = (`
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-success">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+    </svg>
+  `);
+
+  const iconNegativeFlare = (`
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   `);
 
@@ -389,6 +259,15 @@
   const loadingAnimationBlock = (`
     <div class="col-span-9 mx-auto mt-10">
     ${loadingAnimation}
+    </div>
+  `);
+
+  const insufficientPermissionsBlock = (`
+    <div class="col-span-9 mx-auto mt-10 flex flex-row">
+      Insufficient Permissions
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
+      </svg>
     </div>
   `);
 
@@ -463,6 +342,9 @@
     get: function() {
       return $(`#${this.id}`);
     },
+    getBody: function() {
+      return $(`#${this.bodyId}`);
+    },
     build: function(options) {
       const defaultOptions = {
         "pageLength": 25,
@@ -471,9 +353,6 @@
         ]
       };
       return $(`#${this.id}`).DataTable(options ? options : defaultOptions);
-    },
-    getBody: function() {
-      return $(`#${this.bodyId}`);
     },
   }
 
@@ -492,7 +371,6 @@
       },
       getOptions: () => selectOptionsForGrouping,
     },
-
     selectFilter: {
       id: "controls-filter",
       get: function() {
@@ -560,6 +438,27 @@
   /** Endegion: Wrapped/Extended Components */
 
   /** Region: Helper Methods */
+
+  const buildTabNavigation = (tab) => {
+    const $tabSelector = $("#select-project-tab");
+    const $tabButtonsContainer = $("#tab-buttons");
+
+    Object.entries(selectOptionsForProjectTabs).forEach(([key, value]) => {
+      const label = capitalize(key.replace(/_/g, " ").toLowerCase());
+      
+      const $option = $("<option>").val(value).text(label);
+      $tabSelector.append($option);
+
+      const $span = $("<span>");
+      $span.attr("id", `tab-${value}`);
+      $span.text(capitalize(value));
+      $span.addClass("cursor-pointer rounded-md py-1 px-4 text-sm font-medium hover:bg-base-200 capitalize");
+      $span.on("click", function() {
+        changeTab(value);
+      });
+      $tabButtonsContainer.append($span);
+    });
+  }
 
   const changeTab = (tab) => {
     $(".tabs span").removeClass("bg-base-200");
@@ -688,99 +587,25 @@
     return options;
   };
 
-  /** End Region: Helper methods */
-
-  /** Region: Modals */
-
-  const createModal = (subControlId, controlId, title, action, $body) => {
-    destroyModal();
-    const $wrapper = $("<div>").attr({"id": "customModal"}).addClass("modal cursor-pointer visible opacity-100 pointer-events-auto");
-    const $container = $("<div>").addClass("modal-box");
-    const $header = $("<div>").addClass("w-full mb-6 flex flex-row-reverse");
-    const $title = $("<h2>").addClass("card-title flex-1").text(title);
-    const $closeBtn = $("<label>").addClass("btn btn-sm btn-circle").text("✕").on("click", destroyModal);
-    const $buttonGroup = $("<div>").addClass("modal-action");
-    const $saveBtn = $("<button>").attr({"data-id": subControlId, "data-control-id": controlId}).addClass(`btn btn-primary ${action}`).text("Save");
-    $header.append($closeBtn, $title);
-    $buttonGroup.append($saveBtn);
-    $container.append($header, $body, $buttonGroup);
-    $wrapper.append($container);
-    $("main").append($wrapper);
-    $wrapper.on("click", (event) => {
-      if ($(event.target).hasClass("modal")) {
-        destroyModal();
-      }
-    });
-  };
-
-  const destroyModal = () => {
-    $('#customModal').remove();
+  const updateOwnerAndOperatorFilters = () => {
+    const grouping = FormManager.selectGrouping.getValue();
+    const filter = FormManager.selectFilter.getValue();
+    const owner = FormManager.inputOwner.getValue();
+    const operator = FormManager.inputOperator.getValue();
+    
+    const params = getUrlParams();
+    params.set("grouping", grouping);
+    params.set("filter", filter);
+    owner ? params.set("owner", owner) : params.delete("owner");
+    operator ? params.set("operator", operator) : params.delete("operator");
+    
+    setUrlParams(params);
+    loadControls();
   }
 
-  /** End Region: Modals */
+  /** End Region: Helper methods */
 
-function loadUsers(reload=false) {
-    var users = localStorage.getItem("tenant-users-{{project.tenant_id}}");
-    if (reload || !users) {
-      $.ajax({
-        type: "GET",
-        url: `/api/v1//tenants/{{project.tenant_id}}/users`,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-          localStorage.setItem('tenant-users-{{project.tenant_id}}', JSON.stringify(data));
-        },
-        error: function(errMsg) {
-         toast(errMsg["responseJSON"]["message"],"error")
-         return(errMsg);
-        }
-      })
-    } 
-}
-
-function saveScratchPad(showToast=true) {
-    var data = {"data":tinymce.get("scratchpad-editor").getContent()}
-    $.ajax({
-        type: "PUT",
-        url: `/api/v1/projects/{{project.id}}/scratchpad`,
-        data: JSON.stringify(data),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-            $("#save-notes-btn").html("Save")
-            $("#save-notes-btn").removeClass("btn-warning")
-            $("#save-notes-btn").addClass("btn-primary")
-            return(data)
-        },
-        error: function(errMsg) {
-            // we autosave when a user clicks away but some users
-            // dont have access to save, so we hide the error
-            if (showToast) {
-              toast(errMsg["responseJSON"]["message"],"error")
-            }
-            return(errMsg);
-        }
-    })
-}
-function createReport() {
-    toast("Working on it...", "warning")
-    $.ajax({
-          type: "POST",
-          url: `/api/v1/projects/{{project.id}}/reports`,
-          contentType: "application/json; charset=utf-8",
-          success: function(data){
-            toast("Generated report")
-            window.open(`/projects/{{project.id}}/reports/${data.name}`, '_blank').focus();
-            return(data)
-          },
-          error: function(errMsg) {
-            toast("Hmm.. we were unable to create a report","error")
-            return(errMsg);
-          }
-    })
-}
-
-/** Region: Events */
+  /** Region: Events */
 
   $(document).on("change", `#${FormManager.selectFilter.id}`, function() {
     const filter = $(this).val();
@@ -823,7 +648,7 @@ function createReport() {
 
     localStorage.removeItem(`tenant-users-${tenantId}`)
     const tab = $(".tab-select").val();
-    loadUsers(reload=true);
+    loadUsers();
     loadPageElements(tab);
   });
 
@@ -843,7 +668,12 @@ function createReport() {
   });
 
   $(document).on("click", `.${actions.UPDATE_OWNER_OPERATOR}`, function() {
-    $(this).prop("disabled", true).html(loadingAnimation);
+    const $button = $(this);
+    $button.prop("disabled", true)
+      .removeClass("btn-primary")
+      .addClass("btn-ghost")
+      .html(loadingAnimation);
+
     const subControlId = $(this).data("id");
     const controlId = $(this).data("control-id");
     const projectId = "{{project.id}}";
@@ -852,7 +682,7 @@ function createReport() {
 
     $.ajax({
       type: "PUT",
-      url: `/api/v1/project-controls/${projectId}/subcontrols/${subControlId}`,
+      url: apiMap.getUpdateOwnerOperatorUrl(projectId, subControlId),
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       data: JSON.stringify({
@@ -892,237 +722,27 @@ function createReport() {
     })
   });
 
-  const updateOwnerAndOperatorFilters = () => {
-    const grouping = FormManager.selectGrouping.getValue();
-    const filter = FormManager.selectFilter.getValue();
-    const owner = FormManager.inputOwner.getValue();
-    const operator = FormManager.inputOperator.getValue();
-    
-    const params = getUrlParams();
-    params.set("grouping", grouping);
-    params.set("filter", filter);
-    owner ? params.set("owner", owner) : params.delete("owner");
-    operator ? params.set("operator", operator) : params.delete("operator");
-    
-    setUrlParams(params);
-    loadControls();
-  }
-
-/** Endregion: Events */
-
-function toggleScratchPad(e=false) {
-  if (!e || !e.target.checked) {
-    $(".tox-editor-header").addClass("invisible")
-    $(".tox-editor-header").addClass("!h-0")
-    tinymce.activeEditor.mode.set("readonly");
-  } else {
-    $(".tox-editor-header").removeClass("invisible")
-    $(".tox-editor-header").removeClass("!h-0")
-    tinymce.activeEditor.mode.set("design");
-  }
-}
-
-function loadScratchPad() {
-    {%if is_auditor and not project.can_auditor_read_scratchpad%}
-    toast("You lack permissions to view the scratchpad.","warning")
-    $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
-    return
-    {%endif%}
-    $("#card-div").html(loadingAnimationBlock)
-    $.ajax({
-        type: "GET",
-        url: "/api/v1/projects/{{project.id}}/scratchpad",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-
-        $("#card-div").html(`<div class="col-span-9">
-          <div class="mb-4 justify-between flex">
-            <div>
-              <h1 class="text-2xl font-bold">Scratchpad</h1>
-              <p class="text-sm">Use this place to document any details about the project or general notes and updates. {%if project.can_auditor_read_scratchpad%}The auditor <b>can read</b> the scratchpad.{%else%} The auditor <b>can not read</b> the scratchpad.{%endif%}</p>
-            </div>
-            <div class="gap-x-2 flex flex-row">
-              {%if not is_auditor or project.can_auditor_write_scratchpad%}<div class="mt-1"><input @change="toggleScratchPad" type="checkbox" class="toggle toggle-primary"/></div>{%endif%}
-              <button id="save-notes-btn" @click="saveScratchPad" class="btn btn-primary btn-sm">Save</button>
-            </div>
-          </div>
-          <div id="scratchpad-editor" class="w-full">${data["notes"] || ""}</div>
-        </div>`);
-          tinymce.remove('#scratchpad-editor');
-          var contextEditor = tinymce.init({
-            //skin: 'snow',
-            //icons: 'thin',
-            //content_style: 'body { margin: 2rem 10%; }',
-            setup: (editor) => {
-              editor.on('init', (e) => {
-                $(".tox-editor-header").addClass("invisible")
-                $(".tox-editor-header").addClass("!h-0")
-              });
-              editor.on('keyup', (e) => {
-                $("#save-notes-btn").html("Please Save")
-                $("#save-notes-btn").removeClass("btn-primary")
-                $("#save-notes-btn").addClass("btn-warning")
-              });
-            },
-            selector: '#scratchpad-editor',
-            statusbar: false,
-            promotion: false,
-            readonly: true,
-            {%if is_auditor and not project.can_auditor_write_scratchpad%}
-            menubar: false,
-            toolbar: false,
-            {%else%}
-            plugins: "preview fullscreen searchreplace table codesample lists advlist variable link",
-            toolbar1: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo"
-            {%endif%}
-          });
-        },
-        error: function(errMsg) {
-          toast(errMsg["responseJSON"]["message"],"error")
-        }
-    })
-}
-function addCommentToDiv(comment) {
-  user_id = {{current_user.id}};
-  if (user_id === comment.author_id) {
-    delete_str = `<div class="dropdown dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"></path></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 text-error"><li><a @click="deleteComment(${comment.id})">Delete</a></li></ul></div>`
-  } else {
-    delete_str = ""
-  }
-  var record = `
-    <article id="comment-${comment.id}" class="py-6 mb-6 rounded-lg border-b border-base-200">
-        <footer class="flex justify-between items-center mb-2">
-            <div class="flex items-center text-sm">
-                <div class="avatar placeholder mr-2"><div class="bg-neutral-focus text-neutral-content rounded-full w-6"><span class="text-xs uppercase">${comment.author_email[0]}</span></div></div>${comment.author_email}
-                <p class="inline-flex items-center mr-3 text-sm"></p>
-                <p class="text-xs font-semibold"><time pubdate="">${comment.date_added}</time></p>
-            </div>${delete_str}
-        </footer>
-        <p class="">${comment.message}</p>
-    </article>
-  `
-  $("#comments").prepend(record)
-}
-function deleteComment(id) {
-    $.ajax({
-        type: "DELETE",
-        url: `/api/v1/projects/{{project.id}}/comments/${id}`,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-            $(`#comment-${id}`).remove()
-            toast("Deleted comment")
-            return(data)
-        },
-        error: function(errMsg) {
-            return(errMsg);
-        }
-    })
-}
-function saveComment(e) {
-    var value = document.getElementById("comment").value;
-    if (!value) {
-      return
-    }
-    disableButton('.add-project-comment-btn');
-    $.ajax({
-        type: "POST",
-        url: `/api/v1/projects/{{project.id}}/comments`,
-        data: JSON.stringify({"data":value}),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-            addCommentToDiv(data)
-            document.getElementById("comment").value = ""
-            toast("Added comment")
-            loadComments()
-            return(data)
-        },
-        error: function(errMsg) {
-            toast(errMsg["responseJSON"]["message"],"error")
-            return(errMsg);
-        },
-        complete: function() {
-            enableButton('.add-project-comment-btn');
-        },
-    })
-}
-function loadReport() {
-  $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Coming Soon!</div>');
-  return
-}
-function loadComments() {
-    {%if is_auditor and not project.can_auditor_read_comments%}
-    toast("You lack permissions to view the comments.","warning")
-    $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
-    return
-    {%endif%}
-    $("#card-div").html(loadingAnimationBlock)
-    $.ajax({
-        type: "GET",
-        url: "/api/v1/projects/{{project.id}}/comments",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-        $("#card-div").html(`<div class="col-span-9">
-          <div class="mb-4 justify-between flex">
-            <div>
-              <h1 class="text-2xl font-bold">Comments<span id="comment-count" class="ml-2"></span></h1>
-              <p class="text-sm">Comments are used to discuss generals topics about the project. {%if project.can_auditor_read_comments%}The auditor <b>can read</b> the comments.{%else%} The auditor <b>can not read</b> the comments.{%endif%}</p>
-            </div>
-            {%if not auditor or project.project.can_auditor_write_comments%}
-            <div class="my-auto flex justify-between gap-x-2">
-              <button @click="saveComment" class="btn btn-sm btn-primary add-project-comment-btn">Send</button>
-            </div>
-            {%endif%}
-          </div>
-          <div class="mb-5">
-            <textarea id="comment" rows="4" class="textarea textarea-bordered w-full text-sm" placeholder="Write a comment..." required=""></textarea>
-            <div class=" h-[calc(100vh-500px)] overflow-auto px-3" id="comments"></div>
-          </div>
-        </div>`)
-          $("#comments").html("")
-          $("#comment-count").html(`(${data.length})`)
-          if (data) {
-            $("#comments-title").html(`(${data.length})`)
-          }
-          for (var comment in data) {
-            addCommentToDiv(data[comment])
-          }
-          mention_options = [];
-          var users = JSON.parse(localStorage.getItem("tenant-users-{{project.tenant_id}}"));
-          for(user in users) {
-            mention_options.push({key:users[user].email, value:users[user].username})
-          }
-          var tribute = new Tribute({values:mention_options});
-          tribute.attach(document.getElementById("comment"));
-        },
-        error: function(errMsg) {
-          toast(errMsg["responseJSON"]["message"],"error")
-        }
-    })
-}
+  /** Endregion: Events */
 
   /** Region: Summary */
 
-  function buildSummary(data) {
+  function buildSummary(project) {
     const projectId = "{{project.id}}";
     ContentContainer.empty();
 
     const completeOptions = deepCopy(defaultCompletionChartOptions);
-    completeOptions.series = [100 - data.completion_progress, data.completion_progress];
-    completeOptions.plotOptions.pie.donut.labels.total.formatter = () => `${data.completion_progress}%`;
+    completeOptions.series = [100 - project.completion_progress, project.completion_progress];
+    completeOptions.plotOptions.pie.donut.labels.total.formatter = () => `${project.completion_progress}%`;
 
     const implementedOptions = deepCopy(defaultCompletionChartOptions);
-    implementedOptions.series = [100 - data.implemented_progress, data.implemented_progress];
-    implementedOptions.plotOptions.pie.donut.labels.total.formatter = () => `${data.implemented_progress}%`;
+    implementedOptions.series = [100 - project.implemented_progress, project.implemented_progress];
+    implementedOptions.plotOptions.pie.donut.labels.total.formatter = () => `${project.implemented_progress}%`;
 
     const evidenceOptions = deepCopy(defaultCompletionChartOptions);
-    evidenceOptions.series = [100 - data.evidence_progress, data.evidence_progress];
-    evidenceOptions.plotOptions.pie.donut.labels.total.formatter = () => `${data.evidence_progress}%`;
+    evidenceOptions.series = [100 - project.evidence_progress, project.evidence_progress];
+    evidenceOptions.plotOptions.pie.donut.labels.total.formatter = () => `${project.evidence_progress}%`;
 
-    const reviewComplete = Number(parseFloat(((data.review_summary["complete"]||0)/data.review_summary["total"])*100).toFixed(2));
+    const reviewComplete = Number(parseFloat(((project.review_summary["complete"]||0)/project.review_summary["total"])*100).toFixed(2));
     const reviewOptions = deepCopy(defaultCompletionChartOptions);
     reviewOptions.series = [100 - reviewComplete, reviewComplete];
     reviewOptions.plotOptions.pie.donut.labels.total.formatter = () => `${reviewComplete}%`;
@@ -1164,11 +784,11 @@ function loadComments() {
     `);
 
     let auditorAlert = "";
-    if (data.auditors === undefined || data.auditors.length == 0) {
+    if (project.auditors === undefined || project.auditors.length == 0) {
       auditorAlert = (`
         <div class="alert shadow-sm mb-2">
           <div>
-            <span>Please <a class="underline text-primary" href="/projects/${project.id}?tab=settings">add an auditor</a> to your project.</span>
+            <span>Please <a class="underline text-primary" href="/projects/${projectId}?tab=settings">add an auditor</a> to your project.</span>
           </div>
         </div>
       `);
@@ -1205,7 +825,7 @@ function loadComments() {
                         <td>
                           <div class="tooltip tooltip-right" data-tip="Control has not been started">Not Started</div>
                         </td>
-                        <td>${data.review_summary["not started"]||0}</td>
+                        <td>${project.review_summary["not started"]||0}</td>
                         <td>
                           <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls&grouping=subcontrols&filter=review_not_started" class="btn btn-sm btn-ghost">${iconLinkArrow}</a>
                         </td>
@@ -1214,7 +834,7 @@ function loadComments() {
                         <td>
                           <div class="tooltip tooltip-right" data-tip="InfoSec team is working on the control">InfoSec Action</div>
                         </td>
-                        <td>${data.review_summary["infosec action"]||0}</td>
+                        <td>${project.review_summary["infosec action"]||0}</td>
                         <td>
                           <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls&grouping=subcontrols&filter=review_infosec_action" class="btn btn-sm btn-ghost">${iconLinkArrow}</a>
                         </td>
@@ -1223,7 +843,7 @@ function loadComments() {
                         <td>
                           <div class="tooltip tooltip-right" data-tip="Auditor says that Action is required from you">Action Required</div>
                         </td>
-                        <td>${data.review_summary["action required"]||0}</td>
+                        <td>${project.review_summary["action required"]||0}</td>
                         <td>
                           <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls&grouping=subcontrols&filter=review_action_required" class="btn btn-sm btn-ghost">${iconLinkArrow}</a>
                         </td>
@@ -1241,7 +861,7 @@ function loadComments() {
               <div class="card-title mb-4 justify-between">
                 <h2 class="card-title">Auditor Summary</h2>
                 <div>
-                  <a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls" class="btn btn-sm btn-ghost border border-base-300">
+                  <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls" class="btn btn-sm btn-ghost border border-base-300">
                     View Controls
                     <span class="ml-2">${iconLinkNewWindow}<span>
                   </a>
@@ -1263,7 +883,7 @@ function loadComments() {
                         <td>
                           <div class="tooltip tooltip-right" data-tip="Control is waiting for the auditor to review">Ready for Auditor</div>
                         </td>
-                        <td>${data.review_summary["ready for auditor"]||0}</td>
+                        <td>${project.review_summary["ready for auditor"]||0}</td>
                         <td>
                           <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls&grouping=subcontrols&filter=review_ready_for_auditor" class="btn btn-sm btn-ghost">${iconLinkArrow}</a>
                         </td>
@@ -1272,7 +892,7 @@ function loadComments() {
                         <td>
                           <div class="tooltip tooltip-right" data-tip="Auditor has marked the review as complete">Complete</div>
                         </td>
-                        <td>${data.review_summary["complete"]||0}</td>
+                        <td>${project.review_summary["complete"]||0}</td>
                         <td>
                           <a target="_blank" rel="noopener noreferrer" href="/projects/${projectId}?tab=controls&grouping=subcontrols&filter=review_complete" class="btn btn-sm btn-ghost">${iconLinkArrow}</a>
                         </td>
@@ -1299,49 +919,49 @@ function loadComments() {
               <div class="col-span-3">
                 <div class="flex flex-col">
                   <strong class="font-semibold text-primary text-sm">Name</strong>
-                  <span class="text-sm capitalize">${data.name}</span>
+                  <span class="text-sm capitalize">${project.name}</span>
                 </div>
               </div>
               <div class="col-span-3">
                 <div class="flex flex-col">
                   <strong class="font-semibold text-primary text-sm">Tenant</strong>
-                  <span class="text-sm capitalize">${data.tenant}</span>
+                  <span class="text-sm capitalize">${project.tenant}</span>
                 </div>
               </div>
               <div class="col-span-3">
                 <div class="flex flex-col">
                   <strong class="font-semibold text-primary text-sm">Framework</strong>
-                  <a href="/frameworks/${data.framework}" class="text-sm uppercase text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${data.framework}</a>
+                  <a href="/frameworks/${project.framework}" class="text-sm uppercase text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${project.framework}</a>
                 </div>
               </div>
               <div class="col-span-9">
                 <div class="flex flex-col">
                   <strong class="font-semibold text-primary text-sm">Description</strong>
-                  <span class="text-sm rounded-md border border-base-200 p-4 mt-2">${data.description}</span>
+                  <span class="text-sm rounded-md border border-base-200 p-4 mt-2">${project.description}</span>
                 </div>
               </div>
               <div class="col-span-3">
                 <div class="flex flex-col">
                   <strong class="font-semibold text-primary text-sm">Owner</strong>
-                  <span class="text-sm">${data.owner}</span>
+                  <span class="text-sm">${project.owner}</span>
                 </div>
               </div>
               <div class="col-span-3">
                 <div class="flex flex-col">
                   <strong class="font-semibold text-primary text-sm">Controls</strong>
-                  <span class="text-sm">${data.total_controls}</span>
+                  <span class="text-sm">${project.total_controls}</span>
                 </div>
               </div>
               <div class="col-span-3">
                 <div class="flex flex-col">
                   <strong class="font-semibold text-primary text-sm">Policies</strong>
-                  <span class="text-sm">${data.total_policies}</span>
+                  <span class="text-sm">${project.total_policies}</span>
                 </div>
               </div>
               <div class="col-span-3">
                 <div class="flex flex-col">
                   <strong class="font-semibold text-primary text-sm">Creation</strong>
-                  <span class="text-sm">${data.date_added}</span>
+                  <span class="text-sm">${project.date_added}</span>
                 </div>
               </div>
             </div>
@@ -1353,7 +973,7 @@ function loadComments() {
     $("#project-details").append(`
       <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt class="text-sm font-medium">Name</dt>
-        <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.name}</dd>
+        <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${project.name}</dd>
       </div>
     `);
 
@@ -1366,10 +986,10 @@ function loadComments() {
     const evidenceChart = new ApexCharts(document.querySelector("#evidence-progress"), evidenceOptions);
     const reviewChart = new ApexCharts(document.querySelector("#review-progress"), reviewOptions);
     setTimeout(() => {
-      $("#complete-progress").html("");
-      $("#implemented-progress").html("");
-      $("#evidence-progress").html("");
-      $("#review-progress").html("");
+      $("#complete-progress").empty();
+      $("#implemented-progress").empty();
+      $("#evidence-progress").empty();
+      $("#review-progress").empty();
       completeChart.render();
       implementedChart.render();
       evidenceChart.render();
@@ -1379,14 +999,13 @@ function loadComments() {
 
   function loadSummary() {
     const projectId = "{{project.id}}";
-    const url = apiMap.getProjectSummaryUrl(projectId);
 
     $("#summary-div").empty();
     ContentContainer.reset();
 
     $.ajax({
       type: "GET",
-      url: url,
+      url: apiMap.getProjectSummaryUrl(projectId),
       contentType: "application/json; charset=utf-8",
       dataType: "json",
       success: function(data){
@@ -1404,7 +1023,7 @@ function loadComments() {
 
   /** Region: Controls & Subcontrols */
 
-  function buildSubControlsTable(data) {
+  function buildSubControlsTable(subcontrols) {
     const params = getUrlParams();
     const filter = params.get("filter");
     const grouping = params.get("grouping");
@@ -1425,7 +1044,7 @@ function loadComments() {
           <div>
             <div class="justify-between flex">
               <div>
-                <h2 class="card-title mb-4 control-title">Project Subcontrols (${data.length})</h2>
+                <h2 class="card-title mb-4 control-title">Project Subcontrols (${subcontrols.length})</h2>
               </div>
               <div class="flex flex-row gap-x-2">
                 <div>${inputOwner}</div>
@@ -1473,8 +1092,7 @@ function loadComments() {
     FormManager.inputOwner.setValue(owner);
     FormManager.inputOperator.setValue(operator);
 
-    for (let i in data) {
-      const subcontrol = data[i];
+    for (const subcontrol of subcontrols) {
       const completeColor = subcontrol.is_complete ? "green" : "red";
       const reviewColor = getSubControlStatusColor(subcontrol.review_status);
       const evidenceIcon = subcontrol.has_evidence ? iconCheckmark : iconNegative;
@@ -1524,7 +1142,7 @@ function loadComments() {
     ContentTable.build();
   }
 
-  function buildControlsTable(data) {
+  function buildControlsTable(controls) {
     const params = getUrlParams();
     const filter = params.get("filter");
     const grouping = params.get("grouping");
@@ -1541,7 +1159,7 @@ function loadComments() {
           <div>
             <div class="justify-between flex">
               <div>
-                <h2 class="card-title mb-4">Project Controls (${data.length})</h2>
+                <h2 class="card-title mb-4">Project Controls (${controls.length})</h2>
               </div>
               <div class="flex flex-row gap-x-2">
                 <div>${selectGrouping}</div>
@@ -1583,8 +1201,7 @@ function loadComments() {
     FormManager.selectGrouping.setValue(grouping);
     FormManager.selectFilter.setValue(filter);
 
-    for (let i in data) {
-      const control = data[i];
+    for (const control of controls) {
       const statusColor = getControlStatusColor(control.status);
       const totalReviews = control.stats.subcontrols;
       const totalFeedback = control.stats.feedback;
@@ -1614,7 +1231,7 @@ function loadComments() {
             </div>
           </td>
           <td class="">
-            <a data-id="${control.id}" class="btn btn-xs btn-ghost control-modal-btn" href="#">${iconLinkModal}</a>
+            <a data-id="${control.id}" class="btn btn-xs btn-ghost control-modal-btn" onclick="loadControlModal('${control.id}')" href="#">${iconLinkModal}</a>
           </td>
         </tr>
       `);
@@ -1646,8 +1263,7 @@ function loadComments() {
     const control = JSON.parse(localStorage.getItem(`grc-project-${projectId}-control-${controlId}`));
     let subControlsBody = "";
 
-    for (let i in control.subcontrols) {
-      const subcontrol = control.subcontrols[i];
+    for (const subcontrol of control.subcontrols) {
       const completeColor = subcontrol.is_complete ? "green" : "red";
       const reviewColor = getSubControlStatusColor(subcontrol.review_status);
       const evidenceIcon = subcontrol.has_evidence ? iconCheckmark : iconNegative;
@@ -1847,7 +1463,7 @@ function loadComments() {
     `);
   }
 
-  function loadControls(reload=false) {
+  function loadControls() {
     const params = getUrlParams();
     const grouping = params.get("grouping");
     const filter = params.get("filter");
@@ -1895,7 +1511,6 @@ function loadComments() {
 
   function populateOwnerAndOperatorModal(subControlId, controlId) {
     const projectId = "{{project.id}}";
-    const title = "Manage subcontrol Owner and Operator";
     const users = JSON.parse(localStorage.getItem("tenant-users-{{project.tenant_id}}"));
     const control = JSON.parse(localStorage.getItem(`grc-project-${projectId}-control-${controlId}`)); 
     const subcontrol = control.subcontrols.find(subcontrol => subcontrol.id === subControlId);
@@ -1934,14 +1549,126 @@ function loadComments() {
       }
     }
 
-    createModal(subControlId, controlId, title, actions.UPDATE_OWNER_OPERATOR, $newModalBody);
+    const $saveBtn = $("<button>").attr({"data-id": subControlId, "data-control-id": controlId}).addClass(`btn btn-primary ${actions.UPDATE_OWNER_OPERATOR}`).text("Save");
+    $newModalBody.append($saveBtn);
+
+    const title = "Manage subcontrol Owner and Operator";
+
+    createModal(title, $newModalBody);
+  }
+
+  function loadControlModal(id) {
+    const projectId = "{{project.id}}";
+    const control = JSON.parse(localStorage.getItem(`grc-project-${projectId}-control-${id}`));
+    
+    const chartContainerId = `modal-completion-${id}`;
+    
+    const notApplicableWarningBlock = (`
+      <p class="bg-error text-error-content rounded-md p-4">
+        Control has been marked as not applicable and will not be included in the project. If you wish to change this, please view and edit the control.
+      </p>
+    `);
+
+    const controlDetails = (`
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium">Name</dt>
+        <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${control.name}</dd>
+      </div>
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium">Status</dt>
+        <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize text-primary bg-base-200 rounded-md py-1 px-2 font-semibold w-fit">${control.status}</dd>
+      </div>
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium">Description</dt>
+        <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${control.description}</dd>
+      </div>
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium">Subcontrols</dt>
+        <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${control.subcontrol_count}</dd>
+      </div>
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium">Category</dt>
+        <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize">${control.category}</dd>
+      </div>
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium">Subcategory</dt>
+        <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize">${control.subcategory}</dd>
+      </div>
+      <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+        <dt class="text-sm font-medium">Reference Code</dt>
+        <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 uppercase text-primary bg-base-200 rounded-md py-1 px-2 font-semibold w-fit">${control.ref_code}</dd>
+      </div>
+    `);
+
+    const modalBody = (`
+      <div class="grid grid-cols-6 gap-4">
+        <div class="col-span-3">
+          <div class="card border border-base-300">
+            <div class="card-body p-5">
+              <div class="card-title justify-between">
+                <h2 class="card-title text-lg">Applicable</h2>
+                <div>${control.is_applicable ? iconCheckmarkFlare : iconNegativeFlare}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-span-3">
+          <div class="card border border-base-300">
+            <div class="card-body p-5">
+              <div class="card-title justify-between">
+                <h2 class="card-title text-lg">Complete</h2>
+                <div>${control.is_complete ? iconCheckmarkFlare : iconNegativeFlare}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-span-6">
+        ${control.is_applicable ? "" : notApplicableWarningBlock}
+        </div>
+        <div class="col-span-4">
+          <div class="overflow-hidden shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+              <h3 class="text-lg font-medium leading-6">Control Details</h3>
+            </div>
+            <div class="border-t border-base-300">
+              <dl>
+                ${controlDetails}
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="col-span-2 m-auto flex flex-col">
+          <div class="mx-auto">
+            <div id="modal-completion-${id}"></div>
+          </div>
+          <div class="mx-auto mt-2 text-sm font-semibold">Progress of control</div>
+        </div>
+      </div>
+      <div class="modal-action">
+        <a id="view-control" href="/projects/${projectId}/controls/${id}" class="btn btn-primary">View</a>
+      </div>
+    `);
+
+    const title = `${control.id} - ${control.name}`;
+    const modalContainerClass = "relative w-11/12 max-w-5xl";
+    createModal(title, modalBody, modalContainerClass);
+
+    $(`#${chartContainerId}`).html(loadingAnimationBlock);
+    const options = deepCopy(defaultCompletionChartOptions);
+    options.series = [100 - control.progress_implemented, control.progress_implemented];
+    options.plotOptions.pie.donut.labels.total.formatter = () => `${control.progress_implemented}%`;
+    const progressChart = new ApexCharts(document.querySelector(`#${chartContainerId}`), options);
+    setTimeout(() => {
+      $(`#${chartContainerId}`).empty();
+      progressChart.render();
+    }, 100);
   }
 
   /** Endregion: Controls & Subcontrols */
 
   /** Region: Policies */
 
-  function buildPoliciesTable(data) {
+  function buildPoliciesTable(policies) {
     ContentContainer.empty();
     ContentContainer.html(`
       <div class="col-span-9">
@@ -1965,7 +1692,7 @@ function loadComments() {
       </div>
     `);
     
-    if (!data || data.length == 0) {
+    if (!policies || policies.length == 0) {
       ContentContainer.prepend(`
         <div class="alert shadow-lg col-span-9 alert-warning px-8 rounded-md">
           <div>
@@ -1980,10 +1707,8 @@ function loadComments() {
         </div>
       `);
     } else {
-      for (let i in data) {
-        const policy = data[i];
+      for (const policy of policies) {
         const publiclyViewableIcon = policy.public_viewable === true ? iconCheckmark : iconNegative;
-
         ContentTable.getBody().append(`
           <tr>
             <td class="text-sm font-medium whitespace-normal capitalize">${clean(policy.name)}</td>
@@ -2034,13 +1759,13 @@ function loadComments() {
 
   /** Region: Evidence */
 
-  function buildEvidence(data) {
+  function buildEvidence(evidenceData) {
     ContentContainer.empty();
 
     const evidenceOptions = deepCopy(defaultCompletionChartOptions);
-    evidenceOptions.series = [100 - data.evidence_progress, data.evidence_progress];
-    evidenceOptions.plotOptions.pie.donut.labels.total.formatter = () => `${data.evidence_progress}%`;
-    evidenceOptions.chart.height = 350;
+    evidenceOptions.series = [100 - evidenceData.evidence_progress, evidenceData.evidence_progress];
+    evidenceOptions.plotOptions.pie.donut.labels.total.formatter = () => `${evidenceData.evidence_progress}%`;
+    evidenceOptions.chart.height = 300;
 
     const evidenceContainerId = "evidence-progress";
     ContentContainer.append(`
@@ -2061,31 +1786,38 @@ function loadComments() {
     const evidenceChart = new ApexCharts(document.querySelector(`#${evidenceContainerId}`), evidenceOptions);
     
     setTimeout(() => {
-      $evidenceProgressContainer.empty()
+      $evidenceProgressContainer.empty();
       evidenceChart.render();
     }, 100);
 
     ContentContainer.append(`
       <div class="col-span-6">
         <div class="card shadow-md card-body border border-base-300">
-          <div>
-            <h2 class="card-title mb-4">Evidence by Controls</h2>
-            <table class="table table-vcenter" id="${ContentTable.id}" style="width:100%">
-              <thead>
-                <tr>
-                  <th class="bg-base-200">Name</th>
-                  <th class="w-1 bg-base-200"># of Controls</th>
-                </tr>
-              </thead>
-              <tbody id="${ContentTable.bodyId}"></tbody>
-            </table>
+          <div class="justify-between flex">
+            <div>
+              <h2 class="card-title mb-4">Evidence by Controls</h2>
+            </div>
+          </div>
+          <div class="grid grid-cols-6 gap-6">
+            <div class="col-span-6">
+              <div class="overflow-x-auto">
+                <table id="${ContentTable.id}" class="table w-full table-vcenter">
+                  <thead>
+                    <tr>
+                      <th class="w-1 bg-base-200">Name</th>
+                      <th class="w-2 bg-base-200"># of Controls</th>
+                    </tr>
+                  </thead>
+                  <tbody id="${ContentTable.bodyId}"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     `);
 
-    for (let i in data.evidence) {
-      const evidence = data.evidence[i]
+    for (const evidence of evidenceData.evidence) {
       ContentTable.getBody().append(`
         <tr>
           <td class="text-sm font-medium capitalize whitespace-normal">${clean(evidence.name)}</td>
@@ -2094,7 +1826,7 @@ function loadComments() {
       `);
     }
     
-    ContentTable.build({"pageLength":10,"order": [[ 0, "asc" ]]});
+    ContentTable.build({"pageLength": 10, "order": [[ 0, "asc" ]]});
   }
 
   function loadEvidence() {
@@ -2119,406 +1851,808 @@ function loadComments() {
 
   /** Endregion: Evidence */
 
-function loadMembers() {
-  $.ajax({
-    type: "GET",
-    url: "/api/v1/projects/{{project.id}}/members",
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-      $("#card-div").append(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300"><div class="justify-between flex"><div><h2 class="card-title mb-2">Project Members</h2><p class="text-sm font-medium mb-2">Before adding an member to your project, they must be <a class="text-primary underline" href="{{url_for("main.tenant_users")}}">invited to your tenant.</a></p></div><div><button @click="document.getElementById('memberModal').checked = true" class="btn btn-primary">Add Member</button></div></div><div class="grid grid-cols-6 gap-6"><div class="col-span-6"><div class="overflow-x-auto"><table class="table w-full"><thead><tr><th>#</th><th>Email</th><th>Access</th><th>Manage</th></tr></thead><tbody id="members-body"/></table></div></div></div></div></div>`)
-      $(".input-members").empty().trigger('change');
-      $(".input-members").select2();
-      roles = ["manager","contributor","viewer","auditor"];
-      for (var user in data) {
-        var options = "";
-        if (data[user].member) {
-          for(var role in roles) {
-            if (data[user].access_level === roles[role]) {
-              options+=`<option selected="selected" value=${roles[role]}>${roles[role]}</option>`
-            } else {
-              options+=`<option value=${roles[role]}>${roles[role]}</option>`
-            }
-          }
-          $("#members-body").append(`<tr><th>${data[user].id}</th><td class="text-sm font-medium">${data[user].email}</td><td><select @change="updateMemberAccess(${data[user].id})" id="member-${data[user].id}" class="select select-bordered select-sm w-full capitalize">${options}</select></td><td><button @click="removeMember(${data[user].id})" class="btn-xs btn btn-ghost border-base-300 border">Remove</button></td></tr>`)
-        } else {
-          var newOption = new Option(data[user].email, data[user].id, false, false);
-          $('.input-members').append(newOption).trigger('change');
+  /** Region: Responsibility Matrix */
+
+  function buildMatrix(matrixData) {
+    const projectId = "{{project.id}}";
+    ContentContainer.empty();
+
+    const owners = [];
+    const operators = [];
+
+    for (const record of matrixData.responsibility_matrix) {
+      if (parseInt(record.owned_subcontrols) > 0) {
+        owners.push({
+          id: record.user.id,
+          email: record.user.email,
+          subcontrols: record.owned_subcontrols
+        });
+      }
+      if (parseInt(record.operated_subcontrols) > 0) {
+        operators.push({
+          id: record.user.id,
+          email: record.user.email,
+          subcontrols: record.operated_subcontrols
+        });
+      }
+    }
+
+    const ownerTableData = {
+      id: "table-ownership",
+      items: owners,
+      title: "Responsibility Matrix (Owners)",
+      description: "The table below shows who is responsible for the control, grouped by count",
+      missingDescription: "Missing Owners"
+    };
+    const operatorTableData = {
+      id: "table-operators",
+      items: operators,
+      title: "Responsibility Matrix (Operators)",
+      description: "The table below shows who is responsible for executing the control to standards, grouped by count",
+      missingDescription: "Missing Operators"
+    };
+
+    for (const record of [ownerTableData, operatorTableData]) {
+      ContentContainer.append(`<div class="col-span-9">
+        <div class="card shadow-md card-body border border-base-300">
+          <div class="">
+            <h2 class="card-title mb-2">${record.title}</h2>
+            <p class="text-sm">${record.description}</p>
+          </div>
+          <div class="grid grid-cols-6 gap-6">
+            <div class="col-span-6">
+              <div class="overflow-x-auto">
+                <table id="${record.id}" class="table w-full text-sm font-medium">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Email</th>
+                      <th># of Subcontrols</th>
+                      <th>Explore</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      `);
+
+      const buildRow = (id, email, subcontrols, isMissingRow) => {
+        let url = `/projects/${projectId}?tab=${selectOptionsForProjectTabs.CONTROLS}&grouping=${selectOptionsForGrouping.SUBCONTROLS}`;
+        if (record.id == ownerTableData.id) {
+          url += isMissingRow ? "&filter=missing_owner" : `&owner=${email}`;
+        } else if (record.id == operatorTableData.id) {
+          url += isMissingRow ? "&filter=missing_operator" : `&operator=${email}`;
         }
-      }
-      return(data)
-    },
-    error: function(errMsg) {
-        return(errMsg);
-    }
-  })
-}
-function updateMemberAccess(user_id) {
-  $.ajax({
-    type: "PUT",
-    url: `/api/v1/projects/{{project.id}}/members/${user_id}/access`,
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    data: JSON.stringify({"access_level":$(`#member-${user_id}`).val()}),
-    success: function(data){
-      toast("Updated access level")
-    },
-    error: function(errMsg) {
-        toast(errMsg["responseJSON"]["message"],"error")
-        return(errMsg);
-    }
-  })
-}
-function removeMember(user_id) {
-  $.ajax({
-    type: "DELETE",
-    url: `/api/v1/projects/{{project.id}}/members/${user_id}`,
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-      toast("Removed user")
-      loadSettings()
-    },
-    error: function(errMsg) {
-        toast(errMsg["responseJSON"]["message"],"error")
-        return(errMsg);
-    }
-  })
-}
-function addMembers() {
-  disableButton('.add-project-member-btn');
-  $.ajax({
-    type: "POST",
-    url: `/api/v1/projects/{{project.id}}/members`,
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    data: JSON.stringify({"members":$(".input-members").select2('data')}),
-    success: function(data){
-      document.getElementById('memberModal').checked = false;
-      toast("Added members")
-      loadSettings()
-    },
-    error: function(errMsg) {
-        toast(errMsg["responseJSON"]["message"],"error")
-        return(errMsg);
-    },
-    complete: function() {
-      enableButton('.add-project-member-btn');
-    },
-  })
-}
-function loadMatrix() {
-  //load matrix for the project
-  $("#card-div").html(loadingAnimationBlock)
-  $.ajax({
-    type: "GET",
-    url: "/api/v1/projects/{{project.id}}/matrix/summary",
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-      var owners_total = 0;
-      var operators_total = 0;
-      var owners_table_body = "";
-      var operators_table_body = "";
-      for (var record in data.owners) {
-        owners_total += data.owners[record].subcontrols;
-        owners_table_body += `<tr>
-          <th>${data.owners[record].user_id}</th>
-          <td>${data.owners[record].email}</td>
-          <td>${data.owners[record].subcontrols}</td>
-          <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=1&owner=${data.owners[record].email}" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td>
-        </tr>`
-      }
-      for (var record in data.operators) {
-        operators_total += data.operators[record].subcontrols;
-        operators_table_body += `<tr>
-          <th>${data.operators[record].user_id}</th>
-          <td>${data.operators[record].email}</td>
-          <td>${data.operators[record].subcontrols}</td>
-          <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=1&operator=${data.operators[record].email}" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td>
-        </tr>`
-      }
-      if (data.total !== owners_total) {
-        owners_table_body += `<tr class="text-red-500">
-          <th>null</th>
-          <td>Missing Owner</td>
-          <td>${data.total-owners_total}</td>
-          <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=1&owner=Missing" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td>
-        </tr>`
-      }
-      if (data.total !== operators_total) {
-        operators_table_body += `<tr class="text-red-500">
-          <th>null</th>
-          <td>Missing Operator</td>
-          <td>${data.total-operators_total}</td>
-          <td><a target="_blank" rel="noopener noreferrer" href="/projects/{{project.id}}?tab=controls&grouping=subcontrols&filter=1&operator=Missing" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg></a></td>
-        </tr>`
-      }
-      $("#card-div").html("");
-      $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300"><div class=""><h2 class="card-title mb-2">Responsibility Matrix (Owners)</h2><p class="text-sm">The table below shows who is responsible for the control, grouped by count</p></div>
-    <div class="grid grid-cols-6 gap-6">
-      <div class="col-span-6">
-<div class="overflow-x-auto">
-  <table class="table w-full text-sm font-medium">
-    <!-- head -->
-    <thead>
-      <tr>
-        <th></th>
-        <th>Email</th>
-        <th># of Controls</th>
-        <th>Explore</th>
-      </tr>
-    </thead>
-    <tbody>
-    ${owners_table_body}
-    </tbody>
-  </table>
-</div>
-
-      </div>
-    </div>
-</div></div>
-`);
-      $("#card-div").append(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300"><div class=""><h2 class="card-title mb-2">Responsibility Matrix (Operators)</h2><p class="text-sm">The table below shows who is responsible for executing the control to standards, grouped by count</p></div>
-    <div class="grid grid-cols-6 gap-6">
-      <div class="col-span-6">
-<div class="overflow-x-auto">
-  <table class="table w-full text-sm font-medium">
-    <!-- head -->
-    <thead>
-      <tr>
-        <th></th>
-        <th>Email</th>
-        <th># of Controls</th>
-        <th>Explore</th>
-      </tr>
-    </thead>
-    <tbody>
-    ${operators_table_body}
-    </tbody>
-  </table>
-</div>
-
-      </div>
-    </div>
-</div></div>
-`);
-      return(data)
-    },
-    error: function(errMsg) {
-        return(errMsg);
-    }
-  })
-}
-function loadSettings() {
-  {%if is_auditor and not project.can_auditor_read_comments%}
-  toast("You lack permissions to view the settings.","warning")
-  $("#card-div").html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Insufficient Permissions<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 ml-2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0012.016 15a4.486 4.486 0 00-3.198 1.318M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" /></svg></div>')
-  return
-  {%endif%}
-  //load settings for the project
-  $("#card-div").html(loadingAnimationBlock)
-  $.ajax({
-    type: "GET",
-    url: "/api/v1/projects/{{project.id}}",
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-      $("#card-div").html("");
-      $("#card-div").html(`<div class="col-span-9"><div class="card shadow-md card-body border border-base-300"><div class=""><h2 class="card-title mb-4">Project Settings</h2></div>
-    <div class="grid grid-cols-6 gap-6">
-      <div class="col-span-6 sm:col-span-3">
-        <label for="name" class="block text-sm font-medium ">Name</label>
-        <input type="text" name="name" value="${data.name}" id="name" class="mt-1 block border input-md w-full rounded-md border-base-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-      </div>
-
-      <div class="col-span-6 sm:col-span-3">
-        <label for="description" class="block text-sm font-medium ">Description</label>
-        <input type="text" name="description" value="${data.description}" id="description" class="mt-1 block border input-md w-full rounded-md border-base-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-      </div>
-      <div class="col-span-1">
-        <label for="name" class="block text-sm font-medium mb-1">Read ScratchPad (Auditor)</label>
-        <input type="checkbox" id="can_auditor_read_scratchpad" class="toggle toggle-primary" ${data.can_auditor_read_scratchpad ? 'checked' : ''} />
-      </div>
-      <div class="col-span-1">
-        <label for="name" class="block text-sm font-medium mb-1">Write ScratchPad (Auditor)</label>
-        <input type="checkbox" id="can_auditor_write_scratchpad" class="toggle toggle-primary" ${data.can_auditor_write_scratchpad ? 'checked' : ''} />
-      </div>
-      <div class="col-span-1">
-        <label for="name" class="block text-sm font-medium mb-1">Read Comments (Auditor)</label>
-        <input type="checkbox" id="can_auditor_read_comments" class="toggle toggle-primary" ${data.can_auditor_read_comments ? 'checked' : ''} />
-      </div>
-      <div class="col-span-1">
-        <label for="name" class="block text-sm font-medium mb-1">Write Comments (Auditor)</label>
-        <input type="checkbox" id="can_auditor_write_comments" class="toggle toggle-primary" ${data.can_auditor_write_comments ? 'checked' : ''} />
-      </div>
-      <div class="col-span-6">
-        <button class="btn btn-md btn-primary save-btn">Save</button>
-      </div>
-    </div>
-</div></div>
-`);
-      loadMembers()
-      return(data)
-    },
-    error: function(errMsg) {
-        return(errMsg);
-    }
-  })
-}
-
-$(document).on('click', '.save-btn', function() {
-  var data = {
-    "name":$("#name").val(),
-    "description":$("#description").val(),
-    "can_auditor_read_scratchpad":$("#can_auditor_read_scratchpad").is(':checked'),
-    "can_auditor_write_scratchpad":$("#can_auditor_write_scratchpad").is(':checked'),
-    "can_auditor_read_comments":$("#can_auditor_read_comments").is(':checked'),
-    "can_auditor_write_comments":$("#can_auditor_write_comments").is(':checked'),
-  };
-  disableButton('.save-btn');
-  $.ajax({
-    type: "POST",
-    url: `/api/v1/projects/{{project.id}}/settings`,
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    data: JSON.stringify(data),
-    success: function(data){
-      toast("Saved settings")
-    },
-    error: function(errMsg) {
-        toast(errMsg["responseJSON"]["message"],"error")
-        return(errMsg);
-    },
-    complete: function() {
-      enableButton('.save-btn');
-    },
-  })
-});
-
-
-$(document).on('click', '.control-modal-btn', function() {
-  var id = $(this).data('id')
-  $.ajax({
-    type: "GET",
-    url: `/api/v1/projects/{{project.id}}/controls/${id}`,
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-      if (data.is_complete) {
-        $("#complete-modal-icon").html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-success"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>');
-      } else {
-        $("#complete-modal-icon").html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>');
-      }
-      if (data.is_applicable) {
-        $("#applicable-modal-icon").html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-success"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>');
-      } else {
-        $("#applicable-control").html('<p class="bg-error text-error-content rounded-md p-4">Control has been marked as not applicable and will not be included in the project. If you wish to change this, please view and edit the control.</p>')
-        $("#applicable-modal-icon").html('<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-red-600"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>');
-      }
-
-      $("#control-modal-completion").html(`<div id="modal-completion-${id}"></div>`)
-      $("#control-modal-details").html("")
-      $("#control-modal-title").html(`${data.id} - ${data.name}`);
-      $("#control-modal-date").html(data.date_added);
-      var options = {
-            series: [100-data.progress_implemented,data.progress_implemented],
-            legend: {
-              show: false
-            },
-            dataLabels: {
-              enabled: false
-            },
-            chart: {
-              type: 'donut',
-            },
-plotOptions: {
-    pie: {
-      donut: {
-        labels: {
-          show: true,
-        value:{
-          offsetY: -8,
-          color:'#6b6a6e'
-        },
-          total: {
-            show: true,
-            label: '',
-            formatter: () => `${data.progress_implemented}%`
-          }
-        }
-      }
-    }
-  },
-            labels: ['Uncomplete', 'Complete'],
-            fill:{colors:['#f3f4f6', '#4ade80']},
-            responsive: [{
-              breakpoint: 300,
-              options: {
-                chart: {
-                  width: 100
-                }
-              }
-            }]
+        return (`
+          <tr class="${isMissingRow ? "text-red-500" : ""}">
+            <th>${id}</th>
+            <td>${email}</td>
+            <td>${subcontrols}</td>
+            <td>
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href="${url}"
+                class="btn btn-sm btn-ghost"
+              >
+                ${iconLinkNewWindow}
+              </a>
+            </td>
+          </tr>
+        `);
       };
-      new ApexCharts(document.querySelector(`#modal-completion-${id}`), options).render()
-      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Name</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.name}</dd></div>`)
-      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Status</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize text-primary bg-base-200 rounded-md py-1 px-2 font-semibold w-fit">${data.status}</dd></div>`)
-      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Description</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.description}</dd></div>`)
-      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Subcontrols</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">${data.subcontrol_count}</dd></div>`)
-      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Category</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize">${data.category}</dd></div>`)
-      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Subcategory</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 capitalize">${data.subcategory}</dd></div>`)
-      $("#control-modal-details").append(`<div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium">Reference Code</dt><dd class="mt-1 text-sm sm:col-span-2 sm:mt-0 uppercase text-primary bg-base-200 rounded-md py-1 px-2 font-semibold w-fit">${data.ref_code}</dd></div>`)
-    },
-    error: function(errMsg) {
-        return(errMsg);
+      
+      const $tableBody = $(`#${record.id} tbody`);
+
+      let assignedSubcontrols = 0;
+      if (record.items && record.items.length > 0) {
+        for (user of record.items) {
+          assignedSubcontrols += parseInt(user.subcontrols);
+          const userRow = buildRow(user.id, user.email, user.subcontrols, false);
+          $tableBody.append(userRow);
+        }
+      }
+
+      const missingRow = buildRow("-", record.missingDescription , (matrixData.total_project_subcontrols - assignedSubcontrols), true);
+      $tableBody.append(missingRow);
     }
-  })
-  document.getElementById('control-modal').checked = true;
-  $("#view-control").attr("href",`/projects/{{project.id}}/controls/${id}`)
-});
-
-// on load of page
-function loadPageElements(tab) {
-  if(document.getElementById("save-notes-btn")) {
-    saveScratchPad(showToast=false)
   }
 
-  $(".tabs span").removeClass("bg-base-200");
-  $(`#tab-${tab}`).addClass("bg-base-200")
-  if (tab == null) {
-    var tab = "summary"
+  function loadMatrix() {
+    const projectId = "{{project.id}}";
+    ContentContainer.reset();
+    $.ajax({
+      type: "GET",
+      url: apiMap.getProjectResponsibilityMatrixUrl(projectId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data) {
+        buildMatrix(data);
+        return data;
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
+      }
+    });
   }
-  if (tab === "controls") {
-    loadControls(reload=true)
-  } else if (tab === "summary") {
-    loadSummary()
-  } else if (tab === "policies") {
-    loadPolicies()
-  } else if (tab === "evidence") {
-    loadEvidence()
-  } else if (tab === "matrix") {
-    loadMatrix()
-  } else if (tab === "scratchpad") {
-    loadScratchPad()
-  } else if (tab === "comments") {
-    loadComments()
-  } else if (tab === "report") {
-    loadReport()
-  } else if (tab === "settings") {
-    loadSettings()
-  } else {
-    loadSummary();
+
+  /** Endegion: Responsibility Matrix */
+
+  /** Region: Scratchpad */
+
+  function toggleScratchPad(e=false) {
+    if (!e || !e.target.checked) {
+      $(".tox-editor-header").addClass("invisible")
+      $(".tox-editor-header").addClass("!h-0")
+      tinymce.activeEditor.mode.set("readonly");
+    } else {
+      $(".tox-editor-header").removeClass("invisible")
+      $(".tox-editor-header").removeClass("!h-0")
+      tinymce.activeEditor.mode.set("design");
+    }
   }
-  $(".select").val(tab)
-  var queryParams = new URLSearchParams(window.location.search);
-  queryParams.set("tab", tab);
-  history.replaceState(null, null, "?"+queryParams.toString());
-};
-var params = new window.URLSearchParams(window.location.search);
-var tab = params.get('tab');
-loadUsers(reload=true);
-loadPageElements(tab);
-loadQuickFilters();
+
+  function loadScratchPad() {
+    // TODO: This needs decoupling from jinja, it's very hacky */
+    const projectId = "{{project.id}}";
+    const isAuditor = ("{{is_auditor}}" == "True");
+    const canReadScratchpad = ("{{project.can_auditor_read_scratchpad}}" == "True");
+    const canWriteScratchpad = ("{{project.can_auditor_write_scratchpad}}" == "True");
+
+    ContentContainer.reset();
+
+    if (isAuditor && !canReadScratchpad) {
+      toast("User is not authorized to view project notes", "error");
+      ContentContainer.html(insufficientPermissionsBlock);
+      return;
+    }
+
+    $.ajax({
+      type: "GET",
+      url: apiMap.getProjectScratchPadUrl(projectId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        ContentContainer.html(`
+          <div class="col-span-9">
+            <div class="mb-4 justify-between flex">
+              <div>
+                <h1 class="text-2xl font-bold">Scratchpad</h1>
+                <p class="text-sm">
+                  Use this place to document any details about the project or general notes and updates. 
+                  {%if project.can_auditor_read_scratchpad%}The auditor <b>can read</b> the scratchpad.{%else%} The auditor <b>can not read</b> the scratchpad.{%endif%}
+                </p>
+              </div>
+              <div class="gap-x-2 flex flex-row">
+                {%if not is_auditor or project.can_auditor_write_scratchpad%}
+                <div class="mt-1">
+                  <input @change="toggleScratchPad" type="checkbox" class="toggle toggle-primary"/>
+                </div>
+                {%endif%}
+                <button id="save-notes-btn" @click="saveScratchPad" class="btn btn-primary btn-sm">Save</button>
+              </div>
+            </div>
+            <div id="scratchpad-editor" class="w-full">${data["notes"] || ""}</div>
+          </div>
+        `);
+
+        tinymce.remove("#scratchpad-editor");
+
+        const contextEditor = tinymce.init({
+          content_style: "body { margin: 2rem; }",
+          setup: (editor) => {
+            editor.on("init", (e) => {
+              $(".tox-editor-header").addClass("invisible")
+              $(".tox-editor-header").addClass("!h-0")
+            });
+            editor.on('keyup', (e) => {
+              $("#save-notes-btn").html("Save Changes")
+              $("#save-notes-btn").removeClass("btn-primary")
+              $("#save-notes-btn").addClass("btn-warning")
+            });
+          },
+          selector: "#scratchpad-editor",
+          statusbar: false,
+          promotion: false,
+          readonly: true,
+          menubar: (isAuditor && !canWriteScratchpad) ? false : true,
+          toolbar: (isAuditor && !canWriteScratchpad) ? false : "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo",
+          plugins: (isAuditor && !canWriteScratchpad) ? "" : "preview fullscreen searchreplace table codesample lists advlist variable link",
+        });
+        return data;
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
+      }
+    });
+  }
+
+  function saveScratchPad() {
+    const data = { "notes": tinymce.get("scratchpad-editor").getContent() }
+    const projectId = "{{project.id}}";
+
+    $.ajax({
+        type: "PUT",
+        url: apiMap.getProjectScratchPadUrl(projectId),
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function(data) {
+          toast("Project notes updated");
+          $("#save-notes-btn").html("Save")
+          $("#save-notes-btn").removeClass("btn-warning")
+          $("#save-notes-btn").addClass("btn-primary")
+          return data;
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"], "error");
+          return errMsg;
+        }
+    });
+  }
+
+  /** Endregion: Scratchpad */
+
+  /** Region: Comments */
+
+  function loadComments() {
+    // TODO: This needs decoupling from jinja, it's very hacky */
+    const projectId = "{{project.id}}";
+    const tenantId = "{{project.tenant_id}}";
+    const isAuditor = ("{{is_auditor}}" == "True");
+    const canReadComments = ("{{project.can_auditor_read_comments}}" == "True");
+    const canWriteComments = ("{{project.can_auditor_write_comments}}" == "True");
+
+    ContentContainer.reset();
+
+    if (isAuditor && !canReadComments) {
+      toast("User is not authorized to view project comments", "error");
+      ContentContainer.html(insufficientPermissionsBlock);
+      return;
+    }
+
+    $.ajax({
+      type: "GET",
+      url: apiMap.getProjectCommentsUrl(projectId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        ContentContainer.html(`
+          <div class="col-span-9">
+            <div class="mb-4 justify-between flex">
+              <div>
+                <h1 class="text-2xl font-bold">Comments<span id="comment-count" class="ml-2"></span></h1>
+                <p class="text-sm">
+                  Comments are used to discuss generals topics about the project. 
+                  {%if project.can_auditor_read_comments%}The auditor <b>can read</b> the comments.{%else%} The auditor <b>can not read</b> the comments.{%endif%}
+                </p>
+              </div>
+              {%if not auditor or project.project.can_auditor_write_comments%}
+              <div class="my-auto flex justify-between gap-x-2">
+                <button @click="saveComment" class="btn btn-sm btn-primary add-project-comment-btn">Send</button>
+              </div>
+              {%endif%}
+            </div>
+            <div class="mb-5">
+              <textarea id="comment" rows="4" class="textarea textarea-bordered w-full text-sm" placeholder="Write a comment..." required=""></textarea>
+              <div class=" h-[calc(100vh-500px)] overflow-auto px-3" id="comments"></div>
+            </div>
+          </div>
+        `);
+
+        $("#comments").empty();
+        $("#comment-count").html(`(${data.length})`);
+
+        if (data) {
+          $("#comments-title").html(`(${data.length})`);
+        }
+
+        for (comment in data) {
+          addComment(data[comment])
+        }
+        const mentionOptions = [];
+        const users = JSON.parse(localStorage.getItem("tenant-users-{{project.tenant_id}}"));
+        for(let user in users) {
+          mentionOptions.push({key:users[user].email, value:users[user].username})
+        }
+        const tribute = new Tribute({values:mentionOptions});
+        tribute.attach(document.getElementById("comment"));
+
+        },
+        error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"], "error");
+          return errMsg;
+        }
+    })
+  }
+
+  function addComment(comment) {
+    const userId = parseInt("{{current_user.id}}", 10);
+    
+    let submenuBlock = "";
+    if (userId === comment.owner_id) {
+      submenuBlock = (`
+        <div class="dropdown dropdown-end">
+          <label tabindex="0" class="btn btn-sm btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"></path>
+            </svg>
+          </label>
+          <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 text-error">
+            <li>
+              <a @click="deleteComment(${comment.id})">Delete</a>
+            </li>
+          </ul>
+        </div>
+      `);
+    }
+
+    const record = (`
+      <article id="comment-${comment.id}" class="py-6 mb-6 rounded-lg border-b border-base-200">
+        <footer class="flex justify-between items-center mb-2">
+          <div class="flex items-center text-sm">
+            <div class="avatar placeholder mr-2">
+              <div class="bg-neutral-focus text-neutral-content rounded-full w-6">
+                <span class="text-xs uppercase">${comment.author_email[0]}</span>
+              </div>
+            </div>
+            <p class="inline-flex items-center mr-3 text-sm">${comment.author_email}</p>
+            <p class="text-xs font-semibold"><time pubdate="">${comment.date_added}</time></p>
+          </div>
+          ${submenuBlock}
+        </footer>
+        <p class="">${comment.message}</p>
+      </article>
+    `);
+
+    $("#comments").prepend(record);
+  }
+
+  function saveComment(e) {
+    const projectId = "{{project.id}}";
+
+    const value = $("#comment").val();
+    if (!value) {
+      return;
+    }
+
+    disableButton(".add-project-comment-btn");
+
+    $.ajax({
+      type: "POST",
+      url: apiMap.getProjectCommentsUrl(projectId),
+      data: JSON.stringify({"data":value}),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data) {
+        addComment(data);
+        $("#comment").empty();
+        toast("Comment added", "success");
+        loadComments();
+        return data;
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
+      },
+      complete: function() {
+          enableButton(".add-project-comment-btn");
+      },
+    })
+  }
+
+  function deleteComment(commentId) {
+    const projectId = "{{project.id}}";
+    $.ajax({
+      type: "DELETE",
+      url: apiMap.getProjectDeleteCommentUrl(projectId, commentId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        toast("Comment deleted", "success");
+        loadComments();
+        return data;
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
+      }
+    });
+  }
+  
+  /** Endregion: Comments */
+
+  /** Region: Report */
+
+  function createReport() {
+    const projectId = "{{project.id}}";
+    toast("Generating report. This may take a few second.", "warning");
+    $.ajax({
+      type: "POST",
+      url: apiMap.getProjectReportsUrl(projectId),
+      contentType: "application/json; charset=utf-8",
+      success: function(data) {
+        toast("Report successfully generated")
+        window.open(`/projects/${projectId}/reports/${data.name}`, '_blank').focus();
+        return data;
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
+      }
+    });
+  }
+
+  function loadReport() {
+    ContentContainer.html('<div class="col-span-9 mx-auto mt-10 flex flex-row">Coming Soon!</div>');
+  }
+
+  /** Endregion: Report */
+
+  /** Region: Settings */
+
+  function loadSettings() {
+    // TODO: This needs decoupling from jinja, it's very hacky */
+    const projectId = "{{project.id}}";
+    const tenantId = "{{project.tenant_id}}";
+    const isAuditor = ("{{is_auditor}}" == "True");
+
+    ContentContainer.reset();
+
+    if (isAuditor) {
+      toast("User is not authorized to view project settings", "error");
+      ContentContainer.html(insufficientPermissionsBlock);
+      return;
+    }
+
+    $.ajax({
+      type: "GET",
+      url: apiMap.getProjectSettingsUrl(projectId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data) {
+        buildProjectSettings(data);
+        buildProjectMemberTable(data.members);
+        return data;
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        ContentContainer.html(insufficientPermissionsBlock);
+        return errMsg;
+      }
+    });
+  }
+
+  function buildProjectSettings(data) {
+    ContentContainer.empty();
+    ContentContainer.html(`
+      <div class="col-span-9">
+        <div class="card shadow-md card-body border border-base-300">
+          <div class="">
+            <h2 class="card-title mb-4">Project Settings</h2>
+          </div>
+          <div class="grid grid-cols-6 gap-6">
+            <div class="col-span-6 sm:col-span-3">
+              <label for="name" class="block text-sm font-medium ">Name</label>
+              <input type="text" name="name" value="${data.name}" id="name" class="mt-1 block border input-md w-full rounded-md border-base-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+            <div class="col-span-6 sm:col-span-3">
+              <label for="description" class="block text-sm font-medium ">Description</label>
+              <input type="text" name="description" value="${data.description}" id="description" class="mt-1 block border input-md w-full rounded-md border-base-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+            </div>
+            <div class="col-span-1">
+              <label for="name" class="block text-sm font-medium mb-1">Read ScratchPad (Auditor)</label>
+              <input type="checkbox" id="can_auditor_read_scratchpad" class="toggle toggle-primary" ${data.can_auditor_read_scratchpad ? 'checked' : ''} />
+            </div>
+            <div class="col-span-1">
+              <label for="name" class="block text-sm font-medium mb-1">Write ScratchPad (Auditor)</label>
+              <input type="checkbox" id="can_auditor_write_scratchpad" class="toggle toggle-primary" ${data.can_auditor_write_scratchpad ? 'checked' : ''} />
+            </div>
+            <div class="col-span-1">
+              <label for="name" class="block text-sm font-medium mb-1">Read Comments (Auditor)</label>
+              <input type="checkbox" id="can_auditor_read_comments" class="toggle toggle-primary" ${data.can_auditor_read_comments ? 'checked' : ''} />
+            </div>
+            <div class="col-span-1">
+              <label for="name" class="block text-sm font-medium mb-1">Write Comments (Auditor)</label>
+              <input type="checkbox" id="can_auditor_write_comments" class="toggle toggle-primary" ${data.can_auditor_write_comments ? 'checked' : ''} />
+            </div>
+            <div class="col-span-6">
+              <button @click="updateProjectSettings" class="btn btn-md btn-primary save-btn">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
+  }
+
+  function buildProjectMemberTable(members) {
+    const tenantId = "{{project.tenant_id}}";
+
+    ContentContainer.append(`
+      <div class="col-span-9">
+        <div class="card shadow-md card-body border border-base-300">
+          <div class="justify-between flex">
+            <div>
+              <h2 class="card-title mb-2">Project Members</h2>
+              <p class="text-sm font-medium mb-2">Before adding an member to your project, they must be <a class="text-primary underline" href="{{url_for("main.tenant_users")}}">invited to your tenant.</a></p>
+            </div>
+            <div>
+              <button @click="openAddMemberModal" class="btn btn-primary">Add Member</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-6 gap-6">
+            <div class="col-span-6">
+              <div class="overflow-x-auto">
+                <table class="table w-full">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Email</th>
+                      <th>Access</th>
+                      <th>Manage</th>
+                    </tr>
+                  </thead>
+                  <tbody id="members-body"/>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
+
+    for (const user of members) {
+      let options = "";
+      for(const accessLevel of projectMemberAccessLevels) {
+        options += `<option ${user.access_level === accessLevel ? `selected="selected"` : ""} value=${accessLevel}>${accessLevel}</option>`;
+      }
+      $("#members-body").append(`
+        <tr>
+          <td>${user.id}</td>
+          <td class="text-sm font-medium">${user.email}</td>
+          <td>
+            <select @change="updateMemberAccess(${user.id})" id="member-${user.id}" class="select select-bordered select-sm w-full capitalize">
+              ${options}
+            </select>
+          </td>
+          <td>
+            <button @click="removeMember(${user.id})" class="btn-xs btn btn-ghost border-base-300 border">Remove</button>
+          </td>
+        </tr>
+      `);
+    }
+
+    
+  }
+
+  function updateProjectSettings() {
+    const projectId = "{{project.id}}";
+    const data = {
+      "name": $("#name").val(),
+      "description": $("#description").val(),
+      "can_auditor_read_scratchpad": $("#can_auditor_read_scratchpad").is(":checked"),
+      "can_auditor_write_scratchpad": $("#can_auditor_write_scratchpad").is(":checked"),
+      "can_auditor_read_comments": $("#can_auditor_read_comments").is(":checked"),
+      "can_auditor_write_comments": $("#can_auditor_write_comments").is(":checked"),
+    };
+
+    disableButton(".save-btn");
+
+    $.ajax({
+      type: "POST",
+      url: apiMap.getProjectSettingsUrl(projectId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify(data),
+      success: function(data) {
+        toast("Project settings updated");
+      },
+      error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"], "error");
+          return errMsg;
+      },
+      complete: function() {
+        enableButton(".save-btn");
+      },
+    });
+  }
+
+  function openAddMemberModal() {
+    const tenantId = "{{project.tenant_id}}";
+    const tenantUsers = JSON.parse(localStorage.getItem(`tenant-users-${tenantId}`));
+    const currentMemberUserIds = [];
+
+    const title = "Add tenant members to this project"
+    const containerClass = "modal-box w-8/12 max-w-4xl";
+    const modalBody = (`
+      <div id="memberModalBody">
+        <div class="grid grid-cols-6 gap-6">
+          <div class="col-span-6">
+            <label for="input-members" class="block font-medium mb-2">Select at least one user from available list of tenant members.</label>
+            <select id="input-members" class="input-members select-md w-full mb-6 select-bordered" name="members[]" multiple="multiple"></select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-action">
+        <button @click="addMembers" class="btn btn-primary add-project-member-btn">Save</button>
+      </div>
+    `);
+
+    createModal(title, modalBody, containerClass);
+    const $inputMembers = $(".input-members");
+    $inputMembers.empty().trigger("change");
+    $inputMembers.select2({width: '100%'});
+
+    $("#members-body tr").each(function(){
+      const userId = $(this).find("td:first").text().trim();
+      currentMemberUserIds.push(parseInt(userId, 10));
+    });
+
+    for (const tenantUser of tenantUsers) {
+      const isProjectMember = currentMemberUserIds.includes(tenantUser.id);
+      if (!isProjectMember) {
+        const newOption = new Option(tenantUser.email, tenantUser.id, false, false);
+        $inputMembers.append(newOption).trigger("change");
+      }
+    }
+  }
+
+  function addMembers() {
+    const projectId = "{{project.id}}";
+    const selectData = $(".input-members").select2("data");
+    const membersToAdd = [];
+
+    for (const option of selectData) {
+      membersToAdd.push({
+        id: option.id,
+        email: option.text
+      });
+    }
+
+    if (membersToAdd.length === 0) {
+      toast("Nothing to add, please select from the list of available tenant user(s) first", "warning");
+      return;
+    }
+    
+    disableButton(".add-project-member-btn");
+
+    $.ajax({
+      type: "POST",
+      url: apiMap.getProjectAddMemberUrl(projectId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify({ "members": membersToAdd }),
+      success: function() {
+        toast("New member added to the project", "success");
+        destroyModal();
+        loadSettings();
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+      },
+      complete: function() {
+        enableButton(".add-project-member-btn");
+      },
+    });
+  }
+
+  function removeMember(userId) {
+    const projectId = "{{project.id}}";
+    $.ajax({
+      type: "DELETE",
+      url: apiMap.getProjectRemoveMemberUrl(projectId,  userId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data){
+        toast("User removed from the project");
+        loadSettings();
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
+      }
+    });
+  }
+
+  function updateMemberAccess(userId) {
+    const projectId = "{{project.id}}";
+    $.ajax({
+      type: "PUT",
+      url: apiMap.getProjectUpdateMemberAccessLevelUrl(projectId, userId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      data: JSON.stringify({"access_level":$(`#member-${userId}`).val()}),
+      success: function(data) {
+        toast("Updated access level")
+      },
+      error: function(errMsg) {
+          toast(errMsg["responseJSON"]["message"], "error");
+          return errMsg;
+      }
+    })
+  }
+
+  /** Endregion: Settings */
+
+  /** Region: Page */
+
+  function loadUsers() {
+    const tenantId = "{{project.tenant_id}}";
+    const users = localStorage.getItem(`tenant-users-${tenantId}`);
+
+    $.ajax({
+      type: "GET",
+      url: apiMap.getTenantUsersUrl(tenantId),
+      contentType: "application/json; charset=utf-8",
+      dataType: "json",
+      success: function(data) {
+        localStorage.setItem(`tenant-users-${tenantId}`, JSON.stringify(data));
+      },
+      error: function(errMsg) {
+        toast(errMsg["responseJSON"]["message"], "error");
+        return errMsg;
+      }
+    });
+  }
+
+  function loadPageElements(tab) {
+    $(".tabs span").removeClass("bg-base-200");
+    $(`#tab-${tab}`).addClass("bg-base-200");
+
+    switch(tab) {
+      case(selectOptionsForProjectTabs.CONTROLS):
+        loadControls();
+        break;
+      case(selectOptionsForProjectTabs.POLICIES):
+        loadPolicies();
+        break;
+      case(selectOptionsForProjectTabs.EVIDENCE):
+        loadEvidence();
+        break;
+      case(selectOptionsForProjectTabs.RESPONSIBILITY_MATRIX):
+        loadMatrix();
+        break;
+      case(selectOptionsForProjectTabs.SCRATCHPAD):
+        loadScratchPad();
+        break;
+      case(selectOptionsForProjectTabs.COMMENTS):
+        loadComments();
+        break;
+      case(selectOptionsForProjectTabs.REPORT):
+        loadReport();
+        break;
+      case(selectOptionsForProjectTabs.SETTINGS):
+        loadSettings();
+        break;
+      default:
+        tab = selectOptionsForProjectTabs.SUMMARY;
+        loadSummary();
+    }
+
+    $("#select-project-tab").val(tab);
+    
+    const params = getUrlParams();
+    params.set("tab", tab);
+    setUrlParams(params);
+  };
+
+  /** Endregion: Page */
+
+  /** Region: init */
+
+  const params = getUrlParams();
+  const tab = params.get("tab");
+  loadUsers();
+  buildTabNavigation(tab);
+  loadPageElements(tab);
+  loadQuickFilters();
+
+  /** Endregion: init */
+
 </script>
 {%endblock%}

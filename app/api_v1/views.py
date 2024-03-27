@@ -1,8 +1,7 @@
 from typing import List, Optional
 
-from flask import abort, current_app, jsonify, make_response, render_template, request, session
+from flask import abort, current_app, jsonify, render_template, request, session
 from flask_login import current_user
-from sqlalchemy import func
 
 from . import api
 from app import models, db
@@ -11,18 +10,29 @@ from app.service import (
     AuthorizationService,
     EvidenceService,
     ProjectService,
-    ProjectService,
+    ProjectCommentService,
     ProjectControlService,
     ProjectSubControlService,
-    ProjectPolicyService
+    ProjectPolicyService,
+    ProjectReportService,
+    ProjectMemberService
 )
 from app.utils.authorizer import Authorizer
-from app.utils.custom_errors import CustomError
+from app.utils.custom_errors import ValidationError
 from app.utils.decorators import login_required
-from app.utils.enums import FileType, ProjectControlsFilter, ProjectSubControlsFilter
-from app.utils.misc import get_content_type_for_extension, get_file_type_by_extensions, get_users_from_text, project_creation
+from app.utils.enums import (
+    FileType,
+    ProjectControlsFilter,
+    ProjectRoles,
+    ProjectSubControlsFilter
+)
+from app.utils.misc import (
+    get_content_type_for_extension,
+    get_file_type_by_extensions,
+    get_users_from_text,
+    project_creation
+)
 from app.utils.notification_service import NotificationService
-from app.utils.reports import Report
 
 @api.route('/health', methods=['GET'])
 def get_health():
@@ -150,72 +160,200 @@ def get_frameworks(id):
         data.append(framework.as_dict())
     return jsonify(data)
 
-@api.route('/projects/<int:id>/reports', methods=['POST'])
+@api.route('/tenants/<int:tenant_id>/projects', methods=['GET'])
 @login_required
-def generate_report_for_project(id):
-    result = Authorizer(current_user).can_user_read_project(id)
-    report = Report().generate(result["extra"]["project"])
-    return jsonify({"name": report})
+def get_projects_in_tenant(tenant_id: int):
+    AuthorizationService(current_user).can_user_access_tenant(tenant_id)
+    projects: List[dict] = ProjectService.get_tenant_project_summaries(tenant_id)
+    return jsonify(projects)
 
-@api.route('/projects/<int:id>/scratchpad', methods=['GET'])
+@api.route('/projects/<int:project_id>', methods=['GET'])
 @login_required
-def get_scratchpad_for_project(id):
-    result = Authorizer(current_user).can_user_read_project_scratchpad(id)
-    return jsonify({"notes": result["extra"]["project"].notes})
+def get_project_summary(project_id: int):
+    AuthorizationService(current_user).can_user_access_project(project_id)
+    result = ProjectService.get_project_summary(project_id)
+    return jsonify(result)
 
-@api.route('/projects/<int:id>/scratchpad', methods=["PUT"])
+@api.route('/projects/<int:project_id>/controls', methods=['GET'])
 @login_required
-def update_scratchpad_for_project(id):
-    result = Authorizer(current_user).can_user_write_project_scratchpad(id)
+def get_controls_for_project(project_id: int):
+    AuthorizationService(current_user).can_user_view_project_controls(project_id)
+    filter = request.args.get("filter")
+    extra_filter = filter if filter is not None and filter in ProjectControlsFilter.values() else None
+    result = ProjectControlService.get_project_control_summary(project_id, extra_filter)
+    return jsonify(result)
+
+@api.route('/projects/<int:project_id>/subcontrols', methods=['GET'])
+@login_required
+def get_subcontrols_for_project(project_id: int):
+    AuthorizationService(current_user).can_user_view_project_subcontrols(project_id)
+    
+    filter = request.args.get("filter")
+    by_owner = request.args.get("owner")
+    by_operator = request.args.get("operator")
+
+    extra_filters = {}
+    if filter and filter in ProjectSubControlsFilter.values():
+        extra_filters['filter'] = filter
+    if by_owner:
+        extra_filters['owner'] = by_owner
+    if by_operator:
+        extra_filters['operator'] = by_operator
+        
+    result: List[dict] = ProjectSubControlService.get_project_subcontrol_summary(project_id, extra_filters)
+    return jsonify(result)
+
+@api.route('/projects/<int:project_id>/policies', methods=['GET'])
+@login_required
+def get_policies_for_project(project_id: int):
+    AuthorizationService(current_user).can_user_view_project_policies(project_id)
+    result = ProjectPolicyService.get_project_policies_summary(project_id)
+    return jsonify(result)
+
+@api.route('/projects/<int:project_id>/evidence', methods=['GET'])
+@login_required
+def get_project_evidence_summary(project_id: int):
+    AuthorizationService(current_user).can_user_view_project_evidence(project_id)
+    result = EvidenceService.get_project_evidence_summary(project_id)
+    return jsonify(result)
+
+@api.route('/projects/<int:project_id>/matrix', methods=['GET'])
+@login_required
+def get_resp_matrix_summary_for_project(project_id: int):
+    AuthorizationService(current_user).can_user_view_project_responsibility_matrix(project_id)
+    result = ProjectMemberService.get_project_responsibility_matrix(project_id)
+    return jsonify(result)
+
+@api.route('/projects/<int:project_id>/scratchpad', methods=['GET'])
+@login_required
+def get_scratchpad_for_project(project_id: int):
+    AuthorizationService(current_user).can_user_view_project_notes(project_id)
+    result = ProjectService.get_project_notes(project_id)
+    return jsonify({'notes': result})
+
+@api.route('/projects/<int:project_id>/scratchpad', methods=['PUT'])
+@login_required
+def update_scratchpad_for_project(project_id: int):
+    AuthorizationService(current_user).can_user_update_project_notes(project_id)
+    payload = request.get_json()
+    ProjectService.update_project_notes(project_id, payload['notes'])
+    return jsonify({'message': 'ok'})
+
+@api.route('/projects/<int:project_id>/comments', methods=['GET'])
+@login_required
+def get_comments_for_project(project_id: int):
+    AuthorizationService(current_user).can_user_view_project_comments(project_id)
+    result = ProjectCommentService.get_project_comments(project_id)
+    return jsonify(result)
+
+@api.route('/projects/<int:project_id>/comments', methods=['POST'])
+@login_required
+def add_comment_for_project(project_id: int):
+    AuthorizationService(current_user).can_user_create_project_comment(project_id)
+
     data = request.get_json()
-    result["extra"]["project"].notes = data["data"]
-    db.session.commit()
-    return jsonify({"message": "ok"})
+    message =  data.get('data')
+    if not message:
+        raise ValidationError('Comment is empty')
+    
+    result = ProjectCommentService.add_comment(project_id, message)
+    return jsonify(result)
 
-@api.route('/projects/<int:id>/comments', methods=["POST"])
+@api.route('/projects/<int:project_id>/comments/<int:comment_id>', methods=['DELETE'])
 @login_required
-def add_comment_for_project(id):
-    result = Authorizer(current_user).can_user_write_project_comments(id)
+def delete_comment_for_project(project_id: int, comment_id: int):
+    AuthorizationService(current_user).can_user_delete_project_comment(project_id, comment_id)
+    ProjectCommentService.remove_comment(comment_id)
+    return jsonify({'message':'ok'})
+
+@api.route('/projects/<int:project_id>/reports', methods=['POST'])
+@login_required
+def generate_report_for_project(project_id: int):
+    AuthorizationService(current_user).can_user_generate_project_reports(project_id)
+    result = ProjectReportService.generate_project_report(project_id)
+    return jsonify({'name': result})
+
+@api.route('/projects/<int:project_id>/settings', methods=['GET'])
+@login_required
+def get_project_settings(project_id: int):
+    AuthorizationService(current_user).can_user_access_project_settings(project_id)
+    result = ProjectService.get_project_settings(project_id)
+    return jsonify(result)
+
+@api.route('/projects/<int:project_id>/settings', methods=['POST'])
+@login_required
+def update_project_settings(project_id: int):
+    AuthorizationService(current_user).can_user_update_project_settings(project_id)
+   
+    payload = request.get_json()    
+    name = payload.get('name')
+    description = payload.get('description')
+    can_read_scratchpad = payload.get('can_auditor_read_scratchpad')
+    can_write_scratchpad = payload.get('can_auditor_write_scratchpad')
+    can_read_comments = payload.get('can_auditor_read_comments')
+    can_write_comments = payload.get('can_auditor_write_comments')
+    project_update_data = {
+        'name': name if isinstance(name, str) and len(name) > 3 else None,
+        'description': description if isinstance(name, str) else "",
+        'can_auditor_read_scratchpad': can_read_scratchpad if isinstance(can_read_scratchpad, bool) else None,
+        'can_auditor_write_scratchpad': can_write_scratchpad if isinstance(can_write_scratchpad, bool) else None,
+        'can_auditor_read_comments': can_read_comments if isinstance(can_read_comments, bool) else None,
+        'can_auditor_write_comments': can_write_comments if isinstance(can_write_comments, bool) else None,
+    }
+    
+    ProjectService.update_project_settings(project_id, project_update_data)
+    return jsonify({'message': 'ok'})
+
+
+@api.route('/projects/<int:project_id>/members', methods=['POST'])
+@login_required
+def add_members_for_project(project_id: int):
+    AuthorizationService(current_user).can_user_manage_project_members(project_id)
+    
+    payload = request.get_json()
+    if not payload['members']:
+        raise ValidationError('No new members submitted')
+    
+    new_members = []
+    for entry in payload['members']:
+        try:
+            entry_id = int(entry.get('id'))
+            if not entry_id or entry_id <= 0:
+                raise ValidationError("Invalid or missing user ID")
+            if (
+                not isinstance(entry.get('email'), str) or 
+                len(entry['email']) < 5 or 
+                '@' not in entry['email'] or 
+                '.' not in entry['email']
+            ):
+                raise ValidationError("Invalid email format")
+        except (ValueError, TypeError):
+            raise ValidationError("Invalid ID format or missing ID")
+        
+        new_members.append({'id': entry_id, 'email': entry['email']})
+
+    ProjectMemberService.add_project_members(project_id, new_members)
+    return jsonify({'message': 'ok'})
+
+@api.route('/projects/<int:project_id>/members/<int:user_id>/access', methods=['PUT'])
+@login_required
+def update_access_level_for_user_in_project(project_id: int, user_id: int):
+    AuthorizationService(current_user).can_user_manage_project_members(project_id)
     data = request.get_json()
-    if not data.get("data"):
-        return jsonify({"message": "empty comment"}), 400
-    comment = models.ProjectComment(message=data["data"], owner_id=current_user.id)
-    result["extra"]["project"].comments.append(comment)
-    db.session.commit()
-    NotificationService.send_email_to_users_tagged_in_project_comment(data["data"], result["extra"]["project"])
-    return jsonify(comment.as_dict())
 
-@api.route('/projects/<int:pid>/comments/<int:cid>', methods=["DELETE"])
-@login_required
-def delete_comment_for_project(pid, cid):
-    result = Authorizer(current_user).can_user_delete_project_comment(pid, cid)
-    db.session.delete(result["extra"]["comment"])
-    db.session.commit()
-    return jsonify({"message":"ok"})
+    new_access_level = data['access_level']
+    if not new_access_level and new_access_level not in ProjectRoles.values():
+        raise ValidationError('Invalid or missing access level')
+    
+    ProjectMemberService.update_project_member_access_level(project_id, user_id, new_access_level)
+    return jsonify({'message': 'ok'})
 
-@api.route('/projects/<int:pid>/comments', methods=['GET'])
+@api.route('/projects/<int:project_id>/members/<int:user_id>', methods=['DELETE'])
 @login_required
-def get_comments_for_project(pid):
-    result = Authorizer(current_user).can_user_read_project_comments(pid)
-    data = [comment.as_dict() for comment in result["extra"]["project"].comments.order_by(models.ProjectComment.id.asc()).all()]
-    return jsonify(data)
-
-@api.route('/projects/<int:pid>/matrix/summary', methods=['GET'])
-@login_required
-def get_resp_matrix_summary_for_project(pid):
-    result = Authorizer(current_user).can_user_access_project(pid)
-    data = {"total": 0, "owners": [], "operators": []}
-    _query = result["extra"]["project"].subcontrols(as_query=True)
-    data["total"] = _query.count()
-    for record in _query.with_entities(models.ProjectSubControl.operator_id, func.count(models.ProjectSubControl.operator_id)).group_by(models.ProjectSubControl.operator_id).all():
-        if record[0]:
-            if user := models.User.query.get(record[0]):
-                data["operators"].append({"email":user.email,"user_id":user.id,"subcontrols":record[1]})
-    for record in _query.with_entities(models.ProjectSubControl.owner_id, func.count(models.ProjectSubControl.owner_id)).group_by(models.ProjectSubControl.owner_id).all():
-        if record[0]:
-            if user := models.User.query.get(record[0]):
-                data["owners"].append({"email":user.email,"user_id":user.id,"subcontrols":record[1]})
-    return jsonify(data)
+def delete_user_from_project(project_id: int, user_id: int):
+    AuthorizationService(current_user).can_user_manage_project_members(project_id)
+    ProjectMemberService.remove_project_member(project_id, user_id)
+    return jsonify({'message': 'ok'})
 
 @api.route('/projects/<int:pid>/matrix/users/<int:uid>', methods=['GET'])
 @login_required
@@ -228,56 +366,6 @@ def get_resp_matrix_for_user(pid, uid):
     data["owner"] = [x.as_dict() for x in _query.filter(models.ProjectSubControl.owner_id == uid).all()]
     data["operator"] = [x.as_dict() for x in _query.filter(models.ProjectSubControl.operator_id == uid).all()]
     return jsonify(data)
-
-@api.route('/projects/<int:pid>/members')
-@login_required
-def get_members_for_project(pid):
-    result = Authorizer(current_user).can_user_access_project(pid)
-    project = result["extra"]["project"]
-    users = []
-    for user in project.tenant.users():
-        record = {"id":user.id,"email":user.email,"member":False}
-        if member := project.has_member(user):
-            record["member"] = True
-            record["access_level"] = member.access_level
-        users.append(record)
-    return jsonify(users)
-
-@api.route('/projects/<int:pid>/members', methods=['POST'])
-@login_required
-def add_members_for_project(pid):
-    result = Authorizer(current_user).can_user_manage_project(pid)
-    data = request.get_json()
-    for user in data["members"]:
-        if user := models.User.query.get(user["id"]):
-            result["extra"]["project"].add_member(user)
-    
-    NotificationService.send_added_to_project_notification(
-        result['extra']['project'],
-        [member.get("text") for member in data["members"] if member.get("text")]
-    )
-    return jsonify({"message": "ok"})
-
-@api.route('/projects/<int:pid>/members/<int:uid>/access', methods=['PUT'])
-@login_required
-def update_access_level_for_user_in_project(pid, uid):
-    result = Authorizer(current_user).can_user_manage_project(pid)
-    data = request.get_json()
-    member = result["extra"]["project"].update_member_access(uid, data["access_level"])
-
-    NotificationService.send_member_project_access_level_change_notification(
-        result['extra']['project'],
-        member.user.email,
-        data['access_level']
-    )
-    return jsonify({"message": "ok"})
-
-@api.route('/projects/<int:pid>/members/<int:uid>', methods=['DELETE'])
-@login_required
-def delete_user_from_project(pid, uid):
-    result = Authorizer(current_user).can_user_manage_project(pid)
-    result["extra"]["project"].remove_member(models.User.query.get(uid))
-    return jsonify({"message": "ok"})
 
 @api.route('/tenants', methods=['GET'])
 @login_required
@@ -508,13 +596,6 @@ def delete_user_in_tenant(uid, tid):
     result["extra"]["tenant"].remove_user(result["extra"]["user"])
     return jsonify({"message": "ok"})
 
-@api.route('/projects/<int:pid>', methods=['GET'])
-@login_required
-def project(pid):
-    AuthorizationService(current_user).can_user_access_project(pid)
-    result: dict = ProjectService.get_project_summary(pid)
-    return jsonify(result)
-
 @api.route('/projects/<int:pid>', methods=['DELETE'])
 @login_required
 def delete_project(pid):
@@ -697,13 +778,6 @@ def control(cid):
     result = Authorizer(current_user).can_user_read_control(cid)
     return jsonify(result["extra"]["control"].as_dict())
 
-@api.route('/tenants/<int:tid>/projects', methods=['GET'])
-@login_required
-def get_projects_in_tenant(tid):
-    AuthorizationService(current_user).can_user_access_tenant(tid)
-    projects: List[dict] = ProjectService.get_tenant_project_summaries(tid)
-    return jsonify(projects)
-
 @api.route('/tenants/<int:tid>/projects', methods=['POST'])
 @login_required
 def create_project(tid):
@@ -713,62 +787,6 @@ def create_project(tid):
     if not result:
         return jsonify({"message": "failed to create project"}), 400
     return jsonify({"message": "ok"})
-
-@api.route('/projects/<int:pid>/settings', methods=['POST'])
-@login_required
-def update_settings_in_project(pid):
-    result = Authorizer(current_user).can_user_manage_project(pid)
-    data = request.get_json()
-    if data.get("name"):
-        result["extra"]["project"].name = data["name"]
-    if data.get("description"):
-        result["extra"]["project"].description = data["description"]
-    if type(data.get("can_auditor_read_scratchpad")) is bool:
-        result["extra"]["project"].can_auditor_read_scratchpad = data["can_auditor_read_scratchpad"]
-    if type(data.get("can_auditor_write_scratchpad")) is bool:
-        result["extra"]["project"].can_auditor_write_scratchpad = data["can_auditor_write_scratchpad"]
-    if type(data.get("can_auditor_read_comments")) is bool:
-        result["extra"]["project"].can_auditor_read_comments = data["can_auditor_read_comments"]
-    if type(data.get("can_auditor_write_comments")) is bool:
-        result["extra"]["project"].can_auditor_write_comments = data["can_auditor_write_comments"]
-    db.session.commit()
-    return jsonify({"message": "ok"})
-
-@api.route('/projects/<int:project_id>/subcontrols', methods=['GET'])
-@login_required
-def get_subcontrols_for_project(project_id):
-    AuthorizationService(current_user).can_user_view_project_subcontrols(project_id)
-    
-    filter = request.args.get("filter")
-    by_owner = request.args.get("owner")
-    by_operator = request.args.get("operator")
-
-    extra_filters = {}
-    if filter and filter in ProjectSubControlsFilter.values():
-        extra_filters['filter'] = filter
-    if by_owner:
-        extra_filters['owner'] = by_owner
-    if by_operator:
-        extra_filters['operator'] = by_operator
-        
-    result: List[dict] = ProjectSubControlService.get_project_subcontrol_summary(project_id, extra_filters)
-    return jsonify(result)
-
-@api.route('/projects/<int:project_id>/controls', methods=['GET'])
-@login_required
-def get_controls_for_project(project_id):
-    AuthorizationService(current_user).can_user_view_project_controls(project_id)
-    filter = request.args.get("filter")
-    extra_filter = filter if filter is not None and filter in ProjectControlsFilter.values() else None
-    result = ProjectControlService.get_project_control_summary(project_id, extra_filter)
-    return jsonify(result)
-
-@api.route('/projects/<int:project_id>/policies', methods=['GET'])
-@login_required
-def get_policies_for_project(project_id):
-    AuthorizationService(current_user).can_user_view_project_policies(project_id)
-    result = ProjectPolicyService.get_project_policies_summary(project_id)
-    return jsonify(result)
 
 @api.route('/projects/<int:pid>/policies/<int:ppid>', methods=['GET'])
 @login_required
@@ -945,13 +963,6 @@ def delete_label_for_tenant(tid, lid):
     db.session.delete(result["extra"]["label"])
     db.session.commit()
     return jsonify({"message": "ok"})
-
-@api.route('/projects/<int:project_id>/evidence', methods=['GET'])
-@login_required
-def project_evidence_summary(project_id):
-    AuthorizationService(current_user).can_user_view_project_evidence(project_id)
-    result = EvidenceService.get_project_evidence_summary(project_id)
-    return jsonify(result)
 
 @api.route('/projects/<int:pid>/evidence/controls', methods=['GET'])
 @login_required
