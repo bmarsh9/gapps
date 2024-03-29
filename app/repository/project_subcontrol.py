@@ -1,4 +1,5 @@
 from typing import Dict, List, Optional, Tuple, Union
+import traceback
 
 from flask import current_app
 from flask_login import current_user
@@ -205,3 +206,28 @@ class ProjectSubControlRepository:
         except SQLAlchemyError:
             current_app.logger.error(f'Postgres READ operation failed failed for user({current_user.id})')
             raise PostgresError('An error occurred while attempting to fetch project subcontrols with summaries.')
+
+    @staticmethod
+    def reset_subcontrol_ownership(project_id: int, user_id: int) -> None:
+        try:
+            (
+                db.session.query(ProjectSubControl)
+                    .filter(
+                        ProjectSubControl.project_id == project_id,
+                        ProjectSubControl.owner_id == user_id
+                    )
+                    .update({ProjectSubControl.owner_id: None})
+            )
+            (
+                db.session.query(ProjectSubControl)
+                    .filter(
+                        ProjectSubControl.project_id == project_id,
+                        ProjectSubControl.operator_id == user_id
+                    )
+                    .update({ProjectSubControl.operator_id: None})
+            )
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(traceback.format_exc())
+            raise PostgresError('An error occurred while attempting to reset subcontrol ownership')

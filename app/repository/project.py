@@ -58,7 +58,7 @@ class ProjectRepository:
     @staticmethod
     def update_project_notes(project_id: int, notes: str):
         try:
-            Project.query.filter_by(id=project_id).update({'notes': notes})
+            Project.query.filter_by(id=project_id).update({Project.notes: notes})
             db.session.commit()
         except Exception as e:
             db.session.rollback()
