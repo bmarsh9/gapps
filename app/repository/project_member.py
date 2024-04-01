@@ -64,7 +64,7 @@ class ProjectMemberRepository:
             ProjectMember.query.filter_by(
                 project_id=project_id,
                 user_id=user_id
-            ).update({'access_level': access_level})
+            ).update({ProjectMember.access_level: access_level})
             db.session.commit()
         except Exception as e:
             db.session.rollback()

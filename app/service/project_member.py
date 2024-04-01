@@ -51,3 +51,4 @@ class ProjectMemberService:
     @staticmethod
     def remove_project_member(project_id: int, user_id: int) -> None:
         ProjectMemberRepository.delete_project_member(project_id, user_id)
+        ProjectSubControlRepository.reset_subcontrol_ownership(project_id, user_id)
