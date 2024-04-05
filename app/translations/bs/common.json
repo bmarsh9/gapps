@@ -1,0 +1,5 @@
+{
+    "yes": "Da",
+    "no": "Ne",
+    "injection_test": "Ovo je prevedeni string sa 3 zamjenske varijable: %letter_a%, %word_hello%, %1.52342%%"
+}

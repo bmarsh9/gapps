@@ -33,7 +33,7 @@
     {% block include_jquery %}
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
     {% import "helpers/src_macros.html" as macro %}
-    {{ macro.filehelper(toasts=True,sanitize=True) }}
+    {{ macro.filehelper(toasts=True,sanitize=True,apimap=True) }}
     {% endblock %}
     {% block before_head %}
     {% endblock %}
@@ -296,15 +296,12 @@
                 </svg>
               </button>
               {%endif%}
+
+
               <div title="Change Theme" class="dropdown dropdown-end">
                 <div tabindex="0" class="btn btn-sm gap-1 normal-case btn-ghost">
                   <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-4 w-4 stroke-current">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
-                      ></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
                   </svg>
                   <span class="hidden md:inline">Theme</span>
                   <svg width="12px" height="12px" class="ml-1 hidden h-3 w-3 fill-current opacity-60 sm:inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
@@ -333,6 +330,23 @@
                   </div>
                 </div>
               </div>
+
+              <div title="Select Language" class="dropdown dropdown-end">
+                <div tabindex="0" class="btn btn-sm gap-1 normal-case btn-ghost">                  
+                  <svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="inline-block h-4 w-4 stroke-current" fill="none" >
+                    <circle cx="12" cy="12" r="10"/> <path stroke-linecap="round" d="M12,22 C14.6666667,19.5757576 16,16.2424242 16,12 C16,7.75757576 14.6666667,4.42424242 12,2 C9.33333333,4.42424242 8,7.75757576 8,12 C8,16.2424242 9.33333333,19.5757576 12,22 Z"/>
+                    <path stroke-linecap="round" d="M2.5 9L21.5 9M2.5 15L21.5 15"/>
+                  </svg>              
+                  <span class="hidden md:inline">Language</span>
+                  <svg width="12px" height="12px" class="ml-1 hidden h-3 w-3 fill-current opacity-60 sm:inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048">
+                    <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+                  </svg>
+                </div>
+                <div class="dropdown-content bg-base-200 text-base-content rounded-t-box rounded-b-box top-px max-h-96 h-[13vh] w-52 overflow-y-auto shadow-2xl mt-16">
+                  <div id="languages-dropdown-container" class="grid grid-cols-1 gap-3 p-3" tabindex="0"></div>
+                </div>
+              </div>
+
               <div class="items-center hidden space-x-3 md:flex">
                 <!-- Roles Menu -->
                 <div class="relative" x-data="{ isOpen: false }">
@@ -530,6 +544,7 @@
             console.log("setup init")
             //setTenant()
             //loadTenantSelections()
+            loadLanguages();
           },
           isLoading: true,
           isSidebarOpen: sidebarOpen,
@@ -587,6 +602,108 @@
       };
     </script>
 <script>
+
+/** Region: Language **/
+
+const flagUK = (`
+  <svg xmlns="http://www.w3.org/2000/svg" id="flag-icons-gb" viewBox="0 0 640 480">
+    <path fill="#012169" d="M0 0h640v480H0z"/>
+    <path fill="#FFF" d="m75 0 244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0z"/>
+    <path fill="#C8102E" d="m424 281 216 159v40L369 281zm-184 20 6 35L54 480H0zM640 0v3L391 191l2-44L590 0zM0 0l239 176h-60L0 42z"/>
+    <path fill="#FFF" d="M241 0v480h160V0zM0 160v160h640V160z"/>
+    <path fill="#C8102E" d="M0 193v96h640v-96zM273 0v480h96V0z"/>
+  </svg>
+`);
+
+const flagBosnia = (`
+  <svg xmlns="http://www.w3.org/2000/svg" id="flag-icons-ba" viewBox="0 0 640 480">
+    <defs>
+      <clipPath id="ba-a">
+        <path fill-opacity=".7" d="M-85.3 0h682.6v512H-85.3z"/>
+      </clipPath>
+    </defs>
+    <g fill-rule="evenodd" clip-path="url(#ba-a)" transform="translate(80)scale(.9375)">
+      <path fill="#009" d="M-85.3 0h682.6v512H-85.3z"/>
+      <path fill="#FC0" d="m56.5 0 511 512.3V.3z"/>
+      <path fill="#FFF" d="M439.9 481.5 412 461.2l-28.6 20.2 10.8-33.2-28.2-20.5h35l10.8-33.2 10.7 33.3h35l-28 20.7zm81.3 10.4-35-.1-10.7-33.3-10.8 33.2h-35l28.2 20.5-10.8 33.2 28.6-20.2 28 20.3-10.5-33zM365.6 384.7l28-20.7-35-.1-10.7-33.2-10.8 33.2-35-.1 28.2 20.5-10.8 33.3 28.6-20.3 28 20.4zm-64.3-64.5 28-20.6-35-.1-10.7-33.3-10.9 33.2h-34.9l28.2 20.5-10.8 33.2 28.6-20.2 27.9 20.3zm-63.7-63.6 28-20.7h-35L220 202.5l-10.8 33.2h-35l28.2 20.4-10.8 33.3 28.6-20.3 28 20.4-10.5-33zm-64.4-64.3 28-20.6-35-.1-10.7-33.3-10.9 33.2h-34.9L138 192l-10.8 33.2 28.6-20.2 27.9 20.3-10.4-33zm-63.6-63.9 27.9-20.7h-35L91.9 74.3 81 107.6H46L74.4 128l-10.9 33.2L92.1 141l27.8 20.4zm-64-64 27.9-20.7h-35L27.9 10.3 17 43.6h-35L10.4 64l-11 33.3L28.1 77l27.8 20.4zm-64-64L9.4-20.3h-35l-10.7-33.3L-47-20.4h-35L-53.7 0l-10.8 33.2L-35.9 13l27.8 20.4z"/>
+    </g>
+  </svg>
+`);
+
+const langData = {
+  "en": {
+    label: "English",
+    flag: flagUK
+  },
+  "bs": {
+    label: "Bosanski",
+    flag: flagBosnia
+  }
+}
+
+function builLanguagesSelectorOptions(data) {
+  const usersLanguage = getUsersLanguage()
+  const $languagesDropdownContainer = $("#languages-dropdown-container");
+
+  for(const lang of data.languages) {
+    $languagesDropdownContainer.append(`
+      <div class="outline-base-content overflow-hidden rounded-lg outline-2 outline-offset-2 ${lang == usersLanguage ? "outline" : ""}" data-act-class="outline" onclick="setUserLocale('${lang}')">
+        <div class="bg-base-100 text-base-content w-full cursor-pointer font-sans">
+          <div class="grid grid-cols-5 grid-rows-3">
+            <div class="col-span-5 row-span-3 row-start-1 flex gap-1 py-3 px-4">
+              <div class="flex-grow text-sm font-bold">${langData[lang].label}</div>
+              <div class="bg-ghost w-6 rounded">${langData[lang].flag}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `);
+  }
+}
+
+function loadLanguages() {
+  $.ajax({
+    type: "GET",
+    url: apiMap.getLanguagesUrl(),
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    success: function(data) {
+      builLanguagesSelectorOptions(data);
+    },
+    error: function(errMsg) {
+      toast("Failed to acquire available languages", "error");
+      return errMsg;
+    }
+  });
+}
+
+function setUserLocale(selectedLanguage) {
+  if (selectedLanguage === getUsersLanguage()) {
+    return;
+  }
+  $.ajax({
+    type: "PUT",
+    url: apiMap.getUpdateUserLocaleUrl(),
+    contentType: "application/json; charset=utf-8",
+    dataType: "json",
+    data: JSON.stringify({"locale": selectedLanguage}),
+    success: function() {
+      window.location.reload();
+    },
+    error: function(errMsg) {
+      toast("Failed to update use's preferred language", "error");
+      return errMsg;
+    }
+  });
+}
+
+function getUsersLanguage() {
+  const userLocale = "{{current_user.locale}}";
+  return userLocale.length > 2 ? userLocale.substring(0, 2) : userLocale 
+}
+
+/** Endregion: Language **/
+
     function getTenant() {
       if (!localStorage.getItem("tenant")) {
         return {}

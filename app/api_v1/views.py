@@ -15,7 +15,8 @@ from app.service import (
     ProjectSubControlService,
     ProjectPolicyService,
     ProjectReportService,
-    ProjectMemberService
+    ProjectMemberService,
+    UserService
 )
 from app.utils.authorizer import Authorizer
 from app.utils.custom_errors import ValidationError
@@ -50,6 +51,19 @@ def set_session(id):
     session["tenant-id"] = result["extra"]["tenant"].id
     session["tenant-uuid"] = result["extra"]["tenant"].uuid
     return jsonify({"message":"ok"})
+
+@api.route('/languages', methods=['GET'])
+@login_required
+def get_available_languages():
+    return jsonify({"languages": current_app.config['LANGUAGES']})
+
+@api.route('/locale', methods=['PUT'])
+@login_required
+def set_user_locale():
+    data = request.get_json()
+    new_locale = data.get("locale")
+    UserService.update_user_locale(new_locale)
+    return jsonify({"message": "ok"})
 
 @api.route('/tenants/<int:id>', methods=['DELETE'])
 @login_required

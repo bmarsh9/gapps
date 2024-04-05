@@ -1247,6 +1247,8 @@ class User(LogMixin, db.Model, UserMixin):
     last_password_change = db.Column(db.DateTime())
     first_name = db.Column(db.String(100), nullable=False, server_default='')
     last_name = db.Column(db.String(100), nullable=False, server_default='')
+    locale = db.Column(db.String(), nullable=False, server_default='en')
+
     super = db.Column(db.Boolean(), nullable=False, server_default='0')
     built_in = db.Column(db.Boolean(), default=False)
     can_user_create_tenant = db.Column(db.Boolean(), nullable=False, server_default='1')
@@ -1488,6 +1490,9 @@ class User(LogMixin, db.Model, UserMixin):
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
+    
+    def get_locale(self) -> str:
+        return self.locale
 
 class PolicyLabel(LogMixin, db.Model):
     __tablename__ = 'policy_labels'

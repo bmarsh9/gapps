@@ -1,5 +1,8 @@
 from typing import List, Optional, Tuple, Union
+import traceback
 
+from flask import current_app
+from flask_login import current_user
 from sqlalchemy import func
 
 from app import db
@@ -7,12 +10,23 @@ from app.models import (
     ProjectSubControl,
     User
 )
+from app.utils.custom_errors import PostgresError
 
 class UserRepository:
 
     @staticmethod
     def get_user_email(user_id: int) -> Optional[str]:
         return User.query.with_entities(User.email).filter_by(id=user_id).scalar()
+    
+    @staticmethod
+    def update_user_locale(new_locale) -> None:
+        try:
+            User.query.filter_by(id=current_user.id).update({User.locale: new_locale})
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(traceback.format_exc())
+            raise PostgresError('Failed to update user locale')
 
     @staticmethod
     def get_project_user_responsibility_matrix(project_id: int) -> List[Tuple[str, Union[int, str]]]:

@@ -1,6 +1,9 @@
 const apiUrl = `${location.protocol}//${location.host}/api/v1`;
 
 const apiMap = {
+  getLanguagesUrl: () => `${apiUrl}/languages`,
+  getUpdateUserLocaleUrl: () => `${apiUrl}/locale`,
+
   getTenantUsersUrl: (tenantId) => `${apiUrl}/tenants/${tenantId}/users`,
 
   getProjectSummaryUrl: (projectId) => `${apiUrl}/projects/${projectId}`,
@@ -17,6 +20,8 @@ const apiMap = {
   getProjectAddMemberUrl: (projectId) => `${apiUrl}/projects/${projectId}/members`,
   getProjectRemoveMemberUrl: (projectId, userId) => `${apiUrl}/projects/${projectId}/members/${userId}`,
   getProjectUpdateMemberAccessLevelUrl: (projectId, userId) => `${apiUrl}/projects/${projectId}/members/${userId}/access`,
+
+  getProjectControlSummaryUrl: (projectId, controlId) => `${apiUrl}/projects/${projectId}/controls/${controlId}`,
   
   getUpdateOwnerOperatorUrl: (projectId, subControlId) => `${apiUrl}/project-controls/${projectId}/subcontrols/${subControlId}`,
 }

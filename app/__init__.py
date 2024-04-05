@@ -1,15 +1,16 @@
-from flask import current_app, Flask, jsonify, render_template, request
 import json
 
+from flask import current_app, Flask, jsonify, render_template, request
 from flask_babel import Babel
+from flask_login import current_user
 
 from app.db import db
+from app.localization import load_translations, translate
 from app.login import login
 from app.utils.custom_errors import CustomError
 from config import config
 
-
-babel = Babel()
+babel = Babel(configure_jinja=True)
 
 def create_app(config_name="default"):
     app = Flask(__name__)
@@ -19,6 +20,8 @@ def create_app(config_name="default"):
     configure_models(app)
     registering_blueprints(app)
     configure_extensions(app)
+    # Babel must be the last middleware to init
+    configure_babel(app)
 
     @app.errorhandler(Exception)
     def handle_error(error):
@@ -83,7 +86,6 @@ def configure_models(app):
 
 def configure_extensions(app):
     db.init_app(app)
-    babel.init_app(app)
     login.init_app(app)
     return
 
@@ -97,3 +99,14 @@ def registering_blueprints(app):
     from app.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
     return
+
+def configure_babel(app):
+    babel.init_app(app)
+
+    @babel.localeselector
+    def get_locale():
+        return getattr(current_user, 'locale', 'en')
+    
+    app.babel_localeselector = get_locale
+    app.babel_translations = load_translations(app)
+    app.jinja_env.globals.update(_t=translate)

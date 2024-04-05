@@ -25,9 +25,17 @@ class AuthorizationError(CustomError):
         super().__init__(message, status)
 
 # 404 NOT FOUND
+        
+class LocaleNotFound(CustomError):
+    def __init__(self, message="Locale not found", status=HttpResponseStatus.NOT_FOUND):
+        super().__init__(message, status)
 
 class ProjectCommentNotFound(CustomError):
     def __init__(self, message="Project comment not found", status=HttpResponseStatus.NOT_FOUND):
+        super().__init__(message, status)
+
+class ProjectControlNotFound(CustomError):
+    def __init__(self, message="Project control not found", status=HttpResponseStatus.NOT_FOUND):
         super().__init__(message, status)
 
 class ProjectNotFound(CustomError):

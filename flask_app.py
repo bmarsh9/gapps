@@ -1,6 +1,7 @@
-from app import create_app
-import os
 import logging
+import os
+
+from app import create_app
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 app.logger.setLevel(logging.INFO)
