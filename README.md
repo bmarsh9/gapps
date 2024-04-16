@@ -91,6 +91,13 @@ MAIL_SUPPRESS_SEND : default app.testing
 MAIL_ASCII_ATTACHMENTS : default False
 ```
 
+##### Hostname
+Set your ENV instance hostname so that invites and emails will have the correct URL. The forward slash at the end of the URL is required!
+
+```
+HOST_NAME=https://your-host.com/
+```
+
 ### Supported frameworks
 + SOC2
 + CMMC
