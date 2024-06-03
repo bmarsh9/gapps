@@ -67,6 +67,12 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        run: |
+          curl -sSL https://github.com/sigstore/cosign/releases/download/v2.2.4/cosign-linux-amd64 > /usr/local/bin/cosign
+          chmod +x /usr/local/bin/cosign
+
       - name: Sign the published Docker image
         if: ${{ github.event_name != 'pull_request' }}
         env:
@@ -115,6 +121,12 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        run: |
+          curl -sSL https://github.com/sigstore/cosign/releases/download/v2.2.4/cosign-linux-amd64 > /usr/local/bin/cosign
+          chmod +x /usr/local/bin/cosign
 
       - name: Sign the published Docker image
         if: ${{ github.event_name != 'pull_request' }}
