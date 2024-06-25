@@ -295,7 +295,7 @@ function loadUsers(reload=false) {
       console.log("Pulling users from API")
       $.ajax({
         type: "GET",
-        url: `/api/v1//tenants/{{project.tenant_id}}/users`,
+        url: `/api/v1/tenants/{{project.tenant_id}}/users`,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function(data){
