@@ -36,7 +36,7 @@ else
   if [ "$SKIP_INI_CHECKS" == "yes" ]; then
     echo "[INFO] Skipping the health checks for database"
     echo "[INFO] Starting the server with ${GUNICORN_WORKERS:-1} workers"
-    gunicorn --bind 0.0.0.0:5000 flask_app:app --access-logfile '-' --error-logfile "-" --workers="${GUNICORN_WORKERS:-1}" --threads="${GUNICORN_THREADS:-0}"
+    gunicorn --bind 0.0.0.0:5000 flask_app:app --access-logfile '-' --error-logfile "-" --workers="${GUNICORN_WORKERS:-1}" --threads="${GUNICORN_THREADS:-0}" --timeout="${GUNICORN_TIMEOUT:-60}" --keep-alive="${GUNICORN_KEEP_ALIVE:-60}"
   else
     # check if we can connect to the db
     until python3 tools/check_db_connection.py
@@ -65,6 +65,6 @@ else
     fi
     # start the app with gunicorn
     echo "[INFO] Starting the server with ${GUNICORN_WORKERS:-1} workers"
-    gunicorn --bind 0.0.0.0:5000 flask_app:app --access-logfile '-' --error-logfile "-" --workers="${GUNICORN_WORKERS:-1}" --threads="${GUNICORN_THREADS:-0}"
+    gunicorn --bind 0.0.0.0:5000 flask_app:app --access-logfile '-' --error-logfile "-" --workers="${GUNICORN_WORKERS:-1}" --threads="${GUNICORN_THREADS:-0}" --timeout="${GUNICORN_TIMEOUT:-60}" --keep-alive="${GUNICORN_KEEP_ALIVE:-60}"
   fi
 fi
