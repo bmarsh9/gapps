@@ -1,7 +1,6 @@
 from datetime import datetime as dt
 from secrets import token_urlsafe
-from flask import flash, redirect, url_for
-
+from flask import flash, redirect, url_for, current_app, request
 from flask_babel import lazy_gettext as _l
 from flask_login import login_user, current_user
 from flask_dance.consumer.storage.sqla import SQLAlchemyStorage
