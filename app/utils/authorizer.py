@@ -17,7 +17,7 @@ class Authorizer:
         self.ds = ds
 
     def return_response(self, ok, msg, code=200, **kwargs):
-        data = {**{"ok": ok, "message":msg, "code": code}, "extra": {**kwargs}}
+        data = {**{"ok": ok, "message": msg, "code": code}, "extra": {**kwargs}}
         if self.bubble_errors or ok:
             return data
         abort(code, data)
@@ -59,7 +59,7 @@ class Authorizer:
         return False
 
     def _can_user_read_tenant(self, tenant):
-        if self.user.super or self.user.id == tenant.owner_id or self.user.has_any_role_for_tenant(tenant, ["admin", "editor","viewer"]):
+        if self.user.super or self.user.id == tenant.owner_id or self.user.has_any_role_for_tenant(tenant, ["admin", "editor", "viewer"]):
             return True
         return False
 
@@ -143,7 +143,7 @@ class Authorizer:
         if not (label := self.id_to_obj("PolicyLabels", label)):
             return self.return_response(False, "policy label not found", 404)
         if self.user == label.owner_id or self._can_user_manage_tenant(label.tenant):
-            return self.return_response(True, AUTHORIZED_MSG, 200, tag=tag)
+            return self.return_response(True, AUTHORIZED_MSG, 200, label=label)
         return self.return_response(False, UNAUTHORIZED_MSG, 403)
 
     # tenant controls
@@ -364,11 +364,11 @@ class Authorizer:
             return self.return_response(False, UNAUTHORIZED_MSG, 403)
         if not (subcontrol := self.id_to_obj("ProjectSubControl", subcontrol)):
             return self.return_response(False, "subcontrol not found", 404)
-        if self._can_user_admin_tenant(subcontrol.p_control.project.tenant) and status.lower() in ["not started","infosec action","ready for auditor","action required","complete"]:
+        if self._can_user_admin_tenant(subcontrol.p_control.project.tenant) and status.lower() in ["not started", "infosec action", "ready for auditor", "action required", "complete"]:
             return self.return_response(True, AUTHORIZED_MSG, 200, subcontrol=subcontrol)
-        if self._can_user_audit_project(subcontrol.p_control.project) and status.lower() in ["action required","complete"]:
+        if self._can_user_audit_project(subcontrol.p_control.project) and status.lower() in ["action required", "complete"]:
             return self.return_response(True, AUTHORIZED_MSG, 200, subcontrol=subcontrol)
-        elif self._can_user_edit_project(subcontrol.p_control.project) and status.lower() in ["not started","infosec action","ready for auditor"]:
+        elif self._can_user_edit_project(subcontrol.p_control.project) and status.lower() in ["not started", "infosec action", "ready for auditor"]:
             return self.return_response(True, AUTHORIZED_MSG, 200, subcontrol=subcontrol)
         return self.return_response(False, UNAUTHORIZED_MSG, 403)
 
@@ -410,7 +410,7 @@ class Authorizer:
     def can_user_manage_project_subcontrol_auditor_feedback(self, feedback):
         if not (feedback := self.id_to_obj("AuditorFeedback", feedback)):
             return self.return_response(False, "feedback not found", 404)
-        if self._can_user_audit_project(subcontrol.p_control.project):
+        if self._can_user_audit_project(feedback.subcontrol.p_control.project):
             return self.return_response(True, AUTHORIZED_MSG, 200, feedback=feedback)
         return self.return_response(False, UNAUTHORIZED_MSG, 403)
 
