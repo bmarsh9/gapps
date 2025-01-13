@@ -269,6 +269,53 @@ You can generate an API token by viewing the following route in your browsers
 
 And here is how you use the token to authenticate (curl as an example)
 
+
+## Deployment Instructions
+
+This section provides detailed instructions for deploying the Gapps application using Helm, a package manager for Kubernetes.
+
+### Prerequisites
+Before proceeding with the deployment, ensure you have the following prerequisites met:
+- A Kubernetes cluster set up and running.
+- Helm installed on your local machine.
+- Access to the Kubernetes cluster with appropriate permissions.
+
+### Deployment Steps
+Follow these steps to deploy the Gapps application using Helm:
+
+1. **Add the Helm Repository** (if your chart is hosted on a Helm repository):
+   ```shell
+   helm repo add <repo_name> <repo_url>
+   helm repo update
+   ```
+
+2. **Deploy the Helm Chart**:
+   Navigate to the directory containing the `gapps-chart` and run the following command:
+   ```shell
+   helm upgrade --install gapps ./gapps-chart -f ./gapps-chart/values.yaml
+   ```
+   Replace `gapps` with your desired release name. Adjust the values in `values.yaml` as necessary for your environment.
+
+3. **Verify the Deployment**:
+   Check the status of the deployment:
+   ```shell
+   helm list
+   kubectl get pods
+   ```
+   Ensure that all the pods are running and the application is deployed successfully.
+
+### Post-Deployment Configuration
+After deploying the application, you might need to perform additional configuration steps, such as setting up ingress controllers, configuring persistent storage, or other environment-specific settings.
+
+### Troubleshooting Tips
+If you encounter issues during the deployment, consider the following tips:
+- Check the Helm chart's configuration in `values.yaml` for any errors or misconfigurations.
+- Use `kubectl describe` to get more information about the pods and identify any issues.
+- Refer to the Helm and Kubernetes documentation for more detailed troubleshooting guidelines.
+
+For further assistance, please refer to the [FAQ section](#faq) or raise an issue in the project's GitHub repository.
+
+
 ```
 TOKEN="TOKEN HERE"
 curl <gapps-host>/api/v1/tenants -H "token: $TOKEN"

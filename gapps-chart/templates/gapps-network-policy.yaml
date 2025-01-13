@@ -1,0 +1,34 @@
+{{- if .Values.gapps.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: gapps-network-policy
+spec:
+  podSelector:
+    matchLabels:
+      app: gapps
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from: []  # Allows all incoming traffic, adjust as necessary
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: postgres
+      ports:
+        - protocol: TCP
+          port: 5432
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53  # Port for DNS
+    - to: []  # Allows all outbound SMTP traffic
+      ports:
+        - protocol: TCP
+          port: 587  # SMTP port (replace with your email server's port)
+{{- end }}

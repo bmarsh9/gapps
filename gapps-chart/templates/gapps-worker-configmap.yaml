@@ -1,0 +1,9 @@
+{{- if .Values.gappsWorker.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gapps-worker-config
+data:
+  WORKER_CONCURRENCY: "{{ .Values.gappsWorker.config.WORKER_CONCURRENCY }}"
+  WORKER_LOG_LEVEL: "{{ .Values.gappsWorker.config.WORKER_LOG_LEVEL }}"
+{{- end }}
