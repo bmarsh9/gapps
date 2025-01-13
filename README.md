@@ -1,8 +1,6 @@
 # Gapps
-###  💰 Please [consider supporting the project](https://www.buymeacoffee.com/bmarsh/membership)
 
-
-:cloud: Try the [SaaS app](https://gapps.darkbanner.com/)  
+:cloud: Try the [SaaS app](https://gapps.darkbanner.com/) (will be removed soon) 
 :snowflake: View the [Gapps site](https://web-gapps.pages.dev/)
 
 
