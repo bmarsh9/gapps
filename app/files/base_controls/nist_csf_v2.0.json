@@ -1,0 +1,747 @@
+[
+  {
+    "name": "Organisational Context",
+    "ref_code": "GV.OC",
+    "category": "Govern (GV)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "sub_controls": [
+      {
+        "ref_code": "GV.OC-01",
+        "name": "The organisational mission is understood and informs cybersecurity risk management",
+        "description": "The organisational mission is understood and informs cybersecurity risk management"
+      },
+      {
+        "ref_code": "GV.OC-02",
+        "name": "Internal and external stakeholders are understood, and their needs and expectations regarding cybersecurity risk management are understood and considered",
+        "description": "Internal and external stakeholders are understood, and their needs and expectations regarding cybersecurity risk management are understood and considered"
+      },
+      {
+        "ref_code": "GV.OC-03",
+        "name": "Legal, regulatory, and contractual requirements regarding cybersecurity — including privacy and civil liberties obligations — are understood and managed",
+        "description": "Legal, regulatory, and contractual requirements regarding cybersecurity — including privacy and civil liberties obligations — are understood and managed"
+      },
+      {
+        "ref_code": "GV.OC-04",
+        "name": "Critical objectives, capabilities, and services that external stakeholders depend on or expect from the organisation are understood and communicated",
+        "description": "Critical objectives, capabilities, and services that external stakeholders depend on or expect from the organisation are understood and communicated"
+      },
+      {
+        "ref_code": "GV.OC-05",
+        "name": "Outcomes, capabilities, and services that the organisation depends on are understood and communicated",
+        "description": "Outcomes, capabilities, and services that the organisation depends on are understood and communicated"
+      }
+    ]
+  },
+  {
+    "name": "Risk Management Strategy",
+    "ref_code": "GV.RM",
+    "category": "Govern (GV)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "GV.RM-01",
+        "name": "Risk management objectives are established and agreed to by organisational stakeholders",
+        "description": "Risk management objectives are established and agreed to by organisational stakeholders"
+      },
+      {
+        "ref_code": "GV.RM-02",
+        "name": "Risk appetite and risk tolerance statements are established, communicated, and maintained",
+        "description": "Risk appetite and risk tolerance statements are established, communicated, and maintained"
+      },
+      {
+        "ref_code": "GV.RM-03",
+        "name": "Cybersecurity risk management activities and outcomes are included in enterprise risk management processes",
+        "description": "Cybersecurity risk management activities and outcomes are included in enterprise risk management processes"
+      },
+      {
+        "ref_code": "GV.RM-04",
+        "name": "Strategic direction that describes appropriate risk response options is established and communicated",
+        "description": "Strategic direction that describes appropriate risk response options is established and communicated"
+      },
+      {
+        "ref_code": "GV.RM-05",
+        "name": "Lines of communication across the organisation are established for cybersecurity risks, including risks from suppliers and other third parties",
+        "description": "Lines of communication across the organisation are established for cybersecurity risks, including risks from suppliers and other third parties"
+      },
+      {
+        "ref_code": "GV.RM-06",
+        "name": "A standardised method for calculating, documenting, categorising, and prioritising cybersecurity risks is established and communicated",
+        "description": "A standardised method for calculating, documenting, categorising, and prioritising cybersecurity risks is established and communicated"
+      },
+      {
+        "ref_code": "GV.RM-07",
+        "name": "Strategic opportunities (i.e., positive risks) are characterised and are included in organisational cybersecurity risk discussions",
+        "description": "Strategic opportunities (i.e., positive risks) are characterised and are included in organisational cybersecurity risk discussions"
+      }
+    ]
+  },
+  {
+    "name": "Roles, Responsibilities, and Authorities",
+    "ref_code": "GV.RR",
+    "category": "Govern (GV)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "GV.RR-01",
+        "name": "Organisational leadership is responsible and accountable for cybersecurity risk and fosters a culture that is risk-aware, ethical, and continually improving",
+        "description": "Organisational leadership is responsible and accountable for cybersecurity risk and fosters a culture that is risk-aware, ethical, and continually improving"
+      },
+      {
+        "ref_code": "GV.RR-02",
+        "name": "Roles, responsibilities, and authorities related to cybersecurity risk management are established, communicated, understood, and enforced",
+        "description": "Roles, responsibilities, and authorities related to cybersecurity risk management are established, communicated, understood, and enforced"
+      },
+      {
+        "ref_code": "GV.RR-03",
+        "name": "Adequate resources are allocated commensurate with the cybersecurity risk strategy, roles, responsibilities, and policies",
+        "description": "Adequate resources are allocated commensurate with the cybersecurity risk strategy, roles, responsibilities, and policies"
+      },
+      {
+        "ref_code": "GV.RR-04",
+        "name": "Cybersecurity is included in human resources practices",
+        "description": "Cybersecurity is included in human resources practices"
+      }
+    ]
+  },
+  {
+    "name": "Policy",
+    "ref_code": "GV.PO",
+    "category": "Govern (GV)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "GV.PO-01",
+        "name": "Policy for managing cybersecurity risks is established based on organisational context, cybersecurity strategy, and priorities and is communicated and enforced",
+        "description": "Policy for managing cybersecurity risks is established based on organisational context, cybersecurity strategy, and priorities and is communicated and enforced"
+      },
+      {
+        "ref_code": "GV.PO-02",
+        "name": "Policy for managing cybersecurity risks is reviewed, updated, communicated, and enforced to reflect changes in requirements, threats, technology, and organisational mission",
+        "description": "Policy for managing cybersecurity risks is reviewed, updated, communicated, and enforced to reflect changes in requirements, threats, technology, and organisational mission"
+      }
+    ]
+  },
+  {
+    "name": "Oversight",
+    "ref_code": "GV.OV",
+    "category": "Govern (GV)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "GV.OV-01",
+        "name": "Cybersecurity risk management strategy outcomes are reviewed to inform and adjust strategy and direction",
+        "description": "Cybersecurity risk management strategy outcomes are reviewed to inform and adjust strategy and direction"
+      },
+      {
+        "ref_code": "GV.OV-02",
+        "name": "The cybersecurity risk management strategy is reviewed and adjusted to ensure coverage of organisational requirements and risks",
+        "description": "The cybersecurity risk management strategy is reviewed and adjusted to ensure coverage of organisational requirements and risks"
+      },
+      {
+        "ref_code": "GV.OV-03",
+        "name": "Organisational cybersecurity risk management performance is evaluated and reviewed for adjustments needed",
+        "description": "Organisational cybersecurity risk management performance is evaluated and reviewed for adjustments needed"
+      }
+    ]
+  },
+  {
+    "name": "Cybersecurity Supply Chain Risk Management",
+    "ref_code": "GV.SC",
+    "category": "Govern (GV)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "GV.SC-01",
+        "name": "A cybersecurity supply chain risk management program, strategy, objectives, policies, and processes are established and agreed to by organisational stakeholders",
+        "description": "A cybersecurity supply chain risk management program, strategy, objectives, policies, and processes are established and agreed to by organisational stakeholders"
+      },
+      {
+        "ref_code": "GV.SC-02",
+        "name": "Cybersecurity roles and responsibilities for suppliers, customers, and partners are established, communicated, and coordinated internally and externally",
+        "description": "Cybersecurity roles and responsibilities for suppliers, customers, and partners are established, communicated, and coordinated internally and externally"
+      },
+      {
+        "ref_code": "GV.SC-03",
+        "name": "Cybersecurity supply chain risk management is integrated into cybersecurity and enterprise risk management, risk assessment, and improvement processes",
+        "description": "Cybersecurity supply chain risk management is integrated into cybersecurity and enterprise risk management, risk assessment, and improvement processes"
+      },
+      {
+        "ref_code": "GV.SC-04",
+        "name": "Suppliers are known and prioritised by criticality",
+        "description": "Suppliers are known and prioritised by criticality"
+      },
+      {
+        "ref_code": "GV.SC-05",
+        "name": "Requirements to address cybersecurity risks in supply chains are established, prioritised, and integrated into contracts and other types of agreements with suppliers and other relevant third parties",
+        "description": "Requirements to address cybersecurity risks in supply chains are established, prioritised, and integrated into contracts and other types of agreements with suppliers and other relevant third parties"
+      },
+      {
+        "ref_code": "GV.SC-06",
+        "name": "Planning and due diligence are performed to reduce risks before entering into formal supplier or other third-party relationships",
+        "description": "Planning and due diligence are performed to reduce risks before entering into formal supplier or other third-party relationships"
+      },
+      {
+        "ref_code": "GV.SC-07",
+        "name": "The risks posed by a supplier, their products and services, and other third parties are understood, recorded, prioritised, assessed, responded to, and monitored over the course of the relationship",
+        "description": "The risks posed by a supplier, their products and services, and other third parties are understood, recorded, prioritised, assessed, responded to, and monitored over the course of the relationship"
+      },
+      {
+        "ref_code": "GV.SC-08",
+        "name": "Relevant suppliers and other third parties are included in incident planning, response, and recovery activities",
+        "description": "Relevant suppliers and other third parties are included in incident planning, response, and recovery activities"
+      },
+      {
+        "ref_code": "GV.SC-09",
+        "name": "Supply chain security practices are integrated into cybersecurity and enterprise risk management programs, and their performance is monitored throughout the technology product and service life cycle",
+        "description": "Supply chain security practices are integrated into cybersecurity and enterprise risk management programs, and their performance is monitored throughout the technology product and service life cycle"
+      },
+      {
+        "ref_code": "GV.SC-10",
+        "name": "Cybersecurity supply chain risk management plans include provisions for activities that occur after the conclusion of a partnership or service agreement",
+        "description": "Cybersecurity supply chain risk management plans include provisions for activities that occur after the conclusion of a partnership or service agreement"
+      }
+    ]
+  },
+  {
+    "name": "Asset Management",
+    "ref_code": "ID.AM",
+    "category": "Identify (ID)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "ID.AM-01",
+        "name": "Inventories of hardware managed by the organisation are maintained",
+        "description": "Inventories of hardware managed by the organisation are maintained"
+      },
+      {
+        "ref_code": "ID.AM-02",
+        "name": "Inventories of software, services, and systems managed by the organisation are maintained",
+        "description": "Inventories of software, services, and systems managed by the organisation are maintained"
+      },
+      {
+        "ref_code": "ID.AM-03",
+        "name": "Representations of the organisation's authorised network communication and internal and external network data flows are maintained",
+        "description": "Representations of the organisation's authorised network communication and internal and external network data flows are maintained"
+      },
+      {
+        "ref_code": "ID.AM-04",
+        "name": "Inventories of services provided by suppliers are maintained",
+        "description": "Inventories of services provided by suppliers are maintained"
+      },
+      {
+        "ref_code": "ID.AM-05",
+        "name": "Assets are prioritised based on classification, criticality, resources, and impact on the mission",
+        "description": "Assets are prioritised based on classification, criticality, resources, and impact on the mission"
+      },
+      {
+        "ref_code": "ID.AM-07",
+        "name": "Inventories of data and corresponding metadata for designated data types are maintained",
+        "description": "Inventories of data and corresponding metadata for designated data types are maintained"
+      },
+      {
+        "ref_code": "ID.AM-08",
+        "name": "Systems, hardware, software, services, and data are managed throughout their life cycles",
+        "description": "Systems, hardware, software, services, and data are managed throughout their life cycles"
+      }
+    ]
+  },
+  {
+    "name": "Risk Assessment",
+    "ref_code": "ID.RA",
+    "category": "Identify (ID)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "ID.RA-01",
+        "name": "Vulnerabilities in assets are identified, validated, and recorded",
+        "description": "Vulnerabilities in assets are identified, validated, and recorded"
+      },
+      {
+        "ref_code": "ID.RA-02",
+        "name": "Cyber threat intelligence is received from information sharing forums and sources",
+        "description": "Cyber threat intelligence is received from information sharing forums and sources"
+      },
+      {
+        "ref_code": "ID.RA-03",
+        "name": "Internal and external threats to the organisation are identified and recorded",
+        "description": "Internal and external threats to the organisation are identified and recorded"
+      },
+      {
+        "ref_code": "ID.RA-04",
+        "name": "Potential impacts and likelihoods of threats exploiting vulnerabilities are identified and recorded",
+        "description": "Potential impacts and likelihoods of threats exploiting vulnerabilities are identified and recorded"
+      },
+      {
+        "ref_code": "ID.RA-05",
+        "name": "Threats, vulnerabilities, likelihoods, and impacts are used to understand inherent risk and inform risk response prioritisation",
+        "description": "Threats, vulnerabilities, likelihoods, and impacts are used to understand inherent risk and inform risk response prioritisation"
+      },
+      {
+        "ref_code": "ID.RA-06",
+        "name": "Risk responses are chosen, prioritised, planned, tracked, and communicated",
+        "description": "Risk responses are chosen, prioritised, planned, tracked, and communicated"
+      },
+      {
+        "ref_code": "ID.RA-07",
+        "name": "Changes and exceptions are managed, assessed for risk impact, recorded, and tracked",
+        "description": "Changes and exceptions are managed, assessed for risk impact, recorded, and tracked"
+      },
+      {
+        "ref_code": "ID.RA-08",
+        "name": "Processes for receiving, analysing, and responding to vulnerability disclosures are established",
+        "description": "Processes for receiving, analysing, and responding to vulnerability disclosures are established"
+      },
+      {
+        "ref_code": "ID.RA-09",
+        "name": "The authenticity and integrity of hardware and software are assessed prior to acquisition and use",
+        "description": "The authenticity and integrity of hardware and software are assessed prior to acquisition and use"
+      },
+      {
+        "ref_code": "ID.RA-10",
+        "name": "Critical suppliers are assessed prior to acquisition",
+        "description": "Critical suppliers are assessed prior to acquisition"
+      }
+    ]
+  },
+  {
+    "name": "Improvement",
+    "ref_code": "ID.IM",
+    "category": "Identify (ID)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "ID.IM-01",
+        "name": "Improvements are identified from evaluations",
+        "description": "Improvements are identified from evaluations"
+      },
+      {
+        "ref_code": "ID.IM-02",
+        "name": "Improvements are identified from security tests and exercises, including those done in coordination with suppliers and relevant third parties",
+        "description": "Improvements are identified from security tests and exercises, including those done in coordination with suppliers and relevant third parties"
+      },
+      {
+        "ref_code": "ID.IM-03",
+        "name": "Improvements are identified from execution of operational processes, procedures, and activities",
+        "description": "Improvements are identified from execution of operational processes, procedures, and activities"
+      },
+      {
+        "ref_code": "ID.IM-04",
+        "name": "Incident response plans and other cybersecurity plans that affect operations are established, communicated, maintained, and improved",
+        "description": "Incident response plans and other cybersecurity plans that affect operations are established, communicated, maintained, and improved"
+      }
+    ]
+  },
+  {
+    "name": "Identity Management, Authentication, and Access Control",
+    "ref_code": "PR.AA",
+    "category": "Protect (PR)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "PR.AA-01",
+        "name": "Identities and credentials for authorised users, services, and hardware are managed by the organisation",
+        "description": "Identities and credentials for authorised users, services, and hardware are managed by the organisation"
+      },
+      {
+        "ref_code": "PR.AA-02",
+        "name": "Identities are proofed and bound to credentials based on the context of interactions",
+        "description": "Identities are proofed and bound to credentials based on the context of interactions"
+      },
+      {
+        "ref_code": "PR.AA-03",
+        "name": "Users, services, and hardware are authenticated",
+        "description": "Users, services, and hardware are authenticated"
+      },
+      {
+        "ref_code": "PR.AA-04",
+        "name": "Identity assertions are protected, conveyed, and verified",
+        "description": "Identity assertions are protected, conveyed, and verified"
+      },
+      {
+        "ref_code": "PR.AA-05",
+        "name": "Access permissions, entitlements, and authorisations are defined in a policy, managed, enforced, and reviewed, and incorporate the principles of least privilege and separation of duties",
+        "description": "Access permissions, entitlements, and authorisations are defined in a policy, managed, enforced, and reviewed, and incorporate the principles of least privilege and separation of duties"
+      },
+      {
+        "ref_code": "PR.AA-06",
+        "name": "Physical access to assets is managed, monitored, and enforced commensurate with risk",
+        "description": "Physical access to assets is managed, monitored, and enforced commensurate with risk"
+      }
+    ]
+  },
+  {
+    "name": "Awareness and Training",
+    "ref_code": "PR.AT",
+    "category": "Protect (PR)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "PR.AT-01",
+        "name": "Personnel are provided with awareness and training so that they possess the knowledge and skills to perform general tasks with cybersecurity risks in mind",
+        "description": "Personnel are provided with awareness and training so that they possess the knowledge and skills to perform general tasks with cybersecurity risks in mind"
+      },
+      {
+        "ref_code": "PR.AT-02",
+        "name": "Individuals in specialised roles are provided with awareness and training so that they possess the knowledge and skills to perform relevant tasks with cybersecurity risks in mind",
+        "description": "Individuals in specialised roles are provided with awareness and training so that they possess the knowledge and skills to perform relevant tasks with cybersecurity risks in mind"
+      }
+    ]
+  },
+  {
+    "name": "Data Security",
+    "ref_code": "PR.DS",
+    "category": "Protect (PR)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "PR.DS-01",
+        "name": "The confidentiality, integrity, and availability of data-at-rest are protected",
+        "description": "The confidentiality, integrity, and availability of data-at-rest are protected"
+      },
+      {
+        "ref_code": "PR.DS-02",
+        "name": "The confidentiality, integrity, and availability of data-in-transit are protected",
+        "description": "The confidentiality, integrity, and availability of data-in-transit are protected"
+      },
+      {
+        "ref_code": "PR.DS-10",
+        "name": "The confidentiality, integrity, and availability of data-in-use are protected",
+        "description": "The confidentiality, integrity, and availability of data-in-use are protected"
+      },
+      {
+        "ref_code": "PR.DS-11",
+        "name": "Backups of data are created, protected, maintained, and tested",
+        "description": "Backups of data are created, protected, maintained, and tested"
+      }
+    ]
+  },
+  {
+    "name": "Platform Security",
+    "ref_code": "PR.PS",
+    "category": "Protect (PR)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "PR.PS-01",
+        "name": "Configuration management practices are established and applied",
+        "description": "Configuration management practices are established and applied"
+      },
+      {
+        "ref_code": "PR.PS-02",
+        "name": "Software is maintained, replaced, and removed commensurate with risk",
+        "description": "Software is maintained, replaced, and removed commensurate with risk"
+      },
+      {
+        "ref_code": "PR.PS-03",
+        "name": "Hardware is maintained, replaced, and removed commensurate with risk",
+        "description": "Hardware is maintained, replaced, and removed commensurate with risk"
+      },
+      {
+        "ref_code": "PR.PS-04",
+        "name": "Log records are generated and made available for continuous monitoring",
+        "description": "Log records are generated and made available for continuous monitoring"
+      },
+      {
+        "ref_code": "PR.PS-05",
+        "name": "Installation and execution of unauthorised software are prevented",
+        "description": "Installation and execution of unauthorised software are prevented"
+      },
+      {
+        "ref_code": "PR.PS-06",
+        "name": "Secure software development practices are integrated, and their performance is monitored throughout the software development life cycle",
+        "description": "Secure software development practices are integrated, and their performance is monitored throughout the software development life cycle"
+      }
+    ]
+  },
+  {
+    "name": "Technology Infrastructure Resilience",
+    "ref_code": "PR.IR",
+    "category": "Protect (PR)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "PR.IR-01",
+        "name": "Networks and environments are protected from unauthorised logical access and usage",
+        "description": "Networks and environments are protected from unauthorised logical access and usage"
+      },
+      {
+        "ref_code": "PR.IR-02",
+        "name": "The organisation's technology assets are protected from environmental threats",
+        "description": "The organisation's technology assets are protected from environmental threats"
+      },
+      {
+        "ref_code": "PR.IR-03",
+        "name": "Mechanisms are implemented to achieve resilience requirements in normal and adverse situations",
+        "description": "Mechanisms are implemented to achieve resilience requirements in normal and adverse situations"
+      },
+      {
+        "ref_code": "PR.IR-04",
+        "name": "Adequate resource capacity to ensure availability is maintained",
+        "description": "Adequate resource capacity to ensure availability is maintained"
+      }
+    ]
+  },
+  {
+    "name": "Continuous Monitoring",
+    "ref_code": "DE.CM",
+    "category": "Detect (DE)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DE.CM-01",
+        "name": "Networks and network services are monitored to find potentially adverse events",
+        "description": "Networks and network services are monitored to find potentially adverse events"
+      },
+      {
+        "ref_code": "DE.CM-02",
+        "name": "The physical environment is monitored to find potentially adverse events",
+        "description": "The physical environment is monitored to find potentially adverse events"
+      },
+      {
+        "ref_code": "DE.CM-03",
+        "name": "Personnel activity and technology usage are monitored to find potentially adverse events",
+        "description": "Personnel activity and technology usage are monitored to find potentially adverse events"
+      },
+      {
+        "ref_code": "DE.CM-06",
+        "name": "External service provider activities and services are monitored to find potentially adverse events",
+        "description": "External service provider activities and services are monitored to find potentially adverse events"
+      },
+      {
+        "ref_code": "DE.CM-09",
+        "name": "Computing hardware and software, runtime environments, and their data are monitored to find potentially adverse events",
+        "description": "Computing hardware and software, runtime environments, and their data are monitored to find potentially adverse events"
+      }
+    ]
+  },
+  {
+    "name": "Adverse Event Analysis",
+    "ref_code": "DE.AE",
+    "category": "Detect (DE)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DE.AE-02",
+        "name": "Potentially adverse events are analysed to better understand associated activities",
+        "description": "Potentially adverse events are analysed to better understand associated activities"
+      },
+      {
+        "ref_code": "DE.AE-03",
+        "name": "Information is correlated from multiple sources",
+        "description": "Information is correlated from multiple sources"
+      },
+      {
+        "ref_code": "DE.AE-04",
+        "name": "The estimated impact and scope of adverse events are understood",
+        "description": "The estimated impact and scope of adverse events are understood"
+      },
+      {
+        "ref_code": "DE.AE-06",
+        "name": "Information on adverse events is provided to authorised staff and tools",
+        "description": "Information on adverse events is provided to authorised staff and tools"
+      },
+      {
+        "ref_code": "DE.AE-07",
+        "name": "Cyber threat intelligence and other contextual information are integrated into the analysis",
+        "description": "Cyber threat intelligence and other contextual information are integrated into the analysis"
+      },
+      {
+        "ref_code": "DE.AE-08",
+        "name": "Incidents are declared when adverse events meet the defined incident criteria",
+        "description": "Incidents are declared when adverse events meet the defined incident criteria"
+      }
+    ]
+  },
+  {
+    "name": "Incident Management",
+    "ref_code": "RS.MA",
+    "category": "Respond (RS)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "RS.MA-01",
+        "name": "The incident response plan is executed in coordination with relevant third parties once an incident is declared",
+        "description": "The incident response plan is executed in coordination with relevant third parties once an incident is declared"
+      },
+      {
+        "ref_code": "RS.MA-02",
+        "name": "Incident reports are triaged and validated",
+        "description": "Incident reports are triaged and validated"
+      },
+      {
+        "ref_code": "RS.MA-03",
+        "name": "Incidents are categorised and prioritised",
+        "description": "Incidents are categorised and prioritised"
+      },
+      {
+        "ref_code": "RS.MA-04",
+        "name": "Incidents are escalated or elevated as needed",
+        "description": "Incidents are escalated or elevated as needed"
+      },
+      {
+        "ref_code": "RS.MA-05",
+        "name": "The criteria for initiating incident recovery are applied",
+        "description": "The criteria for initiating incident recovery are applied"
+      }
+    ]
+  },
+  {
+    "name": "Incident Analysis",
+    "ref_code": "RS.AN",
+    "category": "Respond (RS)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "RS.AN-03",
+        "name": "Analysis is performed to establish what has taken place during an incident and the root cause of the incident",
+        "description": "Analysis is performed to establish what has taken place during an incident and the root cause of the incident"
+      },
+      {
+        "ref_code": "RS.AN-06",
+        "name": "Actions performed during an investigation are recorded, and the records' integrity and provenance are preserved",
+        "description": "Actions performed during an investigation are recorded, and the records' integrity and provenance are preserved"
+      },
+      {
+        "ref_code": "RS.AN-07",
+        "name": "Incident data and metadata are collected, and their integrity and provenance are preserved",
+        "description": "Incident data and metadata are collected, and their integrity and provenance are preserved"
+      },
+      {
+        "ref_code": "RS.AN-08",
+        "name": "An incident's magnitude is estimated and validated",
+        "description": "An incident's magnitude is estimated and validated"
+      }
+    ]
+  },
+  {
+    "name": "Incident Response Reporting and Communication",
+    "ref_code": "RS.CO",
+    "category": "Respond (RS)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "RS.CO-02",
+        "name": "Internal and external stakeholders are notified of incidents",
+        "description": "Internal and external stakeholders are notified of incidents"
+      },
+      {
+        "ref_code": "RS.CO-03",
+        "name": "Information is shared with designated internal and external stakeholders",
+        "description": "Information is shared with designated internal and external stakeholders"
+      }
+    ]
+  },
+  {
+    "name": "Incident Mitigation",
+    "ref_code": "RS.MI",
+    "category": "Respond (RS)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "RS.MI-01",
+        "name": "Incidents are contained",
+        "description": "Incidents are contained"
+      },
+      {
+        "ref_code": "RS.MI-02",
+        "name": "Incidents are eradicated",
+        "description": "Incidents are eradicated"
+      }
+    ]
+  },
+  {
+    "name": "Incident Recovery Plan Execution",
+    "ref_code": "RC.RP",
+    "category": "Recover (RC)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrol": [
+      {
+        "ref_code": "RC.RP-02",
+        "name": "Recovery actions are selected, scoped, prioritised, and performed",
+        "description": "Recovery actions are selected, scoped, prioritised, and performed"
+      },
+      {
+        "ref_code": "RC.RP-03",
+        "name": "The integrity of backups and other restoration assets is verified before using them for restoration",
+        "description": "The integrity of backups and other restoration assets is verified before using them for restoration"
+      },
+      {
+        "ref_code": "RC.RP-04",
+        "name": "Critical mission functions and cybersecurity risk management are considered to establish post-incident operational norms",
+        "description": "Critical mission functions and cybersecurity risk management are considered to establish post-incident operational norms"
+      },
+      {
+        "ref_code": "RC.RP-05",
+        "name": "The integrity of restored assets is verified, systems and services are restored, and normal operating status is confirmed",
+        "description": "The integrity of restored assets is verified, systems and services are restored, and normal operating status is confirmed"
+      },
+      {
+        "ref_code": "RC.RP-06",
+        "name": "The end of incident recovery is declared based on criteria, and incident-related documentation is completed",
+        "description": "The end of incident recovery is declared based on criteria, and incident-related documentation is completed"
+      }
+    ]
+  },
+  {
+    "name": "Incident Recovery Communication",
+    "ref_code": "RC.CO",
+    "category": "Recover (RC)",
+    "dti": "easy",
+    "dtc": "easy",
+    "meta": {},
+    "subcontrol": [
+      {
+        "ref_code": "RC.CO-03",
+        "name": "Recovery activities and progress in restoring operational capabilities are communicated to designated internal and external stakeholders",
+        "description": "Recovery activities and progress in restoring operational capabilities are communicated to designated internal and external stakeholders"
+      },
+      {
+        "ref_code": "RC.CO-04",
+        "name": "Public updates on incident recovery are shared using approved methods and messaging",
+        "description": "Public updates on incident recovery are shared using approved methods and messaging"
+      }
+    ]
+  }
+]
