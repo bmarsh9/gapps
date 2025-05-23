@@ -1,0 +1,1189 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% block head %}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(apex=True) }}
+{% endblock %}
+
+{%block page_header%}{%endblock%}
+
+{%block content%}
+<div x-data="risks()">
+
+<!--    Drawer to view the selected reports-->
+	<div class="drawer drawer-end z-50">
+	<input @change="closeReportDrawer" id="right-drawer" type="checkbox" class="drawer-toggle" />
+	<div class="drawer-content">
+	</div>
+
+	<div class="drawer-side">
+		<label for="right-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+
+		<div class="bg-base-200 flex flex-col h-screen w-3/4 px-6">
+
+			<!-- Top Section (Static) -->
+			<div class="border-b border-base-300 pt-4">
+				<div>
+					<div class="p-6 px-4 pb-1 border border-base-300 rounded-lg">
+						<div class="flex flex-row gap-x-6">
+						<div class="flex flex-row gap-x-2 my-auto">
+                        	<span :class="{'bg-primary': selectedReport.status==='new', 'bg-warning': selectedReport.status==='in_progress', 'bg-success': selectedReport.status==='mitigated', 'bg-success opacity-80': selectedReport.status==='accepted'}" class="pill" x-text="selectedReport.status"></span>
+						</div>
+
+						<div class="flex justify-between w-full pl-6 border-l">
+							<div class="flex flex-col">
+								<span class="subtitle text-xs !mb-0" x-text="'Report Title - '+selectedReport.id"></span>
+								<span class="text-xl" x-text="selectedReport.title"></span>
+							</div>
+							<div class="flex flex-row gap-x-2">
+								<button @click="copyRiskLink(selectedReport.id)" class="btn btn-sm btn-ghost border border-base-300"><i class="ti ti-share text-xl"></i></button>
+								<button @click="closeReportDrawer" class="btn btn-sm btn-ghost border border-base-300"><i class="ti ti-x text-xl"></i></button>
+
+							</div>
+						</div>
+					</div>
+						<div class="grid grid-cols-12 my-6 gap-x-6">
+						<div class="col-span-6">
+							<div class="flex flex-col mb-2">
+								<span class="subtitle text-sm">Risk Description</span>
+								<div
+								  x-data="{ expanded: false }"
+								  class="overflow-y-auto"
+								  :class="expanded ? 'h-40' : ''"
+								>
+								  <span class="text-xs">
+									<template x-if="selectedReport.description.length > 500">
+									  <p class="font-normal text-xs" x-text="expanded ? selectedReport.description : selectedReport.description.slice(0, 500) + '...'"></p>
+									</template>
+									<template x-if="selectedReport.description.length <= 500">
+									  <p class="font-normal text-xs" x-text="selectedReport.description"></p>
+									</template>
+								  </span>
+
+								  <button
+									x-show="selectedReport.description.length > 500"
+									@click="expanded = !expanded"
+									class="underline text-ss"
+								  >
+									<p class="font-normal text-xs" x-text="expanded ? 'See less' : 'See more'"></p>
+								  </button>
+								</div>
+							</div>
+						</div>
+					</div>
+						<div role="tablist" class="tabs">
+					  <button @click="changeTabInDrawer('overview')" :class="{'border-b font-semibold border-primary': activeSideTab==='overview'}" role="tab" class="tab subtitle text-sm hover:opacity-50">Overview</button>
+					  <button @click="changeTabInDrawer('comments'); scrollToRecentMessagesInDrawer()" :class="{'border-b font-semibold border-primary': activeSideTab==='comments'}" role="tab" class="tab subtitle text-sm hover:opacity-50" x-text="'Comments ('+comments.length+')'"></button>
+					</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Scrollable Middle Section -->
+			<div id="middle-section" class="flex-1 overflow-y-auto p-4">
+
+	<!--            Control drawer content-->
+				<div>
+					<div x-show="activeSideTab==='overview'" class="card">
+						<div class="grid grid-cols-12 gap-4">
+							<div class="col-span-4">
+								<div class="card card-body border border-base-300">
+									<div class="card-title">Risk Level</div>
+									<figure>
+										<div class="radial-progress text-sm font-semibold my-2 border-base-100 border-2 mt-6 text-error uppercase" :style="'--value:' + selectedReport.risk_level + '; --size: 12rem; --thickness: 2px;'" role="progressbar" x-text="selectedReport.risk"></div>
+									</figure>
+								</div>
+							</div>
+							<div class="col-span-8">
+								<div class="grid grid-cols-6 gap-2">
+									<div class="col-span-2">
+										<div class="flex flex-row">
+											<h4 class="subtitle text-sm">Risk Status</h4>
+										</div>
+										<select @change="updateRisk(selectedReport)" x-model="selectedReport.status" class="select select-sm w-full">
+											<option value="new" :selected="selectedReport.status === 'new'">New</option>
+											<option value="in_progress" :selected="selectedReport.status === 'in_progress'">In Progress</option>
+											<option value="accepted" :selected="selectedReport.status === 'accepted'">Accepted</option>
+											<option value="mitigated" :selected="selectedReport.status === 'mitigated'">Mitigated</option>
+										</select>
+									</div>
+									<div class="col-span-2">
+										<div class="flex flex-row">
+											<h4 class="subtitle text-sm">Risk Level</h4>
+										</div>
+										<select @change="updateRisk(selectedReport)" x-model="selectedReport.risk" class="select select-sm w-full">
+											<option value="critical" :selected="selectedReport.risk === 'critical'">Critical</option>
+											<option value="high" :selected="selectedReport.risk === 'high'">High</option>
+											<option value="moderate" :selected="selectedReport.risk === 'moderate'">Moderate</option>
+											<option value="low" :selected="selectedReport.risk === 'low'">Low</option>
+											<option value="unknown" :selected="selectedReport.risk === 'unknown'">Unknown</option>
+
+										</select>
+									</div>
+									<div class="col-span-2">
+										<div class="flex flex-row">
+											<h4 class="subtitle text-sm"><i x-show="!selectedReport.assignee" class="ti ti-alert-triangle text-warning mr-1 my-auto"></i>Assignee</h4>
+										</div>
+										<select @change="updateRisk(selectedReport)" x-model="selectedReport.assignee" class="select select-sm w-full">
+											<option value="" :selected="selectedReport.assignee === 'Missing Assignee'">Missing Assignee</option>
+											<template  x-for="user in tenantUsers">
+												<option :value="user.id" x-text="user.email" :selected="selectedReport.assignee === user.id"></option>
+											</template>
+										</select>
+									</div>
+									<div class="col-span-6">
+										<h4 class="my-2 subtitle text-sm">Risk Description</h4>
+										<textarea rows="4" @change="updateRisk(selectedReport)" x-model="selectedReport.description" :value="selectedReport.description" x-text="selectedReport.description" class="textarea w-full" placeholder="No description as been provided."></textarea>
+									</div>
+									<div class="col-span-6">
+										<h4 class="my-2 subtitle text-sm">Risk Remediation</h4>
+										<textarea rows="4" @change="updateRisk(selectedReport)" x-model="selectedReport.remediation" :value="selectedReport.remediation" x-text="selectedReport.remediation" class="textarea w-full" placeholder="No remediation as been provided."></textarea>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div x-show="activeSideTab==='comments'" class="flex-1 overflow-y-auto">
+						<div x-show="comments.length===0" class="flex-grow hero-content text-center">
+							<div class="max-w-md">
+							  <h1 class="text-2xl font-semibold mt-10">No Comments</h1>
+							  <p class="py-6">
+								There are no comments! Start communicating with team members
+							  </p>
+							</div>
+						</div>
+						<div x-show="comments.length>0" class="flex-grow overflow-y-auto">
+							 <template x-for="message in comments" :key="message.id">
+								<div :class='{"chat-start": message.author_email === $store.currentUser.email, "chat-end": message.author_email !== $store.currentUser.email}' class="chat">
+								  <div @click="deleteControlMessage(message)" class="chat-image avatar placeholder cursor-pointer">
+									  <div class="bg-base-300 rounded-full w-8">
+										<span class="text-xs uppercase" x-text="message.author_email[0]"></span>
+									  </div>
+								  </div>
+								  <div class="chat-header mb-2">
+									<span class="text-xs opacity-50 mr-1" x-text="simpleDate(message.date_added)"></span>
+									<p class="font-normal" x-text="message.author_email"></p>
+								  </div>
+								  <div class="chat-bubble" x-text="message.message"></div>
+								</div>
+							 </template>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<!-- Sticky Footer -->
+			<div class="border-t border-base-300 py-4">
+<!--                Control message-->
+				<div x-show="activeSideTab==='comments'" class="relative flex">
+					<input x-model="currentMessage" @keyup.enter="createMessage(selectedReport)" type="text" placeholder="Write your message!" class="w-full input-md border border-base-100 bg-base-300 focus:outline-none pl-6 rounded-md py-3">
+					<div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
+						<button @click="createMessage(selectedReport)" :class='{"btn-disabled": !currentMessage}' class="btn btn-sm btn-success">
+						   <span class="font-bold">Send</span>
+						   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-5 w-5 ml-2 transform rotate-90">
+							  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+						   </svg>
+						</button>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+    <div class="grid grid-cols-10 h-[calc(100vh-3rem)]">
+        <div class="col-span-2 rounded-tl-lg border-y border-l border-base-300 bg-base-200 sticky top-0 h-screen">
+        	<div class="card">
+            <div class="card-body px-6">
+                <div class="flex justify-between">
+                    <div class="text-lg font-semibold my-auto">Filter Risks</div>
+                    <button x-show="hasFilter" @click="disableFilter" :class="{'text-error':hasFilter}" class="btn btn-xs btn-ghost border border-base-300"><i class="ti ti-filter-x text-lg"></i></button>
+                </div>
+                <ul class="menu p-0">
+                  <li>
+                    <div class="menu-title p-0 flex justify-between mb-1">
+                        <h2 class="my-auto text-xs"><span class="tooltip" data-tip="Risk after review"><i class="ti ti-info-hexagon mr-1 text-sm"></i></span>Created Within</h2>
+                        <button @click="filter.createdWithin = null" x-show="filter.createdWithin && Object.keys(filter.createdWithin).length" class="btn btn-xs btn-ghost border border-base-300"><i class="ti ti-x text-error text-md"></i></button>
+                    </div>
+                    <ul class="text-xs font-medium">
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.createdWithin === 'today'}"
+							 @click="filterCreatedAt('today')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs"><i class="ti ti-calendar-event mr-1"></i>Today</span>
+							<span class="text-xs" x-text="createdTodayCount"></span>
+						  </a>
+						</li>
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.createdWithin === '7'}"
+							 @click="filterCreatedAt('7')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs"><i class="ti ti-calendar-week mr-1"></i>Last 7 days</span>
+							<span class="text-xs" x-text="created7Count"></span>
+						  </a>
+						</li>
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.createdWithin === '30'}"
+							 @click="filterCreatedAt('30')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs"><i class="ti ti-calendar-month mr-1"></i>Last 30 days</span>
+							<span class="text-xs" x-text="created30Count"></span>
+						  </a>
+						</li>
+                    </ul>
+                  </li>
+                </ul>
+
+                <ul class="menu p-0">
+                  <li>
+                    <div class="menu-title p-0 flex justify-between mb-1">
+                        <h2 class="my-auto text-xs"><span class="tooltip" data-tip="Status of report"><i class="ti ti-info-hexagon mr-1 text-sm"></i></span>Status</h2>
+                        <button @click="filter.status = null" x-show="filter.status && Object.keys(filter.status).length" class="btn btn-xs btn-ghost border border-base-300"><i class="ti ti-x text-error text-md"></i></button>
+                    </div>
+                    <ul class="text-xs font-medium">
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.status === 'new'}"
+							 @click="filterStatus('new')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs">New</span>
+							<span class="text-xs" x-text="newReportsCount"></span>
+						  </a>
+						</li>
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.status === 'triage'}"
+							 @click="filterStatus('triage')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs">In Progress</span>
+							<span class="text-xs" x-text="triageReportsCount"></span>
+						  </a>
+						</li>
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.status === 'accepted'}"
+							 @click="filterStatus('accepted')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs">Accepted</span>
+							<span class="text-xs" x-text="acceptedReportsCount"></span>
+						  </a>
+						</li>
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.status === 'mitigated'}"
+							 @click="filterStatus('mitigated')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs">Mitigated</span>
+							<span class="text-xs" x-text="mitigatedReportsCount"></span>
+						  </a>
+						</li>
+                    </ul>
+                  </li>
+                </ul>
+                <ul class="menu p-0">
+                  <li>
+                    <div class="menu-title p-0 flex justify-between mb-1">
+                        <h2 class="my-auto text-xs"><span class="tooltip" data-tip="Risk by author"><i class="ti ti-info-hexagon mr-1 text-sm"></i></span>Risk Rating</h2>
+                        <button @click="filter.risk = null" x-show="filter.risk && Object.keys(filter.risk).length" class="btn btn-xs btn-ghost border border-base-300"><i class="ti ti-x text-error text-md"></i></button>
+                    </div>
+                    <ul class="text-xs font-medium">
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.risk === 'critical'}"
+							 @click="filterRisk('critical')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs"><i class="ti ti-alert-circle text-error mr-1"></i>Critical</span>
+							<span class="text-xs" x-text="initialCriticalRiskCount"></span>
+						  </a>
+						</li>
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.risk === 'high'}"
+							 @click="filterRisk('high')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs"><i class="ti ti-alert-circle text-error opacity-80 mr-1"></i>High</span>
+							<span class="text-xs" x-text="initialHighRiskCount"></span>
+						  </a>
+						</li>
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.risk === 'moderate'}"
+							 @click="filterRisk('moderate')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs"><i class="ti ti-alert-circle text-warning mr-1"></i>Moderate</span>
+							<span class="text-xs" x-text="initialModerateRiskCount"></span>
+						  </a>
+						</li>
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.risk === 'low'}"
+							 @click="filterRisk('low')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs"><i class="ti ti-alert-circle text-success mr-1"></i>Low</span>
+							<span class="text-xs" x-text="initialLowRiskCount"></span>
+						  </a>
+						</li>
+						<li>
+						  <a :class="{'bg-error opacity-80': filter.risk === 'unknown'}"
+							 @click="filterRisk('unknown')"
+							 class="flex justify-between w-full text-xs">
+							<span class="text-xs"><i class="ti ti-alert-circle mr-1"></i>Unknown</span>
+							<span class="text-xs" x-text="initialUnknownRiskCount"></span>
+						  </a>
+						</li>
+                    </ul>
+                  </li>
+                </ul>
+            </div>
+        </div>
+    	</div>
+        <div class="col-span-8 p-5 border rounded-tr-lg overflow-y-auto h-screen border-base-300">
+        	<div class="overflow-x-auto">
+          <div class="flex justify-between my-2">
+            <div class="flex flex-row gap-x-2 my-auto">
+				<span class="card-title">Reports</span>
+				<span class="pill text-ss bg-base-300" x-text="'Showing: '+filteredReports.length"></span>
+              <span x-show="false" x-text="JSON.stringify(filter)"></span>
+            </div>
+            <div class="flex flex-row gap-x-4">
+				<button @click="search=''" x-show="search.length>0" class="btn btn-xs btn-ghost border border-base-300 my-auto"><i class="ti ti-x text-error"></i></button>
+				<label x-show="tableSelected" class="input input-sm input-bordered flex items-center gap-2">
+				  <input type="text" class="grow text-sm" x-model="search" @input="filterReports()" placeholder="Search by Title" />
+				  <svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 16 16"
+					fill="currentColor"
+					:class="{'text-error': search.length>0}"
+					class="h-4 w-4 opacity-70">
+					<path
+					  fill-rule="evenodd"
+					  d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+					  clip-rule="evenodd" />
+				  </svg>
+				</label>
+				<div class="flex flex-row gap-x-2 border border-base-300 rounded-lg my-auto">
+					<button @click="switchToTable" :class="{'btn-active': tableSelected}" class="btn btn-sm btn-ghost"><i class="ti ti-table"></i>Table</button>
+					<button @click="switchToChart" :class="{'btn-active': !tableSelected}" class="btn btn-sm btn-ghost"><i class="ti ti-chart-bar"></i>Dashboard</button>
+				</div>
+				<button @click="showCreateRisk=true" class="btn btn-sm btn-success">Create Risk</button>
+              	<span class="my-auto" x-show="rowsSelected.length>0" x-text="'Rows selected: '+rowsSelected.length"></span>
+              	<div class="my-auto" x-show="rowsSelected.length>0">
+					<details class="dropdown dropdown-bottom dropdown-end">
+						<summary class="btn btn-sm btn-ghost border border-base-300"><i class="ti ti-dots text-lg"></i></summary>
+						<ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+							<li><a @click="toggleAllRows(true)"><i class="ti ti-checks mr-1 text-success"></i>Select all</a></li>
+							<li><a @click="deselectedAllRows"><i class="ti ti-x mr-1 text-error"></i>Deselect all</a></li>
+							<li><a @click="showUpdateStatusModal = true"><i class="ti ti-progress mr-1"></i>Update Status</a></li>
+							<li><a @click="showUpdateRiskModal = true"><i class="ti ti-alarm mr-1"></i>Update Risk</a></li>
+						</ul>
+					</details>
+				</div>
+
+            </div>
+          </div>
+<!--          When we are loading/filtering reports-->
+          <div x-show="loadingReports">
+            <div class="hero bg-base-200 min-h-screen">
+              <div class="hero-content text-center">
+                <div class="max-w-full">
+                  <span class="loading loading-dots loading-lg"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+<!--          When the filter does not match any data-->
+          <div x-show="!loadingReports && filteredReports.length===0">
+            <div class="hero bg-base-200 min-h-screen">
+              <div class="hero-content text-center">
+                <div class="max-w-full">
+                  <h1 class="text-2xl font-semibold">No Risks!</h1>
+                  <p x-show="!hasFilter" class="py-4">
+                    You have not logged any risks. Let's get started.
+                  </p>
+                  <button x-show="!hasFilter" @click="disableFilter" class="btn btn-sm btn-success">Create Risk</button>
+                  <p x-show="hasFilter" class="py-4">
+                    The filter you applied does not match any reports.
+                  </p>
+                  <button x-show="hasFilter" @click="disableFilter" class="btn btn-sm btn-error">Remove Filter</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+<!--          When we have results to show-->
+		  <div x-show="!loadingReports && filteredReports.length>0">
+          	<table x-show="tableSelected" class="table">
+            <!-- head -->
+            <thead>
+              <tr>
+                <th class="p-4 bg-base-200 rounded-tl-lg w-1">
+                  <label>
+                    <input x-ref="selectAllCheckbox" @click="toggleAllRows($el.checked)" type="checkbox" class="checkbox checkbox-xs mt-1" />
+                  </label>
+                </th>
+                <th class="p-4 bg-base-200">Status</th>
+                <th class="p-4 bg-base-200">Title</th>
+                <th class="p-4 bg-base-200">Description</th>
+                <th class="p-4 bg-base-200">Risk</th>
+			  	<th class="p-4 bg-base-200">Created</th>
+                <th class="p-4 bg-base-200 rounded-tr-lg w-1">Open</th>
+
+              </tr>
+            </thead>
+            <tbody class="border border-base-300 px-1">
+                <template x-for="report in paginatedReports" :key="report.id">
+                  <tr :class="{'opacity-70': previousSelectedReport === report}">
+                    <th>
+                      <div class="my-auto mt-1">
+                        <input :checked="rowsSelected.includes(report.id)" @change="toggleRow($event.target.checked, report.id)" type="checkbox" class="checkbox checkbox-xs"/>
+                      </div>
+                    </th>
+				    <td>
+                        <span :class="{'bg-primary': report.status==='new', 'bg-warning': report.status==='in_progress', 'bg-success': report.status==='mitigated', 'bg-success opacity-80': report.status==='accepted'}" class="p-1 px-2 rounded-lg uppercase text-ss text-primary-content" x-text="report.status"></span>
+                    </td>
+                    <td @click="openDrawer(report)" class="underline hover:cursor-pointer hover:opacity-75">
+						<div class="flex flex-row">
+							<span x-text="report.title"></span>
+						</div>
+					</td>
+					<td>
+						<div
+						  x-data="{ expanded: false }"
+						  class="overflow-y-auto"
+						  :class="expanded ? 'h-40' : ''"
+						>
+						  <span class="text-xs">
+							<template x-if="report.description.length > 200">
+							  <p class="text-xs" x-text="expanded ? report.description : report.description.slice(0, 200) + '...'"></p>
+							</template>
+							<template x-if="report.description.length <= 200">
+							  <p class="text-xs" x-text="report.description"></p>
+							</template>
+						  </span>
+
+						  <button
+							x-show="report.description.length > 200"
+							@click="expanded = !expanded"
+							class="underline text-ss"
+						  >
+							<span class="text-xs" x-text="expanded ? 'See less' : 'See more'"></span>
+						  </button>
+						</div>
+					</td>
+
+                    <td>
+                        <span :class="{'bg-primary': report.risk==='unknown', 'bg-success': report.risk==='low', 'bg-warning': report.risk==='moderate', 'bg-error opacity-80': report.risk==='high', 'bg-error': report.risk==='critical'}" class="p-1 px-2 rounded-lg uppercase text-ss text-white" x-text="report.risk"></span>
+                    </td>
+				  	<td>
+						<span class="tooltip text-xs" :data-tip="report.created_at_h" x-text="report.created_at"></span>
+				    </td>
+                    <td>
+                        <button @click="openDrawer(report)" class="btn btn-xs btn-ghost border border-base-300"><i class="ti ti-arrow-right text-md"></i></button>
+                    </td>
+                  </tr>
+                </template>
+            </tbody>
+          </table>
+
+          	<div x-show="tableSelected" class="join bg-base-200 float-right mt-2">
+              <button @click="prevPage" :disabled="currentPage === 1" class="join-item btn-sm">«</button>
+              <button class="join-item btn-sm" :disabled="true" x-text="'Page ' + currentPage"></button>
+              <button @click="nextPage" :disabled="currentPage === totalPages" class="join-item btn-sm">»</button>
+          </div>
+
+		  	<div class="mt-4" x-show="!tableSelected">
+			  <div class="grid grid-cols-12 gap-4">
+				  <div class="col-span-6">
+					  <div class="card border border-base-300">
+						  <div class="card-body">
+							  <div class="card-title">Status of Reports</div>
+							  <div id="statusChart" x-ref="statusChart"></div>
+						  </div>
+					  </div>
+				  </div>
+				  <div class="col-span-6">
+					  <div class="card border border-base-300">
+						  <div class="card-body">
+							  <div class="card-title">Initial Risk</div>
+							  <div id="initialRiskChart" x-ref="initialRiskChart"></div>
+						  </div>
+					  </div>
+				  </div>
+				  <div class="col-span-12">
+					  <div class="card border border-base-300">
+						  <div class="card-body">
+							  <div class="card-title">Activity Chart - last 30 days</div>
+							  <div id="activityChart" x-ref="activityChart"></div>
+						  </div>
+					  </div>
+				  </div>
+			  </div>
+
+			</div>
+		  </div>
+
+
+        </div>
+    	</div>
+    </div>
+
+	<div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showCreateRisk}">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showCreateRisk=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-6 capitalize">Create New Risk</h2>
+                <div class="grid grid-cols-12 gap-4 card-body">
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Title</label>
+                        <input x-model="payload.title" type="text" placeholder="Provide a title for the risk" class="input input-sm input-bordered w-full">
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Description</label>
+                        <textarea x-model="payload.description" class="textarea textarea-bordered w-full" placeholder="Provide a description for the risk"></textarea>
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Remediation</label>
+                        <textarea x-model="payload.remediation" class="textarea textarea-bordered w-full" placeholder="Provide the remediation for the risk"></textarea>
+                    </div>
+                    <div class="col-span-5">
+                        <label class="block text-sm font-medium mb-2">Assignee</label>
+                        <select x-model="payload.assignee" class="select select-sm select-bordered w-full">
+                            <option value="">Select user</option>
+                            <template x-for="user in tenantUsers">
+                                <option :value="user.email" x-text="user.email"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-sm font-medium mb-2">Risk</label>
+                        <select x-model="payload.risk" class="select select-sm select-bordered w-full">
+                          <option selected="">Please select...</option>
+                          <option class="capitalize" value="unknown">Unknown</option>
+                          <option class="capitalize" value="low">Low</option>
+                          <option class="capitalize" value="moderate">Moderate</option>
+                          <option class="capitalize" value="high">High</option>
+                          <option class="capitalize" value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-sm font-medium mb-2">Status</label>
+                        <select x-model="payload.status" class="select select-sm select-bordered w-full">
+                          <option value="new" selected="">Please select...</option>
+                          <option class="capitalize" value="new">New</option>
+                          <option class="capitalize" value="in_progress">In Progress</option>
+                          <option class="capitalize" value="accepted">Accepted</option>
+                          <option class="capitalize" value="mitigated">Mitigated</option>
+                        </select>
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-sm font-medium mb-2">Priority</label>
+                        <select x-model="payload.priority" class="select select-sm select-bordered w-full">
+                          <option selected="">Please select...</option>
+                          <option class="capitalize" value="unknown">Unknown</option>
+                          <option class="capitalize" value="low">Low</option>
+                          <option class="capitalize" value="moderate">Moderate</option>
+                          <option class="capitalize" value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-action">
+                    <button class="btn" @click="showCreateRisk=false">Close</button>
+                    <button :class="{'btn-disabled': !payload.title}" @click="createRisk" class="btn btn-success">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Update Status Modal -->
+    <div x-show="showUpdateStatusModal" class="modal modal-open">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Update Status for <span class="text-lg font-bold" x-text="rowsSelected.length"></span> Selected Risks</h3>
+            <div class="py-4">
+                <select x-model="bulkUpdateStatus" class="select select-bordered w-full">
+                    <option value="new">New</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="accepted">Accepted</option>
+                    <option value="mitigated">Mitigated</option>
+                </select>
+            </div>
+            <div class="modal-action">
+                <button @click="bulkUpdateStatuses()" class="btn btn-primary">Update</button>
+                <button @click="showUpdateStatusModal = false" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Risk Modal -->
+    <div x-show="showUpdateRiskModal" class="modal modal-open">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Update Risk Level for <span class="text-lg font-bold" x-text="rowsSelected.length"></span> Selected Risks</h3>
+            <div class="py-4">
+                <select x-model="bulkUpdateRisk" class="select select-bordered w-full">
+                    <option value="unknown">Unknown</option>
+                    <option value="low">Low</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                </select>
+            </div>
+            <div class="modal-action">
+                <button @click="bulkUpdateRisks()" class="btn btn-primary">Update</button>
+                <button @click="showUpdateRiskModal = false" class="btn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+function risks(){
+    return {
+        init() {
+            this.getRisks()
+            this.getTenantUsers()
+		    this.$watch(
+                "filter", (newValue, oldValue) => {
+                    this.hasFilter = !Object.values(this.filter).every(value => value === null) || this.search.length>0;
+                }
+		    )
+		    this.$watch(
+                "search", (newValue, oldValue) => {
+                    this.hasFilter = !Object.values(this.filter).every(value => value === null) || this.search.length>0;
+                }
+		    )
+        },
+        rowsSelected: [],
+        reports: [],
+        tenantUsers: [],
+        filteredReports: [],
+        comments: [], // comments for the selectedReport
+        selectedReport: {},
+        currentPage: 1,
+        reportsPerPage: 200,
+        hasFilter: false,
+        loadingReports: true,
+        tableSelected: true,
+        search: "",
+		currentMessage: "",
+        activeSideTab: "overview",
+        showCreateRisk:false,
+        filter: {
+          status: null,
+          impact: null
+        },
+        payload: {},
+        showUpdateStatusModal: false,
+        showUpdateRiskModal: false,
+        bulkUpdateStatus: 'new',
+        bulkUpdateRisk: 'unknown',
+        selectedRisks: [],
+        getRisks: function() {
+          this.loadingReports = true
+		  request("GET",
+			`/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks`,
+			data => {
+              this.reports = data
+              this.filteredReports = data
+              this.loadingReports = false
+			  return(data)
+			},
+			error => {
+			  toast(error.message, "error");
+			}
+		  );
+        },
+        getTenantUsers: function() {
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/users`,
+            data => {
+              this.tenantUsers = data;
+              data.forEach((user) => {
+                if (user.roles.includes("riskmanager")) {
+                    this.riskManagers.push(user)
+                }
+                if (user.roles.includes("riskviewer")) {
+                    this.riskViewers.push(user)
+                }
+                if (user.roles.includes("vendor")) {
+                    this.riskVendors.push(user)
+                }
+              })
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        createRisk: function() {
+            if (!this.payload.title) {
+                toast("Provide the risk with a title", "warning")
+                return
+            }
+            request("POST",
+                `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks`,
+                data => {
+                    toast("Created risk")
+                    this.showCreateRisk = false
+                    this.payload = {}
+                    this.getRisks()
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                this.payload
+            );
+        },
+        deleteRisk: function() {
+            request("DELETE",
+                `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks`,
+                data => {
+                    this.showRiskModal = false
+                    this.payload = {}
+                    this.getRisks()
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+		createMessage: function(report) {
+			if (this.currentMessage) {
+				let jsonData = {"message": this.currentMessage}
+				request("POST",
+					`/api/v1/risks/${report.id}/comments`,
+					data => {
+						this.comments.push(data)
+						this.currentMessage = "";
+						this.scrollToRecentMessagesInDrawer()
+					},
+					error => {
+					  toast(error.message, "error");
+					},
+					jsonData
+				);
+			}
+		},
+        disableFilter() {
+            this.filter = {
+              status: null,
+              risk: null,
+              triage_risk: null,
+              createdWithin: null,
+            }
+            this.search = "";
+            this.deselectedAllRows()
+        },
+		simpleDate: function(dateString) {
+			var date = new Date(dateString);
+			var dayOfWeek = date.toLocaleDateString('en', { weekday: 'short' });
+			var dayOfMonth = date.getDate();
+			var year = date.getFullYear();
+
+			// Format the result string
+			return dayOfWeek + ', ' + (dayOfMonth < 10 ? '0' : '') + dayOfMonth + ', ' + year;
+
+		},
+        filterStatus(status) {
+          this.filter.status = status;
+          this.currentPage = 1; // Reset to first page when filter changes
+        },
+        filterRisk(risk) {
+          this.filter.risk = risk;
+          this.currentPage = 1; // Reset to first page when filter changes
+        },
+        filterTriageRisk(risk) {
+          this.filter.triage_risk = risk;
+          this.currentPage = 1; // Reset to first page when filter changes
+        },
+        filterCreatedAt(createdWithin) {
+          this.filter.createdWithin = createdWithin;
+          this.currentPage = 1; // Reset to first page when filter changes
+        },
+        // Get the total number of pages
+        totalPages() {
+            return Math.ceil(this.reports.length / this.reportsPerPage);
+        },
+
+		filterReports() {
+		  if (!this.reports.length) return [];
+		  const filtered = this.reports.filter(report => {
+			  const statusMatch = this.filter.status ? report.status === this.filter.status : true;
+			  const initialRiskMatch = this.filter.risk ? report.risk === this.filter.risk : true;
+
+			  // Search filter (case-insensitive)
+			  const searchMatch = this.search
+				? report.title.toLowerCase().includes(this.search.toLowerCase())
+				: true;
+
+			  // Date filter (e.g., "Apr 2, 2025")
+			  let dateMatch = true;
+			  if (this.filter.createdWithin) {
+				const createdAt = new Date(report.created_at);  // works with "Apr 2, 2025"
+				const now = new Date();
+				const diffMs = now - createdAt;
+
+				let maxAgeMs;
+				if (this.filter.createdWithin === "today") {
+				  maxAgeMs = 24 * 60 * 60 * 1000;
+				} else {
+				  const days = parseInt(this.filter.createdWithin, 10);
+				  maxAgeMs = days * 24 * 60 * 60 * 1000;
+				}
+
+				dateMatch = diffMs <= maxAgeMs;
+			  }
+
+			  return statusMatch && initialRiskMatch && searchMatch && dateMatch;
+		  });
+
+		  this.newReportsCount = filtered.filter(report => report.status === 'new').length;
+		  this.triageReportsCount = filtered.filter(report => report.status === 'triage').length;
+		  this.acceptedReportsCount = filtered.filter(report => report.status === 'accepted').length;
+		  this.mitigatedReportsCount = filtered.filter(report => report.status === 'mitigated').length;
+
+
+		  this.initialCriticalRiskCount = filtered.filter(report => report.risk === 'critical').length;
+		  this.initialHighRiskCount = filtered.filter(report => report.risk === 'high').length;
+		  this.initialModerateRiskCount = filtered.filter(report => report.risk === 'moderate').length;
+		  this.initialLowRiskCount = filtered.filter(report => report.risk === 'low').length;
+		  this.initialUnknownRiskCount = filtered.filter(report => report.risk === 'unknown').length;
+
+		  const now = new Date();
+
+		  this.createdTodayCount = filtered.filter(report => {
+			const createdAt = new Date(report.created_at);
+			return (now - createdAt) <= (24 * 60 * 60 * 1000);
+		  }).length;
+
+		  this.created7Count = filtered.filter(report => {
+			const createdAt = new Date(report.created_at);
+			return (now - createdAt) <= (7 * 24 * 60 * 60 * 1000);
+		  }).length;
+
+		  this.created30Count = filtered.filter(report => {
+			const createdAt = new Date(report.created_at);
+			return (now - createdAt) <= (30 * 24 * 60 * 60 * 1000);
+		  }).length;
+
+		  console.log("Filtered Reports:", filtered.length);
+		  this.filteredReports = filtered;
+		  return filtered;
+		},
+
+        // Paginated reports based on the current page
+        paginatedReports() {
+          const startIndex = (this.currentPage - 1) * this.reportsPerPage;
+          console.log(startIndex)
+          const paginated = this.filterReports().slice(startIndex, startIndex + this.reportsPerPage);
+          console.log("Paginated Reports:", paginated.length);
+          return paginated;
+        },
+        prevPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+            }
+        },
+
+        // Navigate to the next page
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++;
+            }
+        },
+        toggleAllRows: function(checked) {
+            if (checked) {
+                this.rowsSelected = [];
+                this.filteredReports.forEach(report => {
+                    this.rowsSelected.push(report.id);
+                });
+            } else {
+                this.deselectedAllRows()
+            }
+        },
+        deselectedAllRows: function() {
+           this.rowsSelected = []
+           this.$refs.selectAllCheckbox.checked = false
+        },
+        toggleRow: function(checked, reportId) {
+            if (checked) {
+                this.rowsSelected.push(reportId);
+            } else {
+                this.rowsSelected = this.rowsSelected.filter(id => id !== reportId);
+            }
+        },
+        openDrawer: function(report) {
+        	this.selectedReport = report;
+        	if (this.selectedReport.risk === "critical") {
+        		this.selectedReport.risk_level = 95
+        	} else if (this.selectedReport.risk === "high") {
+				this.selectedReport.risk_level = 80
+        	} else if (this.selectedReport.risk === "moderate") {
+				this.selectedReport.risk_level = 50
+        	} else if (this.selectedReport.risk === "low") {
+				this.selectedReport.risk_level = 20
+        	} else {
+        		this.selectedReport.risk_level = 10
+        	}
+        	this.comments = report.comments;
+			document.getElementById('right-drawer').checked = true;
+        },
+        closeReportDrawer: function() {
+			this.previousSelectedReport = this.selectedReport
+			this.selectedReport = {}
+			document.getElementById('right-drawer').checked = false;
+
+        },
+        changeTabInDrawer: function(tab) {
+        	this.activeSideTab = tab;
+        },
+		scrollToRecentMessagesInDrawer: function() {
+		  setTimeout(function() {
+			var divElement = document.getElementById("middle-section");
+			if (divElement) {
+				divElement.scrollTop = divElement.scrollHeight;
+			}
+		  }, 100);
+		},
+		switchToChart: function() {
+			this.tableSelected = false
+		    this.$nextTick(() => {
+				this.statusChartComponent();
+				this.initialRiskChartComponent();
+				this.activityChartComponent();
+		    });
+		},
+		switchToTable: function() {
+			this.tableSelected = true
+		},
+		statusChartComponent() {
+		  // Group and count status
+		  const statusCounts = this.reports.reduce((acc, report) => {
+			const status = report.status || "unknown";
+			acc[status] = (acc[status] || 0) + 1;
+			return acc;
+		  }, {});
+		  const labels = Object.keys(statusCounts);
+		  const uppercasedLabels = labels.map(label => label.toUpperCase());
+		  const data = Object.values(statusCounts);
+
+		  this.chart = new ApexCharts(this.$refs.statusChart, {
+			chart: {
+			  type: 'donut'
+			},
+			labels: uppercasedLabels,
+			series: data,
+		    colors: labels.map(status => {
+				switch (status) {
+				  case 'mitigated':
+					return '#34d399'; // green-400
+				  case 'in_progress':
+					return '#f87171'; // red-400
+				  case 'mitigated':
+					return '#fbbf24'; // yellow-400
+				  default:
+					return '#3b82f6'; // gray-300
+				}
+		    }),
+		    dataLabels: {
+				enabled: false
+		    },
+		  });
+		  this.chart.render();
+		},
+		initialRiskChartComponent() {
+		  // Group and count initial risk
+		  const riskCounts = this.reports.reduce((acc, report) => {
+			const risk = report.risk || "unknown";
+			acc[risk] = (acc[risk] || 0) + 1;
+			return acc;
+		  }, {});
+
+		  const labels = Object.keys(riskCounts);
+		  const uppercasedLabels = labels.map(label => label.toUpperCase());
+		  const data = Object.values(riskCounts);
+
+		  this.initialRiskChart = new ApexCharts(this.$refs.initialRiskChart, {
+			chart: {
+			  type: 'donut'
+			},
+			labels: uppercasedLabels,
+			series: data,
+		    colors: labels.map(status => {
+				switch (status) {
+				  case 'low':
+					return '#34d399'; // green-400
+				  case 'moderate':
+					return '#fbbf24'; // yellow-400
+				  case 'high':
+					return '#f87f7f'; // red-400
+				  case 'critical':
+					return '#c65a5a'; // darkred-400
+				  default:
+					return '#d1d5db'; // gray-300
+				}
+		    }),
+		    dataLabels: {
+				enabled: false
+		    },
+		  });
+		  this.initialRiskChart.render();
+		},
+		activityChartComponent() {
+		  const data = this.dailyCountsLast30Days();
+
+		  this.chart = new ApexCharts(this.$refs.activityChart, {
+			chart: {
+			  type: 'area',
+			  height: 300,
+			  toolbar: { show: false }
+			},
+			series: [{
+			  name: 'Reports',
+			  data: data.counts
+			}],
+			xaxis: {
+			  categories: data.dates,
+			  labels: {
+				rotate: -45,
+				format: 'MMM dd'
+			  }
+			},
+			yaxis: {
+			  title: {
+				text: 'Reports',
+				style: {
+				  fontSize: '14px',
+				  fontWeight: 'bold',
+				}
+			  }
+			},
+			stroke: {
+			  curve: 'smooth'
+			},
+			colors: ['#3b82f6'],
+			tooltip: {
+			  x: { format: 'MMM dd' }
+			}
+		  });
+
+		  this.chart.render();
+		},
+		dailyCountsLast30Days() {
+		  const today = new Date();
+		  const past30 = new Date();
+		  past30.setDate(today.getDate() - 29); // 30 days including today
+
+		  // Prepare a map with keys for each day (even if no reports)
+		  const dateMap = {};
+		  for (let i = 0; i < 30; i++) {
+			const d = new Date();
+			d.setDate(today.getDate() - i);
+			const key = d.toISOString().slice(0, 10); // e.g., '2025-04-02'
+			dateMap[key] = 0;
+		  }
+
+		  // Count reports per day
+		  this.reports.forEach(report => {
+			const date = new Date(report.created_at);
+			const key = date.toISOString().slice(0, 10);
+			if (key in dateMap) {
+			  dateMap[key]++;
+			}
+		  });
+
+		  // Reverse for chronological order
+		  const sortedKeys = Object.keys(dateMap).sort();
+		  return {
+			dates: sortedKeys,
+			counts: sortedKeys.map(k => dateMap[k])
+		  };
+		},
+        updateRisk: function(risk) {
+            // Create payload with only allowed fields that are being updated
+            const allowedFields = [
+                'title', 'description', 'remediation', 'status', 
+                'risk', 'priority', 'assignee', 'owner_id', 'enabled'
+            ];
+            
+            const payload = {};
+            // Only include fields that are explicitly being updated
+            for (const field of allowedFields) {
+                if (field in risk && risk[field] !== undefined) {
+                    payload[field] = risk[field];
+                }
+            }
+
+            request("PUT",
+                `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks/${risk.id}`,
+                data => {
+                    toast("Risk updated successfully");
+                    this.getRisks(); // Refresh the risks list
+                },
+                error => {
+                    toast(error.message, "error");
+                },
+                payload
+            );
+        },
+        bulkUpdateStatuses() {
+            if (!this.rowsSelected.length) {
+                toast("Please select risks to update", "error");
+                return;
+            }
+
+            const payload = {
+                status: this.bulkUpdateStatus
+            };
+
+            Promise.all(this.rowsSelected.map(riskId => 
+                request("PUT",
+                    `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks/${riskId}`,
+                    () => {},
+                    error => toast(error.message, "error"),
+                    payload
+                )
+            )).then(() => {
+                toast("Statuses updated successfully");
+                this.showUpdateStatusModal = false;
+                this.getRisks();
+            });
+        },
+        bulkUpdateRisks() {
+            if (!this.rowsSelected.length) {
+                toast("Please select risks to update", "error");
+                return;
+            }
+
+            const payload = {
+                risk: this.bulkUpdateRisk
+            };
+
+            Promise.all(this.rowsSelected.map(riskId => 
+                request("PUT",
+                    `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks/${riskId}`,
+                    () => {},
+                    error => toast(error.message, "error"),
+                    payload
+                )
+            )).then(() => {
+                toast("Risk levels updated successfully");
+                this.showUpdateRiskModal = false;
+                this.getRisks();
+            });
+        },
+        toggleRiskSelection(risk) {
+            const index = this.selectedRisks.findIndex(r => r.id === risk.id);
+            if (index === -1) {
+                this.selectedRisks.push(risk);
+            } else {
+                this.selectedRisks.splice(index, 1);
+            }
+        }
+	}
+}
+</script>
+{%endblock%}

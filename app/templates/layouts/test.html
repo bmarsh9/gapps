@@ -6,10 +6,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <link rel="icon" href="">
     <title>{%block title%}{{config["APP_NAME"]|capitalize}}{%endblock%}</title>
-    {% block include_jquery %}
-    {% import "helpers/src_macros.html" as macro %}
-    {{ macro.filehelper(toasts=True) }}
-    {% endblock %}
     {% block before_head %}
     {% endblock %}
     {% block head %}

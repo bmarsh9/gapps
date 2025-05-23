@@ -1,0 +1,1464 @@
+{% extends "layouts/empty.html" %}
+
+{%block head%}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.2.0/tinymce.min.js"
+        integrity="sha512-tofxIFo8lTkPN/ggZgV89daDZkgh1DunsMYBq41usfs3HbxMRVHWFAjSi/MXrT+Vw5XElng9vAfMmOWdLg0YbA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" xmlns:x-bind="http://www.w3.org/1999/xhtml"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tinymce-variable@0.9.2/src/plugin.min.js"></script>
+<style>
+.tox-tinymce {
+    border: 0px !important;
+}
+.tox:not(.tox-tinymce-inline) .tox-editor-header {
+    padding: 0px !important;
+}
+.tox-statusbar {
+    display: none !important;
+}
+
+</style>
+{%endblock%}
+
+{%block body%}
+<div class="h-96 bg-base-300" x-data="editorInstance()">
+    <div class="flex h-screen">
+        <div x-show="!preview" class="w-64 bg-base-100 px-6 py-4 flex flex-col border-r border-base-300">
+            <h1 class="text-xl font-bold mb-2"><a :href="'/projects/'+projectId+'?tab=policies'" class="btn btn-sm btn-ghost mr-1 my-auto"><i class="ti ti-arrow-left text-xl"></i></a>Policy Center</h1>
+            <div class="mb-4">
+                <div @click="openPolicyDrawer;openEditPolicy(selectedPolicy)" class="bg-base-300 py-2 px-3 text-xs rounded-lg font-medium hover:cursor-pointer flex flex-row gap-x-1">
+                    <i x-show="!selectedPolicy.reviewer" class="ti ti-alert-triangle text-error my-auto"></i>
+                    <span x-text="'Reviewer:'+selectedPolicy.reviewer"></span>
+                </div>
+            </div>
+            <div class="w-full">
+              <h2 class="text-lg font-bold mb-2">Table of Contents</h2>
+              <ul class="menu bg-base-200 rounded-lg font-medium text-sm" x-html="toc"></ul>
+            </div>
+
+            <div x-show="experimental" class="mt-4">
+                <h3 class="text-lg font-bold mb-2">Annotations</h3>
+                <div class="flex flex-col gap-y-2">
+                    <template x-for="reference in annotations">
+                        <div class="flex flex-row justify-between bg-base-200 rounded-md p-2">
+                            <span class="font-medium my-auto" x-text="reference.rid"></span>
+<!--                            <span x-text="reference.controls"></span>-->
+                            <button @click="removeAnnotation(reference.rid)"><i class="ti ti-x text-error"></i></button>
+                        </div>
+                    </template>
+                </div>
+            </div>
+            <div x-show="experimental && selectedAnnotation" class="mt-4">
+                <h3 class="text-lg font-bold mb-2">Selected Annotation</h3>
+                <button x-show="!Object.keys(selectedAnnotation).length" @click="showReferenceModal" class="btn btn-success btn-xs">Reference</button>
+
+                <span x-show="!Object.keys(selectedAnnotation).length"><i class="ti ti-alert-triangle my-auto mr-1 text-error"></i>Highlight</span>
+
+                <div x-show="Object.keys(selectedAnnotation).length" class="flex flex-row justify-between bg-base-200 rounded-md p-2">
+                    <span class="font-medium my-auto" x-text="selectedAnnotation.rid"></span>
+                    <button @click="viewReference(selectedAnnotation.rid)"><i class="ti ti-maximize"></i></button>
+                </div>
+            </div>
+        </div>
+        <div x-show="preview" class="w-64 bg-base-100 p-6 flex flex-col border-r border-base-300">
+            <h1 class="text-xl font-bold mb-4">Table of Contents</h1>
+            <div class="w-full">
+              <ul x-show="!toc.includes('No headers')" class="menu bg-base-200 rounded-lg font-medium text-sm" x-html="toc"></ul>
+              <ul x-show="toc.includes('No headers')" class="menu bg-base-200 rounded-lg font-medium text-sm">No headers</ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col bg-base-100 active:bg-white">
+            <!-- Topbar -->
+            <header class="bg-base-100 shadow px-8 py-2 flex items-center justify-between border-b border-base-300">
+                <div class="flex flex-row gap-x-2">
+                    <h1 x-show="Object.keys(selectedPolicy).length !== 0" x-text="selectedPolicy.name" class="text-xl font-semibold capitalize"></h1>
+                    <button @click="openPolicyDrawer" x-show="Object.keys(selectedPolicy).length === 0" class="btn btn-xs font-semibold btn-primary">Select Policy</button>
+                    <span x-show="loadingContent" class="loading loading-spinner loading-xs"></span>
+                    <div x-show="!loadingContent">
+                        <span @click="openVersionDrawer" class="text-xs px-2 py-1 my-auto font-medium bg-base-200 rounded-md hover:cursor-pointer" x-show="Object.keys(selectedPolicy).length !== 0" x-text="'v'+selectedPolicy.active_version"></span>
+                        <span class="text-xs px-2 py-1 my-auto font-medium bg-base-200 rounded-md" x-show="preview">ViewMode</span>
+
+                        <span data-tip="Switch to ReadOnly mode" @click="openReadOnlyModal" class="text-xs hover:cursor-pointer px-2 py-1 my-auto font-medium bg-base-200 rounded-md tooltip tooltip-bottom" x-show="!readOnly && !preview">EditMode</span>
+                        <span data-tip="Switch to Edit mode" @click="openEditModal" class="text-xs hover:cursor-pointer px-2 py-1 my-auto font-medium bg-base-200 rounded-md tooltip tooltip-bottom" x-show="readOnly">ReadOnly</span>
+
+                        <span data-tip="This version is published." class="text-xs px-2 py-1 my-auto font-medium bg-base-200 rounded-md text-success tooltip tooltip-bottom" x-show="selectedPolicy.published === true">Published</span>
+                        <span @click="loadPolicyInEditor(selectedPolicy, 'published')"  data-tip="This version is not published. Click to switch to published version." class="text-xs hover:cursor-pointer px-2 py-1 my-auto font-medium bg-base-200 rounded-md text-error tooltip tooltip-bottom" x-show="selectedPolicy.published === false">Not Published<i class="ti ti-status-change my-auto ml-1"></i></span>
+                    </div>
+
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button x-show="!preview" @click="openPolicyDrawer" class="btn btn-sm" x-text="'Policies ('+policies.length+')'"></button>
+                    <button x-show="!preview && Object.keys(selectedPolicy).length !== 0" @click="openVersionDrawer" class="btn btn-sm">
+                        <div x-show="!loadingContent">
+                            <span x-show="selectedPolicy.is_latest">Versions (v.latest)</span>
+                            <span x-show="!selectedPolicy.is_latest" x-text="'Versions (v.'+selectedPolicy.active_version+')'"></span>
+                        </div>
+                        <span x-show="loadingContent" class="loading loading-spinner loading-xs"></span>
+                    </button>
+                    <button x-show="!preview" @click="previewContent(true)" class="btn btn-sm">Preview</button>
+                    <button x-show="preview" @click="previewContent(false)" class="btn btn-sm">Back to Editor</button>
+                    <button :disabled="selectedPolicy.published" @click="openPublishModal" class="btn btn-sm btn-warning">Publish</button>
+
+                    <button :class="{'animate-pulse btn-warning':shouldSave}" @click="savePolicy" class="btn btn-sm btn-success">Save</button>
+
+                    <button @click="copyLink" class="btn btn-sm"><i class="ti ti-share text-lg"></i></button>
+                </div>
+            </header>
+
+            <div class="px-6 pt-2 overflow-y-auto element">
+                <div x-show="readOnly && !preview" role="alert" class="alert bg-base-300 py-2">
+                  <i class="ti ti-alert-triangle text-md"></i>
+                  <span>The editor is currently in Read Only mode.</span>
+                  <div class="text-right"><button @click="openEditModal" class="btn btn-xs text-xs btn-warning">Switch to edit mode</button></div>
+                </div>
+                <div x-show="!readOnly && !preview" role="alert" class="alert bg-base-300 py-2">
+                  <i class="ti ti-alert-triangle text-error text-md"></i>
+                  <span>The editor is currently in Edit mode.</span>
+                  <div class="text-right"><button @click="openReadOnlyModal" class="btn btn-xs text-xs">ReadOnly Mode</button></div>
+                </div>
+            </div>
+
+            <!-- No policy selected -->
+            <main x-show="Object.keys(selectedPolicy).length === 0" class="flex-1 px-6 py-2 overflow-y-auto element bg-base-100">
+                <div x-show="!loadingPolicies" class="hero mt-20">
+                  <div class="hero-content text-center">
+                    <div class="max-w-md">
+                      <h1 class="text-2xl font-bold">Select a Policy</h1>
+                      <p class="py-6">
+                        Please load a policy into the editor so we can get started!
+                      </p>
+                      <button @click="openPolicyDrawer" class="btn btn-primary">Select Policy</button>
+                    </div>
+                  </div>
+                </div>
+                <div x-show="loadingPolicies" class="hero mt-20">
+                  <div class="hero-content text-center">
+                    <div class="max-w-md">
+                      <h1 class="text-2xl font-bold">Loading...</h1>
+                      <p class="py-6">
+                        Please wait while we load the policies.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+            </main>
+
+            <!-- Policy selected -->
+            <main x-show="Object.keys(selectedPolicy).length !== 0" class="flex-1 px-6 py-2 overflow-y-auto element bg-base-100">
+                <div class="bg-base-100" id="default"></div>
+            </main>
+        </div>
+        <div x-show="!preview" style="z-index:1500"  class="w-24 bg-base-100 p-6 flex flex-col border-l border-base-300">
+            <nav class="space-y-4 flex-grow">
+                <button @click="applyFs" data-tip="Full Screen" :class="{'btn-active': editorConfig['fs']}" class="btn btn-sm tooltip tooltip-left"><i class="ti ti-maximize text-xl"></i></button>
+                <button @click="undoAction" data-tip="Undo" class="btn btn-sm tooltip tooltip-left"><i class="ti ti-arrow-back-up text-xl"></i></button>
+                <button @click="redoAction" data-tip="Redo" class="btn btn-sm tooltip tooltip-left"><i class="ti ti-arrow-forward-up text-xl"></i></button>
+
+                <div class="dropdown dropdown-left tooltip tooltip-left" data-tip="Header">
+                  <div :class="{'btn-active': editorConfig['header']}"  tabindex="0" role="button" class="btn btn-sm"><i class="ti ti-heading text-xl"></i></div>
+                  <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow gap-2">
+                    <button @click="applyHeader('h1')" :class="{'btn-active': editorConfig['header'] === 'h1'}" class="btn btn-sm">H1</button>
+                    <button @click="applyHeader('h2')" :class="{'btn-active': editorConfig['header'] === 'h2'}" class="btn btn-sm">H2</button>
+                    <button @click="applyHeader('h3')" :class="{'btn-active': editorConfig['header'] === 'h3'}" class="btn btn-sm">H3</button>
+                    <button @click="applyHeader('p')" :class="{'btn-active': editorConfig['header'] === 'p'}" class="btn btn-sm">P</button>
+
+                  </ul>
+                </div>
+                <div class="dropdown dropdown-left tooltip tooltip-left" data-tip="Alignment">
+                  <div tabindex="0" role="button" class="btn btn-sm"><i class="ti ti-align-center text-xl"></i></div>
+                  <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow gap-2">
+                    <button @click="applyAlignment('JustifyLeft')" class="btn btn-sm">Left</button>
+                    <button @click="applyAlignment('JustifyCenter')" class="btn btn-sm">Center</button>
+                    <button @click="applyAlignment('JustifyRight')" class="btn btn-sm">Right</button>
+                    <button @click="applyAlignment('Indent')" class="btn btn-sm">Indent</button>
+
+                  </ul>
+                </div>
+                <div class="dropdown dropdown-left tooltip tooltip-left" data-tip="Styling">
+                  <div tabindex="0" role="button" class="btn btn-sm"><i class="ti ti-italic text-xl"></i></div>
+                  <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow gap-2">
+                    <button @click="applyFormatting('Bold')" :class="{'btn-active': editorConfig['Bold']}" class="btn btn-sm">Bold</button>
+                    <button @click="applyFormatting('Italic')" :class="{'btn-active': editorConfig['Italic']}" class="btn btn-sm">Italic</button>
+                    <button @click="applyFormatting('Underline')" :class="{'btn-active': editorConfig['Underline']}" class="btn btn-sm">Underline</button>
+                    <button @click="applyFormatting('Strikethrough')" :class="{'btn-active': editorConfig['Strikethrough']}" class="btn btn-sm">Strikethrough</button>
+                    <button @click="createLink('')" class="btn btn-sm">Insert Link</button>
+                  </ul>
+                </div>
+                <div class="dropdown dropdown-left tooltip tooltip-left" data-tip="Font Color">
+                  <div :class="{'btn-active': editorConfig['color']}"  tabindex="0" role="button" class="btn btn-sm"><i class="ti ti-palette text-xl"></i></div>
+                  <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow gap-2">
+                    <button style="color:#394e6a;" @click="setColor('#394e6a')" :class="{'btn-active': editorConfig['color'] === '#394e6a'}" class="btn btn-sm">Base</button>
+                    <button style="color:#f68067;" @click="setColor('#f68067')" :class="{'btn-active': editorConfig['color'] === '#f68067'}" class="btn btn-sm">Accent</button>
+                    <button style="color:#55cbd3;" @click="setColor('#55cbd3')" :class="{'btn-active': editorConfig['color'] === '#55cbd3'}" class="btn btn-sm">Blue</button>
+                    <button style="color:#eab308;" @click="setColor('#eab308')" :class="{'btn-active': editorConfig['color'] === '#eab308'}" class="btn btn-sm">Orange</button>
+                    <button style="color:#22c55e;" @click="setColor('#22c55e')" :class="{'btn-active': editorConfig['color'] === '#22c55e'}" class="btn btn-sm">Green</button>
+                    <button style="color:#ef4444;" @click="setColor('#ef4444')" :class="{'btn-active': editorConfig['color'] === '#ef4444'}" class="btn btn-sm">Red</button>
+                    <button style="color:#6F00FE;" @click="setColor('#6F00FE')" :class="{'btn-active': editorConfig['color'] === '#6F00FE'}" class="btn btn-sm">Purple</button>
+                  </ul>
+                </div>
+                <div class="dropdown dropdown-left tooltip tooltip-left" data-tip="Content blocks">
+                  <div tabindex="0" role="button" class="btn btn-sm"><i class="ti ti-blocks text-xl"></i></div>
+                  <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow gap-2">
+                    <button @click.stop="insertTable" class="btn btn-sm">Insert table</button>
+                    <button @click="applyOrderedList" class="btn btn-sm">Ordered list</button>
+                    <button @click="applyUnorderedList" class="btn btn-sm">Unordered list</button>
+                    <button @click="applyBlockQuote" class="btn btn-sm">Blockquote</button>
+                    <button @click="applyCodeSample" class="btn btn-sm">Code</button>
+                  </ul>
+                </div>
+            </nav>
+            <button @click="scrollToTop" data-tip="Scroll to Top" class="btn btn-sm tooltip tooltip-left"><i class="ti ti-arrow-up text-xl"></i></button>
+
+        </div>
+    </div>
+    <div x-show="false" style="z-index:1500" class="draggable absolute bg-base-300 bottom-24 left-1/2 transform -translate-x-1/2 py-2 px-8 rounded-lg shadow-lg flex space-x-4">
+        <button @click="applyFs" :class="{'btn-active': editorConfig['fs']}" class="btn btn-sm">Full Screen</button>
+        <button class="btn btn-sm">Underline</button>
+    </div>
+
+<!--    Policy drawer-->
+    <div class="drawer drawer-start z-50">
+      <input @change="closePolicyDrawer" id="policy-drawer" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content">
+        <!-- Page content here -->
+      </div>
+      <div class="drawer-side">
+        <label for="policy-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+        <div class="menu bg-base-200 min-h-full w-1/2">
+
+            <div x-show="policies.length>0 && !showEditPolicy && !showCreatePolicy" class="card card-body">
+                <div class="flex justify-between">
+                    <span class="text-xl"><i class="ti ti-book mr-1 my-auto text-lg"></i>Policies</span>
+                    <div class="flex flex-row gap-x-2">
+                        <button @click="showCreatePolicy=true" class="btn btn-xs btn-success" x-text="'Create/Add Policy ('+policies.length+')'"></button>
+                    </div>
+                </div>
+                <div role="alert" class="alert bg-base-300">
+                  <span>Select below to load different policies into the editor. If a policy does not have a published version, please select, make changes and publish the policy. Edit the policy to change the reviewer.</span>
+                </div>
+
+                <div class="grid grid-cols-4 mt-2 bg-base-300 rounded-md shadow-sm p-6">
+                    <div class="col-span-4">
+                        <div class="overflow-x-auto">
+                          <table class="table">
+                            <!-- head -->
+                            <thead>
+                              <tr>
+                                <th class="w-1">Published</th>
+                                <th>Title</th>
+                                <th class="w-1">Versions</th>
+                                <th class="w-1">Edit</th>
+                                <th class="w-1">Load Policy</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <template x-for="policy in policies">
+                                  <tr :class="{'bg-base-100 font-medium': selectedPolicy===policy}">
+                                    <td class="uppercase text-[10px]" :class="{'text-success':policy.is_published, 'text-error':!policy.is_published}" x-text="policy.is_published"></td>
+                                    <td class="capitalize" x-text="policy.name"></td>
+                                    <td>
+                                        <button @click="openVersionDrawer" class="btn btn-xs" x-text="policy.versions.length"></button>
+                                    </td>
+                                    <td>
+                                        <button @click="openEditPolicy(policy)" class="btn btn-xs btn-ghost"><i class="ti ti-settings text-lg"></i></button>
+                                    </td>
+                                    <td>
+                                        <button x-show="selectedPolicy!==policy" @click="loadPolicyInEditor(policy)" class="btn btn-xs btn-ghost"><i class="ti ti-arrow-big-right text-lg"></i></button>
+                                        <span class="text-success text-xs" x-show="selectedPolicy===policy">Loaded</span>
+                                    </td>
+                                  </tr>
+                              </template>
+                            </tbody>
+                          </table>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+            <div x-show="(policies.length === 0 || showCreatePolicy) && !showEditPolicy" class="card card-body">
+                <div class="flex justify-between">
+                    <span class="text-xl"><i class="ti ti-book mr-1 my-auto text-lg"></i>Policies</span>
+                </div>
+                <div class="hero-content text-center">
+                    <div class="w-full max-w-lg">
+                      <h1 class="text-2xl font-bold">Create Policy</h1>
+                      <p class="py-6">
+                        Please create one from a template or start from scratch.
+                      </p>
+                        <div class="mb-5" x-show="createStep===2">
+                            <span x-show="createPayload.template" class="capitalize w-full mb-2" x-text="'Template: '+createPayload.template"></span>
+                            <div class="flex flex-row gap-4">
+                                <label class="form-control w-full">
+                                  <div class="label">
+                                    <span class="label-text text-sm">Provide a title for the Policy</span>
+                                  </div>
+                                  <input x-model="createPayload.name" type="text" placeholder="Provide title" class="input input-xs w-full" />
+                                </label>
+                               <label class="form-control w-full">
+                                  <div class="label">
+                                    <span class="label-text text-sm">Provide a description</span>
+                                  </div>
+                                  <textarea x-model="createPayload.description" class="textarea textarea-sm" placeholder="Provide description"></textarea>
+                                </label>
+                            </div>
+                        </div>
+                      <div x-show="createStep===1" class="flex flex-row justify-center gap-x-2">
+                        <select x-model="createPayload.template" @change="createStep=2" class="select select-sm font-medium">
+                            <option class="font-medium">Select template</option>
+                            <template x-for="policy in tenantPolicies" :key="policy.id">
+                              <option class="capitalize" :value="policy.name" x-text="policy.name"></option>
+                            </template>
+                        </select>
+                        <span class="font-bold my-auto">OR</span>
+                        <button @click="createPayload.template='',createStep=2" class="btn btn-sm bg-base-300">Start from scratch</button>
+                      </div>
+                      <div x-show="createStep===2" class="flex flex-row justify-center gap-x-2">
+                        <button @click="createStep=1" class="btn btn-sm ghost"><i class="ti ti-arrow-left text-lg"></i></button>
+                        <button @click="createPolicy" :disabled="!okToCreate" class="btn btn-sm btn-primary">Start Editing</button>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div x-show="showEditPolicy" class="card card-body">
+                <div class="flex flex-row gap-x-2">
+                    <button @click="showEditPolicy=false" class="btn btn-xs"><i class="ti ti-arrow-left text-xl"></i></button>
+                    <span class="text-xl" x-text="'Edit Policy: '+editPolicy.name"></span>
+                </div>
+                <div class="bg-base-300 p-4 rounded-md">
+                    <div class="flex flex-row gap-4">
+                        <label class="form-control w-full">
+                          <div class="label">
+                            <span class="label-text text-sm">Policy Title</span>
+                          </div>
+                          <input x-model="editPolicy.name" type="text" placeholder="Provide title" class="input input-sm w-full" />
+                        </label>
+                       <label class="form-control w-full">
+                          <div class="label">
+                            <span class="label-text text-sm">Policy Description</span>
+                          </div>
+                          <textarea x-model="editPolicy.description" class="textarea" placeholder="Provide description"></textarea>
+                        </label>
+                    </div>
+                    <div class="flex flex-row gap-4">
+                        <label class="form-control w-full">
+                          <div class="label">
+                            <span class="label-text text-sm">Policy Reviewer</span>
+                          </div>
+                          <select x-model="editPolicy.reviewer" class="select select-sm w-full">
+                              <option :selected="!editPolicy.reviewer">Select User</option>
+                              <template x-for="user in projectUsers">
+                                <option :value="user.email" x-text="user.email"></option>
+                              </template>
+                          </select>
+                        </label>
+                    </div>
+                    <button @click="updatePolicy(editPolicy)" class="btn btn-sm btn-warning btn-block mt-4">Update</button>
+                </div>
+
+            </div>
+        </div>
+      </div>
+    </div>
+
+<!--    Version drawer-->
+    <div class="drawer drawer-start z-50">
+      <input id="version-drawer" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content">
+        <!-- Page content here -->
+      </div>
+      <div class="drawer-side">
+        <label for="version-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+        <div class="menu bg-base-200 min-h-full w-3/5">
+
+            <div class="card card-body">
+                <div class="flex justify-between">
+                    <span class="text-xl"><i class="ti ti-book mr-1 my-auto text-lg"></i>Policy Versions</span>
+                    <div x-text="selectedPolicy.versions.length" class="flex flex-row gap-x-2"></div>
+                </div>
+                <div role="alert" class="alert bg-base-300">
+                  <span>Select below to load different versions into the editor. Only one version of a policy can be published at a time. Once published, it will be the "official" policy.</span>
+                </div>
+                <div class="grid grid-cols-4 mt-2 bg-base-300 rounded-md shadow-sm p-6">
+                    <div class="col-span-4">
+                        <div class="overflow-x-auto">
+                          <table class="table">
+                            <!-- head -->
+                            <thead>
+                              <tr>
+                                <th>Delete</th>
+                                <th>Version</th>
+                                <th>Published</th>
+                                <th>Status</th>
+                                <th>Updated</th>
+                                <th class="w-1">Load Policy</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <template x-for="record in selectedPolicy.versions">
+                                  <tr :class="{'bg-base-100 font-medium': selectedPolicy.active_version===record.version}">
+                                    <td>
+                                        <button x-show="!record.published" @click="openDeleteVersionModal(selectedPolicy, record.version)" class="btn btn-xs btn-ghost"><i class="ti ti-trash text-error text-lg"></i></button>
+                                    </td>
+                                    <td x-show="!record.is_latest" class="capitalize" x-text="record.version"></td>
+                                    <td x-show="record.is_latest" class="capitalize" x-text="record.version+'(latest)'"></td>
+                                    <td class="uppercase text-[10px]" :class="{'text-success':record.published, 'text-error':!record.published}" x-text="record.published"></td>
+                                    <td class="capitalize" x-text="record.status"></td>
+                                    <td class="capitalize" x-text="record.last_changed"></td>
+                                    <td>
+                                        <button x-show="selectedPolicy.active_version!==record.version" @click="loadPolicyInEditor(selectedPolicy, version=record.version)" class="btn btn-xs btn-ghost"><i class="ti ti-arrow-big-right text-lg"></i></button>
+                                        <span class="text-xs text-success" x-show="selectedPolicy.active_version===record.version">Loaded</span>
+                                    </td>
+                                  </tr>
+                              </template>
+                            </tbody>
+                          </table>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+<!--    Reference drawer-->
+    <div class="drawer drawer-start z-50">
+      <input id="reference-drawer" type="checkbox" class="drawer-toggle" />
+      <div class="drawer-content">
+        <!-- Page content here -->
+      </div>
+      <div class="drawer-side">
+        <label for="reference-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+        <div class="menu bg-base-200 min-h-full w-1/2">
+
+            <div class="card card-body">
+                <div class="flex justify-between">
+                    <span class="text-xl"><i class="ti ti-book mr-1 my-auto text-lg"></i>Controls Referenced</span>
+                    <div x-text="selectedReference.controls" class="flex flex-row gap-x-2"></div>
+                </div>
+                <div role="alert" class="alert bg-base-300">
+                  <i class="ti ti-alert-triangle text-md"></i>
+                  <span>The following controls are referenced with the highlighted text.</span>
+                  <div class="text-right"><button @click="showReferenceModal" class="btn btn-sm text-success">Add Control</button></div>
+                </div>
+                <div class="grid grid-cols-4 bg-base-300 rounded-md shadow-sm p-6">
+
+                    <div class="col-span-4">
+                        <div class="overflow-x-auto">
+                          <table class="table">
+                            <!-- head -->
+                            <thead>
+                              <tr>
+                                <th>Control Name</th>
+                                <th class="w-1">Remove</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <template x-for="control in selectedReference.controls">
+                                  <tr>
+                                    <td class="capitalize" x-text="control.name"></td>
+                                    <td>
+                                        <div class="flex flex-row gap-x-2">
+                                            <button class="btn btn-sm btn-ghost"><i class="ti ti-trash text-error text-xl"></i></button></td>
+                                        </div>
+                                  </tr>
+                              </template>
+                            </tbody>
+                          </table>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+<!--    Highlight modal-->
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showHighlightModal}">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showHighlightModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-8">Reference Controls</h2>
+                <div class="card-body py-0">
+                    <div role="alert" class="alert">
+                      <span>Select the controls that you would like to reference with the highlighted text.</span>
+                    </div>
+                    <div class="overflow-x-auto h-96 overflow-auto">
+                      <table class="table">
+                        <!-- head -->
+                        <thead>
+                          <tr>
+                            <th class="w-1">Associated</th>
+                            <th>Control Title</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <!-- row 1 -->
+                          <template x-for="control in controls">
+                          <tr>
+                            <td>
+                                <button x-show="tempControls.some(record => record.id === control.id)" @click="removeTempControl(control)" class="btn btn-sm btn-success"><i class="ti ti-check"></i></button>
+                                <button x-show="!tempControls.some(record => record.id === control.id)" @click="addTempControl(control)" class="btn btn-sm"><i class="ti ti-square-rounded"></i></button>
+                            </td>
+                            <td x-text="control.name"></td>
+                          </tr>
+                          </template>
+                        </tbody>
+                      </table>
+                    </div>
+
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showHighlightModal=false">Close</button>
+                    <button :disabled="!tempControls.length" @click="createAnnotation" class="btn btn-success">Reference Controls</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--Edit modal-->
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showEditModal}">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showEditModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-8">Switch to Edit mode</h2>
+                <div class="card-body py-0">
+                    <div x-show="requireChangeControl && (selectedPolicy.published && selectedPolicy.is_latest)" role="alert" class="alert">
+                      <i class="ti ti-alert-triangle text-warning"></i>
+                      <span>You are trying to edit a published version of the policy! If you would like to proceed, we will create a new version and then you can continue with edits.</span>
+                    </div>
+                    <div x-show="requireChangeControl && (selectedPolicy.published && !selectedPolicy.is_latest)" role="alert" class="alert">
+                      <i class="ti ti-alert-triangle text-warning"></i>
+                      <span>You are trying to edit a published version of the policy! If you would like to proceed, we will create a new version and then you can continue with edits. <br><br>This policy does have a newer (unpublished) version that you can switch and edit directly. <button class="underline text-primary hover:cursor-pointer" @click="loadPolicyInEditor(selectedPolicy, 'latest');showEditModal=false">Switch to latest.</button></span>
+                    </div>
+                    <div x-show="!requireChangeControl || !selectedPolicy.published" role="alert" class="alert">
+                      <i class="ti ti-alert-triangle text-warning"></i>
+                      <span>You are switching to edit mode. You will be able to make changes to the policy. After making changes, please be sure to save changes.</span>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showEditModal=false">Close</button>
+                    <button x-show="!requireChangeControl || !selectedPolicy.published" @click="setEditorAsEditable;showEditModal=false" class="btn btn-success">Proceed</button>
+                    <button x-show="requireChangeControl && selectedPolicy.published" @click="createNewVersion(selectedPolicy);showEditModal=false;setEditorAsEditable" class="btn btn-success">Create New Version</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--Delete version modal-->
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showDeleteVersionModal}">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showDeleteVersionModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-8" x-text="'Delete Version: '+tempDeleteVersion"></h2>
+                <div class="card-body py-0">
+                    <div role="alert" class="alert">
+                      <i class="ti ti-alert-triangle text-warning"></i>
+                      <span x-text="'Are you sure you want to delete version:'+tempDeleteVersion+' for the policy:'+tempDeletePolicy.name+'? The policy will not be deleted, only the specific version.'"></span>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showDeleteVersionModal=false">Close</button>
+                    <button @click="deleteVersion(tempDeleteVersion);showDeleteVersionModal=false" class="btn btn-error">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--Show publish modal-->
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showPublishModal}">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showPublishModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-8" x-text="'Publish Version: '+selectedPolicy.active_version"></h2>
+                <div class="card-body py-0">
+                    <div role="alert" class="alert">
+                      <i class="ti ti-alert-triangle text-warning"></i>
+                      <span x-text="'You are trying to publish version:'+selectedPolicy.active_version+' for the policy:'+selectedPolicy.name+'. Please click below to proceed. Once published, it will become the current policy.'"></span>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showPublishModal=false">Close</button>
+                    <button @click="publishPolicy" class="btn btn-success">Publish Version</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--View only modal-->
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showReadOnlyModal}">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showReadOnlyModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-8">Switch to Read Only</h2>
+                <div class="card-body py-0">
+                    <div role="alert" class="alert">
+                      <span>You are switching to Read Only mode. If you would like to make edits, switch back to edit mode.</span>
+                    </div>
+
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showReadOnlyModal=false">Close</button>
+                    <button @click="setEditorAsReadOnly;showReadOnlyModal=false" class="btn btn-success">Switch</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+
+    function editorInstance() {
+        return {
+            // Holds the editor instance
+            experimental: false,
+            editor: null,
+            readOnly: true,
+            preview: false,
+            selectedPolicy: {},
+            editorConfig: {},
+            tempDeletePolicy: "",
+            tempDeleteVersion: "",
+            loadingPolicies: true,
+            loadingContent:false,
+            showHighlightModal: false,
+            showReadOnlyModal: false,
+            showDeleteVersionModal: false,
+            showEditModal: false,
+            showPublishModal: false,
+            showCreatePolicy: false,
+            createStep: 1,
+            policies: [],
+            tenantPolicies: [],
+            controls: [],
+            projectId: "{{project.id}}",
+            tenantId: "{{project.tenant_id}}",
+            requireChangeControl:{{project.policies_require_cc | tojson}},
+            toc: "No headers (Add H1-H3)",
+            annotations: [],
+            tempControls: [],
+            versions: [],
+            selectedAnnotation: {},
+            selectedReference: {},
+            shouldSave: false,
+            okToCreate: false,
+            createPayload: {},
+            showEditPolicy: false,
+            editPolicy: {},
+            projectUsers:[],
+
+            // Initialize the TinyMCE editor
+            init() {
+                this.initEditor()
+                this.getTenantPolicies()
+                this.getPolicies()
+                this.getControls()
+                this.getUsers()
+
+                let mode = this.getURLParam("mode", "readOnly")
+                if (mode === "readOnly") {
+                    this.readOnly = true
+                } else {
+                    this.readOnly = false
+                }
+                this.experimental = this.getURLParam("experimental")
+
+                if (this.getURLParam("create")) {
+<!--                haaaa-->
+                    this.openPolicyDrawer()
+                    this.showCreatePolicy = true;
+                }
+
+                this.$watch(
+                    "createPayload", (newValue, oldValue) => {
+                        if (this.createPayload.name && this.createPayload.description) {
+                            this.okToCreate = true
+                            return
+                        }
+                        this.okToCreate = false
+                    }
+                )
+            },
+            openEditPolicy(policy) {
+                this.editPolicy = policy
+                this.showEditPolicy = true
+            },
+            copyLink: function() {
+                // Create a temporary textarea element
+                let textarea = document.createElement('textarea');
+
+                url = new URL(window.location.href);
+
+                textarea.value = url.toString();
+
+                // Append the textarea to the document
+                document.body.appendChild(textarea);
+
+                // Select the text in the textarea
+                textarea.select();
+
+                // Execute the copy command
+                document.execCommand('copy');
+
+                // Remove the textarea from the document
+                document.body.removeChild(textarea);
+                toast("Link copied to your clipboard")
+            },
+            closePolicyDrawer() {
+                this.deleteURLParam("create")
+                document.getElementById('policy-drawer').checked = false;
+            },
+            openPolicyDrawer() {
+                this.showEditPolicy = false
+                this.showCreatePolicy = false
+                document.getElementById('policy-drawer').checked = true;
+            },
+            openVersionDrawer() {
+                document.getElementById('version-drawer').checked = true;
+            },
+            addTempControl(control) {
+                this.tempControls.push(control)
+            },
+            removeTempControl(control) {
+                this.tempControls = this.tempControls.filter(item => item !== control);
+            },
+            getURLParam: function(param, defaultValue="") {
+                var queryParams = new URLSearchParams(window.location.search);
+                return queryParams.get(param) || defaultValue;
+            },
+            setURLParam: function(key, value) {
+                var queryParams = new URLSearchParams(window.location.search);
+                queryParams.set(key, value)
+                history.replaceState(null, null, "?"+queryParams.toString());
+            },
+            deleteURLParam: function(param) {
+                var queryParams = new URLSearchParams(window.location.search);
+                queryParams.delete(param)
+                history.replaceState(null, null, "?"+queryParams.toString());
+            },
+            removeAnnotation(rid) {
+                annotations = this.getAnnotations()
+                annotations.forEach(item => {
+                  if (rid === item["rid"]) {
+                    this.annotations = this.annotations.filter(annotation => annotation.rid !== rid);
+
+                    if (item["element"].parentElement) {
+                      item["element"].classList.remove("annotate");
+                      item["element"].removeAttribute("data-rid");
+                    }
+                  }
+                });
+            },
+            openDeleteVersionModal(policy, version) {
+                // Not actually deleting the policy, just using it to reference data
+                this.tempDeletePolicy = policy
+                this.tempDeleteVersion = version
+                this.showDeleteVersionModal = true
+            },
+            openPublishModal() {
+                if (this.requireChangeControl && this.selectedPolicy.published) {
+                    this.openEditModal()
+                    return
+                }
+                this.showPublishModal = true
+            },
+            openReadOnlyModal() {
+                this.showReadOnlyModal = true
+            },
+            openEditModal() {
+                this.showEditModal = true
+                if (this.selectedPolicy.published) {
+                    // create API call to create new version
+                    console.log("Published version, we need to create a new version")
+                } else {
+                }
+            },
+            getAnnotations() {
+                data = []
+                const elements = this.editor.dom.select('[data-rid]');
+                elements.forEach(element => {
+                  data.push({
+                    "element": element,
+                    "rid":element.getAttribute('data-rid'),
+                    "controls":element.getAttribute('data-controls')
+                  })
+                });
+                return data
+            },
+            createAnnotation() {
+                const selection = this.editor.selection.getNode();
+                if (this.editor.selection.getContent()) {
+                  // Wrap selected text with a span to highlight it
+                  const randomUid = Math.floor(10000 + Math.random() * 90000).toString();
+                  this.editor.execCommand('mceInsertContent', false, `<span class='annotate' data-rid="${randomUid}">${this.editor.selection.getContent()}</span>`);
+                  this.editor.execCommand('mceInsertContent', false, '&nbsp;'); // Add a space to force cursor move
+                  this.editor.selection.collapse(false);
+
+                  // Store the reference of the highlighted text in the highlights array
+                  this.annotations.push({
+                    rid: randomUid,
+                    controls: this.tempControls
+                  })
+                  this.tempControls = []
+                  toast("Created Annotation")
+                }
+                this.showHighlightModal = false;
+            },
+            loadPolicyInEditor(policy, version="published") {
+                console.log(`Trying to load:${policy.name} and version:${version}`)
+                this.loadingContent = true;
+
+                this.selectedPolicy = policy
+                this.setURLParam("policy-id", this.selectedPolicy.id)
+                this.setURLParam("version", version)
+                try {
+                    this.setContent("");
+                } catch (error) {
+                    console.error("Error clearing editor content:", error);
+                }
+                document.getElementById('policy-drawer').checked = false;
+                document.getElementById('version-drawer').checked = false;
+                request("GET",
+                    `/api/v1/projects/${this.projectId}/policies/${policy.id}/versions/${version}`,
+                    data => {
+                        setTimeout(() => {
+                            if (!data.content) {
+                                this.setContent("Start working on your policy...");
+                            } else {
+                                this.setContent(data.content);
+                            }
+                            this.selectedPolicy.active_version = data.version
+                            this.selectedPolicy.is_latest = data.is_latest
+                            this.selectedPolicy.published = data.published
+
+                            this.loadingContent = false;
+                            if (this.selectedPolicy.published || this.readOnly) {
+                                this.setEditorAsReadOnly()
+                            } else {
+                                this.setEditorAsEditable()
+                            }
+                            toast(`Loaded policy: ${policy.name} (${version})`)
+                        }, 1000);
+
+                    },
+                    error => {
+                      console.log(error.message);
+
+                      if (error.message.includes("has not been published")) {
+                        toast("Policy does not have a published version. Loading latest version.", "warning")
+                        this.loadPolicyInEditor(this.selectedPolicy, "latest")
+                      } else {
+                        toast(error.message, "error")
+                      }
+                    }
+                )
+            },
+            getTenantPolicies: function() {
+              request("GET",
+                `/api/v1/tenants/${this.tenantId}/policies`,
+                data => {
+                    this.tenantPolicies = data.map(item => ({
+                        ...item,
+                        name: item.name.charAt(0).toUpperCase() + item.name.slice(1) // Capitalize first letter
+                    }));
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+              )
+            },
+            getPolicies: function() {
+              this.loadingPolicies = true
+
+              request("GET",
+                `/api/v1/projects/${this.projectId}/policies`,
+                data => {
+                  this.loadingPolicies = false
+                  this.policies = data;
+
+                  let policyId = this.getURLParam("policy-id")
+                  if (!policyId) {
+                    return
+                  }
+                  const policy = this.policies.find(record => record.id === policyId);
+                  if (policy) {
+                      // Load the version in URL, then the published version and then the latest one
+                      let versionParam = this.getURLParam("version")
+                      let foundVersion = false;
+
+                      if (versionParam) {
+                        foundVersion = policy.versions.find(v => v.version === parseInt(versionParam));
+                      }
+                      try {
+                          const selectedVersion = foundVersion ||
+                            policy.versions.find(v => v.published) ||
+                            policy.versions.reduce((max, v) => v.version > max.version ? v : max, policy.versions[0]);
+
+                          console.log(`Loading policy:${policy.name} with version: ${selectedVersion.version}`)
+
+                          this.loadPolicyInEditor(policy, version=selectedVersion.version)
+                      } catch {
+                        toast(`Failed loading policy:${policy.name} with version: ${versionParam}. Please manually select a policy.`, "error")
+                        this.deleteURLParam("policy-id")
+                        this.deleteURLParam("version")
+                      }
+                  } else {
+                    toast("Unable to find policy by ID. Please select one", "warning")
+                    this.deleteURLParam("policy-id")
+                    this.deleteURLParam("version")
+
+                  }
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+              )
+            },
+            keyExistsInLocalStorage: function(key, parse=false) {
+              let value = localStorage.getItem(key);
+              if (value) {
+                if (parse) {
+                  return JSON.parse(value)
+                }
+                return value
+              }
+              return false
+            },
+            getControls: function(useCache=true) {
+              console.log("Trying to load controls")
+              if (useCache) {
+                let cacheValue = this.keyExistsInLocalStorage(`${this.projectId}_controls`, parse=true);
+
+                if (cacheValue !== false) {
+                    console.log("Loading controls from cache")
+                    this.controls = cacheValue
+                    return
+                }
+              }
+              console.log("Loading controls from server")
+              request("GET",
+                "/api/v1/projects/" + this.projectId + "/controls",
+                data => {
+                    this.controls = data;
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+              );
+            },
+            getUsers: function() {
+              request("GET",
+                "/api/v1/projects/" + this.projectId + "/members",
+                data => {
+                    this.projectUsers = data;
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+              );
+            },
+            initEditor() {
+                editor = tinymce.init({
+                    selector: '#default',
+                    custom_undo_redo_levels: 10,
+                    promotion: false,
+                    height: 600,
+                    menubar: false,
+                    content_css: "/static/css/editor.css",
+                    plugins: "preview fullscreen searchreplace table codesample lists advlist variable visualblocks slashcommands customCommands",
+                    toolbar1: "",
+                    visualblocks_default_state: false,
+                    variable_mapper: "",
+                    variable_prefix: "{",
+                    variable_suffix: "}",
+                    setup: (editor) => {
+                        this.editor = editor; // Store the editor instance
+                        const outerContext = this;
+
+                        editor.on('input', () => {
+                            this.updateTOC()
+                            outerContext.shouldSave = true;
+                        });
+
+                        editor.on('click', (event) => {
+                          const target = event.target; // Get the clicked element
+
+                          if (target.hasAttribute('data-rid')) {
+                            referenceId = target.getAttribute('data-rid')
+                            console.log('Clicked reference id:', referenceId);
+
+                            const controls = this.annotations.find(item => item.rid === referenceId);
+                            this.selectedAnnotation = {
+                                "rid":referenceId,
+                                "controls": controls
+                            }
+                          } else {
+                            this.selectedAnnotation = {}
+                          }
+                        });
+
+                        editor.on('init', function() {
+
+                            if (outerContext.readOnly || outerContext.preview) {
+                                this.setEditorAsReadOnly()
+                            }
+                            editor.focus();
+                            //outerContext.applyHeader("h1", dnt=true)
+                        });
+
+
+                        tinymce.PluginManager.add('customCommands', function (editor) {
+                            editor.addCommand('customHighlight', function () {
+                                content = `
+                                    <div class="card p-6 rounded-md bg-base-300">
+                                        Add content
+                                    </div>
+                                    <div class="tooltip" data-tip="hello">
+                                      <button class="btn">Hover me</button>
+                                    </div>
+                                `
+                                editor.execCommand('mceInsertContent', false, content);
+                            });
+                        })
+                        tinymce.PluginManager.add('slashcommands', function (editor) {
+                            var insertActions = [
+                                {
+                                    text: 'Heading 1',
+                                    icon: 'h1',
+                                    action: function () {
+                                        outerContext.applyHeader('h1', dnt=true)
+                                        editor.selection.select(editor.selection.getNode());
+                                    }
+                                },
+                                {
+                                    text: 'Heading 2',
+                                    icon: 'h2',
+                                    action: function () {
+                                        outerContext.applyHeader('h2', dnt=true)
+                                        editor.selection.select(editor.selection.getNode());
+                                    }
+                                },
+                                {
+                                    text: 'Heading 3',
+                                    icon: 'h3',
+                                    action: function () {
+                                        outerContext.applyHeader('h3', dnt=true)
+                                        editor.selection.select(editor.selection.getNode());
+                                    }
+                                },
+                            {
+                              type: 'separator'
+                            },
+                                {
+                                    text: 'Insert link',
+                                    icon: 'link',
+                                    action: function () {
+                                        editor.execCommand('InsertUnorderedList', false);
+                                    }
+                                },
+                                {
+                                    text: 'Bulleted list',
+                                    icon: 'unordered-list',
+                                    action: function () {
+                                        editor.execCommand('InsertUnorderedList', false);
+                                    }
+                                },
+                                {
+                                    text: 'Numbered list',
+                                    icon: 'ordered-list',
+                                    action: function () {
+                                        editor.execCommand('InsertOrderedList', false);
+                                    }
+                                }
+                            ];
+
+                            // Register the slash commands autocompleter
+                            editor.ui.registry.addAutocompleter('slashcommands', {
+                                ch: '/',
+                                minChars: 0,
+                                columns: 1,
+                                fetch: function (pattern) {
+                                    const matchedActions = insertActions.filter(function (action) {
+                                        return action.type === 'separator' ||
+                                            action.text.toLowerCase().indexOf(pattern.toLowerCase()) !== -1;
+                                    });
+
+                                    return new Promise((resolve) => {
+                                        var results = matchedActions.map(function (action) {
+                                            return {
+                                                meta: action,
+                                                text: action.text,
+                                                icon: action.icon,
+                                                value: action.text,
+                                                type: action.type
+                                            }
+                                        });
+                                        resolve(results);
+                                    });
+                                },
+                                onAction: function (autocompleteApi, rng, action, meta) {
+                                    editor.selection.setRng(rng);
+                                    // Some actions don't delete the "slash", so we delete all the slash
+                                    // command content before performing the action
+                                    editor.execCommand('Delete');
+                                    meta.action();
+                                    autocompleteApi.hide();
+                                }
+                            });
+                            return {};
+                        });
+                    }
+                });
+            },
+            createNewVersion() {
+                let payload = {
+                  "content":""
+                };
+                request("POST",
+                    `/api/v1/projects/${this.projectId}/policies/${this.selectedPolicy.id}/versions`,
+                    data => {
+                        toast("Created new version")
+                        this.loadPolicyInEditor(this.selectedPolicy, data.version)
+                    },
+                    error => {
+                      toast(error.message, "error");
+                    },
+                    payload
+                );
+            },
+            updatePolicy(policy) {
+                request("PUT",
+                    `/api/v1/projects/${this.projectId}/policies/${policy.id}`,
+                    data => {
+                        toast("Updated policy")
+                        this.showEditPolicy = false
+                        this.editPolicy = {}
+
+                    },
+                    error => {
+                      toast(error.message, "error");
+                    },
+                    this.editPolicy
+                );
+            },
+            createPolicy() {
+                request("POST",
+                    `/api/v1/projects/${this.projectId}/policies`,
+                    data => {
+                        toast("Created policy")
+                        this.createPayload = {}
+                        this.okToCreate = false
+                        this.loadPolicyInEditor(data)
+                        this.policies.push(data)
+
+                        document.getElementById('policy-drawer').checked = false;
+                        this.showCreatePolicy = false
+                    },
+                    error => {
+                      toast(error.message, "error");
+                    },
+                    this.createPayload
+                );
+            },
+            publishPolicy() {
+                let content = this.editor.getContent("default")
+                let payload = {
+                  "content":content,
+                  "publish": true
+                };
+
+                request("PUT",
+                    `/api/v1/projects/${this.projectId}/policies/${this.selectedPolicy.id}/versions/${this.selectedPolicy.active_version}`,
+                    data => {
+                        toast(`Published version:${this.selectedPolicy.active_version}`)
+                        this.shouldSave = false;
+                        this.getPolicies()
+                        this.showPublishModal = false;
+                    },
+                    error => {
+                      toast(error.message, "error");
+                    },
+                    payload
+                );
+
+            },
+            savePolicy() {
+                let content = this.editor.getContent("default")
+                let payload = {
+                  "content":content
+                };
+
+                request("PUT",
+                    `/api/v1/projects/${this.projectId}/policies/${this.selectedPolicy.id}/versions/${this.selectedPolicy.active_version}`,
+                    data => {
+                        toast(`Updated version:${this.selectedPolicy.active_version}`)
+                        this.shouldSave = false;
+                    },
+                    error => {
+                      toast(error.message, "error");
+                    },
+                    payload
+                );
+            },
+           deleteVersion(version) {
+                request("DELETE",
+                    `/api/v1/projects/${this.projectId}/policies/${this.selectedPolicy.id}/versions/${version}`,
+                    data => {
+                        toast("Deleted version")
+                        this.getPolicies()
+                    },
+                    error => {
+                      toast(error.message, "error");
+                    }
+                );
+            },
+            setEditorAsReadOnly() {
+                this.readOnly = true
+                const contentBody = this.editor.getBody(); // Get the editor's content body
+                if (contentBody) {
+                    contentBody.setAttribute("contenteditable", "false"); // Disable editing
+                }
+            },
+            setEditorAsEditable() {
+                this.readOnly = false
+                const contentBody = this.editor.getBody(); // Get the editor's content body
+                if (contentBody) {
+                    contentBody.setAttribute("contenteditable", "true");
+                }
+            },
+            previewContent(value) {
+                if (value) {
+                    this.readOnly = true
+                    this.preview = true
+                    this.setEditorAsReadOnly()
+                } else {
+                    this.readOnly = false
+                    this.preview = false
+                    this.setEditorAsEditable()
+                }
+            },
+
+            viewReference(rid) {
+                const annotation = this.annotations.find(item => item.rid === rid);
+                this.selectedReference = {
+                    "rid":referenceId,
+                    "controls": annotation.controls
+                }
+                document.getElementById('reference-drawer').checked = true;
+            },
+            showReferenceModal() {
+                // Check if there's a highlighted selection
+                if (!this.editor.selection.isCollapsed()) {
+
+                  const selection = this.editor.selection.getNode();
+                  if (selection && /^H[1-3]$/.test(selection.tagName)) {
+                    this.showHighlightModal = true
+                  } else {
+                    toast("You can only add references to header sections (H1-H3).", "warning")
+                  }
+
+                } else {
+                  toast("Please highlight some text", "warning")
+                  return
+                }
+
+            },
+            updateTOC() {
+                const content = this.editor.getContent();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(content, "text/html");
+                const headers = [...doc.querySelectorAll("h1, h2, h3")];
+
+                if (!headers.length) {
+                  this.toc = 'No headers (Add H1-H3)';
+                  return;
+                }
+
+                // Build the nested structure
+                let headingCounter = 1;
+                let tocTree = [];
+                let levels = { h1: tocTree };
+
+                headers.forEach(header => {
+                  if (!header.id) {
+                    header.id = `heading-${headingCounter++}`;
+                  }
+
+                  const level = header.tagName.toLowerCase();
+                  const entry = { id: header.id, text: header.innerText, children: [] };
+
+                  if (level === "h1") {
+                    tocTree.push(entry);
+                    levels.h1 = entry.children;
+                    levels.h2 = levels.h3 = entry.children;
+                  } else if (level === "h2") {
+                    levels.h1.push(entry);
+                    levels.h2 = entry.children;
+                    levels.h3 = entry.children;
+                  } else if (level === "h3") {
+                    levels.h2.push(entry);
+                    levels.h3 = entry.children;
+                  }
+
+                });
+
+                // Convert tree to HTML
+                const generateHTML = (items) => {
+                  return items.map(item => `
+                    <li>
+                        ${item.children.length > 0 ? `
+                          <div class="flex flex-row justify-between hover:bg-base-200 hover:cursor-default px-1">
+                            <button class="text-xs hover:cursor-pointer hover:text-primary truncate w-24 text-left font-medium" @click="jumpToSection('${item.text}')">${item.text}</button>
+                            <div class="dropdown text-right">
+                              <button class="bg-base-100 rounded-md px-2"><i x-show='!readOnly' class="ti ti-dots-vertical"></i></button>
+                              <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                <li><a class='text-xs' @click="jumpToSection('${item.text}')">Go to</a></li>
+                                <li><a x-show="experimental" class='text-xs'>Reference Controls</a></li>
+                              </ul>
+                            </div>
+                          </div>
+                          <ul>
+                            ${generateHTML(item.children)}
+                          </ul>
+                        ` : `
+                          <div class="flex flex-row justify-between hover:bg-base-200 hover:cursor-default px-1">
+                            <button class="text-xs hover:cursor-pointer hover:text-primary truncate w-24 text-left font-medium" @click="jumpToSection('${item.text}')">${item.text}</button>
+                            <div class="dropdown text-right">
+                              <button class="bg-base-100 rounded-md px-2"><i x-show='!readOnly' class="ti ti-dots-vertical"></i></button>
+                              <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                                <li><a class='text-xs' @click="jumpToSection('${item.text}')">Go to</a></li>
+                                <li><a x-show="experimental" class='text-xs'>Reference Controls</a></li>
+                              </ul>
+                            </div>
+                          </div>
+                        `}
+                    </li>
+                  `).join("");
+                };
+
+                this.toc = generateHTML(tocTree);
+            },
+            jumpToSection(text) {
+                  const headings = this.editor.dom.select("h1, h2, h3");
+
+                  for (const heading of headings) {
+                    if (heading.innerText.trim() === text.trim()) {
+                      this.editor.selection.scrollIntoView(heading);
+                      return;
+                    }
+                  }
+            },
+            // Apply the TinyMCE command
+            applyFs() {
+                if (this.editor) {
+                    this.editorConfig["fs"] = !this.editorConfig["fs"]
+                    this.editor.dom.addStyle("body#tinymce { padding-left: 20px; padding-right: 100px; }");
+
+                    this.editor.execCommand('mceFullScreen');
+                }
+            },
+            applyHeader(value, dnt=false) {
+                //this.editor.execCommand('mceToggleFormat', false, 'pre');
+                //tinymce.activeEditor.execCommand('mceToggleFormat', false, 'blockquote');
+
+                if (this.editor) {
+                    if (dnt) {
+                        this.editorConfig["header"] = value
+                        this.editor.execCommand('FormatBlock', false, value);
+                    } else {
+                        if (this.editorConfig["header"] === value) {
+                            this.editorConfig["header"] = ""
+                        } else {
+                            this.editorConfig["header"] = value
+                            this.editor.execCommand('FormatBlock', false, value);
+                        }
+                    }
+                }
+
+            },
+            scrollToTop() {
+                this.editor.selection.scrollIntoView(this.editor.getBody(), true);
+            },
+            undoAction() {
+                this.editor.execCommand('Undo');
+            },
+            redoAction() {
+                this.editor.execCommand('Redo');
+            },
+            insertTable() {
+                this.editor.execCommand('mceInsertTable', false, { rows: 2, columns: 2 });
+            },
+            applyOrderedList() {
+                this.editor.execCommand('ApplyOrderedListStyle', false, {
+                  'list-style-type': 'decimal'
+                });
+            },
+            applyUnorderedList() {
+                this.editor.execCommand('ApplyUnorderedListStyle', false, {
+                  'list-style-type': 'disc'
+                });
+            },
+            applyBlockQuote() {
+                this.editor.execCommand('mceBlockQuote')
+            },
+            applyCodeSample() {
+                this.editor.execCommand('CodeSample');
+            },
+            applyAlignment(value) {
+                if (this.editor) {
+                    this.editorConfig[value] = !this.editorConfig[value];
+                    this.editor.execCommand(value);
+                }
+            },
+            applyFormatting(value) {
+                if (this.editor) {
+                    this.editorConfig[value] = !this.editorConfig[value];
+                    this.editor.execCommand(value);
+                }
+            },
+            createLink(value) {
+                this.editor.execCommand('CreateLink', false, value);
+            },
+            setColor(color) {
+                this.editorConfig["color"] = color;
+                this.editor.execCommand('forecolor', false, color);
+            },
+            setContent(content) {
+                this.editor.execCommand('mceSetContent', false, content);
+                this.updateTOC()
+            },
+        }
+    }
+</script>
+{%endblock%}

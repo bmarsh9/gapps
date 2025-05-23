@@ -1,0 +1,102 @@
+{% extends "layouts/basic.html" %}
+{%block body%}
+<div x-data="confirm()" class="hero min-h-screen bg-base-200">
+  <div class="hero-content flex-col lg:flex-row-reverse p-16">
+    <div class="card flex-shrink-0 w-96 shadow-2xl bg-base-100">
+      <div x-show="!isEmailConfigured" class="card-body"> 
+        <h2 class="text-lg font-bold text-center mb-2">Email is not configured</h2>
+        <p class="text-xs font-medium text-center" x-text="'Please contact ' + adminEmail + ' to enable email in order to receive a confirmation email.'"></p>
+        <a href="{{url_for('auth.logout')}}" class="btn btn-sm btn-primary mt-4">Log Out</a>
+      </div>
+      <div x-show="isEmailConfigured" class="card-body">
+        <h2 class="text-lg font-bold text-center mb-2">Please confirm your email</h2>
+        <p x-show="showSendEmailBtn" class="text-xs font-medium text-center">
+            <span x-text="'Please click the button below to send a confirmation email to ' + currentEmail + '.'"></span>
+            Or <a href="{{url_for('auth.logout')}}" class="text-primary underline">log out</a>.
+        </p>
+        <p x-show="!showSendEmailBtn" class="text-xs font-medium text-center">
+            <span x-text="'We have sent an email confirmation (check spam) to your inbox ' + currentEmail + '.'"></span>
+            Or <a href="{{url_for('auth.logout')}}" class="text-primary underline">log out</a>.
+        </p>
+      <div>
+        <div class="form-control mt-4">
+          <div class="grid grid-cols-10 gap-x-2 mb-4">
+            <div class="col-span-8">
+              <input x-model="confirmationCode" placeholder="Enter code from email" class="input input-sm input-bordered w-full"/>
+            </div>
+            <div class="col-span-2">
+              <button @click="checkConfirmationCode" :disabled="!confirmationCode" class="btn btn-sm btn-success w-full">Go</button>
+            </div>
+          </div>
+          <button x-show="showSendEmailBtn" @click="resendConfirmationEmail;showSendEmailBtn=false" class="btn btn-sm btn-primary">Send Email</button>
+          <button x-show="!showSendEmailBtn" :disabled="!tryResend" @click="resendConfirmationEmail" class="btn btn-sm btn-warning">Resend Email</button>
+        </div>
+      </div>
+      <div x-show="adminEmail.length>2" class="mt-4 text-xs" x-text="'Having issues? Reach out to '+adminEmail"></div>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+function confirm(){
+    return {
+        init() {
+          this.confirmationCode = this.getURLParam("code")
+        },
+        adminEmail: "{{config.HELP_EMAIL}}",
+        tryResend: true,
+        confirmationCode: "",
+        isEmailConfigured: {{ "true" if email_configured else "false" }},
+        showSendEmailBtn: true,
+        currentEmail: "{{current_user.email}}",
+        getURLParam: function(param, defaultValue="") {
+          var queryParams = new URLSearchParams(window.location.search);
+          return queryParams.get(param) || defaultValue;
+        },
+        resendConfirmationEmail: function() {
+            request("POST",
+                "/api/v1/users/{{current_user.id}}/send-confirmation",
+                data => {
+                    toast("Sent email. Check your inbox.")
+                    this.tryResend = false
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+            setTimeout(() => {
+                this.tryResend = true;
+            }, 30000);
+        },
+        checkConfirmationCode: function() {
+            if (!this.confirmationCode) {
+              toast("Enter confirmation code", "warning")
+              return
+            }
+            payload = {
+              "code": this.confirmationCode
+            }
+            request("POST",
+                "/api/v1/users/{{current_user.id}}/verify-confirmation-code",
+                data => {
+                    toast("User confirmed. Redirecting to home.")
+                    setTimeout(function() {
+                        window.location.href = "/"
+                    }, 2000);
+                    this.tryResend = false
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                payload
+            );
+            setTimeout(() => {
+                this.tryResend = true;
+            }, 30000);
+        }
+    }
+}
+</script>
+{%endblock%}

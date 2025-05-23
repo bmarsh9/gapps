@@ -1,155 +1,133 @@
 {% extends "layouts/sidebar-nav.html" %}
-{% import "helpers/snippets.html" as snippet with context %}
+
 {% block before_head %}
 {{ super() }}
 {% import "helpers/src_macros.html" as macro %}
-{{ macro.filehelper(datatables=True,select2=True,editor=True) }}
+{{ macro.filehelper(editor=True) }}
 {% endblock %}
 
-{%block page_header_title%}{{policy.name}}<p class="text-sm  font-medium">Create policies and associate them with your projects</p>{%endblock%}
-{%block page_header_title_border%}{%endblock%}
+{%block page_header_title%}{%endblock%}
 
 {%block content%}
-<div class="grid grid-cols-10 gap-2">
-            <div class="col-span-2 h-full">
-        <ul class="bg-base-100 p-2 rounded-box h-full mx-auto">
-            <li class="text-xl font-medium ">
-                <p class="m-auto text-center mt-4 mb-4">Settings</p>
-            </li>
-            <li class="px-2 mt-2">
-              <label class="block text-sm font-medium  mb-2">Policy name</label>
-              <input type="text" value="{{policy.name or ""}}" placeholder="Policy name" id="name" class="input w-full max-w-xs border border-base-300" />
-            </li>
-            <li class="px-2 mt-2">
-              <label class="block text-sm font-medium  mb-2">Ref Code</label>
-              <input type="text" value="{{policy.ref_code or ""}}" placeholder="Reference Code" id="ref_code" class="input w-full max-w-xs border border-base-300" />
-            </li>
-            <li class="px-2 mt-2">
-              <label class="block text-sm font-medium  mb-2">Description</label>
-              <input type="text" value="{{policy.description or ""}}" placeholder="Policy description" id="description" class="input w-full max-w-xs border border-base-300" />
-            </li>
-            <li class="px-2 mt-2">
-              <label class="block text-sm font-medium  mb-2">Labels</label>
-              <select class="select custom-select ql-insertCustomTags bg-transparent border border-base-300">
-                <option value="">Add Label</option>
-                {%for label in labels.keys()%}
-                <option value="{{label}}" data-marker={{label}} data-title="{{label}}" data-colour="warning">{{label}}</option>
-                {%endfor%}
-              </select>
-            </li>
-        </ul>
-
+<div x-data="policy()" class="grid grid-cols-10">
+    <div x-transition :class="{'col-span-1': !showPanel, 'col-span-3': showPanel}" class="h-full">
+        <ul :class="{'p-4 text-center': !showPanel, 'p-8': showPanel}" class="bg-base-200 rounded-b-lg rounded-tl-lg h-full">
+            <div x-show="showPanel" class="flex justify-between">
+                <span class="text-xl">Settings</span>
+                <button @click="showPanel=!showPanel" class="btn btn-sm"><i class="ti ti-arrow-bar-to-left text-lg"></i></button>
             </div>
-            <div class="col-span-8 h-full">
-                <div class="card bg-base-100 border border-base-200">
-                    <div class="card-body gap-0">
-                        <h2 class="card-title text-xl font-medium  mb-4 justify-between">Policy Content</h2>
-                        <textarea id="default">{%if policy.content%}{{policy.content|safe}}{%endif%}</textarea>
-                        <button class="save-policy btn btn-md btn-primary mt-4 w-20">Save</button>
+            <div x-show="!showPanel" class="text-center p-2">
+                <button @click="showPanel=!showPanel" class="btn btn-md"><i class="ti ti-settings text-3xl"></i></button>
+            </div>
+            <div x-show="showPanel">
+                <li class="mt-2">
+                  <label class="block text-xs font-medium  mb-2">Policy name</label>
+                  <input type="text" @change="btnDisabled=false" x-model="policy.name"  placeholder="Policy name" class="input w-full input-sm max-w-xs border border-base-300" />
+                </li>
+                <li class="mt-2">
+                  <label class="block text-xs font-medium  mb-2">Reference Code</label>
+                  <input type="text" @change="btnDisabled=false" x-model="policy.ref_code" placeholder="Reference Code" class="input input-sm w-full max-w-xs border border-base-300" />
+                </li>
+                <li class="mt-2">
+                  <label class="block text-xs font-medium  mb-2">Description</label>
+                  <input type="text" @change="btnDisabled=false" x-model="policy.description" placeholder="Policy description" class="input input-sm w-full max-w-xs border border-base-300" />
+                </li>
+                <li class="mt-5">
+                    <button @click="updatePolicy" class="btn btn-md btn-primary">Save Changes</button>
+                </li>
+            </div>
+        </ul>
+    </div>
+    <div :class="{'col-span-9': !showPanel, 'col-span-7': showPanel}" class="h-full rounded-b-lg rounded-tr-lg">
+        <div class="bg-base-200">
+            <div class="p-6">
+                <div class="flex flex-row justify-between mb-4">
+                    <h2 class="card-title text-2xl font-medium capitalize" x-text="'Policy: '+policy.name"></h2>
+                    <div class="flex flex-row gap-x-2">
+                        <button @click="toggleFullScreen" class="btn btn-md bg-base-100">Full Screen</button>
+                        <button @click="updatePolicy" :class="{'btn-disabled': btnDisabled}" class="btn btn-md btn-primary">Save Changes</button>
                     </div>
                 </div>
+                <textarea id="default">{%if policy.content%}{{policy.content|safe}}{%endif%}</textarea>
             </div>
-            <div class="col-span-10">
-                <div class="card bg-base-100 border border-base-200">
-                  <div class="card-body">
-                    <h2 class="card-title">Control Association</h2>
-                    <p class="text-sm  font-medium mb-4">Associate controls with your policy</p>
-                    <table class="table table-vcenter" id="control-table" style="width:100%">
-                      <thead>
-                        <tr>
-                          <th class="w-1">Associated</th>
-                          <th class="w-1">Control Code</th>
-                          <th>Control Name</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {%set policy_controls = policy.controls()%}
-                        {%for control in controls%}
-                        <tr>
-                          <td class="text-sm font-medium "><input data-id={{control.id}} type="checkbox" {%if control in policy_controls%}checked="checked"{%endif%} class="control-checkbox checkbox" /></td>
-                          <td class="text-sm font-medium ">{{control.ref_code}}</td>
-                          <td class="text-sm font-medium text-primary"><div class="whitespace-normal">{{control.name}}</div></td>
-                        </tr>
-                        {%endfor%}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {%block extrajs%}
-
 <script>
-  $(document).ready(function() {
-tinymce.init({
-  selector: 'textarea#default',
-  content_css: "{{ url_for('static', filename='css/tiny_custom.css') }}",
-  promotion: false,
-  plugins: "preview fullscreen searchreplace table codesample lists advlist variable",
-  toolbar: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo",
-  variable_mapper: {{labels|tojson}},
-  variable_prefix: "{",
-  variable_suffix: "}"
-});
+function policy() {
+    return {
+        init() {
+            this.getPolicy()
+            editor = tinymce.init({
+              selector: 'textarea#default',
+              content_css: "{{ url_for('static', filename='css/tiny_custom.css') }}",
+              promotion: false,
+              height:600,
+              toolbar_mode: 'floating',
+              plugins: "preview fullscreen searchreplace table codesample lists advlist variable",
+              toolbar1: "bold italic strikethrough forecolor backcolor | fontfamily fontsize blocks | link | alignleft aligncenter alignright alignjustify  | numlist bullist outdent indent  | removeformat undo redo",
+              variable_mapper: {{labels|tojson}},
+              variable_prefix: "{",
+              variable_suffix: "}",
 
-    $(document).on('change', '.select', function() {
-      var value = $(this).val();
-      tinymce.activeEditor.execCommand('mceInsertContent', false, {% raw %}"{"+value+"}"{%endraw%});
-      $('select>option:eq(0)').prop('selected', true);
-    });
-
-    $(document).on('click', '.save-policy', function() {
-      var content = tinymce.get("default").getContent();
-
-        var data = {
-          "template":content,
-          "content":content,
-          "name":$("#name").val(),
-          "description":$("#description").val(),
-          "ref_code":$("#ref_code").val(),
-          "public":$("#public").is(":checked")
-        };
-  $.ajax({
-    type: "PUT",
-    url: "/api/v1/policies/{{policy.id}}",
-    data: JSON.stringify(data),
-    contentType: "application/json; charset=utf-8",
-    dataType: "json",
-    success: function(data){
-        toast("Saved policy")
-        return(data)
-    },
-    error: function(errMsg) {
-        return(errMsg);
-    }
-  })
-    });
-
-    $("#control-table").DataTable({"pageLength":5,"order": [[ 0, "desc" ]]});
-    $(document).on('change', '.control-checkbox', function() {
-      var id = $(this).data('id')
-      if (this.checked) {
-        var status = "PUT";
-      } else {
-        var status = "DELETE";
-      }
-      $.ajax({
-        type: status,
-        url: `/api/v1/policies/{{policy.id}}/controls/${id}`,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-          toast(`Updated the controls for the policy`)
-          return(data)
+              setup: (editor) => {
+                this.editor = editor; // Store the editor instance
+                const outerContext = this;
+                editor.on('input', () => {
+                    console.log(outerContext.btnDisabled)
+                    outerContext.btnDisabled = false
+                });
+              }
+            });
         },
-        error: function(errMsg) {
-          return(errMsg);
+        editor: null,
+        showPanel: false,
+        btnDisabled: true,
+        policy: {},
+        toggleFullScreen: function() {
+          if (this.editor) {
+            this.editor.execCommand('mceFullScreen'); // Trigger the fullscreen toggle
+          }
+        },
+        updatePolicy: function() {
+            let content = tinymce.get("default").getContent();
+            let payload = {
+              "template":content,
+              "content":content,
+              "name":this.policy.name,
+              "description":this.policy.description,
+              "ref_code":this.policy.ref_code
+            };
+
+            request("PUT",
+                "/api/v1/policies/{{policy.id}}",
+                data => {
+                    toast("Updated policy")
+                    this.btnDisabled = true
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                payload
+            );
+        },
+        getPolicy: function() {
+            request("GET",
+                "/api/v1/policies/{{policy.id}}",
+                data => {
+                    this.policy = data
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
         }
-      })
-    });
-  });
+    }
+}
+
 </script>
 
 {%endblock%}

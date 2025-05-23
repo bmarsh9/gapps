@@ -1,257 +1,550 @@
 {% extends "layouts/sidebar-nav.html" %}
 
+{% import "helpers/snippets.html" as snippet with context %}
 {% block before_head %}
-  {{ super() }}
-  {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True,select2=True) }}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(grid=True, tags=True) }}
 {% endblock %}
 
 {%block page_header_title%}Tenant Users{%endblock%}
 {%block page_header_title_border%}{%endblock%}
-{%block page_header_buttons%}<button class="btn btn-sm add-user-btn btn-primary">Add User</button>{%endblock%}
+{%block page_header_buttons%}{%endblock%}
 
 {%block content%}
-<div class="grid grid-cols-6 gap-4">
-  <div id="invite-user-url" class="col-span-6"></div>
-  <div class="col-span-6">
-    <div class="card bg-base-100 border border-base-200">
-      <div class="card-body">
-        <h2 class="card-title mb-4">Users</h2>
-              <table class="table table-vcenter" id="users" style="width:100%">
-                <thead>
-                  <tr>
-                    <th>Email</th>
-                    <th class="w-1">Active</th>
-                    <th>Roles</th>
-                    <th class="w-1">Manage</th>
-                  </tr>
-                </thead>
-                <tbody id="user-body"></tbody>
-              </table>
+<div x-data="table()">
+
+    <div x-show="showInviteAlert" role="alert" class="alert text-success">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      <span class="text-sm font-semibold" x-html="inviteUserMessageTitle"></span>
+      <div>
+          <button @click="copyInviteLink" class="btn btn-sm btn-success">Copy Invite Link</button>
       </div>
     </div>
-  </div>
-</div>
 
-<input type="checkbox" id="edit-user-modal" class="modal-toggle" />
-<div class="modal">
-  <div class="modal-box relative w-11/12 max-w-7xl">
-    <label for="edit-user-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-    <h3 class="text-lg font-bold">Edit User</h3>
-        <div class="py-4 sm:mt-0">
-          <div class="md:grid md:grid-cols-1 md:gap-6">
-                <div class="mt-5 md:col-span-2 md:mt-0">
-                    <div class="overflow-hidden sm:rounded-md">
-                          <div class="grid grid-cols-6 gap-6">
-                                  <div class="col-span-6 sm:col-span-3">
-                                    <label for="roles" class="block text-sm font-medium mb-2">Roles</label>
-                                    <select class="input-roles" style="width: 100%" name="roles[]" multiple="multiple"></select>
-                                    <p class="font-medium text-xs mt-2">The <b>Vendor</b> role will remove any other roles. Vendors only have access to the Questionnaire page. If the vendor role is removed, they will lose access to all questionnaires!</p>
-                                  </div>
-                          </div>
-                          <div class="px-4 py-3 text-right sm:px-6">
-                                <button class="btn btn-error save-remove-btn">Remove User</button>
-                                <button class="btn btn-primary save-edit-btn">Save</button>
-                          </div>
+    <div class="grid grid-cols-6 gap-4 mt-2">
+        <div class="col-span-6">
+        <div class="card bg-base-200 border border-base-300">
+            <div class="card-body">
+                <div class="flex justify-between align-items-center">
+                    <h2 class="card-title mb-4">Users</h2>
+                    <div class="space-x-2 flex">
+                        <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip"
+                                @click="exportCSV" data-tip="CSV Export"><i class="ti ti-download"></i></button>
+                        <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip"
+                                @click="getItems" data-tip="Refresh table"><i class="ti ti-refresh"></i></button>
+                        <button class="btn btn-sm btn-success" @click="openCreateModal">Create User</button>
                     </div>
                 </div>
-          </div>
+                <div class="mx-auto text-center mt-5" x-show="loading" x-transition:enter.duration.500ms
+                     x-transition:leave.duration.100ms x-html="loadingSkeleton"></div>
+                <div x-show="!loading" class="ag-theme-quartz" id="table_1" x-transition:enter.duration.500ms
+                     x-transition:leave.duration.500ms></div>
+            </div>
         </div>
-  </div>
-</div>
+    </div>
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showDeleteModal }">
+            <div class="modal-box">
+                <form method="dialog">
+                    <button @click="showDeleteModal = false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-lg" x-text="'Are you sure you want to remove ' + selectedItem.id + ' from the tenant?'"></h3>
+                <div class="modal-action">
+                    <button class="btn" @click="showModal = false">Close</button>
+                    <button class="btn btn-error" :class='{"btn-disabled": buttonDisabled}'
+                            @click="deleteUser">Remove User
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<input type="checkbox" id="add-user-modal" class="modal-toggle" />
-<label for="add-user-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3 class="text-lg font-bold">Add User</h3>
-        <div class="py-4 sm:mt-0">
-          <div class="md:grid md:grid-cols-1 md:gap-6">
-                <div class="mt-5 md:col-span-2 md:mt-0">
-                    <div class="overflow-hidden sm:rounded-md">
-                          <div class="px-4 py-5 sm:p-6">
-                                <div class="grid grid-cols-6 gap-6">
-                                  <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium ">Email</label>
-                                        <input placeholder="Enter the email to invite" type="email" name="email" id="email" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
-                                  </div>
-                                  <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium ">Tenant</label>
-                                        <input type="text" name="tenant" id="tenant" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md capitalize" disabled>
-                                  </div>
-                                  <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium">Roles</label>
-                                        <select class="user-roles w-full mt-3" name="roles[]" multiple="multiple">
-                                          {%for role in roles%}
-                                          <option class="capitalize" value="{{role.name}}">{{role.name}}</option>
-                                          {%endfor%}
-                                        </select>
-                                  </div>
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showCreateModal }">
+            <div class="modal-box w-11/12 max-w-xl">
+                <form method="dialog">
+                    <button @click="showCreateModal = false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-xl px-8">Create User</h3>
+                <div class="card card-body">
+                    <div class="grid grid-cols-6 gap-6">
+                        <div class="col-span-6">
+                            <label class="block text-sm font-medium pb-2">Email</label>
+                            <input x-model="formData.email" type="email" placeholder="Input email"
+                                   class="input input-sm input-bordered w-full" required/>
+                        </div>
+                        <div class="col-span-6">
+                            <div class="flex flex-row mb-2">
+                                <label class="block text-sm font-medium my-auto">Roles</label>
+                                <button @click="showRoleTable = !showRoleTable" class="btn btn-ghost btn-sm ml-2"><i class="ti ti-question-mark"></i></button>
+                            </div>
+                            <div class="msa-wrapper border border-base-content border-opacity-40 rounded-lg">
+                                    <input x-model="selectedString" type="text" id="msa-input2" aria-hidden="true" x-bind:aria-expanded="listActive.toString()" aria-haspopup="tag-list2" hidden>
+                                    <div class="input-presentation rounded-lg" @click="listActive = !listActive" @click.away="listActive = false" x-bind:class="{'active': listActive}">
+                                        <span class="text-xs font-semibold" x-show="selected.length == 0">Select Roles</span>
+                                        <template x-for="(tag, index) in selected">
+                                            <div class="bg-base-200 rounded-lg px-1 py-0 capitalize">
+                                                <span class="text-xs" x-text="tag"></span>
+                                                <button class="text-error text-xs font-bold" x-bind:data-index="index" @click.stop="removeMe($event)">x</button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <ul class="overflow-auto h-52" id="tag-list2" x-show.transition="listActive" role="listbox">
+                                        <template x-for="(tag, index, collection) in unselected">
+                                            <li class="hover:cursor-pointer hover:bg-base-200 hover:p-2 hover:rounded-lg mx-5 text-sm font-semibold mb-2 capitalize" x-show="!selected.includes(tag)" x-bind:value="tag" x-text="tag" aria-role="button" @click.stop="addMe($event)" x-bind:data-index="index" role="option"></li>
+                                        </template>
+                                    </ul>
                                 </div>
-                          </div>
-                          <div class="px-4 py-3 text-right sm:px-6">
-                                <button class="btn btn-primary save-user-btn">Save</button>
-                          </div>
+                            <p class="text-error text-xs font-semibold mt-2">Note: The "Vendor" role will override other roles.</p>
+                        </div>
+                        <div class="col-span-6">
+                            <label class="block text-sm font-medium pb-2">Tenant</label>
+                            <input disabled type="email" placeholder="Input email" :value="$store.currentUser.selectedTenant.name"
+                                   class="input input-bordered input-sm w-full"/>
+                        </div>
+                        <div x-transition x-show="showRoleTable" class="col-span-full bg-base-200 rounded-lg">
+                            <div class="overflow-x-auto">
+                              <table class="table">
+                                <!-- head -->
+                                <thead>
+                                  <tr>
+                                    <th>Role</th>
+                                    <th>Permissions</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <th>Admin</th>
+                                    <td>Grants full access to the tenant</td>
+                                  </tr>
+                                  <tr>
+                                    <th>User</th>
+                                    <td>Basic membership for a tenant</td>
+                                  </tr>
+                                  <tr>
+                                    <th>Viewer</th>
+                                    <td>Grants access to view all resources without edit permissions</td>
+                                  </tr>
+                                  <tr>
+                                    <th>RiskManager</th>
+                                    <td>Full access to manage the Risk module (vendors, questionnaires, etc)</td>
+                                  </tr>
+                                  <tr>
+                                    <th>RiskViewer</th>
+                                    <td>Full access to view the Risk module (vendors, questionnaires, etc)</td>
+                                  </tr>
+                                  <tr>
+                                    <th>Vendor</th>
+                                    <td>Assigns a user as a vendor of the Tenant. They do not receive any permissions. It only enables you to add the users to specific questionnaires in the risk module. This role overrides all other roles.</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
-          </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showCreateModal = false">Close</button>
+                    <button :disabled="!formData.email.includes('@')" class="btn btn-success" :class='{"btn-disabled": buttonDisabled}' @click="createUser">
+                        Create
+                    </button>
+                </div>
+            </div>
         </div>
-  </label>
-</label>
+    </div>
+
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showModal }">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form method="dialog">
+                    <button @click="showModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                        ✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-lg" x-text="'Update: '+selectedItem.email"></h3>
+                <div class="card card-body">
+                    <div class="grid grid-cols-6 gap-6">
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">First Name</label>
+                            <input x-model="selectedItem.first_name" type="text" placeholder="Input first name"
+                                   class="input input-sm input-bordered w-full" required/>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">Last Name</label>
+                            <input x-model="selectedItem.last_name" type="text" placeholder="Input last name"
+                                   class="input input-sm input-bordered w-full" required/>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">Email</label>
+                            <input x-model="selectedItem.email" type="email" placeholder="Input email"
+                                   class="input input-sm input-bordered w-full" required/>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">Username</label>
+                            <input x-model="selectedItem.username" type="text" placeholder="Input username"
+                                   class="input input-sm input-bordered w-full" required/>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">License</label>
+                                <select x-model="selectedItem.license" class="select select-sm select-bordered w-full" disabled>
+                                    <option :selected="selectedItem.license==='trial'"  value="trial">Trial</option>
+                                    <option :selected="selectedItem.license==='silver'" value="silver">Silver</option>
+                                    <option :selected="selectedItem.license==='gold'" value="gold">Gold</option>
+                                </select>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">Trial Period</label>
+                                <select x-model="selectedItem.trial_days" class="select select-sm select-bordered w-full" disabled>
+                                    <option :selected="parseInt(selectedItem.trial_days)===14" value="14">14 days</option>
+                                    <option :selected="parseInt(selectedItem.trial_days)===30" value="30">30 days</option>
+                                    <option :selected="parseInt(selectedItem.trial_days)===60" value="60">60 days</option>
+                                </select>
+                        </div>
+                        <div class="col-span-6">
+                            <label class="block text-sm font-medium pb-2">Roles</label>
+                            <p class="text-warning text-xs font-semibold mb-2">Note: The "Vendor" role will override other roles.</p>
+                            <div class="msa-wrapper border border-base-content border-opacity-40 rounded-lg">
+                                    <input x-model="selectedString2" type="text" id="msa-input" aria-hidden="true" x-bind:aria-expanded="listActive2.toString()" aria-haspopup="tag-list" hidden>
+                                    <div class="input-presentation rounded-lg" @click="listActive2 = !listActive2" @click.away="listActive2 = false" x-bind:class="{'active': listActive2}">
+                                        <span class="text-sm font-semibold" x-show="selected2.length == 0">Select Roles</span>
+                                        <template x-for="(tag, index) in selected2">
+                                            <div class="bg-base-200 rounded-lg px-2 py-0 capitalize">
+                                                <span class="text-xs" x-text="tag"></span>
+                                                <button class="text-error text-xs font-bold" x-bind:data-index="index" @click.stop="removeMe2($event)">x</button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <ul class="overflow-auto h-52" id="tag-list" x-show.transition="listActive2" role="listbox">
+                                        <template x-for="(tag, index, collection) in unselected2">
+                                            <li class="hover:cursor-pointer hover:bg-base-200 hover:p-2 hover:rounded-lg mx-5 text-sm font-semibold mb-2" x-show="!selected2.includes(tag)" x-bind:value="tag" x-text="tag" aria-role="button" @click.stop="addMe2($event)" x-bind:data-index="index" role="option"></li>
+                                        </template>
+                                    </ul>
+                                </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-action">
+                    <button class="btn" @click="showModal = false">Close</button>
+                    <button class="btn btn-error" @click="openDeleteModal(selectedItem)">Remove User</button>
+                    <button class="btn btn-success" :class='{"btn-disabled": buttonDisabled}'
+                            @click="updateUser">Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</div>
 {%endblock%}
 
 {%block extrajs%}
 <script>
-  $(".user-roles").select2({closeOnSelect: false});
-  $(document).on('click', '.save-edit-btn', function() {
-    var selectedTenant = getTenant();
-    var id = $(this).data('user-id')
-    data = {
-      "roles":$(".input-roles").val()
-    }
-    $.ajax({
-      type: "PUT",
-      url: `/api/v1/users/${id}/tenants/${selectedTenant.id}`,
-      data: JSON.stringify(data),
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      success: function(data){
-        toast("Edited user settings")
-        document.getElementById('edit-user-modal').checked = false;
-        loadUserTable()
-        return(data)
-      },
-      error: function(errMsg) {
-        toast(errMsg["responseJSON"]["message"],"error")
-        return(errMsg);
-      }
-    })
-  });
-  $(document).on('click', '.save-remove-btn', function() {
-    var selectedTenant = getTenant();
-    var id = $(this).data('user-id')
-    $.ajax({
-      type: "DELETE",
-      url: `/api/v1/users/${id}/tenants/${selectedTenant.id}`,
-      contentType: "application/json; charset=utf-8",
-      dataType: "json",
-      success: function(data){
-        toast("Removed user from tenant")
-        document.getElementById('edit-user-modal').checked = false;
-        loadUserTable()
-        return(data)
-      },
-      error: function(errMsg) {
-        toast(errMsg["responseJSON"]["message"],"error")
-        return(errMsg);
-      }
-    })
-  });
-  $(document).on('click', '.edit-user-btn', function() {
-      $(".input-roles").empty().trigger("change");
-      var selectedTenant = getTenant();
-      var id = $(this).data('user-id')
-      $(".save-edit-btn").data("user-id",id)
-      $(".save-remove-btn").data("user-id",id)
-      $.ajax({
-        type: "GET",
-        url: `/api/v1/users/${id}/tenants/${selectedTenant.id}/roles`,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-          $(".input-roles").select2({closeOnSelect: false});
-          var roleDivHtml = '<label for="roles" class="block text-sm font-medium ">Roles</label>'
-          for (var role in data) {
-            if (data[role].enabled) {
-              var newOption = new Option(data[role].role_name, data[role].role_id, false, true);
+function table(){
+    return {
+        init() {
+          this.$watch(
+            "items", (newValue, oldValue) => {
+                this.drawTable({"selector": "#table_1", "tableData":newValue})
+          })
+          this.$watch('selected', value => selectedString = value.join(','))
+
+          this.getItems()
+        },
+        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        loading: true,
+        showDeleteModal: false,
+        showModal: false,
+        buttonDisabled: false,
+        selectedItem: {},
+        modalFields: [],
+        showInviteAlert: false,
+        inviteUserMessageTitle: "",
+        inviteLink: "",
+        showRoleTable: false,
+        tableHeaders: [
+          {"field": "id", "headerName": "#", "width": 100, "filter": "agTextColumnFilter", "hide": true, "modal": {"disable": true}},
+          {"field": "email", "headerName": "Email", "filter": "agTextColumnFilter"},
+          {"field": "first_name", "headerName": "First", "filter": "agTextColumnFilter"},
+          {"field": "last_name", "headerName": "Last", "filter": "agTextColumnFilter"},
+          {"field": "is_active", "headerName": "Active", "filter": "agTextColumnFilter",  "cellRenderer":booleanBadge},
+          {"field": "is_vendor", "headerName": "Vendor", "filter": "agTextColumnFilter",  "cellRenderer":booleanBadge},
+          {"field": "roles", "headerName": "Roles", "filter": "agTextColumnFilter", "cellRenderer":listToBadge},
+          {"field": "date_added", "headerName": "Created", "filter": "agTextColumnFilter"}
+        ],
+        copyLink: function(link) {
+            // Create a temporary textarea element
+            let textarea = document.createElement('textarea');
+
+            // Set the value of the textarea to the text you want to copy
+            textarea.value = link.toString();
+
+            // Append the textarea to the document
+            document.body.appendChild(textarea);
+
+            // Select the text in the textarea
+            textarea.select();
+
+            // Execute the copy command
+            document.execCommand('copy');
+
+            // Remove the textarea from the document
+            document.body.removeChild(textarea);
+            toast("Link copied to your clipboard")
+        },
+        copyInviteLink: function() {
+            this.copyLink(this.inviteLink)
+        },
+        openModal(item) {
+          this.selectedItem = item;
+          this.showModal = true;
+          let selected = [];
+          let unselected = [];
+
+          for (let role of this.allRoles) {
+            if (item.roles.includes(role)) {
+              selected.push(role);
             } else {
-              var newOption = new Option(data[role].role_name, data[role].role_id, false, false);
+              unselected.push(role);
             }
-            $('.input-roles').append(newOption).trigger('change');
           }
-          document.getElementById('edit-user-modal').checked = true;
-          return(data)
-        },
-        error: function(errMsg) {
-          toast(errMsg["responseJSON"]["message"],"error")
-          return(errMsg);
-        }
-      })    
-  });
 
-  $(document).on('click', '.add-user-btn', function() {
-    var selectedTenant = getTenant();
-    $("#tenant").val(selectedTenant.name)
-    document.getElementById('add-user-modal').checked = true;
-    $("#invite-user-url").html("")
-  });
-  $(document).on('click', '.save-user-btn', function() {
-      var selectedTenant = getTenant();
-      var data = {
-        "email": $("#email").val(),
-        "roles":$(".user-roles").val()
-      }
-      $.ajax({
-        type: "POST",
-        url: `/api/v1/tenants/${selectedTenant.id}/invite-user`,
-        contentType: "application/json; charset=utf-8",
-        data: JSON.stringify(data),
-        dataType: "json",
-        success: function(data){
-          if (!data.email_sent) {
-            toast("Email is not configured. Please set up email and/or share the link","warning")
-          } else {
-            toast("Invited user")
+          this.selected2 = selected;
+          this.unselected2 = unselected;
+
+
+        },
+        showCreateModal: false,
+        openCreateModal(item) {
+          this.showRoleTable = false;
+          this.showCreateModal = true;
+          this.selected = [];
+          this.unselected = this.allRoles;
+        },
+        openDeleteModal(item) {
+          this.selectedItem = item;
+          this.showModal = false;
+          this.showDeleteModal = true;
+        },
+        items: [],
+        formData: {
+          "email": ""
+        },
+        createUser() {
+          if (!this.formData.email) {
+            toast("Email is required", "error")
+            return
           }
-          document.getElementById('add-user-modal').checked = false;
-          loadUserTable()
-          $("#invite-user-url").html(`
-            <div class="alert bg-neutral text-neutral-content shadow-sm overflow-x-auto text-xs">
-              <div>
-                <span><b>You can also share the sign up link:</b> ${data.url}</span>
-              </div>
-            </div>
-          `)
-          return(data)
+          this.formData["roles"] = this.selected
+
+          toast("Please wait...")
+          this.buttonDisabled = true;
+          request("POST",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/users`,
+            data => {
+              console.log(data)
+              toast("Created User")
+              this.getItems()
+              this.showCreateModal = false;
+              this.formData = {
+                "email": ""
+              },
+              this.buttonDisabled = false;
+              this.inviteLink = data.access_link;
+
+              if (data["sent-email"]) {
+                this.inviteUserMessageTitle = "We sent an invite via email. You can also copy/share the link with the user."
+              } else {
+                this.inviteUserMessageTitle = "Email has not been configured. You must share the invite link with the user."
+              }
+              this.showInviteAlert = true;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.formData
+          );
+          this.buttonDisabled = false;
         },
-        error: function(errMsg) {
-          toast(errMsg["responseJSON"]["message"],"error")
-          document.getElementById('add-user-modal').checked = false;
-          return(errMsg);
-        }
+        updateUser() {
+          if (!this.selectedItem.email) {
+            toast("Email is required", "error")
+            return
+          }
+          let payload = {
+            "email": this.selectedItem.email,
+            "username": this.selectedItem.username,
+            "first_name": this.selectedItem.first_name,
+            "last_name": this.selectedItem.last_name,
+            "roles": this.selected2
+          }
 
-      })
-  });
+          toast("Please wait...")
+          this.buttonDisabled = true;
+          request("PUT",
+            `/api/v1/users/${this.selectedItem.id}/tenants/${this.$store.currentUser.selectedTenant.id}`,
+            data => {
+              toast("Updated User")
+              this.getItems()
+              this.showModal = false;
+              this.buttonDisabled = false;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            payload
+          );
+        },
+        deleteUser() {
+          toast("Please wait... This may take a minute.")
+          this.buttonDisabled = true;
+          request("DELETE",
+            `/api/v1/users/${this.selectedItem.id}/tenants/${this.$store.currentUser.selectedTenant.id}`,
+            data => {
+              toast("Deleted User")
+              this.getItems()
+              this.showDeleteModal = false;
+              this.buttonDisabled = false;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.formData
+          );
+        },
+        exportCSV: function() {
+          this.table.exportDataAsCsv();
+        },
+        removeControlFilters: function() {
+          this.table.setFilterModel(null);
+        },
+        drawTable: function({ selector = null, tableData = null, formatter = null }) {
+          var data = tableData;
+          var columns = [];
 
-  function loadUserTable() {
-      $("#users").dataTable().fnDestroy();
-      var selectedTenant = getTenant();
-      if (!selectedTenant.id) {
-        $('#users').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
-      } else {
-      $("#user-body").html('<div class="col-span-9 mx-auto mt-10"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 text-gray-200 animate-spin dark:text-gray-700 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
-      $.ajax({
-        type: "GET",
-        url: `/api/v1/tenants/${selectedTenant.id}/users`,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-          for (var user in data) {
-            roles_html = "";
-            for (var role in data[user].roles) {
-                roles_html+=`<span class="font-medium text-xs lowercase text-green-600 bg-green-400/10 rounded-full py-1 px-3 w-fit mr-1">${data[user].roles[role]}</span>`
+          gridOptions = {
+            pagination: true,
+            paginationPageSize: 25,
+            domLayout: "autoHeight",
+            suppressMenuHide: true,
+            suppressHorizontalScroll: true,
+            enableCellTextSelection:true,
+            suppressFieldDotNotation: true,
+            onGridReady: (params) => {
+              params.api.sizeColumnsToFit();
+              this.loading = false;
+              window.onresize = () => {
+                this.loading = true;
+                params.api.sizeColumnsToFit();
+                this.loading = false;
+              }
+            },
+            autoSizeStrategy: {
+              type: 'fitGridWidth',
+              defaultMinWidth: 50,
             }
-            $("#user-body").append(`<tr><td class="text-sm font-medium">${clean(data[user].email)}</td><td class="text-sm font-medium capitalize">${data[user].is_active}</td><td class="text-sm font-medium ">${roles_html}</td><td class="text-center"><button data-user-id="${data[user].id}" class="btn btn-xs btn-ghost border border-base-300 edit-user-btn">Edit</button></td></tr>`);
           }
-          $('#users').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
-          return(data)
+          const gridElement = document.querySelector(selector);
+          if (this.table) {
+            this.table.destroy();
+          }
+
+          gridOptions.rowData = this.formattedTable(tableData);
+          gridOptions.columnDefs = this.tableHeaders
+
+          gridOptions.onRowDoubleClicked = (row) => {
+            selectedItem = this.items.find(obj => obj.id === row.data.id);
+            this.openModal(selectedItem)
+          },
+
+          this.table = agGrid.createGrid(gridElement, gridOptions);
+
         },
-        error: function(errMsg) {
-          toast(errMsg["responseJSON"]["message"],"error")
-          return(errMsg);
+        formattedTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.tableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              /*
+              if (row.name === "Limit unsuccessful logon") {
+                row.name = `<button class='btn btn-sm' @click='alert(1)' x-text='${this.controls.length}'></button>`
+              }*/
+
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+
+          return filteredData
+        },
+        getItems: function() {
+          this.loading = true,
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/users`,
+            data => {
+              this.items = data;
+              this.loading = false;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        listActive: false,
+        selectedString: '',
+        allRoles: ["admin","viewer","user","vendor","riskmanager","riskviewer"],
+        selected: [],
+        unselected: [],
+        customTag: '',
+        addMe(e) {
+          const index = e.target.dataset.index;
+          const extracted = this.unselected.splice(index, 1);
+          this.selected.push(extracted[0]);
+        },
+        removeMe(e) {
+          const index = e.target.dataset.index;
+          const extracted = this.selected.splice(index, 1);
+          this.unselected.push(extracted[0]);
+        },
+        addCustomTag() {
+          if (this.customTag.trim() !== '') {
+            this.selected.push(this.customTag.trim());
+            this.customTag = ''; // Clear input after adding custom tag
+          }
+        },
+        listActive2: false,
+        selectedString2: '',
+        selected2: [],
+        unselected2: [],
+        customTag2: '',
+        addMe2(e) {
+          const index = e.target.dataset.index;
+          const extracted = this.unselected2.splice(index, 1);
+          this.selected2.push(extracted[0]);
+        },
+        removeMe2(e) {
+          const index = e.target.dataset.index;
+          const extracted = this.selected2.splice(index, 1);
+          this.unselected2.push(extracted[0]);
+        },
+        addCustomTag2() {
+          if (this.customTag2.trim() !== '') {
+            this.selected2.push(this.customTag2.trim());
+            this.customTag2 = ''; // Clear input after adding custom tag
+          }
         }
-      })
-      }
-  }
-  loadUserTable()
+    }
+}
+
 </script>
-{% endblock %}
+{%endblock%}

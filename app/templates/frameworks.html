@@ -1,112 +1,321 @@
 {% extends "layouts/sidebar-nav.html" %}
 
+{% import "helpers/snippets.html" as snippet with context %}
 {% block before_head %}
-  {{ super() }}
-  {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True) }}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(grid=True) }}
 {% endblock %}
 
 {%block page_header_title%}Frameworks{%endblock%}
 {%block page_header_title_border%}{%endblock%}
+{%block page_header_buttons%}{%endblock%}
+{%block tenant_btn%}{%endblock%}
 
 {%block content%}
-<div class="grid grid-cols-6 gap-4">
-  <div class="col-span-6">
-    <div class="card bg-base-100 border border-base-200">
-      <div class="card-body">
-        <h2 class="card-title mb-4">Frameworks</h2>
-              <table class="table table-vcenter" id="frameworks" style="width:100%">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th class="w-1">Controls</th>
-                    <th class="w-1">View</th>
-                  </tr>
-                </thead>
-                <tbody id="framework-body"></tbody>
-              </table>
-      </div>
+<div x-data="table()" class="grid grid-cols-6 gap-4 mt-2">
+    <div class="col-span-6">
+        <div class="card bg-base-100 border border-base-300">
+            <div class="card-body">
+                <div class="flex justify-between align-items-center">
+                    <h2 class="card-title mb-4">Frameworks</h2>
+                    <div class="space-x-2 flex">
+                        <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-blue-500"
+                                @click="exportCSV" data-tip="CSV Export"><i class="ti ti-download"></i></button>
+<!--                        <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-red-500"-->
+<!--                                @click="removeControlFilters" data-tip="Remove filter"><i class="ti ti-x"></i></button>-->
+                        <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-green-500"
+                                @click="getItems" data-tip="Refresh table"><i class="ti ti-refresh"></i></button>
+<!--                        <button class="btn btn-sm green-badge" @click="openCreateModal">New</button>-->
+                    </div>
+                </div>
+                <div class="mx-auto text-center mt-5" x-show="loading" x-transition:enter.duration.500ms
+                     x-transition:leave.duration.100ms x-html="loadingSkeleton"></div>
+                <div x-show="!loading" class="ag-theme-quartz" id="table_1" x-transition:enter.duration.500ms
+                     x-transition:leave.duration.500ms></div>
+            </div>
+        </div>
     </div>
-  </div>
+
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showDeleteModal }">
+            <div class="modal-box">
+                <form method="dialog">
+                    <button @click="showDeleteModal = false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-lg" x-text="'Are you sure you want to delete ' + selectedItem.id + '?'"></h3>
+                <div class="modal-action">
+                    <button class="btn" @click="showModal = false">Close</button>
+                    <button class="btn red-badge" :class='{"btn-disabled": buttonDisabled}'
+                            @click="deleteFramework(selectedItem)">Delete Framework
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showCreateModal }">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form method="dialog">
+                    <button @click="showCreateModal = false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-lg">Create Framework</h3>
+                <div class="card card-body">
+                    <div class="grid grid-cols-6 gap-x-6">
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">Name</label>
+                            <input x-model="formData.name" type="text" placeholder="Input framework name"
+                                   class="input input-bordered w-full" required/>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">Contact email</label>
+                            <input x-model="formData.contact_email" type="email" placeholder="Input email"
+                                   class="input input-bordered w-full" required/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showCreateModal = false">Close</button>
+                    <button class="btn blue-badge" :class='{"btn-disabled": buttonDisabled}' @click="createFramework">
+                        Create
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showModal }">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form method="dialog">
+                    <button @click="showModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                        ✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-lg" x-text="selectedItem.id"></h3>
+                <div class="card card-body">
+                    <div class="grid grid-cols-6 gap-6">
+                        <template x-for="item in modalFields" :key="item.field">
+                            <div x-show="!item.modal.hide" :class="'col-span-' + item.modal.span">
+                                <label class="block text-sm font-medium mb-2" x-text="item.headerName"></label>
+                                <input
+                                        x-model="selectedItem[item.field]"
+                                        :type="item.modal.type"
+                                        :disabled="item.modal.disable"
+                                        class="input input-bordered w-full"
+                                />
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showModal = false">Close</button>
+                    <button class="btn red-badge" @click="openDeleteModal(selectedItem)">Delete</button>
+                    <button class="btn blue-badge" :class='{"btn-disabled": buttonDisabled}'
+                            @click="updateFramework(selectedItem)">Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
-
-<input type="checkbox" id="edit-framework-modal" class="modal-toggle" />
-<label for="edit-framework-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3 class="text-lg font-bold">Edit framework</h3>
-        <div class="py-4 sm:mt-0">
-          <div class="md:grid md:grid-cols-1 md:gap-6">
-                <div class="mt-5 md:col-span-2 md:mt-0">
-                    <div class="overflow-hidden sm:rounded-md">
-                          <div class="grid grid-cols-6 gap-6">
-                            <div id="edit-framework-body" class="col-span-6 sm:col-span-3"></div>
-                          </div>
-                          <div class="px-4 py-3 text-right sm:px-6">
-                                <button class="btn btn-primary save-edit-btn">Save</button>
-                          </div>
-                    </div>
-                </div>
-          </div>
-        </div>
-  </label>
-</label>
-
-<input type="checkbox" id="add-framework-modal" class="modal-toggle" />
-<label for="add-framework-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3 class="text-lg font-bold">Add framework</h3>
-        <div class="py-4 sm:mt-0">
-          <div class="md:grid md:grid-cols-1 md:gap-6">
-                <div class="mt-5 md:col-span-2 md:mt-0">
-                    <div class="overflow-hidden sm:rounded-md">
-                          <div class="px-4 py-5 sm:p-6">
-                                <div class="grid grid-cols-6 gap-6">
-                                  <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium ">Name</label>
-                                        <input placeholder="Enter the name of the framework" type="text" name="name" id="name" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
-                                  </div>
-                                  <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium ">Contact Email</label>
-                                        <input type="text" name="contact" id="contact" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
-                                  </div>
-                                </div>
-                          </div>
-                          <div class="px-4 py-3 text-right sm:px-6">
-                                <button class="btn btn-primary save-framework-btn">Save</button>
-                          </div>
-                    </div>
-                </div>
-          </div>
-        </div>
-  </label>
-</label>
 {%endblock%}
 
 {%block extrajs%}
 <script>
-  function loadFrameworkTable() {
-      $("#frameworks").dataTable().fnDestroy();
-      $("#framework-body").html("")
-      var selectedTenant = getTenant();
-      $.ajax({
-        type: "GET",
-        url: `/api/v1/tenants/${selectedTenant.id}/frameworks`,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-          for (var framework in data) {
-            $("#framework-body").append(`<tr><td class="text-sm font-medium  uppercase">${clean(data[framework].name)}</td><td class="text-sm font-medium ">${data[framework].controls}</td><td class="text-center"><a href="/frameworks/${clean(data[framework].name)}" class="btn btn-xs">View</a></td></tr>`);
-          }
-          $('#frameworks').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
-          return(data)
-        },
-        error: function(errMsg) {
-          toast(errMsg["responseJSON"]["message"],"error")
-          return(errMsg);
-        }
-      })
+function table(){
+    return {
+        init() {
+          this.$watch(
+            "items", (newValue, oldValue) => {
+                this.drawTable({"selector": "#table_1", "tableData":newValue})
+          })
 
-  }
-  loadFrameworkTable()
+          this.getItems()
+        },
+        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        loading: true,
+        showDeleteModal: false,
+        showModal: false,
+        buttonDisabled: false,
+        selectedItem: {},
+        modalFields: [],
+        tableHeaders: [
+          {"field": "id", "headerName": "ID", "filter": "agTextColumnFilter", "modal": {"disable": true}},
+          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter", "modal": {"disable": true}},
+        ],
+        openModal(item) {
+          this.selectedItem = item;
+          this.modalFields = getModalFields(this.tableHeaders)
+          this.showModal = true;
+        },
+        showCreateModal: false,
+        openCreateModal(item) {
+          this.showCreateModal = true;
+        },
+        openDeleteModal(item) {
+          this.selectedItem = item;
+          this.showModal = false;
+          this.showDeleteModal = true;
+        },
+        items: [],
+        formData: {
+          "name": "",
+          "contact_email": ""
+        },
+        createFramework() {
+          if (!this.formData.name) {
+            toast("Name is required", "error")
+            return
+          }
+          if (!this.formData.contact_email) {
+            toast("Email is required", "error")
+            return
+          }
+          toast("Please wait...")
+          this.buttonDisabled = true;
+          request("POST",
+            "/api/v1/frameworks",
+            data => {
+              toast("Created framework")
+              this.getItems()
+              this.showCreateModal = false;
+              this.formData.contact_email = ""
+              this.formData.is_system = false
+              this.buttonDisabled = false;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.formData
+          );
+        },
+        updateFramework(item) {
+          if (!item.contact_email) {
+            toast("Email is required", "error")
+            return
+          }
+          toast("Please wait...")
+          this.buttonDisabled = true;
+          request("PUT",
+            "/api/v1/frameworks/"+item.id,
+            data => {
+              toast("Updated framework")
+              this.getItems()
+              this.showModal = false;
+              this.buttonDisabled = false;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            {"contact_email":item.contact_email}
+          );
+        },
+        deleteFramework(item) {
+          toast("Please wait... This may take a minute.")
+          this.buttonDisabled = true;
+          request("DELETE",
+            "/api/v1/frameworks/"+item.id,
+            data => {
+              toast("Deleted framework")
+              this.getItems()
+              this.showDeleteModal = false;
+              this.buttonDisabled = false;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.formData
+          );
+        },
+        exportCSV: function() {
+          this.table.exportDataAsCsv();
+        },
+        removeControlFilters: function() {
+          this.table.setFilterModel(null);
+        },
+        drawTable: function({ selector = null, tableData = null, formatter = null }) {
+          var data = tableData;
+          var columns = [];
+
+          gridOptions = {
+            pagination: true,
+            paginationPageSize: 25,
+            domLayout: "autoHeight",
+            suppressMenuHide: true,
+            suppressHorizontalScroll: true,
+            enableCellTextSelection:true,
+            suppressFieldDotNotation: true,
+            onGridReady: (params) => {
+              params.api.sizeColumnsToFit();
+              this.loading = false;
+              window.onresize = () => {
+                this.loading = true;
+                params.api.sizeColumnsToFit();
+                this.loading = false;
+              }
+            },
+            autoSizeStrategy: {
+              type: 'fitGridWidth',
+              defaultMinWidth: 50,
+            }
+          }
+          const gridElement = document.querySelector(selector);
+          if (this.table) {
+            this.table.destroy();
+          }
+
+          gridOptions.rowData = this.formattedTable(tableData);
+          gridOptions.columnDefs = this.tableHeaders
+
+          gridOptions.onRowDoubleClicked = (row) => {
+            selectedItem = this.items.find(obj => obj.id === row.data.id);
+            this.openModal(selectedItem)
+          },
+
+          this.table = agGrid.createGrid(gridElement, gridOptions);
+
+        },
+        formattedTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.tableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              /*
+              if (row.name === "Limit unsuccessful logon") {
+                row.name = `<button class='btn btn-sm' @click='alert(1)' x-text='${this.controls.length}'></button>`
+              }*/
+
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+
+          return filteredData
+        },
+        getItems: function() {
+          this.loading = true,
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/frameworks`,
+            data => {
+              this.items = data;
+              this.loading = false;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        }
+    }
+}
+
 </script>
-{% endblock %}
+{%endblock%}

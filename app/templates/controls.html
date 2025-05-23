@@ -4,448 +4,275 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True,select2=True) }}
+  {{ macro.filehelper(grid=True) }}
 {% endblock %}
 
-{%block page_header_title%}Controls<p class="text-sm  font-medium">Controls can be added to your projects. When you create a project, you can import a framework (which contains controls).</p>{%endblock%}
+{%block page_header_title%}Controls{%endblock%}
 {%block page_header_title_border%}{%endblock%}
-{%block page_header_buttons%}<button class="btn btn-sm btn-primary modal-button">New Control</button>{%endblock%}
+{%block page_header_buttons%}{%endblock%}
 
 {%block content%}
-<div class="grid grid-cols-6 gap-4 mt-2">
-            <div class="col-span-6">
-    <div class="card bg-base-100 border border-base-200">
+<div x-data="table()" class="grid grid-cols-6 gap-4 mt-2">
+  <div class="col-span-6">
+    <div class="card bg-base-100 border border-base-300">
       <div class="card-body">
-        <h2 class="card-title mb-2">Controls</h2>
-        <p id="loader"></p>
-        <table class="table table-vcenter " id="controls" style="width:100%">
-          <thead>
-            <tr>
-              <th class="w-1">Reference</th>
-              <th class="w-1">Framework</th>
-              <th class="">Name</th>
-              <th class="w-1">More</th>
-            </tr>
-          </thead>
-          <tbody id="control-body"></tbody>
-        </table>
+        <div class="flex justify-between align-items-center">
+          <h2 class="card-title mb-4">Controls</h2>
+          <button class="btn btn-sm green-badge" @click="openCreateModal">New</button>
+        </div>
+        <div class="mx-auto text-center mt-5" x-show="loading" x-transition:enter.duration.500ms x-transition:leave.duration.100ms x-html="loadingSkeleton"></div>
+        <div x-show="!loading" class="ag-theme-quartz" id="table_1" x-transition:enter.duration.500ms x-transition:leave.duration.500ms></div>
       </div>
     </div>
-    </div>
-</div>
-
-<input type="checkbox" id="add-to-project-modal" class="modal-toggle" />
-<label for="add-to-project-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3 id="add-to-project-modal-title" class="text-lg font-bold"></h3>
-    <div id="add-to-project-modal-body" class="card-body">
-      <label class="block text-sm font-medium ">Selected Control</label>
-      <p id="modal-p" class="mb-2"></p>
-      <label class="block text-sm font-medium ">Select Project</label>
-      <select id="selected-project" class="select select-bordered w-full max-w-xs"></select>
-    </div>
-    <div class="px-4 py-3 text-right sm:px-6">
-      <button class="btn btn-primary btn-save-control-to-project">Save</button>
-    </div>
-  </label>
-</label>
-
-<input type="checkbox" id="view-modal" class="modal-toggle" />
-<label for="view-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3 id="view-modal-title" class="text-lg font-bold"></h3>
-    <div id="view-modal-body" class="card-body">
-<div class="overflow-hidden border border-base-200 shadow sm:rounded-lg">
-  <div class="px-4 py-5 sm:px-6 bg-base-200">
-    <h3 class="text-lg font-medium leading-6 ">Control Details</h3>
-    <p class="mt-1 max-w-2xl text-sm ">View detailed information about the control</p>
   </div>
-  <div class="border-t border-base-200">
-    <dl id="div-holder"></dl>
-    <div class="px-4 py-5">
-      <h3 class="text-lg font-medium leading-6  mb-4">Subcontrols</h3>
-      <table class="table table-vcenter" id="control-table" style="width:100%">
-        <thead>
-          <tr>
-            <th class="w-1">Ref</th>
-            <th>Name</th>
-          </tr>
-        </thead>
-        <tbody id="control-table-body"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
 
-    </div>
-  </label>
-</label>
-
-<input type="checkbox" id="control-modal" class="modal-toggle" />
-<div class="modal">
-  <div class="modal-box relative w-11/12 max-w-7xl">
-    <label for="control-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-    <h3 class="text-lg font-bold">New Control</h3>
-        <div class="py-4 sm:mt-0">
-                <p class="text-sm font-medium ">Create a new control which can be added to your projects. Subcontrols are child tasks of the control. For example, if you create a control with two (2) subcontrols, you would complete the subcontrols and the top level control would be satisfied. Subcontrols are not mandatory to use, but are highly encouraged to break down a control.</p>
-                <div class="card-body">
-          <div class="md:grid md:grid-cols-1 md:gap-6">
-                <div class="mt-5 md:col-span-2 md:mt-0">
-                        <div class="overflow-hidden sm:rounded-md mb-2">
-                          <div class="px-4 py-5 sm:p-6 border border-base-200">
-                                <div class="grid grid-cols-6 gap-6">
-                                  <div class="col-span-2 sm:col-span-2">
-                                        <label class="block text-sm font-medium ">Name</label>
-                                        <input placeholder="Enter the name of the control" type="text" id="name" class="mt-2 block w-full rounded-md shadow-sm input-md border">
-                                  </div>
-                                  <div class="col-span-2 sm:col-span-2">
-                                        <label class="block text-sm font-medium ">Reference code</label>
-                                        <input placeholder="Enter the reference code" type="text" id="ref_code" class="mt-2 block w-full rounded-md shadow-sm input-md border">
-                                  </div>
-                                  <div class="col-span-2 sm:col-span-2">
-                                        <label class="block text-sm font-medium  mb-2">Select Framework (or create new one)</label>
-                                        <select class="select select-bordered w-full max-w-xs framework-select" id="framework"></select>
-                                  </div>
-                                  <div class="col-span-2 sm:col-span-2">
-                                        <label class="block text-sm font-medium ">System Level</label>
-                                        <select class="select select-bordered w-full max-w-xs mt-2" id="system_level">
-                                          <option value="no" selected>False</option>
-                                          <option value="yes">True</option>
-                                        </select>
-                                  </div>
-                                  <div class="col-span-2 sm:col-span-2">
-                                        <label class="block text-sm font-medium ">Category</label>
-                                        <input placeholder="Enter the category" type="text" id="category" class="mt-2 block w-full rounded-md shadow-sm input-md border">
-                                  </div>
-                                  <div class="col-span-2 sm:col-span-2">
-                                        <label class="block text-sm font-medium ">Subcategory</label>
-                                        <input placeholder="Enter the subcategory" type="text" id="subcategory" class="mt-2 block w-full rounded-md shadow-sm input-md border">
-                                  </div>
-                                  <div class="col-span-3 sm:col-span-2">
-                                        <label class="block text-sm font-medium ">Description</label>
-                                        <textarea data-name="description" id="description" class="textarea textarea-bordered w-full mt-2"></textarea>
-                                  </div>
-                                  <div class="col-span-3 sm:col-span-2">
-                                        <label class="block text-sm font-medium ">Implementation Difficulty</label>
-                                        <select class="select select-bordered w-full max-w-xs mt-2" id="dti">
-                                          <option value="easy" selected>Easy</option>
-                                          <option value="moderate">Moderate</option>
-                                          <option value="hard">Hard</option>
-                                        </select>
-                                  </div>
-                                  <div class="col-span-3 sm:col-span-2">
-                                        <label class="block text-sm font-medium ">Collection Difficulty</label>
-                                        <select class="select select-bordered w-full max-w-xs mt-2" id="dtc">
-                                          <option value="easy" selected>Easy</option>
-                                          <option value="moderate">Moderate</option>
-                                          <option value="hard">Hard</option>
-                                        </select>
-                                  </div>
-                                </div>
-                          </div>
-                        </div>
-                </div>
-          </div>
-                    <table id="myTable" class="table order-list">
-                        <thead class="thead-white">
-                            <tr>
-                                <th scope="col">Name</th>
-                                <th scope="col">Description</th>
-                                <th scope="col">Mitigation</th>
-                                <th scope="col w-1">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr id="subcontrol-1" class="item">
-                                <td>
-                                    <input type="text" name="name_0" class="form-control w-full input-md border name rounded-md" required="true" placeholder="Subcontrol name"/>
-                                </td>
-                                <td>
-                                    <textarea rows="1" class="textarea textarea-bordered description"></textarea>
-                                </td>
-                                <td>
-                                    <textarea rows="1" class="textarea textarea-bordered mitigation"></textarea>
-                                </td>
-                                <!--<td><a class="deleteRow btn-sm"></a></td>-->
-                                <td><input type="button" class="ibtnDel btn btn-sm btn-outline btn-error" value="Delete"></td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan="5" class="text-left">
-                                    <input class="btn btn-md btn-primary btn-block" id="addrow" value="Add subcontrol" />
-                                </td>
-                            </tr>
-                            <tr>
-                            </tr>
-
-                        </tfoot>
-                    </table>
-                    <div class="text-right">
-                      <button class="btn btn-primary save-control w-20">Save</button>
-                    </div>
-                  </div>
-
+  <div>
+    <div class="modal" x-bind:class="{ 'modal-open': showDeleteModal }">
+        <div class="modal-box">
+            <form method="dialog">
+              <button @click="showDeleteModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-lg" x-text="'Are you sure you want to delete ' + selectedItem.id + '?'"></h3>
+            <div class="modal-action">
+                <button class="btn" @click="showModal = false">Close</button>
+                <button class="btn red-badge" @click="deleteControl(selectedItem)">Delete Control</button>
+            </div>
         </div>
+    </div>
   </div>
+
+  <div>
+    <div class="modal" x-bind:class="{ 'modal-open': showCreateModal }">
+        <div class="modal-box w-11/12 max-w-5xl">
+            <form method="dialog">
+              <button @click="showCreateModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-lg">Create Control</h3>
+            <div class="card card-body">
+                          <div class="grid grid-cols-6 gap-x-6">
+                                  <div class="col-span-3">
+                                    <label for="email" class="block text-sm font-medium pb-2">Contact email</label>
+                                    <input x-model="formData.contact_email" type="email" placeholder="Input email" class="input input-bordered w-full" required/>
+                                  </div>
+                                  <div class="col-span-3">
+                                    <label for="email" class="block text-sm font-medium pb-2">System Tenant</label>
+                                    <input x-model="formData.is_system" type="checkbox" checked="checked" class="checkbox" />
+                                  </div>
+                          </div>
+            </div>
+            <div class="modal-action">
+                <button class="btn" @click="showCreateModal = false">Close</button>
+                <button class="btn blue-badge" @click="createControl">Create</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="modal" x-bind:class="{ 'modal-open': showModal }">
+        <div class="modal-box w-11/12 max-w-5xl">
+            <form method="dialog">
+              <button @click="showModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-lg" x-text="selectedItem.id"></h3>
+            <div class="card card-body">
+                          <div class="grid grid-cols-6 gap-6">
+                                  <div class="col-span-6 sm:col-span-3">
+                                    <label class="block text-sm font-medium mb-2">Contact Email</label>
+                                    <input x-model="selectedItem.contact_email" id="email" type="text" class="input input-bordered w-full"/>
+                                  </div>
+                          </div>
+            </div>
+            <div class="modal-action">
+                <button class="btn" @click="showModal = false">Close</button>
+                <button class="btn red-badge" @click="openDeleteModal(selectedItem)">Delete</button>
+                <button class="btn blue-badge" @click="updateControl">Update</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
 </div>
 {%endblock%}
 
 {%block extrajs%}
 <script>
-  $(document).ready(function() {
-  function loadControlTable() {
-      $("#loader").html('<div class="text-center"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 animate-spin text-gray-200 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org 2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
+function table(){
+    return {
+        init() {
+          this.$watch(
+            "items", (newValue, oldValue) => {
+                this.drawTable({"selector": "#table_1", "tableData":newValue})
+          })
 
-      $("#controls").dataTable().fnDestroy();
-      var selectedTenant = getTenant();
-      if (!selectedTenant.id) {
-        $('#controls').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
-      } else {
-      $("#control-body").html("")
-      $.ajax({
-        type: "GET",
-        url: `/api/v1/tenants/${selectedTenant.id}/controls`,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-          $("#loader").html("")
-          for (var control in data) {
-            $("#control-body").append(`<tr data-control-id=${data[control].id}> <td class="text-sm font-medium  uppercase">${clean(data[control].ref_code)}</td><td><p class="font-medium text-xs uppercase text-primary bg-base-200 rounded-full py-1 px-3 w-fit">${clean(data[control].framework)}</p></td><td class="text-sm font-medium  whitespace-normal"><div class="tooltip" data-tip="Double click to see more"><div class="whitespace-normal text-left capitalize">${clean(data[control].name)}</div></div></td><td class="text-center"><div class="dropdown dropdown-top dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"><li><a data-name="${clean(data[control].name)}" data-id="${data[control].id}" class="add-to-project">Add to project</a></li><li><a data-id="${data[control].id}" class="delete-control">Delete</a></li></ul></div></td></tr>`);
-          }
-          var table = $('#controls').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
-          table.on('dblclick', 'tbody tr', function() {
-                          var controlId = $(this).data('control-id')
-                          var rowData = table.row(this).data();
-                          document.getElementById("view-modal").checked = true;
-                          // make ajax call
-                          $.ajax({
-                            type: "GET",
-                            url: `/api/v1/controls/${controlId}`,
-                            contentType: "application/json; charset=utf-8",
-                            dataType: "json",
-                            success: function(data){
-                              var divHolder = $("#div-holder")
-                              divHolder.html("");
-                              divHolder.append(formatTableRow("Name",data["name"],"base-100"));
-                              divHolder.append(formatTableRow("Framework",data["framework"],"base-200"));
-                              divHolder.append(formatTableRow("UUID",data["uuid"],"base-100"));
-                              divHolder.append(formatTableRow("Subcontrols",data["subcontrol_count"],"base-200"));
-                              divHolder.append(formatTableRow("Description",data["description"],"base-100"));
-                              divHolder.append(formatTableRow("Reference Code",data["ref_code"],"base-200"));
-                              divHolder.append(formatTableRow("System Level",data["system_level"],"base-100"));
-                              divHolder.append(formatTableRow("Category",data["category"],"base-200"));
-                              divHolder.append(formatTableRow("Subcategory",data["subcategory"],"base-100"));
-                              divHolder.append(formatTableRow("Difficulty to Implement",data["dti"],"base-200"));
-                              divHolder.append(formatTableRow("Difficulty to Collect",data["dtc"],"base-100"));
-                              var subControlTable = $("#control-table-body");
-                              for (var record in data.subcontrols) {
-                                subControlTable.append(`<tr>
-                                  <td class="text-sm font-medium ">${data.subcontrols[record].ref_code}</td>
-                                  <td class="text-sm font-medium  whitespace-normal">${data.subcontrols[record].name}</td>
-                                  </tr>`
-                                )
-                              };                              
-                            },
-                            error: function(errMsg) {
-                              return(errMsg);
-                            }
-                          })
-     });
-
-          return(data)
+          this.getItems()
         },
-        error: function(errMsg) {
-          toast(errMsg["responseJSON"]["message"],"error")
-          return(errMsg);
-        }
-      })
-      }
-  }
-  loadControlTable()
-
-    $(document).on('click', '.delete-control', function() {
-       var controlId = $(this).data('id')
-       $.ajax({
-         type: "DELETE",
-         url: `/api/v1/controls/${controlId}`,
-         contentType: "application/json; charset=utf-8",
-         dataType: "json",
-         success: function(data){
-             toast("Deleted control","success")
-             loadControlTable();
-             return(data)
-         },
-         error: function(errMsg) {
-             return(errMsg);
-         }
-       })
-    });
-    $(document).on('click', '.save-control', function() {
-        
-        var validation = true;
-        var data = {
-          "framework":$("#framework").val(),
-          "controls": [{
-            "name":$("#name").val(),
-            "ref_code":$("#ref_code").val(),
-            "description":$("#description").val(),
-            "system_level":($("#system_level").val() === "yes") ? true : false,
-            "category":$("#category").val(),
-            "subcategory":$("#subcategory").val(),
-            "dti":$("#dti").val(),
-            "dtc":$("#dtc").val(),
-            "subcontrols":[]
-          }],
-        }
-        if (data["framework"] == null || data["framework"].length === 0){
-          toast(`Framework is required`,"error")
-          return;
-        }
-        for (var control in data["controls"]) {
-          var obj = data["controls"][control]
-          Object.keys(obj).forEach(function(key) {
-            var value = obj[key];
-            if (key !== "subcontrols") {
-              if (value == null || value.length === 0){
-                toast(`${key} is required`,"error")
-                validation = false
-              };
-            };
-          });
-        }
-        if (validation === false) {
-          return;
-        }
-        //if (name == null || name.length === 0){
-        $("#myTable tr.item").each(function() {
-          var id = $(this).attr("id");
-          var name = $(this).find("input.name").val();
-          if (name == null || name.length === 0) {
-            console.log("empty subcontrols")
-          } else {
-            data["controls"][0]["subcontrols"].push({"name":$(this).find("input.name").val(),
-              "description":$(this).find("textarea.description").val(),
-              "mitigation":$(this).find("textarea.mitigation").val()
-            });
+        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        loading: true,
+        showDeleteModal: false,
+        showModal: false,
+        selectedItem: {},
+        tableHeaders: [
+          {"field": "id", "headerName": "#", "width": 100, "filter": "agTextColumnFilter", "hide": false},
+          {"field": "contact_email", "headerName": "Contact", "filter": "agTextColumnFilter"},
+          {"field": "is_system", "headerName": "Is System", "filter": "agTextColumnFilter"},
+          {"field": "deployment_count", "headerName": "Deployments", "filter": "agTextColumnFilter"},
+          {"field": "date_added", "headerName": "Created At", "filter": "agTextColumnFilter"}
+        ],
+        openModal(item) {
+          this.selectedItem = item;
+          this.showModal = true;
+        },
+        showCreateModal: false,
+        openCreateModal(item) {
+          this.showCreateModal = true;
+        },
+        openDeleteModal(item) {
+          this.selectedItem = item;
+          this.showModal = false;
+          this.showDeleteModal = true;
+        },
+        items: [],
+        formData: {
+          "contact_email": "",
+          "is_system": false
+        },
+        createControl() {
+          if (!this.formData.contact_email) {
+            toast("Email is required", "error")
+            return
           }
-        });
-        var selectedTenant = getTenant();
-        $.ajax({
-          type: "POST",
-          url: `/api/v1/tenants/${selectedTenant.id}/controls`,
-          data: JSON.stringify(data),
-          contentType: "application/json; charset=utf-8",
-          dataType: "json",
-          success: function(data){
-            toast("Created control","success")
-            document.getElementById('control-modal').checked = false;
-            loadControlTable();
-            return(data)
+          $.ajax({
+            type: "POST",
+            url: "/api/v1/tenants",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(this.formData),
+            dataType: "json",
+            success: (data) => {
+              toast("Created tenant")
+              this.getItems()
+              this.showCreateModal = false;
+              this.formData.contact_email = ""
+              this.formData.is_system = false
+            },
+            error: (errMsg) => {
+              toast(errMsg["responseJSON"]["message"], "error")
+            }
+          })
+        },
+        updateControl() {
+          var data = {
+            "contact_email": this.selectedItem.contact_email
+          }
+          $.ajax({
+            type: "PUT",
+            url: "/api/v1/tenants/"+this.selectedItem.id,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(data),
+            dataType: "json",
+            success: (data) => {
+              toast("Tenant updated")
+              this.selectedItem = {}
+              this.getItems()
+              this.showModal = false;
+            },
+            error: (errMsg) => {
+              toast(errMsg["responseJSON"]["message"], "error")
+            }
+          })
+        },
+        deleteControl(item) {
+          $.ajax({
+            type: "DELETE",
+            url: "/api/v1/tenants/"+item.id,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: (data) => {
+              toast("Deleted tenant")
+              this.selectedItem = {}
+              this.getItems()
+              this.showDeleteModal = false;
+            },
+            error: (errMsg) => {
+              toast(errMsg["responseJSON"]["message"], "error")
+            }
+          })
+        },
+        drawTable: function({ selector = null, tableData = null, formatter = null }) {
+          var data = tableData;
+          var columns = [];
+
+          gridOptions = {
+            pagination: true,
+            paginationPageSize: 25,
+            domLayout: "autoHeight",
+            suppressMenuHide: true,
+            suppressHorizontalScroll: true,
+            enableCellTextSelection:true,
+            suppressFieldDotNotation: true,
+            onGridReady: (params) => {
+              params.api.sizeColumnsToFit();
+              this.loading = false;
+              window.onresize = () => {
+                this.loading = true;
+                params.api.sizeColumnsToFit();
+                this.loading = false;
+              }
+            },
+            autoSizeStrategy: {
+              type: 'fitGridWidth',
+              defaultMinWidth: 50,
+            }
+          }
+          const gridElement = document.querySelector(selector);
+          if (this.table) {
+            this.table.destroy();
+          }
+
+          gridOptions.rowData = this.formattedTable(tableData);
+          gridOptions.columnDefs = this.tableHeaders
+
+          gridOptions.onRowDoubleClicked = (row) => {
+            selectedItem = this.items.find(obj => obj.id === row.data.id);
+            this.openModal(selectedItem)
           },
-          error: function(errMsg) {
-            return(errMsg);
-          }
-        })
-    });
-        var counter = 2;
-        $("#addrow").on("click", function () {
 
-            if (counter >= 10) {
-              console.log("Reached row limit")
-              return ""
-            };
-            var newRow = $(`<tr id="subcontrol-${counter}" class="item">`);
-            var cols = "";
+          this.table = agGrid.createGrid(gridElement, gridOptions);
 
-            cols += '<td><input type="text" class="form-control w-full input-md name rounded-md" required="true" placeholder="Subcontrol name"></td>';
-            cols += '<td><textarea rows="1" class="textarea textarea-bordered description"></textarea></td>';
-            cols += '<td><textarea rows="1" class="textarea textarea-bordered mitigation"></textarea></td>';
-
-            cols += '<td><input type="button" class="ibtnDel btn btn-sm btn-outline btn-error" value="Delete"></td>';
-            newRow.append(cols);
-            $("table.order-list").append(newRow);
-            counter++;
-        });
-
-        $("table.order-list").on("click", ".ibtnDel", function (event) {
-            $(this).closest("tr").remove();       
-            counter -= 1
-        });
-
-
-    $(document).on('click', '.modal-button', function() {
-      var selectedTenant = getTenant();
-      $.ajax({
-        type: "GET",
-        url: `/api/v1/tenants/${selectedTenant.id}/frameworks`,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-          $(".framework-select").select2({"tags":true});
-          for (var fw in data) {
-            var newOption = new Option(data[fw].name, data[fw].id, false, false);
-            $("#framework").append(newOption).trigger('change');
-          }
-          return(data)
         },
-        error: function(errMsg) {
-          toast(errMsg["responseJSON"]["message"],"error")
-          return(errMsg);
+        formattedTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.tableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              /*
+              if (row.name === "Limit unsuccessful logon") {
+                row.name = `<button class='btn btn-sm' @click='alert(1)' x-text='${this.controls.length}'></button>`
+              }*/
+
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+
+          return filteredData
+        },
+        getItems: function() {
+          this.loading = true,
+          request("GET",
+            "/api/v1/controls",
+            data => {
+              this.items = data;
+              this.loading = false;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
         }
-      })
-
-      document.getElementById('control-modal').checked = true;
-    });
-     $(document).on('click', '.btn-save-control-to-project', function() {
-       var controlId = $(this).data('id')
-       var selectedProjectId = $("#selected-project").val()
-       $.ajax({
-         type: "PUT",
-         url: `/api/v1/controls/${controlId}/projects/${selectedProjectId}`,
-         contentType: "application/json; charset=utf-8",
-         dataType: "json",
-         success: function(data){
-             toast("Added control to the project","success")
-             document.getElementById('add-to-project-modal').checked = false;
-             return(data)
-         },
-         error: function(errMsg) {
-             return(errMsg);
-         }
-       })
-     });
-
-     $(document).on('click', '.add-to-project', function() {
-       var controlId = $(this).data('id')
-       var controlName = $(this).data('name')
-       $("#modal-p").html('<div class="col-span-9 mx-auto mt-10"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 animate-spin text-gray-200 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
-       document.getElementById('add-to-project-modal').checked = true;
-       $("#selected-project").html("")
-       var selectedTenant = getTenant();
-       $.ajax({
-         type: "GET",
-         url: `/api/v1/tenants/${selectedTenant.id}/projects`,
-         contentType: "application/json; charset=utf-8",
-         dataType: "json",
-         success: function(data){
-             for (var project in data) {
-               $("#selected-project").append(`<option value="${data[project].id}">${data[project].name}</option>`)
-             }
-             $(".btn-save-control-to-project").data("id",controlId)
-             $("#add-to-project-modal-title").html(`Which project would you like to add this control to?`)
-             $("#modal-p").html(`${controlName}`)
-             return(data)
-         },
-         error: function(errMsg) {
-             return(errMsg);
-         }
-       })
-
-     });
-     function formatTableRow(key, value, bg) {
-       return `<div class="bg-${bg}-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"><dt class="text-sm font-medium ">${key}</dt><dd class="mt-1 text-sm  sm:col-span-2 sm:mt-0">${value}</dd></div>`
-     };
-  });
+    }
+}
 </script>
 {%endblock%}

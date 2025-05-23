@@ -1,8 +1,15 @@
 from functools import wraps
-from flask import current_app, g, request, jsonify,redirect,url_for,session,flash
+from flask import request, jsonify, redirect, url_for, flash
 from app.models import *
-from app import db
-from flask_login import current_user, login_user
+from flask_login import current_user, login_user, logout_user
+
+
+def custom_login(user):
+    if isinstance(user, User):
+        user.login_count = (user.login_count or 0) + 1
+        db.session.commit()
+        login_user(user)
+
 
 def validate_token_in_header(enc_token):
     user = User.verify_auth_token(enc_token)
@@ -10,176 +17,25 @@ def validate_token_in_header(enc_token):
         return False
     if not user.is_active:
         return False
+    if not user.confirmed:
+        return False
     return user
 
-def is_vendor_for_tenant(current_user):
-    if tenant := Tenant.query.get(session.get("tenant-id")):
-        if tenant.has_user_with_role(current_user, "vendor"):
-            return True
-    return False
 
-def is_super(f):
+def is_logged_in(f):
     @wraps(f)
     def decorated_function(*args, **kws):
-        if not current_user.super:
-            return jsonify({"message":"unauthorized"}),401
+        next_page = request.args.get("next")
+        if current_user.is_authenticated:
+            flash("You are already logged in", "success")
+            return redirect(next_page or url_for("main.home"))
         return f(*args, **kws)
+
     return decorated_function
 
-def roles_denied(*role_names):
-    """| This decorator ensures that the current user is logged in,
-    | and does not have *at least one* of the specified roles (OR operation).
-    Example::
-        @route('/edit_article')
-        @roles_denied('Writer', 'Editor')
-        def edit_article():  # User must be 'Writer' OR 'Editor'
-            ...
-    | Calls unauthenticated_view() when the user is not logged in
-        or when user has not confirmed their email address.
-    | Calls unauthorized_view() when the user does not have the required roles.
-    | Calls the decorated view otherwise.
-    """
-    # convert the list to a list containing that list.
-    # Because roles_required(a, b) requires A AND B
-    # while roles_required([a, b]) requires A OR B
-    def wrapper(view_function):
-
-        @wraps(view_function)    # Tells debuggers that is is a function wrapper
-        def decorator(*args, **kwargs):
-            from flask_login import current_user
-
-            #// Try to authenticate with an token (API login, must have token in HTTP header)
-            enc_token = request.headers.get("token")
-            if enc_token:
-                user = validate_token_in_header(enc_token)
-                if user:
-                    current_user = user
-                    login_user(user)
-                else:
-                    return jsonify({"message":"authentication failed"}),401
-            else:
-                if not current_user.is_authenticated:
-                    return redirect(url_for("auth.login"))
-
-            # User must have the required roles
-            # NB: roles_required would call has_roles(*role_names): ('A', 'B') --> ('A', 'B')
-            # But: roles_accepted must call has_roles(role_names):  ('A', 'B') --< (('A', 'B'),)
-            if current_user.has_any_role_for_tenant_by_id(session.get("tenant-id"), role_names) and not current_user.super:
-                if enc_token:
-                    return jsonify({"message":"forbidden"}),403
-                # Redirect to the unauthorized page
-                flash("User does not have the required roles to access this resource!",category="warning")
-                return redirect(url_for("main.home"))
-
-            # It's OK to call the view
-            return view_function(*args, **kwargs)
-
-        return decorator
-
-    return wrapper
-
-def roles_accepted(*role_names):
-    """| This decorator ensures that the current user is logged in,
-    | and has *at least one* of the specified roles (OR operation).
-    Example::
-        @route('/edit_article')
-        @roles_accepted('Writer', 'Editor')
-        def edit_article():  # User must be 'Writer' OR 'Editor'
-            ...
-    | Calls unauthenticated_view() when the user is not logged in
-        or when user has not confirmed their email address.
-    | Calls unauthorized_view() when the user does not have the required roles.
-    | Calls the decorated view otherwise.
-    """
-    # convert the list to a list containing that list.
-    # Because roles_required(a, b) requires A AND B
-    # while roles_required([a, b]) requires A OR B
-    def wrapper(view_function):
-
-        @wraps(view_function)    # Tells debuggers that is is a function wrapper
-        def decorator(*args, **kwargs):
-            from flask_login import current_user
-
-            #// Try to authenticate with an token (API login, must have token in HTTP header)
-            enc_token = request.headers.get("token")
-            if enc_token:
-                user = validate_token_in_header(enc_token)
-                if user:
-                    current_user = user
-                    login_user(user)
-                else:
-                    return jsonify({"message":"authentication failed"}),401
-            else:
-                if not current_user.is_authenticated:
-                    return redirect(url_for("auth.login"))
-
-            # User must have the required roles
-            # NB: roles_required would call has_roles(*role_names): ('A', 'B') --> ('A', 'B')
-            # But: roles_accepted must call has_roles(role_names):  ('A', 'B') --< (('A', 'B'),)
-            if not current_user.has_any_role_for_tenant_by_id(session.get("tenant-id"), role_names) and not current_user.super:
-                if enc_token:
-                    return jsonify({"message":"forbidden"}),403
-                # Redirect to the unauthorized page
-                flash("User does not have the required roles to access this resource!",category="warning")
-                return redirect(url_for("main.home"))
-
-            # It's OK to call the view
-            return view_function(*args, **kwargs)
-
-        return decorator
-
-    return wrapper
-
-
-def roles_required(*role_names):
-    """| This decorator ensures that the current user is logged in,
-    | and has *all* of the specified roles (AND operation).
-    Example::
-        @route('/escape')
-        @roles_required('Special', 'Agent')
-        def escape_capture():  # User must be 'Special' AND 'Agent'
-            ...
-    | Calls unauthenticated_view() when the user is not logged in
-        or when user has not confirmed their email address.
-    | Calls unauthorized_view() when the user does not have the required roles.
-    | Calls the decorated view otherwise.
-    """
-    def wrapper(view_function):
-
-        @wraps(view_function)    # Tells debuggers that is is a function wrapper
-        def decorator(*args, **kwargs):
-            from flask_login import current_user
-
-            #// Try to authenticate with an token (API login, must have token in HTTP header)
-            enc_token = request.headers.get("token")
-            if enc_token:
-                user = validate_token_in_header(enc_token)
-                if user:
-                    current_user = user
-                    login_user(user)
-                else:
-                    return jsonify({"message":"authentication failed"}),401
-            else:
-                if not current_user.is_authenticated:
-                    return redirect(url_for("auth.login"))
-
-            # User must have the required roles
-            if not current_user.has_all_roles_for_tenant_by_id(session.get("tenant-id"), *role_names) and not current_user.super:
-                if enc_token:
-                    return jsonify({"message":"forbidden"}),403
-                # Redirect to the unauthorized page
-                flash("User does not have the required roles to access this resource!",category="warning")
-                return redirect(url_for("main.home"))
-
-            # It's OK to call the view
-            return view_function(*args, **kwargs)
-
-        return decorator
-
-    return wrapper
 
 def login_required(view_function):
-    """ This decorator ensures that the current user is logged in.
+    """This decorator ensures that the current user is logged in.
     Example::
         @route('/member_page')
         @login_required
@@ -191,22 +47,58 @@ def login_required(view_function):
         or when the user has not confirmed their email address.
     | Calls the decorated view otherwise.
     """
-    @wraps(view_function)    # Tells debuggers that is is a function wrapper
-    def decorator(*args, **kwargs):
-        #user_manager = current_app.user_manager
-        from flask_login import current_user
 
-        # try to authenticate with an token (API login, must have token in HTTP header)
+    @wraps(view_function)
+    def decorator(*args, **kwargs):
+        # Try to authenticate with a token (API login, must have token in HTTP header)
         api = False
         if token := request.headers.get("token"):
             api = True
             if not (user := validate_token_in_header(token)):
-                return jsonify({"message":"authentication failed"}),401
-            current_user = user
-            login_user(current_user)
+                return jsonify({"message": "Invalid authentication"}), 401
+            custom_login(user)
         else:
             if not current_user.is_authenticated:
-                return redirect(url_for("auth.login", next=request.full_path))
+                return redirect(url_for("auth.get_login", next=request.full_path))
+
+            if not current_user.is_active:
+                logout_user()
+                flash("User account is disabled", "warning")
+                return redirect(url_for("auth.get_login"))
+
+            # TODO - implement trial period
+            # if current_user.license == "trial":
+            #     given_date = arrow.get(user.date_added)
+            #     expiration_date = given_date.shift(days=user.trial_days)
+            #     current_date = arrow.now()
+            #     if current_date >= expiration_date:
+            #         flash(
+            #             _l(
+            #                 f"Your trial period is over. Please send us an email: {current_app.config['DEFAULT_EMAIL']}"
+            #             ),
+            #             "warning",
+            #         )
+            #         return redirect(next_page or url_for("auth.get_login"))
+
+            # Allow authenticated user to send email confirmation
+            if not current_user.email_confirmed_at and request.endpoint not in [
+                "auth.post_get_started",
+                "auth.get_started",
+                "auth.confirm_email",
+                "api.send_user_confirmation",
+                "api.verify_user_confirmation",
+            ]:
+                flash("Please confirm your email to continue")
+                return redirect(url_for("auth.confirm_email"))
+
+            # Allow authenticated user requiring password change
+            # to access specific endpoints to update their password
+            if current_user.is_password_change_required() and request.endpoint not in [
+                "auth.set_password",
+                "api.change_password",
+            ]:
+                flash("Please set your password to continue")
+                return redirect(url_for("auth.set_password"))
 
         # It's OK to call the view
         return view_function(*args, **kwargs)

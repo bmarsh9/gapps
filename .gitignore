@@ -1,3 +1,4 @@
+tl_src/node_modules
 .env
 *.py[cod]
 env/*
@@ -7,6 +8,7 @@ app/files/reports/*
 app/files/evidence/*
 # C extensions
 *.so
+.idea
 
 # Packages
 *.egg

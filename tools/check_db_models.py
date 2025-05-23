@@ -9,7 +9,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app import create_app
 from app.models import *
 
-app = create_app(os.getenv('FLASK_CONFIG') or 'default')
+app = create_app(os.getenv("FLASK_CONFIG") or "default")
+
 
 def should_we_create_models():
     """
@@ -30,6 +31,7 @@ def should_we_create_models():
             print(f"[ERROR] Traceback while querying db model: {e}")
             return "Error"
     return "Error"
+
 
 print(f"[INFO] Checking if database models require creation")
 result = should_we_create_models()

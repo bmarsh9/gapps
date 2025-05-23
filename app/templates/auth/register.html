@@ -1,51 +1,128 @@
 {% extends "layouts/basic.html" %}
+
 {%block body%}
-<div class="hero min-h-screen bg-base-200">
-  <div class="hero-content flex-col lg:flex-row-reverse">
-    <div class="card flex-shrink-0 w-96 shadow-2xl bg-base-100">
-      <div class="card-body">
-      <h2 class="text-4xl font-bold text-center mb-2">{{config.APP_NAME}}</h2>
-      {%if config.APP_SUBTITLE%}
-      <p class="text-xs font-medium text-gray-500 text-center">{{config.APP_SUBTITLE}}</p>
-      {%endif%}
-        <form class="form-signin" method="POST" action="{{url_for("auth.register",token=request.args.get("token"))}}" role="form">
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Email</span>
-          </label>
-          <input type="email" name="email" id="email" class="input input-bordered w-full max-w-xs" placeholder="{{ _('Email') }}" required {%if email%}value={{email}} disabled{%endif%}>
-        </div>
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Username</span>
-          </label>
-          <input class="input input-bordered w-full max-w-xs" placeholder="{{ _('Username') }}" id="username" name="username" type="text" required>
-        </div>
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Password</span>
-          </label>
-          <input class="input input-bordered w-full max-w-xs mb-2" placeholder="{{ _('Password') }}" id="password" name="password" type="password" required>
-        </div>
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">Retype Password</span>
-          </label>
-          <input type="password" name="password2" id="password2" class="input input-bordered w-full max-w-xs" placeholder="{{ _('Retype password') }}" required>
-          <p class="text-primary text-xs font-medium ml-1 link link-hover mt-1"><a href="{{url_for("auth.login")}}">Already have an account? Sign in</a></p>
-        </div>
-        <div class="form-control mt-6">
-          <button class="btn btn-primary">Sign up</button>
-        </div>
+<div x-data="standup()" class="min-h-screen">
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 items-center lg:gap-10 gap-4">
+    <div class="max-md:order-1 h-screen min-h-full min-w-full bg-primary"></div>
+    <div class="lg:col-span-2 max-w-lg w-full p-4 mx-auto">
+      <div class="mb-5">
+        <h3 class="text-4xl font-extrabold mt-10">Register</h3>
+        <p class="text-sm my-2">Already have an account? <a href="/login" class="text-primary font-semibold hover:underline ml-1 whitespace-nowrap">Login here</a></p>
+      </div>
+      <div x-show="!emailConfigured">
+        <p x-show="googleAuthEnabled || microsoftAuthEnabled" class="text-sm my-2 bg-base-300 p-4 rounded-lg" x-text="'Local registration is disabled because email is not configured. You can still register with Google or Microsoft below. Please contact your admin: '+adminEmail"></p>
+        <p x-show="!googleAuthEnabled && !microsoftAuthEnabled" class="text-sm my-2 bg-base-300 p-4 rounded-lg" x-text="'Local registration is disabled because email is not configured. Please contact your admin for assistance: '+adminEmail"></p>
+      </div>
+      <div>
+        <form x-show="emailConfigured" action="{{url_for('auth.post_register')}}" method="POST">
+          <div class="mb-4">
+            <label class="text-sm block mb-1">Email</label>
+            <label class="input input-sm input-bordered flex items-center gap-2">
+              <i class="ti ti-mail"></i>
+              <input name="email" x-model="payload.email" type="text" class="grow" placeholder="Email"/>
+            </label>
+          </div>
+          <div class="mb-4">
+            <label class="text-sm block mb-1">First Name</label>
+            <label class="input input-sm input-bordered flex items-center gap-2">
+              <i class="ti ti-label"></i>
+              <input name="first_name" x-model="payload.first_name" type="text" class="grow" placeholder="First Name" />
+            </label>
+          </div>
+          <div class="mb-4">
+            <label class="text-sm block mb-1">Last Name</label>
+            <label class="input input-sm input-bordered flex items-center gap-2">
+              <i class="ti ti-label"></i>
+              <input name="last_name" x-model="payload.last_name" type="text" class="grow" placeholder="Last Name" />
+            </label>
+          </div>
+          <div class="mb-4">
+            <div class="flex justify-between">
+                <label class="text-sm block mb-1"><i x-show="showPasswordWarning" class="ti ti-alert-triangle text-error mr-1 my-auto"></i>Password</label>
+            </div>
+            <div class="flex flex-row gap-x-4">
+              <input name="password" x-model="payload.password" placeholder="Create password" class="input input-sm grow input-bordered" type="password"/>
+              <input name="password2" x-model="payload.password2" placeholder="Verify password" class="input input-sm grow input-bordered" type="password"/>
+            </div>
+            <p x-show="payload.password !== payload.password2" class="mt-2 text-xs text-error">Passwords do not match.</p>
+            <p x-show="payload.password && (payload.password === payload.password2 && payload.password.length < 12)" class="mt-2 text-xs text-error">Passwords must be at least 12 characters.</p>
+          </div>
+          <div class="mt-4">
+            <button :disabled="!readyToContinue" class="btn btn-primary btn-block">
+              Get started
+            </button>
+          </div>
         </form>
-        {%if config.ENABLE_GOOGLE_AUTH == "1"%}
-        <div class="divider h-1">OR</div>
-        <div class="form-control">
-          <button class="btn">Sign up with <svg class="ml-2 w-6 h-6" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48 48"><defs><path id="a" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></defs><clipPath id="b"><use xlink:href="#a" overflow="visible"/></clipPath><path clip-path="url(#b)" fill="#FBBC05" d="M0 37V11l17 13z"/><path clip-path="url(#b)" fill="#EA4335" d="M0 11l17 13 7-6.1L48 14V0H0z"/><path clip-path="url(#b)" fill="#34A853" d="M0 37l30-23 7.9 1L48 0v48H0z"/><path clip-path="url(#b)" fill="#4285F4" d="M48 48L17 24l-4-3 35-10z"/></svg></button>
+        {%if config.ENABLE_GOOGLE_AUTH or config.ENABLE_MICROSOFT_AUTH%}
+        <div class="divider text-xs font-semibold">OR</div>
+        <div class="flex flex-row gap-x-4 justify-between">
+          {%if config.ENABLE_GOOGLE_AUTH%}
+          <a href="{{url_for('auth.google_auth', flow='register')}}" :class="{'animate-bounce border border-primary': getURLParam('provider') == 'google'}" class="btn grow"><i class="ti ti-brand-google text-error text-2xl"></i>Register with Google</a>
+          {%endif%}
+          {%if config.ENABLE_MICROSOFT_AUTH%}
+          <a href="{{url_for('auth.microsoft_auth', flow='register')}}" :class="{'animate-bounce border border-primary': getURLParam('provider') == 'microsoft'}" class="btn grow"><i class="ti ti-brand-azure text-info text-2xl"></i>Register with Microsoft</a>
+          {%endif%}
         </div>
         {%endif%}
+        <div x-show="adminEmail.length>2" class="mt-4 text-xs" x-text="'Having issues? Reach out to '+adminEmail"></div>
       </div>
     </div>
   </div>
 </div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+function standup(){
+    return {
+        init() {
+          this.payload = {
+            "email": this.getURLParam("email"),
+            "first_name": this.getURLParam("firstName"),
+            "last_name": this.getURLParam("lastName")
+          }
+
+          this.$watch(
+            "payload", (newValue, oldValue) => {
+              this.isReadyToContinue(newValue)
+          })
+          this.isReadyToContinue(this.payload)
+        },
+        adminEmail: "{{config.HELP_EMAIL}}",
+        registrationEnabled: {{ "true" if registration_enabled else "false" }},
+        emailConfigured: {{ "true" if config.IS_EMAIL_CONFIGURED else "false" }},
+        googleAuthEnabled: {{ "true" if config.ENABLE_GOOGLE_AUTH else "false" }},
+        microsoftAuthEnabled: {{ "true" if config.ENABLE_MICROSOFT_AUTH else "false" }},
+        payload: {},
+        btnLoading: true,
+        readyToContinue: false,
+        isCreating:false,
+        showPasswordWarning:false,
+        getURLParam: function(param, defaultValue="") {
+          var queryParams = new URLSearchParams(window.location.search);
+          return queryParams.get(param) || defaultValue;
+        },
+        isReadyToContinue: function(payload) {
+            if (!payload.email.includes("@")) {
+              this.readyToContinue = false
+              return false
+            }
+            if (!payload.first_name) {
+              this.readyToContinue = false
+              return false
+            }
+            if (!payload.last_name) {
+              this.readyToContinue = false
+              return false
+            }
+            if (!payload.password || (payload.password !== payload.password2) || (payload.password.length<12)) {
+              this.readyToContinue = false
+              return false
+            }
+            this.readyToContinue = true
+            return true
+        }
+    }
+}
+</script>
 {%endblock%}

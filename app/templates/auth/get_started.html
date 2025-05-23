@@ -1,0 +1,65 @@
+{% extends "layouts/basic.html" %}
+
+{%block body%}
+<div x-data="standup()" class="min-h-screen">
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 items-center lg:gap-10 gap-4">
+    <div class="max-md:order-1 h-screen min-h-full min-w-full bg-primary"></div>
+    <div class="lg:col-span-2 max-w-lg w-full p-4 mx-auto">
+      <div class="mb-5">
+        <h3 class="text-4xl font-extrabold mt-10">Create Tenant</h3>
+        <p class="text-sm my-2">Welcome! Let's get started by creating a tenant.</p>
+      </div>
+      <div>
+        <form action="{{url_for('auth.post_get_started')}}" method="POST">
+          <div class="mb-4">
+            <label class="text-sm block mb-1">Tenant Name</label>
+            <label class="input input-sm input-bordered flex items-center gap-2">
+              <i class="ti ti-buildings"></i>
+              <input name="tenant" x-model="payload.tenant" type="text" class="grow" placeholder="Tenant / Org Name" />
+            </label>
+          </div>
+          <div class="mt-4">
+            <button :disabled="!readyToSubmit || isCreating" class="btn btn-primary btn-block">
+              Begin
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+function standup(){
+    return {
+        init() {
+          this.payload = {
+            "tenant": this.getURLParam("tenant")
+          }
+          this.$watch(
+            "payload", (newValue, oldValue) => {
+              this.isReadyToSubmit(newValue)
+          })
+          this.isReadyToSubmit(this.payload)
+        },
+        payload: {},
+        btnLoading: true,
+        readyToSubmit:false,
+        isCreating:false,
+        getURLParam: function(param, defaultValue="") {
+          var queryParams = new URLSearchParams(window.location.search);
+          return queryParams.get(param) || defaultValue;
+        },
+        isReadyToSubmit: function(payload) {
+            if (!payload.tenant) {
+              this.readyToSubmit = false
+              return
+            }
+            this.readyToSubmit = true
+        }
+    }
+}
+</script>
+{%endblock%}

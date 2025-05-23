@@ -1,0 +1,786 @@
+[
+    {
+        "name": "Organisational Context",
+        "ref_code": "GV.OC",
+        "category": "Govern (GV)",
+        "subcontrols": [
+            {
+                "ref_code": "GV.OC-01",
+                "name": "The organisational mission is understood and informs cybersecurity risk management",
+                "description": "The organisational mission is understood and informs cybersecurity risk management",
+                "guidance": "Align cybersecurity efforts with your organization's core mission and goals.  Prioritize protecting data essential to fulfilling your mission.  Regularly assess how cyber threats could impede your mission objectives.  Use this understanding to guide security decisions and resource allocation. This ensures cybersecurity supports your overall success.\n"
+            },
+            {
+                "ref_code": "GV.OC-02",
+                "name": "Internal and external stakeholders are understood, and their needs and expectations regarding cybersecurity risk management are understood and considered",
+                "description": "Internal and external stakeholders are understood, and their needs and expectations regarding cybersecurity risk management are understood and considered",
+                "guidance": "Identify and define all stakeholders (internal departments, external partners, patients). Determine their specific cybersecurity risk needs and expectations. Analyze how these needs impact your organization's security program. Address stakeholder concerns by implementing appropriate security measures. Regularly communicate and update stakeholders on security posture.\n"
+            },
+            {
+                "ref_code": "GV.OC-03",
+                "name": "Legal, regulatory, and contractual requirements regarding cybersecurity \u2014 including privacy and civil liberties obligations \u2014 are understood and managed",
+                "description": "Legal, regulatory, and contractual requirements regarding cybersecurity \u2014 including privacy and civil liberties obligations \u2014 are understood and managed",
+                "guidance": "Ensure your organization understands all relevant cybersecurity laws, regulations (like HIPAA!), and contracts.  Document these requirements and how they apply to your systems and data. Develop and implement policies and procedures to comply with these obligations. Regularly review and update these practices as laws and agreements evolve.  Training staff on these requirements is also critical.\n"
+            },
+            {
+                "ref_code": "GV.OC-04",
+                "name": "Critical objectives, capabilities, and services that external stakeholders depend on or expect from the organisation are understood and communicated",
+                "description": "Critical objectives, capabilities, and services that external stakeholders depend on or expect from the organisation are understood and communicated",
+                "guidance": "This HIPAA security control focuses on transparency with external partners.  Identify and clearly communicate essential services and expectations that external stakeholders rely on.  Document these dependencies and share them with the appropriate parties. This helps ensure consistent and reliable service delivery and reduces misunderstandings.  Proactive communication strengthens relationships and maintains trust.\n"
+            },
+            {
+                "ref_code": "GV.OC-05",
+                "name": "Outcomes, capabilities, and services that the organisation depends on are understood and communicated",
+                "description": "Outcomes, capabilities, and services that the organisation depends on are understood and communicated",
+                "guidance": "This HIPAA security control focuses on understanding your organization's critical dependencies.  Identify key vendors, technologies, and services supporting protected health information (PHI).  Clearly document these dependencies and their importance.  Ensure internal stakeholders understand how these dependencies impact your overall security posture and service delivery.  Regularly review and update this information.\n"
+            }
+        ]
+    },
+    {
+        "name": "Risk Management Strategy",
+        "ref_code": "GV.RM",
+        "category": "Govern (GV)",
+        "subcontrols": [
+            {
+                "ref_code": "GV.RM-01",
+                "name": "Risk management objectives are established and agreed to by organisational stakeholders",
+                "description": "Risk management objectives are established and agreed to by organisational stakeholders",
+                "guidance": "Define clear, measurable risk management objectives.  Involve key stakeholders from various departments in their development.  Ensure objectives align with overall organizational goals and HIPAA compliance. Regularly review and update these objectives as risks and priorities change.  Document stakeholder agreement to formalize the process.\n"
+            },
+            {
+                "ref_code": "GV.RM-02",
+                "name": "Risk appetite and risk tolerance statements are established, communicated, and maintained",
+                "description": "Risk appetite and risk tolerance statements are established, communicated, and maintained",
+                "guidance": "Establish clear statements defining the organization's risk appetite (how much risk it's willing to accept) and risk tolerance (acceptable variation). Communicate these statements widely to relevant personnel. Regularly review and update the statements to reflect changing business needs and threats. This ensures consistent decision-making regarding security measures. Maintain documentation of these statements and revisions.\n"
+            },
+            {
+                "ref_code": "GV.RM-03",
+                "name": "Cybersecurity risk management activities and outcomes are included in enterprise risk management processes",
+                "description": "Cybersecurity risk management activities and outcomes are included in enterprise risk management processes",
+                "guidance": "Integrate cybersecurity risk management into overall business risk management.  This ensures consistent evaluation of security risks alongside other business threats.  Document cybersecurity risk assessments and mitigation plans within the enterprise risk framework. Regularly review and update these plans to reflect changes in the threat landscape.  Report cybersecurity risk outcomes to leadership, informing decisions about resource allocation and strategic planning.\n"
+            },
+            {
+                "ref_code": "GV.RM-04",
+                "name": "Strategic direction that describes appropriate risk response options is established and communicated",
+                "description": "Strategic direction that describes appropriate risk response options is established and communicated",
+                "guidance": "This HIPAA control mandates clear risk response strategies.  Define how your organization will address identified risks.  Communicate these plans effectively to all relevant personnel.  This ensures consistent and appropriate actions are taken when security risks arise.  Document your strategic direction.\n"
+            },
+            {
+                "ref_code": "GV.RM-05",
+                "name": "Lines of communication across the organisation are established for cybersecurity risks, including risks from suppliers and other third parties",
+                "description": "Lines of communication across the organisation are established for cybersecurity risks, including risks from suppliers and other third parties",
+                "guidance": "Establish clear communication channels to report and address cybersecurity risks.  These channels should extend to all staff levels and include third-party suppliers.  Ensure regular communication and updates regarding potential threats and vulnerabilities. Document the communication process and response procedures for reference.  This helps to facilitate prompt action and coordinated response to protect patient information.\n"
+            },
+            {
+                "ref_code": "GV.RM-06",
+                "name": "A standardised method for calculating, documenting, categorising, and prioritising cybersecurity risks is established and communicated",
+                "description": "A standardised method for calculating, documenting, categorising, and prioritising cybersecurity risks is established and communicated",
+                "guidance": "Establish a consistent risk assessment methodology. Document and categorize identified risks based on likelihood and impact. Prioritize risks based on their potential harm to protected health information. Communicate the methodology and risk rankings to relevant stakeholders. Regularly reassess risks to adapt to evolving threats.\n"
+            },
+            {
+                "ref_code": "GV.RM-07",
+                "name": "Strategic opportunities (i.e., positive risks) are characterised and are included in organisational cybersecurity risk discussions",
+                "description": "Strategic opportunities (i.e., positive risks) are characterised and are included in organisational cybersecurity risk discussions",
+                "guidance": "This HIPAA security control mandates proactive risk analysis. Identify potential cybersecurity benefits (positive risks) alongside vulnerabilities.  Integrate these opportunities into risk assessments and discussions. This ensures a balanced view and informs strategic decisions. Doing so fosters a more resilient and innovative cybersecurity posture.\n"
+            }
+        ]
+    },
+    {
+        "name": "Roles, Responsibilities, and Authorities",
+        "ref_code": "GV.RR",
+        "category": "Govern (GV)",
+        "subcontrols": [
+            {
+                "ref_code": "GV.RR-01",
+                "name": "Organisational leadership is responsible and accountable for cybersecurity risk and fosters a culture that is risk-aware, ethical, and continually improving",
+                "description": "Organisational leadership is responsible and accountable for cybersecurity risk and fosters a culture that is risk-aware, ethical, and continually improving",
+                "guidance": "Organizational leaders must own cybersecurity risk, ensuring accountability across the organization.  They should cultivate a risk-aware culture, where ethical behavior is paramount.  This includes prioritizing continuous improvement of security practices and employee training.  Regularly assess and address potential threats to protect patient information.  Leadership's commitment is crucial for successful HIPAA compliance.\n"
+            },
+            {
+                "ref_code": "GV.RR-02",
+                "name": "Roles, responsibilities, and authorities related to cybersecurity risk management are established, communicated, understood, and enforced",
+                "description": "Roles, responsibilities, and authorities related to cybersecurity risk management are established, communicated, understood, and enforced",
+                "guidance": "Define clear cybersecurity roles and responsibilities within your organization. Communicate these roles effectively to all personnel. Ensure everyone understands their security duties and holds them accountable. Regularly enforce these roles through training, audits, and consistent practices. This minimizes risk and ensures HIPAA compliance.\n"
+            },
+            {
+                "ref_code": "GV.RR-03",
+                "name": "Adequate resources are allocated commensurate with the cybersecurity risk strategy, roles, responsibilities, and policies",
+                "description": "Adequate resources are allocated commensurate with the cybersecurity risk strategy, roles, responsibilities, and policies",
+                "guidance": "Ensure sufficient budget, personnel, and tools support your cybersecurity strategy.  Allocate resources based on risk assessments and clearly defined roles.  Regularly review resource allocation to adapt to evolving threats.  Properly resourced security efforts help maintain HIPAA compliance and protect patient data.  Lack of resources can undermine all other security efforts.\n"
+            },
+            {
+                "ref_code": "GV.RR-04",
+                "name": "Cybersecurity is included in human resources practices",
+                "description": "Cybersecurity is included in human resources practices",
+                "guidance": "Integrate cybersecurity awareness into your HR processes. This includes security training for new hires, ongoing awareness programs, and clear policies on acceptable use. Ensure background checks consider cybersecurity risks and that termination procedures address data security. Regularly update these practices to address evolving threats. This holistic approach protects sensitive information.\n"
+            }
+        ]
+    },
+    {
+        "name": "Policy",
+        "ref_code": "GV.PO",
+        "category": "Govern (GV)",
+        "subcontrols": [
+            {
+                "ref_code": "GV.PO-01",
+                "name": "Policy for managing cybersecurity risks is established based on organisational context, cybersecurity strategy, and priorities and is communicated and enforced",
+                "description": "Policy for managing cybersecurity risks is established based on organisational context, cybersecurity strategy, and priorities and is communicated and enforced",
+                "guidance": "Develop a clear cybersecurity risk management policy aligned with your organization's specific needs and strategic goals.  The policy should reflect your cybersecurity strategy and rank your priorities.  Communicate this policy to all employees and ensure consistent enforcement.  Regularly review and update the policy to adapt to evolving threats. This proactive approach strengthens overall data security.\n"
+            },
+            {
+                "ref_code": "GV.PO-02",
+                "name": "Policy for managing cybersecurity risks is reviewed, updated, communicated, and enforced to reflect changes in requirements, threats, technology, and organisational mission",
+                "description": "Policy for managing cybersecurity risks is reviewed, updated, communicated, and enforced to reflect changes in requirements, threats, technology, and organisational mission",
+                "guidance": "Regularly reassess your cybersecurity risk policy.  Update it to address new threats, changes in technology, and any shifts in your organization's objectives.  Clearly communicate the revised policy to all relevant personnel.  Enforce the policy consistently, including with disciplinary measures when necessary.  This ensures your organization proactively mitigates evolving risks and maintains HIPAA compliance.\n"
+            }
+        ]
+    },
+    {
+        "name": "Oversight",
+        "ref_code": "GV.OV",
+        "category": "Govern (GV)",
+        "subcontrols": [
+            {
+                "ref_code": "GV.OV-01",
+                "name": "Cybersecurity risk management strategy outcomes are reviewed to inform and adjust strategy and direction",
+                "description": "Cybersecurity risk management strategy outcomes are reviewed to inform and adjust strategy and direction",
+                "guidance": "Regularly review your cybersecurity risk management strategy's results. Analyze past performance and identify areas for improvement. Use these insights to modify the strategy's goals and tactics.  Adapt your approach to stay ahead of evolving threats and maintain effective security. This ensures your strategy remains relevant and protects sensitive information.\n"
+            },
+            {
+                "ref_code": "GV.OV-02",
+                "name": "The cybersecurity risk management strategy is reviewed and adjusted to ensure coverage of organisational requirements and risks",
+                "description": "The cybersecurity risk management strategy is reviewed and adjusted to ensure coverage of organisational requirements and risks",
+                "guidance": "Regularly reassess your cybersecurity risk management strategy. Evaluate its effectiveness in addressing current organizational needs and identified risks. Make necessary adjustments to the strategy, policies, and procedures. Document all reviews and modifications. This ensures your strategy remains relevant and protects sensitive information.\n"
+            },
+            {
+                "ref_code": "GV.OV-03",
+                "name": "Organisational cybersecurity risk management performance is evaluated and reviewed for adjustments needed",
+                "description": "Organisational cybersecurity risk management performance is evaluated and reviewed for adjustments needed",
+                "guidance": "Regularly assess your organization's cybersecurity risk management program. Review performance metrics and identified vulnerabilities. Use findings to adjust policies, procedures, and resource allocation. Ensure continuous improvement and alignment with evolving threats. Document all reviews and adjustments.\n"
+            }
+        ]
+    },
+    {
+        "name": "Cybersecurity Supply Chain Risk Management",
+        "ref_code": "GV.SC",
+        "category": "Govern (GV)",
+        "subcontrols": [
+            {
+                "ref_code": "GV.SC-01",
+                "name": "A cybersecurity supply chain risk management program, strategy, objectives, policies, and processes are established and agreed to by organisational stakeholders",
+                "description": "A cybersecurity supply chain risk management program, strategy, objectives, policies, and processes are established and agreed to by organisational stakeholders",
+                "guidance": "Establish a comprehensive supply chain risk management program. Define clear objectives, policies, and processes for managing third-party cybersecurity risks. Secure stakeholder agreement on the program's scope and implementation. Continuously monitor and assess vendors for adherence to security requirements. This minimizes vulnerabilities and protects PHI across the supply chain.\n"
+            },
+            {
+                "ref_code": "GV.SC-02",
+                "name": "Cybersecurity roles and responsibilities for suppliers, customers, and partners are established, communicated, and coordinated internally and externally",
+                "description": "Cybersecurity roles and responsibilities for suppliers, customers, and partners are established, communicated, and coordinated internally and externally",
+                "guidance": "Clearly define cybersecurity roles and responsibilities for all external entities accessing PHI. Communicate these expectations explicitly through contracts and agreements. Coordinate these requirements internally and externally to ensure understanding and adherence. Regularly review and update these guidelines as needed. This protects PHI across your entire network.\n"
+            },
+            {
+                "ref_code": "GV.SC-03",
+                "name": "Cybersecurity supply chain risk management is integrated into cybersecurity and enterprise risk management, risk assessment, and improvement processes",
+                "description": "Cybersecurity supply chain risk management is integrated into cybersecurity and enterprise risk management, risk assessment, and improvement processes",
+                "guidance": "Integrate cybersecurity supply chain risk into your existing risk management framework. Assess vendors' security practices and identify vulnerabilities. Establish contracts with clear security requirements and conduct ongoing monitoring. Implement a process for managing and responding to supply chain security incidents. Continuously improve your program based on risk assessments and incident findings.\n"
+            },
+            {
+                "ref_code": "GV.SC-04",
+                "name": "Suppliers are known and prioritised by criticality",
+                "description": "Suppliers are known and prioritised by criticality",
+                "guidance": "Identify and document all suppliers that handle Protected Health Information (PHI). Categorize suppliers based on the sensitivity and volume of PHI they access, considering the potential impact of a breach. Prioritize suppliers with the highest criticality for enhanced security measures. This allows you to allocate resources effectively and manage risk. Ensure contracts reflect these priorities.\n"
+            },
+            {
+                "ref_code": "GV.SC-05",
+                "name": "Requirements to address cybersecurity risks in supply chains are established, prioritised, and integrated into contracts and other types of agreements with suppliers and other relevant third parties",
+                "description": "Requirements to address cybersecurity risks in supply chains are established, prioritised, and integrated into contracts and other types of agreements with suppliers and other relevant third parties",
+                "guidance": "To protect patient data, assess cybersecurity risks of all vendors. Prioritize high-risk suppliers and integrate security requirements into contracts. Ensure agreements cover data security, breach notification, and vendor responsibilities. Regularly review vendor compliance and conduct audits. This strengthens the security posture by managing risks across the supply chain.\n"
+            },
+            {
+                "ref_code": "GV.SC-06",
+                "name": "Planning and due diligence are performed to reduce risks before entering into formal supplier or other third-party relationships",
+                "description": "Planning and due diligence are performed to reduce risks before entering into formal supplier or other third-party relationships",
+                "guidance": "Before engaging with a third party, conduct thorough risk assessments and due diligence. This includes evaluating their security practices and data handling capabilities. Ensure contracts clearly define security responsibilities and data protection requirements. Develop a plan for monitoring ongoing compliance and performance. Prioritize suppliers who demonstrate strong security measures to minimize potential HIPAA violations.\n"
+            },
+            {
+                "ref_code": "GV.SC-07",
+                "name": "The risks posed by a supplier, their products and services, and other third parties are understood, recorded, prioritised, assessed, responded to, and monitored over the course of the relationship",
+                "description": "The risks posed by a supplier, their products and services, and other third parties are understood, recorded, prioritised, assessed, responded to, and monitored over the course of the relationship",
+                "guidance": "Implement a comprehensive vendor risk management program. Conduct thorough due diligence on all third-party suppliers. Regularly assess their security practices and potential impact on PHI. Establish contracts with clear security expectations and monitor their ongoing compliance. Respond promptly to any identified risks or breaches.\n"
+            },
+            {
+                "ref_code": "GV.SC-08",
+                "name": "Relevant suppliers and other third parties are included in incident planning, response, and recovery activities",
+                "description": "Relevant suppliers and other third parties are included in incident planning, response, and recovery activities",
+                "guidance": "Include third-party vendors in your incident response plan.  Ensure they understand their responsibilities and how to report breaches. Test the plan with their involvement, confirming communication and coordination protocols. Regularly review and update the plan as vendor relationships change. This ensures a comprehensive and collaborative response to any security incidents.\n"
+            },
+            {
+                "ref_code": "GV.SC-09",
+                "name": "Supply chain security practices are integrated into cybersecurity and enterprise risk management programs, and their performance is monitored throughout the technology product and service life cycle",
+                "description": "Supply chain security practices are integrated into cybersecurity and enterprise risk management programs, and their performance is monitored throughout the technology product and service life cycle",
+                "guidance": "To ensure HIPAA compliance, integrate supply chain security into your risk management program.  Monitor the security performance of all technology products and services throughout their lifespan.  This includes vendor risk assessments and security reviews.  Establish processes for managing vulnerabilities and incident response within your supply chain.  Regularly assess and update these practices.\n"
+            },
+            {
+                "ref_code": "GV.SC-10",
+                "name": "Cybersecurity supply chain risk management plans include provisions for activities that occur after the conclusion of a partnership or service agreement",
+                "description": "Cybersecurity supply chain risk management plans include provisions for activities that occur after the conclusion of a partnership or service agreement",
+                "guidance": "Develop a plan to securely offboard vendors. This includes data retrieval, secure disposal of PHI, and account termination. Address data breaches or security incidents that may arise post-contract. Ensure continued access to necessary records and documentation. Update the plan regularly to stay current.\n"
+            }
+        ]
+    },
+    {
+        "name": "Asset Management",
+        "ref_code": "ID.AM",
+        "category": "Identify (ID)",
+        "subcontrols": [
+            {
+                "ref_code": "ID.AM-01",
+                "name": "Inventories of hardware managed by the organisation are maintained",
+                "description": "Inventories of hardware managed by the organisation are maintained",
+                "guidance": "Maintain a comprehensive list of all hardware used by your organization, including devices like computers, servers, and mobile devices. Regularly update the inventory to reflect changes such as new purchases, decommissioned equipment, and device transfers. This inventory is essential for tracking hardware and applying security measures effectively. Securely store the hardware inventory document. Review the inventory periodically to ensure accuracy.\n"
+            },
+            {
+                "ref_code": "ID.AM-02",
+                "name": "Inventories of software, services, and systems managed by the organisation are maintained",
+                "description": "Inventories of software, services, and systems managed by the organisation are maintained",
+                "guidance": "Maintain a comprehensive inventory of all software, services, and systems. This inventory should be regularly updated to reflect changes. Document system configurations, version numbers, and security settings. This helps track vulnerabilities and manage access controls. Proper inventory enables incident response and ensures compliance.\n"
+            },
+            {
+                "ref_code": "ID.AM-03",
+                "name": "Representations of the organisation's authorised network communication and internal and external network data flows are maintained",
+                "description": "Representations of the organisation's authorised network communication and internal and external network data flows are maintained",
+                "guidance": "Maintain updated network diagrams showing authorized communication pathways. Document internal and external data flows, including data sources, destinations, and transmission methods. Regularly review these representations to reflect changes. This ensures consistent awareness of network architecture for security and compliance. The documentation aids in incident response and vulnerability assessments.\n"
+            },
+            {
+                "ref_code": "ID.AM-04",
+                "name": "Inventories of services provided by suppliers are maintained",
+                "description": "Inventories of services provided by suppliers are maintained",
+                "guidance": "Maintain a comprehensive list of all services provided by third-party suppliers. This inventory should detail the type of service, its purpose, and who has access. Regularly review and update the inventory to reflect changes in services and contracts. This ensures proper risk assessment and compliance with HIPAA regulations. Securely store the inventory to protect sensitive information.\n"
+            },
+            {
+                "ref_code": "ID.AM-05",
+                "name": "Assets are prioritised based on classification, criticality, resources, and impact on the mission",
+                "description": "Assets are prioritised based on classification, criticality, resources, and impact on the mission",
+                "guidance": "To manage your assets, first classify them by sensitivity and value. Then, assess each asset's criticality to operations and resource requirements.  Prioritize protection based on the potential impact a breach would have on your mission and associated data. Implement security controls proportionally to the asset's importance and potential risk.\n"
+            },
+            {
+                "ref_code": "ID.AM-07",
+                "name": "Inventories of data and corresponding metadata for designated data types are maintained",
+                "description": "Inventories of data and corresponding metadata for designated data types are maintained",
+                "guidance": "Maintain a comprehensive inventory of all protected health information (PHI) data and associated metadata. This includes identifying data types, storage locations, and access controls. Regularly update this inventory to reflect changes in data systems and processes. This ensures data is tracked and properly secured. This is critical for data breach response and compliance.\n"
+            },
+            {
+                "ref_code": "ID.AM-08",
+                "name": "Systems, hardware, software, services, and data are managed throughout their life cycles",
+                "description": "Systems, hardware, software, services, and data are managed throughout their life cycles",
+                "guidance": "Implement a comprehensive lifecycle management strategy. Inventory all assets (systems, hardware, software, services, and data) and track them from acquisition through disposal. Establish policies for secure configuration, patching, updates, and decommissioning. Regularly assess and mitigate risks associated with each lifecycle stage. This ensures ongoing security and compliance.\n"
+            }
+        ]
+    },
+    {
+        "name": "Risk Assessment",
+        "ref_code": "ID.RA",
+        "category": "Identify (ID)",
+        "subcontrols": [
+            {
+                "ref_code": "ID.RA-01",
+                "name": "Vulnerabilities in assets are identified, validated, and recorded",
+                "description": "Vulnerabilities in assets are identified, validated, and recorded",
+                "guidance": "Regularly scan all assets for vulnerabilities. Prioritize remediation based on risk. Document all identified vulnerabilities and their status. Implement fixes or workarounds promptly. Maintain records of scans, findings, and resolutions.\n"
+            },
+            {
+                "ref_code": "ID.RA-02",
+                "name": "Cyber threat intelligence is received from information sharing forums and sources",
+                "description": "Cyber threat intelligence is received from information sharing forums and sources",
+                "guidance": "Continuously gather and analyze cyber threat intelligence from reliable sources. Integrate this intelligence into your security program to identify and proactively address emerging threats. Regularly update your threat intelligence to maintain a current understanding of the threat landscape. Use this information to improve your incident response capabilities.  Document all intelligence sources and analysis.\n"
+            },
+            {
+                "ref_code": "ID.RA-03",
+                "name": "Internal and external threats to the organisation are identified and recorded",
+                "description": "Internal and external threats to the organisation are identified and recorded",
+                "guidance": "Identify potential internal and external threats to your organization's data security. Document these threats meticulously, noting their nature and potential impact. This includes both physical and cybersecurity risks. Regularly review and update the threat log as new vulnerabilities emerge. Utilize this information to prioritize security measures and training.\n"
+            },
+            {
+                "ref_code": "ID.RA-04",
+                "name": "Potential impacts and likelihoods of threats exploiting vulnerabilities are identified and recorded",
+                "description": "Potential impacts and likelihoods of threats exploiting vulnerabilities are identified and recorded",
+                "guidance": "This HIPAA security control requires a risk assessment. Identify potential threats to ePHI, like malware or data breaches. Analyze vulnerabilities that threats could exploit (e.g., outdated software). Determine the likelihood of each threat materializing and the severity of its impact, then document your findings for risk management.\n"
+            },
+            {
+                "ref_code": "ID.RA-05",
+                "name": "Threats, vulnerabilities, likelihoods, and impacts are used to understand inherent risk and inform risk response prioritisation",
+                "description": "Threats, vulnerabilities, likelihoods, and impacts are used to understand inherent risk and inform risk response prioritisation",
+                "guidance": "Conduct a thorough risk assessment, identifying potential threats, vulnerabilities, and the likelihood of exploitation.  Analyze the impact of each risk on protected health information. Prioritize risks based on their severity, combining likelihood and impact. This prioritization guides the development and implementation of effective risk response strategies.\n"
+            },
+            {
+                "ref_code": "ID.RA-06",
+                "name": "Risk responses are chosen, prioritised, planned, tracked, and communicated",
+                "description": "Risk responses are chosen, prioritised, planned, tracked, and communicated",
+                "guidance": "Prioritize risk responses based on their impact and likelihood. Develop a clear plan for implementing selected responses, including timelines and resource allocation. Track the effectiveness of implemented controls and communicate updates to relevant stakeholders. Regularly review and adapt risk responses as the threat landscape evolves. Ensure all actions align with organizational policies and procedures.\n"
+            },
+            {
+                "ref_code": "ID.RA-07",
+                "name": "Changes and exceptions are managed, assessed for risk impact, recorded, and tracked",
+                "description": "Changes and exceptions are managed, assessed for risk impact, recorded, and tracked",
+                "guidance": "To meet this HIPAA security control, establish a formal change management process. Document all system modifications and exceptions, detailing the reasons, authorization, and potential risks. Assess the impact of each change on data security and privacy. Maintain records of all changes, tracking their implementation and effectiveness.  This ensures accountability and helps mitigate vulnerabilities.\n"
+            },
+            {
+                "ref_code": "ID.RA-08",
+                "name": "Processes for receiving, analysing, and responding to vulnerability disclosures are established",
+                "description": "Processes for receiving, analysing, and responding to vulnerability disclosures are established",
+                "guidance": "Establish a clear process for receiving vulnerability reports.  Analyze each report to assess the severity and potential impact.  Develop and implement timely remediation plans, including patching or mitigation.  Document all steps taken, from receipt to resolution.  Communicate with the reporter, if applicable, regarding findings and actions.\n"
+            },
+            {
+                "ref_code": "ID.RA-09",
+                "name": "The authenticity and integrity of hardware and software are assessed prior to acquisition and use",
+                "description": "The authenticity and integrity of hardware and software are assessed prior to acquisition and use",
+                "guidance": "Before buying or using any hardware or software, verify its legitimacy.  Ensure the product hasn't been tampered with and comes from a trusted source.  Check for security certifications or reviews to confirm it meets your needs. This helps prevent the introduction of malicious code or vulnerabilities. Thorough pre-use assessments protect patient data.\n"
+            },
+            {
+                "ref_code": "ID.RA-10",
+                "name": "Critical suppliers are assessed prior to acquisition",
+                "description": "Critical suppliers are assessed prior to acquisition",
+                "guidance": "Prioritize a thorough risk assessment of potential critical suppliers before any contracts. Evaluate their security posture, including policies, incident response, and data handling practices. This ensures they meet your organization's HIPAA requirements. Contractually obligate them to maintain necessary safeguards. Regularly monitor their compliance and conduct periodic reassessments.\n"
+            }
+        ]
+    },
+    {
+        "name": "Improvement",
+        "ref_code": "ID.IM",
+        "category": "Identify (ID)",
+        "subcontrols": [
+            {
+                "ref_code": "ID.IM-01",
+                "name": "Improvements are identified from evaluations",
+                "description": "Improvements are identified from evaluations",
+                "guidance": "Continuously analyze security evaluations to pinpoint weaknesses.  Use findings to prioritize and implement necessary upgrades to your security posture.  Track the effectiveness of these improvements over time.  Document all implemented changes and justifications.  This cycle of improvement strengthens HIPAA compliance.\n"
+            },
+            {
+                "ref_code": "ID.IM-02",
+                "name": "Improvements are identified from security tests and exercises, including those done in coordination with suppliers and relevant third parties",
+                "description": "Improvements are identified from security tests and exercises, including those done in coordination with suppliers and relevant third parties",
+                "guidance": "Regularly analyze security test and exercise results to pinpoint vulnerabilities.  Prioritize improvements based on risk and impact.  Involve suppliers and third parties in these exercises.  Implement necessary changes to strengthen defenses. Track progress and re-evaluate effectiveness.\n"
+            },
+            {
+                "ref_code": "ID.IM-03",
+                "name": "Improvements are identified from execution of operational processes, procedures, and activities",
+                "description": "Improvements are identified from execution of operational processes, procedures, and activities",
+                "guidance": "Continuously analyze operational processes and activities to pinpoint areas needing improvement.  Regularly review and assess your security practices based on real-world experiences and findings.  Document these identified weaknesses and prioritize corrective actions. Implement necessary changes to strengthen security posture.  Finally, re-evaluate improvements to ensure effectiveness.\n"
+            },
+            {
+                "ref_code": "ID.IM-04",
+                "name": "Incident response plans and other cybersecurity plans that affect operations are established, communicated, maintained, and improved",
+                "description": "Incident response plans and other cybersecurity plans that affect operations are established, communicated, maintained, and improved",
+                "guidance": "Develop a clear incident response plan detailing steps for breach detection, containment, and recovery. Regularly communicate the plan to staff and update it based on new threats and past incidents. Ensure the plan integrates with other cybersecurity protocols. Test the plan through drills to identify weaknesses and refine it continually for optimal effectiveness. This guarantees operational resilience.\n"
+            }
+        ]
+    },
+    {
+        "name": "Identity Management, Authentication, and Access Control",
+        "ref_code": "PR.AA",
+        "category": "Protect (PR)",
+        "subcontrols": [
+            {
+                "ref_code": "PR.AA-01",
+                "name": "Identities and credentials for authorised users, services, and hardware are managed by the organisation",
+                "description": "Identities and credentials for authorised users, services, and hardware are managed by the organisation",
+                "guidance": "Establish strong user authentication and authorization protocols. Implement unique usernames and complex passwords for all authorized entities. Regularly review and update access rights, revoking privileges when necessary. Enforce multi-factor authentication where feasible. Manage credentials securely and log all access attempts for audit purposes.\n"
+            },
+            {
+                "ref_code": "PR.AA-02",
+                "name": "Identities are proofed and bound to credentials based on the context of interactions",
+                "description": "Identities are proofed and bound to credentials based on the context of interactions",
+                "guidance": "Verify user identities before granting access. Establish strong links between user identities and their unique credentials (e.g., passwords, biometrics). Context matters: consider the user's role and location when granting access. This prevents unauthorized access and protects sensitive health information. Regularly review and update identity and credential management practices.\n"
+            },
+            {
+                "ref_code": "PR.AA-03",
+                "name": "Users, services, and hardware are authenticated",
+                "description": "Users, services, and hardware are authenticated",
+                "guidance": "Implement strong authentication methods like multi-factor authentication (MFA) for all users, services, and hardware accessing protected health information (PHI). Regularly review and update authentication credentials and access controls to ensure continued security. Enforce unique user accounts and limit access based on the principle of least privilege. Monitor authentication attempts and logs for suspicious activity. This helps prevent unauthorized access and data breaches.\n"
+            },
+            {
+                "ref_code": "PR.AA-04",
+                "name": "Identity assertions are protected, conveyed, and verified",
+                "description": "Identity assertions are protected, conveyed, and verified",
+                "guidance": "Protect identity assertions by using strong encryption for storage and transmission. Require multi-factor authentication to verify identities. Regularly review and update identity management policies and procedures. Ensure secure channels are utilized for identity assertion conveyance. Audit access logs to monitor for any security breaches.\n"
+            },
+            {
+                "ref_code": "PR.AA-05",
+                "name": "Access permissions, entitlements, and authorisations are defined in a policy, managed, enforced, and reviewed, and incorporate the principles of least privilege and separation of duties",
+                "description": "Access permissions, entitlements, and authorisations are defined in a policy, managed, enforced, and reviewed, and incorporate the principles of least privilege and separation of duties",
+                "guidance": "Implement a clear access control policy outlining user permissions. Grant only necessary privileges (least privilege) and prevent conflicts of interest by separating duties. Regularly review and update permissions to maintain data security. Ensure all access is actively managed and enforced, as defined in the policy. This minimizes unauthorized access and protects sensitive information.\n"
+            },
+            {
+                "ref_code": "PR.AA-06",
+                "name": "Physical access to assets is managed, monitored, and enforced commensurate with risk",
+                "description": "Physical access to assets is managed, monitored, and enforced commensurate with risk",
+                "guidance": "Protect physical assets like servers and workstations by limiting access to authorized personnel. Implement security measures such as badge access, surveillance, and visitor logs. Regularly monitor access logs and audit trails for any unauthorized activity. Enforce strict policies for physical security to mitigate risks of theft, damage, and data breaches.  Maintain a documented plan for managing and responding to physical security incidents.\n"
+            }
+        ]
+    },
+    {
+        "name": "Awareness and Training",
+        "ref_code": "PR.AT",
+        "category": "Protect (PR)",
+        "subcontrols": [
+            {
+                "ref_code": "PR.AT-01",
+                "name": "Personnel are provided with awareness and training so that they possess the knowledge and skills to perform general tasks with cybersecurity risks in mind",
+                "description": "Personnel are provided with awareness and training so that they possess the knowledge and skills to perform general tasks with cybersecurity risks in mind",
+                "guidance": "Ensure all workforce members receive regular cybersecurity awareness training. This training should cover common threats like phishing and social engineering. Provide role-specific training addressing individual responsibilities in protecting sensitive information. Regularly assess and update the training program to reflect current risks and best practices. Document training completion and track ongoing competency.\n"
+            },
+            {
+                "ref_code": "PR.AT-02",
+                "name": "Individuals in specialised roles are provided with awareness and training so that they possess the knowledge and skills to perform relevant tasks with cybersecurity risks in mind",
+                "description": "Individuals in specialised roles are provided with awareness and training so that they possess the knowledge and skills to perform relevant tasks with cybersecurity risks in mind",
+                "guidance": "Ensure specialized personnel receive role-specific cybersecurity awareness and training. This training must cover relevant tasks and related cybersecurity risks. Regularly update training to reflect evolving threats and responsibilities. Verify understanding through assessments and practical exercises. This minimizes human error and strengthens overall security posture.\n"
+            }
+        ]
+    },
+    {
+        "name": "Data Security",
+        "ref_code": "PR.DS",
+        "category": "Protect (PR)",
+        "subcontrols": [
+            {
+                "ref_code": "PR.DS-01",
+                "name": "The confidentiality, integrity, and availability of data-at-rest are protected",
+                "description": "The confidentiality, integrity, and availability of data-at-rest are protected",
+                "guidance": "Protect data-at-rest through encryption, access controls, and robust physical security. Implement data loss prevention (DLP) to prevent unauthorized access or transfer. Regularly back up data to ensure availability and integrity. Maintain audit logs to track access and changes. Finally, continuously monitor these controls for effectiveness.\n"
+            },
+            {
+                "ref_code": "PR.DS-02",
+                "name": "The confidentiality, integrity, and availability of data-in-transit are protected",
+                "description": "The confidentiality, integrity, and availability of data-in-transit are protected",
+                "guidance": "To protect data-in-transit under HIPAA, encrypt sensitive information during transmission. Utilize secure protocols like HTTPS or SFTP. Regularly review and update your security measures. Ensure proper authentication and access controls are implemented. Prioritize safeguarding data across networks and devices.\n"
+            },
+            {
+                "ref_code": "PR.DS-10",
+                "name": "The confidentiality, integrity, and availability of data-in-use are protected",
+                "description": "The confidentiality, integrity, and availability of data-in-use are protected",
+                "guidance": "Protect data actively being accessed or processed. Implement access controls like authentication and authorization to restrict who can view or modify data. Ensure data integrity through version control and validation processes. Maintain system availability through redundancy, backups, and disaster recovery planning. Regularly monitor systems for vulnerabilities and address them promptly.\n"
+            },
+            {
+                "ref_code": "PR.DS-11",
+                "name": "Backups of data are created, protected, maintained, and tested",
+                "description": "Backups of data are created, protected, maintained, and tested",
+                "guidance": "Regularly back up all ePHI data. Store backups securely, separate from the original data. Test backups regularly to ensure data can be restored.  Document the backup process and testing results.  This safeguards against data loss and ensures business continuity.\n"
+            }
+        ]
+    },
+    {
+        "name": "Platform Security",
+        "ref_code": "PR.PS",
+        "category": "Protect (PR)",
+        "subcontrols": [
+            {
+                "ref_code": "PR.PS-01",
+                "name": "Configuration management practices are established and applied",
+                "description": "Configuration management practices are established and applied",
+                "guidance": "Establish and consistently apply documented configuration management procedures for all systems handling protected health information (PHI). This includes version control, change management, and regular security patching. Track configurations and maintain an audit trail of all changes. Regularly review and update configurations to address new vulnerabilities. Ensure all configurations adhere to your organization's security policies.\n"
+            },
+            {
+                "ref_code": "PR.PS-02",
+                "name": "Software is maintained, replaced, and removed commensurate with risk",
+                "description": "Software is maintained, replaced, and removed commensurate with risk",
+                "guidance": "Regularly update and patch software to address vulnerabilities and reduce risks. Maintain an inventory of all software. Implement a process for secure software replacement and removal. Prioritize updates based on criticality and potential impact. Document all software maintenance activities.\n"
+            },
+            {
+                "ref_code": "PR.PS-03",
+                "name": "Hardware is maintained, replaced, and removed commensurate with risk",
+                "description": "Hardware is maintained, replaced, and removed commensurate with risk",
+                "guidance": "Maintain hardware regularly, updating firmware and patching vulnerabilities. Replace aging or failing equipment promptly to prevent data breaches. Securely remove or destroy hardware before disposal to ensure sensitive information is inaccessible. Implement proper physical security for all hardware. Document all hardware management activities.\n"
+            },
+            {
+                "ref_code": "PR.PS-04",
+                "name": "Log records are generated and made available for continuous monitoring",
+                "description": "Log records are generated and made available for continuous monitoring",
+                "guidance": "Implement comprehensive logging across your systems and applications. Ensure logs capture relevant security events, including user access and data modifications. Regularly review logs for suspicious activity or anomalies. Make logs readily accessible for security audits and incident response. Utilize automated monitoring tools to facilitate continuous log analysis.\n"
+            },
+            {
+                "ref_code": "PR.PS-05",
+                "name": "Installation and execution of unauthorised software are prevented",
+                "description": "Installation and execution of unauthorised software are prevented",
+                "guidance": "Implement robust endpoint security software like antivirus and endpoint detection and response (EDR).  Use whitelisting to restrict allowed software and block unauthorized programs. Regularly patch software and operating systems to fix vulnerabilities.  Control user access privileges to limit software installation capabilities. Train employees to recognize and avoid suspicious software.\n"
+            },
+            {
+                "ref_code": "PR.PS-06",
+                "name": "Secure software development practices are integrated, and their performance is monitored throughout the software development life cycle",
+                "description": "Secure software development practices are integrated, and their performance is monitored throughout the software development life cycle",
+                "guidance": "Implement secure coding standards and conduct regular code reviews.  Incorporate security testing (like penetration tests) throughout development. Monitor software for vulnerabilities and address them promptly.  Train developers in secure coding techniques.  Document your secure development process and maintain version control.\n"
+            }
+        ]
+    },
+    {
+        "name": "Technology Infrastructure Resilience",
+        "ref_code": "PR.IR",
+        "category": "Protect (PR)",
+        "subcontrols": [
+            {
+                "ref_code": "PR.IR-01",
+                "name": "Networks and environments are protected from unauthorised logical access and usage",
+                "description": "Networks and environments are protected from unauthorised logical access and usage",
+                "guidance": "Implement strong access controls like multi-factor authentication and role-based permissions. Regularly monitor network activity and audit logs for suspicious behavior. Segment your network to isolate sensitive data and systems. Employ firewalls and intrusion detection/prevention systems. Ensure all devices are patched and up-to-date to prevent vulnerabilities.\n"
+            },
+            {
+                "ref_code": "PR.IR-02",
+                "name": "The organisation's technology assets are protected from environmental threats",
+                "description": "The organisation's technology assets are protected from environmental threats",
+                "guidance": "Protect technology assets from environmental hazards like floods and power surges. Implement physical security measures such as climate control and backup power systems. Regularly inspect and maintain equipment to ensure optimal function. Store sensitive data in secure, climate-controlled locations. Plan for disaster recovery and business continuity.\n"
+            },
+            {
+                "ref_code": "PR.IR-03",
+                "name": "Mechanisms are implemented to achieve resilience requirements in normal and adverse situations",
+                "description": "Mechanisms are implemented to achieve resilience requirements in normal and adverse situations",
+                "guidance": "This HIPAA security control requires building robust systems.  Focus on redundancy, failover plans, and data backups.  Ensure systems can withstand disruptions like power outages or cyberattacks.  Regularly test these mechanisms to guarantee they function effectively.  Document everything for audit and improvement purposes.\n"
+            },
+            {
+                "ref_code": "PR.IR-04",
+                "name": "Adequate resource capacity to ensure availability is maintained",
+                "description": "Adequate resource capacity to ensure availability is maintained",
+                "guidance": "Ensure sufficient IT infrastructure and personnel to handle anticipated and unexpected demands. Regularly assess and scale resources based on usage patterns and growth. Implement redundancy and failover mechanisms to prevent downtime. Proactively monitor system performance and capacity. Document resource allocation and change management procedures.\n"
+            }
+        ]
+    },
+    {
+        "name": "Continuous Monitoring",
+        "ref_code": "DE.CM",
+        "category": "Detect (DE)",
+        "subcontrols": [
+            {
+                "ref_code": "DE.CM-01",
+                "name": "Networks and network services are monitored to find potentially adverse events",
+                "description": "Networks and network services are monitored to find potentially adverse events",
+                "guidance": "Implement intrusion detection/prevention systems (IDS/IPS) on your network. Regularly review network logs and security alerts. Conduct vulnerability scans and penetration testing. Establish incident response plans to address identified threats promptly. Ensure all network devices are patched and updated to maintain security.\n"
+            },
+            {
+                "ref_code": "DE.CM-02",
+                "name": "The physical environment is monitored to find potentially adverse events",
+                "description": "The physical environment is monitored to find potentially adverse events",
+                "guidance": "Implement and maintain physical security measures like surveillance systems (cameras, motion detectors), intrusion detection alarms, and access controls to monitor the physical environment. Regularly review and analyze the collected data to identify and respond to any security breaches, unauthorized access attempts, or environmental threats (e.g., water leaks, power outages). Ensure prompt reporting of security incidents and document all monitoring activities.\n"
+            },
+            {
+                "ref_code": "DE.CM-03",
+                "name": "Personnel activity and technology usage are monitored to find potentially adverse events",
+                "description": "Personnel activity and technology usage are monitored to find potentially adverse events",
+                "guidance": "Implement monitoring systems to track employee actions and technology use. Analyze collected data for suspicious patterns or policy violations. Establish clear guidelines for acceptable technology usage and promptly address any identified anomalies. Regular audits and reports are crucial for ongoing security assessments. This proactive approach helps mitigate risks and ensures HIPAA compliance.\n"
+            },
+            {
+                "ref_code": "DE.CM-06",
+                "name": "External service provider activities and services are monitored to find potentially adverse events",
+                "description": "External service provider activities and services are monitored to find potentially adverse events",
+                "guidance": "Regularly monitor external service providers' activities. Implement audit trails to track data access and actions. Review service provider logs for unusual patterns or breaches. Conduct periodic risk assessments of these providers. Address any identified adverse events promptly and thoroughly.\n"
+            },
+            {
+                "ref_code": "DE.CM-09",
+                "name": "Computing hardware and software, runtime environments, and their data are monitored to find potentially adverse events",
+                "description": "Computing hardware and software, runtime environments, and their data are monitored to find potentially adverse events",
+                "guidance": "Implement robust monitoring tools to detect suspicious activities and unusual behavior within your systems. Regularly review logs and alerts generated by these tools for anomalies. Establish incident response procedures to address any identified security threats promptly. Ensure your monitoring systems are properly configured, updated, and integrated for effective threat detection. Continuously analyze monitoring data to improve your security posture and identify potential vulnerabilities.\n"
+            }
+        ]
+    },
+    {
+        "name": "Adverse Event Analysis",
+        "ref_code": "DE.AE",
+        "category": "Detect (DE)",
+        "subcontrols": [
+            {
+                "ref_code": "DE.AE-02",
+                "name": "Potentially adverse events are analysed to better understand associated activities",
+                "description": "Potentially adverse events are analysed to better understand associated activities",
+                "guidance": "Analyze adverse events to identify root causes and contributing factors. This analysis should examine the activities, systems, and policies involved. Use findings to implement corrective actions and prevent future occurrences. Document the analysis, actions taken, and outcomes. Finally, use these insights to improve overall security posture.\n"
+            },
+            {
+                "ref_code": "DE.AE-03",
+                "name": "Information is correlated from multiple sources",
+                "description": "Information is correlated from multiple sources",
+                "guidance": "This control aims to integrate data from diverse systems.  Ensure data integrity and security during correlation.  Implement access controls to restrict who can view the consolidated information. Regularly audit the correlation process to identify and address potential vulnerabilities. Document all procedures and decisions related to data correlation.\n"
+            },
+            {
+                "ref_code": "DE.AE-04",
+                "name": "The estimated impact and scope of adverse events are understood",
+                "description": "The estimated impact and scope of adverse events are understood",
+                "guidance": "Assess potential harm from data breaches, considering factors like patient data sensitivity and system vulnerabilities. Identify all systems and data subject to HIPAA regulations. Document these assessments in a risk analysis report. This understanding informs security investments and response strategies. Regularly review and update the assessments.\n"
+            },
+            {
+                "ref_code": "DE.AE-06",
+                "name": "Information on adverse events is provided to authorised staff and tools",
+                "description": "Information on adverse events is provided to authorised staff and tools",
+                "guidance": "Ensure timely and secure reporting of adverse events to authorized personnel and systems. Establish clear communication channels and protocols for immediate dissemination. Use secure methods like encrypted email or dedicated platforms to protect patient privacy. This allows for swift action and effective responses to potential security incidents. Track and document all reported adverse events for analysis and improvement.\n"
+            },
+            {
+                "ref_code": "DE.AE-07",
+                "name": "Cyber threat intelligence and other contextual information are integrated into the analysis",
+                "description": "Cyber threat intelligence and other contextual information are integrated into the analysis",
+                "guidance": "To strengthen HIPAA security, incorporate threat intelligence. Analyze external and internal threats, vulnerabilities, and potential attack vectors. Use this data to inform risk assessments and security planning. Proactively identify and mitigate threats to protect patient data. Continuous integration and analysis of this intelligence is crucial for adapting defenses.\n"
+            },
+            {
+                "ref_code": "DE.AE-08",
+                "name": "Incidents are declared when adverse events meet the defined incident criteria",
+                "description": "Incidents are declared when adverse events meet the defined incident criteria",
+                "guidance": "Define clear criteria for what constitutes a reportable incident. Implement a process to identify and document events against these criteria.  Establish roles and responsibilities for incident declaration.  Ensure prompt reporting of incidents meeting these criteria. Regularly review and update criteria based on experience and evolving threats.\n"
+            }
+        ]
+    },
+    {
+        "name": "Incident Management",
+        "ref_code": "RS.MA",
+        "category": "Respond (RS)",
+        "subcontrols": [
+            {
+                "ref_code": "RS.MA-01",
+                "name": "The incident response plan is executed in coordination with relevant third parties once an incident is declared",
+                "description": "The incident response plan is executed in coordination with relevant third parties once an incident is declared",
+                "guidance": "Coordinate with third parties immediately upon declaring an incident. Notify them according to pre-established agreements and contracts. This ensures a swift and collaborative response. Include relevant data sharing and security protocols in your coordination efforts. Document all interactions and actions taken with third parties throughout the incident response.\n"
+            },
+            {
+                "ref_code": "RS.MA-02",
+                "name": "Incident reports are triaged and validated",
+                "description": "Incident reports are triaged and validated",
+                "guidance": "Triage and validate all reported security incidents promptly. This process determines the severity and legitimacy of each reported event.  Prioritize incidents based on risk to protected health information (PHI). Document findings and initiate appropriate response procedures, escalating as needed.  This ensures efficient handling and mitigation of security breaches.\n"
+            },
+            {
+                "ref_code": "RS.MA-03",
+                "name": "Incidents are categorised and prioritised",
+                "description": "Incidents are categorised and prioritised",
+                "guidance": "Categorize security incidents by severity and impact to PHI. Prioritize responses based on the risk to patient data, business operations, and legal obligations. This ensures the most critical threats are addressed first, minimizing potential damage. Use a predefined matrix to consistently classify and rank incidents. Document the categorization and prioritization process for auditability.\n"
+            },
+            {
+                "ref_code": "RS.MA-04",
+                "name": "Incidents are escalated or elevated as needed",
+                "description": "Incidents are escalated or elevated as needed",
+                "guidance": "Ensure all security incidents, regardless of severity, are documented and reported. Establish a clear escalation path so that incidents requiring higher-level attention are promptly brought to the appropriate personnel. Regularly review and update escalation procedures to reflect organizational changes and lessons learned.  Quickly address incidents that are escalating or elevated. \n"
+            },
+            {
+                "ref_code": "RS.MA-05",
+                "name": "The criteria for initiating incident recovery are applied",
+                "description": "The criteria for initiating incident recovery are applied",
+                "guidance": "Implement clear triggers for declaring a security incident, such as data breaches or system outages. Establish a documented incident response plan with pre-defined roles and responsibilities. Regularly test and update the plan to ensure its effectiveness. Define communication protocols to inform relevant parties. Ensure data backups are readily available for restoration.\n"
+            }
+        ]
+    },
+    {
+        "name": "Incident Analysis",
+        "ref_code": "RS.AN",
+        "category": "Respond (RS)",
+        "subcontrols": [
+            {
+                "ref_code": "RS.AN-03",
+                "name": "Analysis is performed to establish what has taken place during an incident and the root cause of the incident",
+                "description": "Analysis is performed to establish what has taken place during an incident and the root cause of the incident",
+                "guidance": "For incident analysis, meticulously review all relevant logs and data.  Identify the incident's timeline, affected systems, and data compromised.  Determine the root cause, uncovering vulnerabilities exploited. Document findings and use them to improve security practices.\n"
+            },
+            {
+                "ref_code": "RS.AN-06",
+                "name": "Actions performed during an investigation are recorded, and the records' integrity and provenance are preserved",
+                "description": "Actions performed during an investigation are recorded, and the records' integrity and provenance are preserved",
+                "guidance": "Document all actions taken during security investigations, meticulously recording each step.  Maintain the integrity and authenticity of these records using methods like timestamps and secure storage. This ensures accountability and provides a reliable audit trail.  Properly preserved records are critical for reconstructing events and supporting findings. The goal is to maintain confidentiality, integrity, and availability of the data.\n"
+            },
+            {
+                "ref_code": "RS.AN-07",
+                "name": "Incident data and metadata are collected, and their integrity and provenance are preserved",
+                "description": "Incident data and metadata are collected, and their integrity and provenance are preserved",
+                "guidance": "Maintain a secure log of all security incidents, including detailed data and relevant metadata. Ensure the integrity of this log by using methods like write-once storage or digital signatures. Track the source and chain of custody for all incident information to establish provenance. These logs are crucial for incident response, analysis, and future security improvements.\n"
+            },
+            {
+                "ref_code": "RS.AN-08",
+                "name": "An incident's magnitude is estimated and validated",
+                "description": "An incident's magnitude is estimated and validated",
+                "guidance": "Assess each security incident to determine its potential impact (e.g., data breach size, system downtime).  Validate the initial estimate by gathering relevant facts and confirming findings. This ensures a proper response proportional to the risk. Document your findings to support future incident management. This process helps prioritize responses.\n"
+            }
+        ]
+    },
+    {
+        "name": "Incident Response Reporting and Communication",
+        "ref_code": "RS.CO",
+        "category": "Respond (RS)",
+        "subcontrols": [
+            {
+                "ref_code": "RS.CO-02",
+                "name": "Internal and external stakeholders are notified of incidents",
+                "description": "Internal and external stakeholders are notified of incidents",
+                "guidance": "Swiftly report all security incidents to both internal staff and relevant external parties, like business associates or law enforcement, as per your incident response plan.  Documentation should include details of the breach and its potential impact.  Notification ensures timely containment, mitigation, and compliance with breach notification laws.  Proper communication minimizes damage and protects patient information.  Follow your established procedures for consistent and effective communication.\n"
+            },
+            {
+                "ref_code": "RS.CO-03",
+                "name": "Information is shared with designated internal and external stakeholders",
+                "description": "Information is shared with designated internal and external stakeholders",
+                "guidance": "Ensure clear policies define who receives information and the purpose of sharing. Implement access controls to limit data exposure to authorized parties only. Utilize secure methods for transmitting and storing sensitive information, such as encryption. Regularly audit and review information sharing practices for compliance and effectiveness. Document all data sharing activities for accountability and auditability.\n"
+            }
+        ]
+    },
+    {
+        "name": "Incident Mitigation",
+        "ref_code": "RS.MI",
+        "category": "Respond (RS)",
+        "subcontrols": [
+            {
+                "ref_code": "RS.MI-01",
+                "name": "Incidents are contained",
+                "description": "Incidents are contained",
+                "guidance": "Implement a clear incident response plan.  Immediately isolate and contain any suspected security breaches. Preserve all evidence related to the incident. Document all actions taken and notify relevant parties as required by law. Quickly restore systems and data to minimize downtime.\n"
+            },
+            {
+                "ref_code": "RS.MI-02",
+                "name": "Incidents are eradicated",
+                "description": "Incidents are eradicated",
+                "guidance": "Eradication in HIPAA means thoroughly removing the cause and effect of a security incident. This includes permanently deleting malicious software, repairing damaged systems, and restoring compromised data.  Document all actions taken to ensure complete resolution and prevent recurrence.  Analyze the incident to identify and fix root causes.  Finally, verify the effectiveness of your eradication efforts.\n"
+            }
+        ]
+    },
+    {
+        "name": "Incident Recovery Plan Execution",
+        "ref_code": "RC.RP",
+        "category": "Recover (RC)",
+        "subcontrols": [
+            {
+                "ref_code": "RC.RP-02",
+                "name": "Recovery actions are selected, scoped, prioritised, and performed",
+                "description": "Recovery actions are selected, scoped, prioritised, and performed",
+                "guidance": "To address recovery, first identify potential threats and prioritize them based on impact. Develop detailed recovery plans for each threat, outlining specific actions and timelines. Practice these plans regularly to ensure effectiveness. Following an incident, immediately initiate the prioritized actions to restore systems and data. Document the entire recovery process for future improvement.\n"
+            },
+            {
+                "ref_code": "RC.RP-03",
+                "name": "The integrity of backups and other restoration assets is verified before using them for restoration",
+                "description": "The integrity of backups and other restoration assets is verified before using them for restoration",
+                "guidance": "Regularly test your backups to ensure they haven't been corrupted. Verify data integrity through checksums or other validation methods.  Document all backup verification procedures and results. This confirms your restoration assets are reliable and usable in a breach scenario. Ensure that your restoration processes are also tested.\n"
+            },
+            {
+                "ref_code": "RC.RP-04",
+                "name": "Critical mission functions and cybersecurity risk management are considered to establish post-incident operational norms",
+                "description": "Critical mission functions and cybersecurity risk management are considered to establish post-incident operational norms",
+                "guidance": "Prioritize business continuity and data protection during incident response. Determine essential functions to maintain and map them to cybersecurity risks. Establish pre-defined operational procedures, including communication protocols, for restoring critical services after a security breach. Practice these procedures regularly to ensure a smooth and effective recovery. This proactive approach minimizes downtime and data loss.\n"
+            },
+            {
+                "ref_code": "RC.RP-05",
+                "name": "The integrity of restored assets is verified, systems and services are restored, and normal operating status is confirmed",
+                "description": "The integrity of restored assets is verified, systems and services are restored, and normal operating status is confirmed",
+                "guidance": "This HIPAA security control emphasizes ensuring data and system recovery after a disruption. Verify restored assets' integrity to prevent data corruption. Successfully restore systems and services to their operational state. Finally, confirm the system is functioning normally before declaring recovery complete. This ensures business continuity and data security.\n"
+            },
+            {
+                "ref_code": "RC.RP-06",
+                "name": "The end of incident recovery is declared based on criteria, and incident-related documentation is completed",
+                "description": "The end of incident recovery is declared based on criteria, and incident-related documentation is completed",
+                "guidance": "Ensure all recovery criteria are met (system functionality restored, data validated) before declaring an incident closed. Document all incident details, including actions taken, impact, and lessons learned.  Review and approve the documentation to establish accountability. Use incident details to inform future security improvements.\n"
+            }
+        ]
+    },
+    {
+        "name": "Incident Recovery Communication",
+        "ref_code": "RC.CO",
+        "category": "Recover (RC)",
+        "subcontrols": [
+            {
+                "ref_code": "RC.CO-03",
+                "name": "Recovery activities and progress in restoring operational capabilities are communicated to designated internal and external stakeholders",
+                "description": "Recovery activities and progress in restoring operational capabilities are communicated to designated internal and external stakeholders",
+                "guidance": "Maintain a clear communication plan for recovery efforts.  Inform internal teams and external partners (like business associates) of restoration progress.  Regularly update stakeholders on recovery timelines and any challenges.  Use established communication channels to ensure consistency and efficiency.  Transparency builds trust and manages expectations during a crisis.\n"
+            },
+            {
+                "ref_code": "RC.CO-04",
+                "name": "Public updates on incident recovery are shared using approved methods and messaging",
+                "description": "Public updates on incident recovery are shared using approved methods and messaging",
+                "guidance": "Ensure public updates on incident recovery are communicated through pre-approved channels, like your website or social media. These messages must use standardized language and follow a pre-defined communication plan. Regularly test this plan to ensure its effectiveness during an actual incident.  Maintain clear records of all public communications regarding the incident.\n"
+            }
+        ]
+    }
+]

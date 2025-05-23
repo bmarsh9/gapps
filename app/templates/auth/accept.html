@@ -1,0 +1,134 @@
+{% extends "layouts/basic.html" %}
+
+{%block body%}
+<div x-data="standup()" class="min-h-screen">
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 items-center lg:gap-10 gap-4">
+    <div class="max-md:order-1 h-screen min-h-full min-w-full bg-primary"></div>
+    <div class="lg:col-span-2 max-w-lg w-full p-4 mx-auto">
+      <div class="mb-5">
+        <h3 class="text-4xl font-extrabold mt-10">Accept Invite</h3>
+        <p class="text-sm my-2" x-text="'You have been invited to the tenant: '+tokenData.tenant"></p>
+      </div>
+      <div>
+        <form action="{{url_for("auth.post_accept", token=token)}}" method="POST">
+          <div class="mb-4">
+            <label class="text-sm block mb-1">Email</label>
+            <label class="input input-sm input-bordered flex items-center gap-2 bg-base-300 border-base-300">
+              <i class="ti ti-mail"></i>
+              <input name="email" readonly :value="payload.email" type="text" class="grow opacity-50" placeholder="Email" />
+            </label>
+          </div>
+          <div class="mb-4">
+            <label class="text-sm block mb-1">First Name</label>
+            <label class="input input-sm input-bordered flex items-center gap-2">
+              <i class="ti ti-label"></i>
+              <input name="first_name" x-model="payload.first_name" type="text" class="grow" placeholder="First Name" />
+            </label>
+          </div>
+          <div class="mb-4">
+            <label class="text-sm block mb-1">Last Name</label>
+            <label class="input input-sm input-bordered flex items-center gap-2">
+              <i class="ti ti-label"></i>
+              <input name="last_name" x-model="payload.last_name" type="text" class="grow" placeholder="Last Name" />
+            </label>
+          </div>
+          <div class="mb-4">
+            <div class="flex justify-between">
+                <label class="text-sm block mb-1"><i x-show="showPasswordWarning" class="ti ti-alert-triangle text-error mr-1 my-auto"></i>Password</label>
+            </div>
+            <div class="flex flex-row gap-x-4">
+              <input name="password" x-model="payload.password" placeholder="Create password" class="input input-sm grow input-bordered" type="password"/>
+              <input name="password2" x-model="payload.password2" placeholder="Verify password" class="input input-sm grow input-bordered" type="password"/>
+            </div>
+            <p x-show="payload.password !== payload.password2" class="mt-2 text-xs text-error">Passwords do not match.</p>
+            <p x-show="payload.password === payload.password2 && payload.password.length < 12" class="mt-2 text-xs text-error">Passwords must be at least 12 characters.</p>
+          </div>
+          <div class="mt-4">
+            <button @click="register" :disabled="!readyToContinue" class="btn btn-primary btn-block">
+              Accept
+            </button>
+          </div>
+        {%if config.ENABLE_GOOGLE_AUTH or config.ENABLE_MICROSOFT_AUTH%}
+        <div class="divider text-xs font-semibold">OR</div>
+        <div class="flex flex-row gap-x-4 justify-between">
+          {%if config.ENABLE_GOOGLE_AUTH%}
+          <a href="{{url_for('auth.google_auth', flow='accept', token=token)}}" class="btn grow"><i class="ti ti-brand-google text-error text-2xl"></i>Continue with Google</a>
+          {%endif%}
+          {%if config.ENABLE_MICROSOFT_AUTH%}
+          <a href="{{url_for('auth.microsoft_auth', flow='accept', token=token)}}" class="btn grow"><i class="ti ti-brand-azure text-info text-2xl"></i>Continue with Microsoft</a>
+          {%endif%}
+        </div>
+        {%endif%}
+      </div>
+        </form>
+    </div>
+  </div>
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+function standup(){
+    return {
+        init() {
+          this.payload = {
+            "email": this.tokenData.email,
+            "first_name": this.getURLParam("firstName"),
+            "last_name": this.getURLParam("lastName")
+          }
+
+          this.$watch(
+            "payload", (newValue, oldValue) => {
+              this.isReadyToContinue(newValue)
+          })
+          this.isReadyToContinue(this.payload)
+
+          this.$watch(
+            "payload", (newValue, oldValue) => {
+              this.isReadyToSubmit(newValue)
+          })
+          this.isReadyToSubmit(this.payload)
+
+        },
+        token: "{{token}}",
+        tokenData: {{data | tojson}},
+        payload: {},
+        btnLoading: true,
+        readyToContinue: false,
+        readyToSubmit:false,
+        isCreating:false,
+        showPasswordWarning:false,
+        getURLParam: function(param, defaultValue="") {
+          var queryParams = new URLSearchParams(window.location.search);
+          return queryParams.get(param) || defaultValue;
+        },
+        isReadyToContinue: function(payload) {
+            if (!payload.email.includes("@")) {
+              this.readyToContinue = false
+              return false
+            }
+            if (!payload.first_name) {
+              this.readyToContinue = false
+              return false
+            }
+            if (!payload.last_name) {
+              this.readyToContinue = false
+              return false
+            }
+            if (!payload.password || (payload.password !== payload.password2) || (payload.password.length<12)) {
+              this.readyToContinue = false
+              return false
+            }
+            this.readyToContinue = true
+            return true
+        },
+        isReadyToSubmit: function(payload) {
+            if (!this.isReadyToContinue) {
+              this.readyToSubmit = false
+            }
+            this.readyToSubmit = true
+        }
+    }
+}
+</script>
+{%endblock%}

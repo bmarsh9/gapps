@@ -1,0 +1,323 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(grid=True) }}
+{% endblock %}
+
+{%block page_header_title%}Assessments{%endblock%}
+{%block page_header_title_border%}{%endblock%}
+{%block page_header_buttons%}{%endblock%}
+{%block tenant_btn%}{%endblock%}
+
+{%block content%}
+<div x-data="table()" class="grid grid-cols-6 gap-4 mt-2">
+    <div class="col-span-6">
+        <div class="card bg-base-100 border border-base-300">
+            <div class="card-body">
+                <div class="flex justify-between align-items-center">
+                    <h2 class="card-title mb-4">Assessments</h2>
+                    <div class="space-x-2 flex">
+                        <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-blue-500"
+                                @click="exportCSV" data-tip="CSV Export"><i class="ti ti-download"></i></button>
+                        <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-red-500"
+                                @click="removeControlFilters" data-tip="Remove filter"><i class="ti ti-x"></i></button>
+                        <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-green-500"
+                                @click="getItems" data-tip="Refresh table"><i class="ti ti-refresh"></i></button>
+                        <button class="btn btn-sm green-badge" @click="openCreateModal">New</button>
+                    </div>
+                </div>
+                <div class="mx-auto text-center mt-5" x-show="loading" x-transition:enter.duration.500ms
+                     x-transition:leave.duration.100ms x-html="loadingSkeleton"></div>
+                <div x-show="!loading" class="ag-theme-quartz" id="table_1" x-transition:enter.duration.500ms
+                     x-transition:leave.duration.500ms></div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showDeleteModal }">
+            <div class="modal-box">
+                <form method="dialog">
+                    <button @click="showDeleteModal = false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-lg" x-text="'Are you sure you want to delete ' + selectedItem.id + '?'"></h3>
+                <div class="modal-action">
+                    <button class="btn" @click="showModal = false">Close</button>
+                    <button class="btn red-badge" :class='{"btn-disabled": buttonDisabled}'
+                            @click="deleteAssessment(selectedItem)">Delete Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showCreateModal }">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form method="dialog">
+                    <button @click="showCreateModal = false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-lg">Create Assessment</h3>
+                <div class="card card-body">
+                    <div class="grid grid-cols-6 gap-x-6">
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">Name</label>
+                            <input x-model="formData.name" type="text" placeholder="Input assessment name"
+                                   class="input input-bordered w-full" required/>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">Contact email</label>
+                            <input x-model="formData.contact_email" type="email" placeholder="Input email"
+                                   class="input input-bordered w-full" required/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showCreateModal = false">Close</button>
+                    <button class="btn blue-badge" :class='{"btn-disabled": buttonDisabled}' @click="createAssessment">
+                        Create
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showModal }">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form method="dialog">
+                    <button @click="showModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                        ✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-lg" x-text="selectedItem.id"></h3>
+                <div class="card card-body">
+                    <div class="grid grid-cols-6 gap-6">
+                        <template x-for="item in modalFields" :key="item.field">
+                            <div x-show="!item.modal.hide" :class="'col-span-' + item.modal.span">
+                                <label class="block text-sm font-medium mb-2" x-text="item.headerName"></label>
+                                <input
+                                        x-model="selectedItem[item.field]"
+                                        :type="item.modal.type"
+                                        :disabled="item.modal.disable"
+                                        class="input input-bordered w-full"
+                                />
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showModal = false">Close</button>
+                    <button class="btn red-badge" @click="openDeleteModal(selectedItem)">Delete</button>
+                    <button class="btn blue-badge" :class='{"btn-disabled": buttonDisabled}'
+                            @click="updateAssessment(selectedItem)">Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+function table(){
+    return {
+        init() {
+          this.$watch(
+            "items", (newValue, oldValue) => {
+                this.drawTable({"selector": "#table_1", "tableData":newValue})
+          })
+
+          this.getItems()
+        },
+        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        loading: true,
+        showDeleteModal: false,
+        showModal: false,
+        buttonDisabled: false,
+        selectedItem: {},
+        modalFields: [],
+        tableHeaders: [
+          {"field": "id", "headerName": "#", "width": 100, "filter": "agTextColumnFilter", "hide": false, "modal": {"disable": true}},
+          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter", "modal": {"disable": true}},
+          {"field": "contact_email", "headerName": "Contact", "filter": "agTextColumnFilter"},
+          {"field": "date_added", "headerName": "Created At", "filter": "agTextColumnFilter", "modal": {"disable": true}}
+        ],
+        openModal(item) {
+          this.selectedItem = item;
+          this.modalFields = getModalFields(this.tableHeaders)
+          this.showModal = true;
+        },
+        showCreateModal: false,
+        openCreateModal(item) {
+          this.showCreateModal = true;
+        },
+        openDeleteModal(item) {
+          this.selectedItem = item;
+          this.showModal = false;
+          this.showDeleteModal = true;
+        },
+        items: [],
+        formData: {
+          "name": "",
+          "contact_email": ""
+        },
+        createAssessment() {
+          if (!this.formData.name) {
+            toast("Name is required", "error")
+            return
+          }
+          if (!this.formData.contact_email) {
+            toast("Email is required", "error")
+            return
+          }
+          toast("Please wait...")
+          this.buttonDisabled = true;
+          request("POST",
+            "/api/v1/assessments",
+            data => {
+              toast("Created assessment")
+              this.getItems()
+              this.showCreateModal = false;
+              this.formData.contact_email = ""
+              this.formData.is_system = false
+              this.buttonDisabled = false;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.formData
+          );
+        },
+        updateAssessment(item) {
+          if (!item.contact_email) {
+            toast("Email is required", "error")
+            return
+          }
+          toast("Please wait...")
+          this.buttonDisabled = true;
+          request("PUT",
+            "/api/v1/assessments/"+item.id,
+            data => {
+              toast("Updated assessment")
+              this.getItems()
+              this.showModal = false;
+              this.buttonDisabled = false;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            {"contact_email":item.contact_email}
+          );
+        },
+        deleteAssessment(item) {
+          toast("Please wait... This may take a minute.")
+          this.buttonDisabled = true;
+          request("DELETE",
+            "/api/v1/assessments/"+item.id,
+            data => {
+              toast("Deleted assessment")
+              this.getItems()
+              this.showDeleteModal = false;
+              this.buttonDisabled = false;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.formData
+          );
+        },
+        exportCSV: function() {
+          this.table.exportDataAsCsv();
+        },
+        removeControlFilters: function() {
+          this.table.setFilterModel(null);
+        },
+        drawTable: function({ selector = null, tableData = null, formatter = null }) {
+          var data = tableData;
+          var columns = [];
+
+          gridOptions = {
+            pagination: true,
+            paginationPageSize: 25,
+            domLayout: "autoHeight",
+            suppressMenuHide: true,
+            suppressHorizontalScroll: true,
+            enableCellTextSelection:true,
+            suppressFieldDotNotation: true,
+            onGridReady: (params) => {
+              params.api.sizeColumnsToFit();
+              this.loading = false;
+              window.onresize = () => {
+                this.loading = true;
+                params.api.sizeColumnsToFit();
+                this.loading = false;
+              }
+            },
+            autoSizeStrategy: {
+              type: 'fitGridWidth',
+              defaultMinWidth: 50,
+            }
+          }
+          const gridElement = document.querySelector(selector);
+          if (this.table) {
+            this.table.destroy();
+          }
+
+          gridOptions.rowData = this.formattedTable(tableData);
+          gridOptions.columnDefs = this.tableHeaders
+
+          gridOptions.onRowDoubleClicked = (row) => {
+            selectedItem = this.items.find(obj => obj.id === row.data.id);
+            this.openModal(selectedItem)
+          },
+
+          this.table = agGrid.createGrid(gridElement, gridOptions);
+
+        },
+        formattedTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.tableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              /*
+              if (row.name === "Limit unsuccessful logon") {
+                row.name = `<button class='btn btn-sm' @click='alert(1)' x-text='${this.controls.length}'></button>`
+              }*/
+
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+
+          return filteredData
+        },
+        getItems: function() {
+          this.loading = true,
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/assessments`,
+            data => {
+              this.items = data;
+              this.loading = false;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        }
+    }
+}
+
+</script>
+{%endblock%}

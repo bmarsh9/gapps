@@ -4,427 +4,496 @@
 {% block before_head %}
   {{ super() }}
   {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(datatables=True, files=True) }}
+  {{ macro.filehelper(grid=True, files=True, datepicker=True) }}
 {% endblock %}
 
-{%block page_header_title%}Evidence<p class="text-sm  font-medium">Evidence can be added and associated with controls in your projects</p>{%endblock%}
+{%block page_header_title%}Evidence{%endblock%}
 {%block page_header_title_border%}{%endblock%}
-{%block page_header_buttons%}<button class="btn btn-sm btn-primary new-evidence-btn">New</button>{%endblock%}
+{%block page_header_buttons%}{%endblock%}
 
 {%block content%}
-<div class="grid grid-cols-6 gap-4 mt-2">
-            <div class="col-span-6">
-    <div class="card bg-base-100 border border-base-200">
+<div x-data="table()" class="grid grid-cols-6 gap-4 mt-2">
+
+  <div class="col-span-6">
+    <div class="card bg-base-100 border border-base-300">
       <div class="card-body">
-        <h2 class="card-title mb-2">Evidence</h2>
-        <table class="table table-vcenter" id="evidences" style="width:100%">
-          <thead>
-            <tr>
-              <th class="w-1">ID</th>
-              <th>Name</th>
-              <th>Description</th>
-              <th class="w-1">Controls</th>
-              <th class="w-1">More</th>
-            </tr>
-          </thead>
-          <tbody id="evidence-body"></tbody>
-        </table>
+        <div class="flex justify-between align-items-center">
+          <h2 class="card-title mb-4">Evidence</h2>
+          <div class="space-x-2 flex">
+            <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-primary" @click="exportCSV" data-tip="CSV Export"><i class="ti ti-download"></i></button>
+            <button class="btn btn-sm btn-success" @click="openCreateModal">Create Evidence</button>
+          </div>
+        </div>
+        <div class="mx-auto text-center mt-5" x-show="loading" x-transition:enter.duration.500ms x-transition:leave.duration.100ms x-html="loadingSkeleton"></div>
+        <div x-show="!loading" class="ag-theme-quartz" id="table_1" x-transition:enter.duration.500ms x-transition:leave.duration.500ms></div>
       </div>
     </div>
-    </div>
-</div>
-
-<input type="checkbox" id="delete-modal" class="modal-toggle" />
-<label for="delete-modal" class="modal cursor-pointer">
-  <label class="modal-box relative" for="">
-    <h3 class="text-lg font-bold">Confirm deletion</h3>
-    <p class="py-4">Are you sure you want to delete <b id="delete-evidence-body">?</b>? If this evidence is attached to any project controls, it will be removed!</p>
-    <div class="modal-action">
-      <label id="delete-evidence-btn" data-id="" @click="deleteEvidence;document.getElementById('delete-modal').checked = false;" class="btn btn-error">Yes, Delete</label>
-    </div>
-  </label>
-</label>
-
-<input type="checkbox" id="add-to-control-modal" class="modal-toggle" />
-<div class="modal">
-  <div class="modal-box relative w-11/12 max-w-7xl">
-    <label for="add-to-control-modal" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-    <h3 id="add-to-control-modal-title" class="text-lg font-bold"></h3>
-        <div class="py-4 sm:mt-0">
-
-      <label class="block text-sm font-medium ">Selected Evidence</label>
-      <p id="modal-p" class="mb-2"></p>
-      <div id="form-content" class="col-span-6 sm:col-span-6 mt-3">
-        <div class="flex justify-between">
-          <label class="block text-sm font-medium  mb-3">Please select the controls below</label>
-          <button class="btn btn-primary btn-save-evidence-to-control mb-2">Save</button>
-        </div>
-        <table class="table table-vcenter" id="control-table" style="width:100%">
-          <thead>
-            <tr>
-              <th class="w-1 bg-primary-content"></th>
-              <th class="w-1">Ref</th>
-              <th class="w-1">Project</th>
-              <th>Control Name</th>
-            </tr>
-          </thead>
-          <tbody id="control-table-body"></tbody>
-        </table>
-      </div>
-
-    <div class="text-right mt-3">
-      <button class="btn btn-primary btn-save-evidence-to-control">Save</button>
-    </div>
-
-        </div>
   </div>
+
+  <div>
+    <div class="modal" x-bind:class="{ 'modal-open': showDeleteModal }">
+        <div class="modal-box">
+            <form method="dialog">
+              <button @click="showDeleteModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-lg" x-text="'Are you sure you want to delete ' + selectedItem.id + '?'"></h3>
+            <div class="modal-action">
+                <button class="btn" @click="showModal = false">Close</button>
+                <button class="btn btn-error" @click="deleteEvidence">Delete Evidence</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="modal" x-bind:class="{ 'modal-open': showCreateModal }">
+        <div class="modal-box w-11/12 max-w-5xl">
+            <form method="dialog">
+              <button @click="showCreateModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-lg px-6">Create Evidence</h3>
+            <div class="card card-body">
+                  <div class="grid grid-cols-6 gap-6">
+                    <div class="col-span-3">
+                        <label class="block text-sm font-medium pb-2">Name</label>
+                        <input x-model="formData.name" type="text" placeholder="Input evidence name" class="input input-bordered w-full"/>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-sm font-medium pb-2">Description</label>
+                        <input x-model="formData.description" type="text" placeholder="Input description" class="input input-bordered w-full"/>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-sm font-medium pb-2">Group/Category</label>
+                        <input x-model="formData.group" type="text" placeholder="Optionally group the evidence together" class="input input-bordered w-full"/>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-sm font-medium pb-2">Collected On</label>
+                        <input x-model="formData.collected_on" x-init="initFlatpickr" id="datePicker" type="text" class="grow input w-full input-bordered" placeholder="Collection date (today by default)" />
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium pb-2">Content</label>
+                        <textarea x-model="formData.content" class="textarea textarea-bordered w-full" placeholder="Place raw text evidence here (e.g. JSON results, CSV, etc)"></textarea>
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Attach Evidence File</label>
+                        <input type="file" id="createEvidenceUploader">
+                        <p class="text-xs text-warning mt-2">Note: Only 1 evidence file is attached to each Evidence object.</p>
+                    </div>
+
+                  </div>
+            </div>
+            <div class="modal-action">
+                <button class="btn" @click="showCreateModal = false">Close</button>
+                <button class="btn btn-primary" @click="createEvidence">Create</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="modal" x-bind:class="{ 'modal-open': showModal }">
+        <div class="modal-box w-11/12 max-w-5xl">
+            <form method="dialog">
+              <button @click="showModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+            <h3 class="font-bold text-lg px-6" x-text="'Update: '+selectedItem.name"></h3>
+            <div class="card card-body">
+                <div class="grid grid-cols-6 gap-6">
+                    <div class="col-span-3">
+                        <label class="block text-sm font-medium pb-2">Name</label>
+                        <input x-model="selectedItem.name" type="text" placeholder="Input evidence name" class="input input-bordered w-full"/>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-sm font-medium pb-2">Description</label>
+                        <input x-model="selectedItem.description" type="text" placeholder="Input description" class="input input-bordered w-full"/>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-sm font-medium pb-2">Group/Category</label>
+                        <input x-model="selectedItem.group" type="text" placeholder="Optionally group the evidence together" class="input input-bordered w-full"/>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-sm font-medium pb-2">Collected On</label>
+                        <input x-model="selectedItem.collected_on" x-init="initFlatpickr" id="datePicker2" type="text" class="grow input w-full input-bordered" placeholder="Collection date (today by default)" />
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium pb-2">Content</label>
+                        <textarea x-model="selectedItem.content" class="textarea textarea-bordered w-full" placeholder="Input content"></textarea>
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Evidence File</label>
+                        <table x-show="selectedItem.file_name" class="table bg-base-200">
+                            <thead>
+                              <tr>
+                                <th class="py-4">Uploaded File</th>
+                                <th class="py-4">Backend</th>
+                                <th class="text-center w-1">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td class="font-semibold" x-text="selectedItem.file_name"></td>
+                                <td class="font-semibold" x-text="selectedItem.file_provider.toUpperCase()"></td>
+                                <td>
+                                    <div class="flex flex-row gap-x-4">
+                                        <a :href="selectedItem.file['source']" :download="selectedItem.file['name']" class="btn btn-xs bg-base-100">Download</a>
+                                    </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+
+                        <div x-show="!selectedItem.file_name" class="col-span-6">
+                          <input type="file" id="updateEvidenceUploader">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-action">
+                <button class="btn" @click="showModal = false">Close</button>
+                <button class="btn btn-error" @click="openDeleteModal(selectedItem)">Delete</button>
+                <button class="btn btn-primary" @click="updateEvidence">Update</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
 </div>
-
-<input type="checkbox" id="evidence-modal" class="modal-toggle" />
-<label for="evidence-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3 class="text-lg font-bold">New Evidence<p class="text-sm  font-medium mt-2">After you add the evidence, you can associate it with controls in your projects.</p></h3>
-        <div class="py-4 sm:mt-0">
-          <div class="md:grid md:grid-cols-1 md:gap-6">
-                <div class="mt-5 md:col-span-2 md:mt-0">
-                        <div class="overflow-hidden sm:rounded-md">
-                          <div class="px-4 py-5 sm:p-6">
-                                <div class="grid grid-cols-6 gap-6">
-                                  <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium ">Name</label>
-                                        <input placeholder="Enter the display name of the evidence" type="text" name="name" id="name" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
-                                  </div>
-                                  <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium ">Description</label>
-                                        <input type="text" id="description" placeholder="Describe what the evidence entails/covers" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
-                                  </div>
-                                  <div class="col-span-6 sm:col-span-6">
-                                        <label class="block text-sm font-medium mb-3">Collected On</label>
-                                        <input type="text" id="collected" class="rounded-md input-md w-full border" placeholder="Input date (m/dd/yyyy)">
-                                  </div>
-                                  <div class="col-span-6 sm:col-span-6">
-                                        <label class="block text-sm font-medium ">Evidence content</label>
-                                        <textarea id="content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea>
-                                  </div>
-                                  <div class="col-span-6 sm:col-span-6">
-                                        <label class="block text-sm font-medium ">Files</label>
-                                        <div class="custom-file-container flex flex-col w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 p-4" data-upload-id="my-unique-id"></div>
-                                  </div>
-                                </div>
-                          </div>
-                          <div class="px-4 py-3 text-right sm:px-6">
-                                <button class="btn btn-primary create-evidence">Save</button>
-                          </div>
-                        </div>
-                </div>
-          </div>
-        </div>
-  </label>
-</label>
-
-<input type="checkbox" id="view-modal" class="modal-toggle" />
-<label for="view-modal" class="modal cursor-pointer">
-  <label class="modal-box relative w-11/12 max-w-5xl" for="">
-    <h3 class="text-lg font-bold">View/Edit Evidence</h3>
-        <div class="py-4 sm:mt-0">
-          <div class="md:grid md:grid-cols-1 md:gap-6">
-                <div class="mt-5 md:col-span-2 md:mt-0">
-                        <div class="overflow-hidden sm:rounded-md">
-                          <div class="px-4 py-5 sm:p-6">
-                                <div class="grid grid-cols-6 gap-6">
-                                  <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium ">Name</label>
-                                        <input placeholder="Enter the display name of the evidence" type="text" name="name" id="update-name" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
-                                  </div>
-                                  <div class="col-span-3 sm:col-span-3">
-                                        <label class="block text-sm font-medium ">Description</label>
-                                        <input type="text" id="update-description" placeholder="Describe what the evidence entails/covers" class="mt-3 border block w-full rounded-md border-base-300 shadow-sm input-md">
-                                  </div>
-                                  <div class="col-span-6 sm:col-span-6">
-                                        <label class="block text-sm font-medium mb-3">Collected On</label>
-                                        <input type="text" id="update-collected" class="rounded-md input-md w-full border" placeholder="Input date (m/dd/yyyy)">
-                                  </div>
-                                  <div class="col-span-6 sm:col-span-6">
-                                        <label class="block text-sm font-medium ">Evidence content</label>
-                                        <textarea id="update-content" class="textarea textarea-bordered w-full mt-3" rows="5" placeholder="Add raw evidence directly here or attach link. We recommend storing data in Google Drive, GCS/AWS buckets (or similar) and attaching the link here."></textarea>
-                                  </div>
-                                  <div class="col-span-6 sm:col-span-6">
-                                        <label class="block text-sm font-medium ">Files</label>
-                                        <div id="preview-evidence"></div>
-                                  </div>
-                                </div>
-                          </div>
-                          <div class="px-4 py-3 text-right sm:px-6">
-                                <button class="btn btn-primary edit-evidence">Save</button>
-                          </div>
-                        </div>
-                </div>
-          </div>
-        </div>
-  </label>
-</label>
-
 {%endblock%}
 
 {%block extrajs%}
 <script>
-  const upload = new FileUploadWithPreview.FileUploadWithPreview('my-unique-id', {multiple:true, text:{browse: 'Choose',chooseFile: 'Choose files to upload...'}});
-</script>
-<script>
-  function deleteEvidence(e) {
-    var id = $('#delete-evidence-btn').data('id')
-    $.ajax({
-          type: "DELETE",
-          url: `/api/v1/evidence/${id}`,
-          contentType: "application/json; charset=utf-8",
-          success: function(data){
-            toast("Deleted evidence")
-            loadEvidenceTable()
-            return(data)
-          },
-          error: function(errMsg) {
-            toast(errMsg["responseJSON"]["message"],"error")
-            return(errMsg);
-          }
-    })
-
-  }
-
-  function loadEvidenceTable() {
-      $("#evidences").dataTable().fnDestroy();
-      var selectedTenant = getTenant();
-      if (!selectedTenant.id) {
-        $('#evidences').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
-      } else {
-      $("#evidence-body").html('<div class="col-span-9 mx-auto mt-10"><div role="status"><svg aria-hidden="true" class="mr-2 w-8 h-8 animate-spin text-gray-200 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div></div>')
-      $.ajax({
-        type: "GET",
-        url: `/api/v1/tenants/${selectedTenant.id}/evidence`,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-          for (var evidence in data) {
-            $("#evidence-body").append(`<tr data-record-id=${data[evidence].id}><td class="text-sm font-medium">${data[evidence].id}</td><td class="text-sm font-medium ">${clean(data[evidence].name)}</td><td class="text-sm font-medium ">${clean(data[evidence].description)}</td><td class="text-sm font-medium ">${data[evidence].control_count}</td><td class="text-center"><div class="dropdown dropdown-top dropdown-end"><label tabindex="0" class="btn btn-sm btn-ghost"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" /></svg></label><ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"><li><a data-name="${clean(data[evidence].name)}" data-id="${data[evidence].id}" class="view-evidence">View</a></li><li><a data-id="${data[evidence].id}" data-evidence-name="${clean(data[evidence].name)}" data-evidence-id="${data[evidence].id}" class="delete-record">Delete</a></li></ul></div></td></tr>`);
-          }
-          $('#evidences').DataTable({"pageLength":25,"order": [[ 0, "desc" ]]});
-          return(data)
+function table(){
+    return {
+        init() {
+          this.$watch(
+            "items", (newValue, oldValue) => {
+                this.drawTable({"selector": "#table_1", "tableData":newValue})
+          })
+          flatpickr("#datePicker");
+          this.getItems()
         },
-        error: function(errMsg) {
-          toast(errMsg["responseJSON"]["message"],"error")
-          return(errMsg);
-        }
-      })
-      }
-  }
-  loadEvidenceTable()
+        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        loading: true,
+        showDeleteModal: false,
+        showModal: false,
+        evidenceInitLoading: false,
+        newEvidenceInitLoading: false,
+        selectedItem: {},
+        formData: {},
+        fileUpload: null,
+        fileAdd: null,
+        modalFields: [],
+        createPondInstance: null,
+        updatePondInstance: null,
+        tableHeaders: [
+          {"field": "id", "headerName": "#", "width": 100, "filter": "agTextColumnFilter", "hide": true, "modal": {"disable": true, "hide": true}},
+          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter"},
+          {"field": "description", "headerName": "Description", "filter": "agTextColumnFilter"},
+          {"field": "group", "headerName": "Group", "filter": "agTextColumnFilter"},
+          {"field": "has_file", "headerName": "Has File", "width": 75, "cellRenderer": booleanBadge},
+          {"field": "date_added", "headerName": "Created At", "filter": "agTextColumnFilter", "cellRenderer": simpleDate}
+        ],
+        openModal(item) {
+            this.selectedItem = item;
+            this.showModal = true;
+            flatpickr("#datePicker2");
 
-    $(document).on('change', '.select-btn', function() {
-      $('#control-table tbody tr td input[type="checkbox"]').prop('checked', $(this).prop('checked'));
-    });
-
-    $(document).on('click', '.delete-record', function() {
-      var id = $(this).data('evidence-id')
-      var name = $(this).data('evidence-name')
-      $('#delete-evidence-btn').data('id',id);
-      $('#delete-evidence-body').html(`${name} [${id}]`);
-      document.getElementById('delete-modal').checked = true;
-    });
-    $(document).on('click', '.view-evidence', function() {
-      var evidenceId = $(this).data('id')
-      $(".edit-evidence").data("id",evidenceId)
-      $("#preview-evidence").html(`
-        <div class="custom-file-container flex flex-col w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-bray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600 p-4" data-upload-id="preview-edit-evidence"></div>
-      `)
-      document.getElementById('view-modal').checked = true;
-      $.ajax({
-        type: "GET",
-        url: `/api/v1/evidence/${evidenceId}`,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function(data){
-            $("#update-name").val(data["name"])
-            $("#update-description").val(data["description"])
-            $("#update-content").val(data["content"])
-            $("#update-collected").val(data["collected_on"])
-            var preloadFiles = [];
-            for (var file in data["files"]) {
-                preloadFiles.push([data["files"][file],`/evidence/${evidenceId}/files/${data["files"][file]}`])
+            //Pond
+            const inputElement = document.getElementById("updateEvidenceUploader");
+            const pond = FilePond.find(inputElement);
+            if (pond) {
+                pond.setOptions({"files": []})
+                return
             }
-            var previewEdit = new FileUploadWithPreview.FileUploadWithPreview('preview-edit-evidence', {multiple:true, text:{browse: 'Choose',chooseFile: 'Choose files to upload...'},presetFiles:preloadFiles});
-            window.previewEdit = previewEdit
-            return(data)
+            FilePond.registerPlugin(FilePondPluginImagePreview);
+            this.updatePondInstance = FilePond.create(inputElement, {
+              files: [],
+              allowMultiple: false,
+              acceptedFileTypes: ['image/*'],
+              labelIdle: 'Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+            });
         },
-        error: function(errMsg) {
-            toast(errMsg["responseJSON"]["message"],"error")
-            return(errMsg);
-        }
-      })
-    });
-    $(document).on('click', '.new-evidence-btn', function() {
-      $('.daterangepicker').css('z-index','1600');
-      $("#name").val("");
-      $("#description").val("");
-      $("#collected").val("");
-      $("#content").val("");
-      document.getElementById('evidence-modal').checked = true;
-    });
-     $(document).on('click', '.edit-evidence', function() {
-       var evidenceId = $(this).data('id')
-       var fd = new FormData();
-       for(var file in previewEdit.cachedFileArray) {
-         fd.append("file", previewEdit.cachedFileArray[file])
-       }
-       fd.append("name", $("#update-name").val())
-       fd.append("content", $("#update-content").val())
-       fd.append("collected", $("#update-collected").val())
-       fd.append("description", $("#update-description").val())
+        showCreateModal: false,
+        openCreateModal(item) {
+            const inputElement = document.getElementById("createEvidenceUploader");
+            const pond = FilePond.find(inputElement);
+            if (pond) {
+                pond.setOptions({"files": []})
+                return
+            }
 
-       $.ajax({
-         type: "PUT",
-         url: `/api/v1/evidence/${evidenceId}`,
-         contentType: false,
-         processData: false,
-         cache: false,
-         data:fd,
-         success: function(data){
-             toast("Edited evidence")
-             previewEdit.resetPreviewPanel();
-             document.getElementById('view-modal').checked = false;
-             loadEvidenceTable()
-             return(data)
-         },
-         error: function(errMsg) {
-             toast(errMsg["responseJSON"]["message"],"error")
-             return(errMsg);
-         }
-       })
-     });
-     $(document).on('click', '.create-evidence', function() {
-       var selectedTenant = getTenant();
-       var fd = new FormData();
-       for(var file in upload.cachedFileArray) {
-         fd.append("file", upload.cachedFileArray[file])
-       }
-       fd.append("name", $("#name").val())
-       fd.append("content", $("#content").val())
-       fd.append("collected", $("#collected").val())
-       fd.append("description", $("#description").val())
+            FilePond.registerPlugin(FilePondPluginImagePreview);
+            this.createPondInstance = FilePond.create(inputElement, {
+              allowMultiple: false,
+              acceptedFileTypes: ['image/*'],
+              labelIdle: 'Drag & Drop your evidence or <span class="filepond--label-action">Browse</span>',
+              onactivatefile: (file) => {
+                console.log(file.filename)
+              }
+            });
 
-       $.ajax({
-         type: "POST",
-         url: `/api/v1/tenants/${selectedTenant.id}/evidence`,
-         contentType: false,
-         processData: false,
-         cache: false,
-         data:fd,
-         success: function(data){
-             toast("Added evidence")
-             upload.resetPreviewPanel();
-             document.getElementById('evidence-modal').checked = false;
-             loadEvidenceTable()
-             return(data)
-         },
-         error: function(errMsg) {
-             toast(errMsg["responseJSON"]["message"],"error")
-             return(errMsg);
-         }
-       })
-     });
-     $(document).on('click', '.btn-save-evidence-to-control', function() {
-       var evidenceId = $(this).data('id')
-       var rows_selected = $("#control-table").DataTable().column(0).checkboxes.selected().join(",").split(',');
-       if (rows_selected[0] === "") {
-         rows_selected = [];
-       };
-       $.ajax({
-         type: "PUT",
-         url: `/api/v1/evidence/${evidenceId}/controls`,
-         data: JSON.stringify(rows_selected),
-         contentType: "application/json; charset=utf-8",
-         dataType: "json",
-         success: function(data){
-             toast("Added evidence to the controls")
-             document.getElementById('add-to-control-modal').checked = false;
-             loadEvidenceTable()
-             return(data)
-         },
-         error: function(errMsg) {
-             toast(errMsg["responseJSON"]["message"],"error")
-             return(errMsg);
-         }
-       })
-     });
+          this.showCreateModal = true;
+        },
+        openDeleteModal(item) {
+          this.selectedItem = item;
+          this.showModal = false;
+          this.showDeleteModal = true;
+        },
+        items: [],
+        exportCSV: function() {
+          this.table.exportDataAsCsv();
+        },
+        drawTable: function({ selector = null, tableData = null, formatter = null }) {
+          var data = tableData;
+          var columns = [];
 
-     $(document).on('click', '.add-to-control', function() {
-      $("#control-table").dataTable().fnDestroy();
-       document.getElementById('add-to-control-modal').checked = true;
-       var evidenceId = $(this).data('id')
-       var evidenceName = $(this).data('name')
-       $(".btn-save-evidence-to-control").data("id",evidenceId)
-       $("#add-to-control-modal-title").html(`Which control(s) would you like to add this evidence to?`)
-       $("#modal-p").html(`${evidenceName}`)
+          gridOptions = {
+            pagination: true,
+            paginationPageSize: 25,
+            domLayout: "autoHeight",
+            suppressMenuHide: true,
+            suppressHorizontalScroll: true,
+            enableCellTextSelection:true,
+            suppressFieldDotNotation: true,
+            onGridReady: (params) => {
+              params.api.sizeColumnsToFit();
+              this.loading = false;
+              window.onresize = () => {
+                this.loading = true;
+                params.api.sizeColumnsToFit();
+                this.loading = false;
+              }
+            },
+            autoSizeStrategy: {
+              type: 'fitGridWidth',
+              defaultMinWidth: 50,
+            }
+          }
+          const gridElement = document.querySelector(selector);
+          if (this.table) {
+            this.table.destroy();
+          }
 
-       var divHolder = $("#control-table-body")
-       divHolder.html('<div role="status" class="mt-5"><svg aria-hidden="true" class="mr-2 w-12 h-12 animate-spin text-gray-200 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/><path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/></svg><span class="sr-only">Loading...</span></div>');
-       $.ajax({
-         type: "GET",
-         url: `/api/v1/projects/subcontrols`,
-         contentType: "application/json; charset=utf-8",
-         dataType: "json",
-         success: function(data){
-           var selectedBoxes = Array();
-           divHolder.html("")
-           for (var control in data) {
-             var record = data[control];
-             for (var evidence in record["evidence"]) {
-               if (record["evidence"][evidence].id === evidenceId) {
-                 selectedBoxes.push(record.id.toString())
-               }
-             }
-             divHolder.append(`<tr>
-               <td class="w-1">${record.id}</td>
-               <td class="text-sm font-medium w-1">${clean(record.ref_code)}</td>
-               <td class="text-sm font-medium w-1">${clean(record.project)}</td>
-               <td class="text-sm font-medium whitespace-normal">${clean(record.name)}</td>
-              </tr>
-              `
-             )
-           };
-           var table = $("#control-table").DataTable({
-             'bDestroy': true,
-             'columnDefs': [
-               {
-                 'targets': 0,
-                 'checkboxes': {
-                   'selectRow': true
-                 }
-               }
-             ],
-             'select': {
-               'style': 'multi'
-             },
-             'order': [[1, 'asc']],
-             initComplete: function(settings) {
-               var api = this.api();
+          gridOptions.rowData = this.formattedTable(tableData);
+          gridOptions.columnDefs = this.tableHeaders
 
-               api.cells(
-                 api.rows(function(idx, data, node) {
-                   
-                   return (selectedBoxes.indexOf(data[0]) >= 0) ? true : false;
-                 }).indexes(),
-                 0
-               ).checkboxes.select();
-             }
-           })
-           return(data)
-         },
-         error: function(errMsg) {
-           toast(errMsg["responseJSON"]["message"],"error")
-           return(errMsg);
-         }
-       })
+          gridOptions.onRowDoubleClicked = (row) => {
+            console.log(row.data.id)
+            selectedItem = this.items.find(obj => obj.id === row.data.id);
+            console.log(selectedItem)
+            this.openModal(selectedItem)
+          },
 
-     });
-     var table = $("#evidence-table").DataTable({"pageLength":50});
+          this.table = agGrid.createGrid(gridElement, gridOptions);
+
+        },
+        formattedTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.tableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              /*
+              if (row.name === "Limit unsuccessful logon") {
+                row.name = `<button class='btn btn-sm' @click='alert(1)' x-text='${this.controls.length}'></button>`
+              }*/
+
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+
+          return filteredData
+        },
+        getItems: function() {
+          this.loading = true,
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence`,
+            data => {
+              this.items = data;
+              this.loading = false;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        // Evidence module
+        fileUploadMap:{},
+        evidence: [],
+        tenantEvidence: [],
+        evidence_map: {},
+        focusEvidence: function(index) {
+            if ( !this.evidence[index].open ) {
+                for(let i = 0; i < this.evidence.length; i++){
+                    this.evidence[i].open = false;
+                    this.evidence[i].focused = i == index;
+                }
+            }
+        },
+        isOpen: function(index) {
+            for(let i = 0; i < this.evidence.length; i++){
+
+                this.evidence[i].focused = false;
+                this.evidence[i].open = i == index;
+            }
+        },
+        openEvidence: function(index) {
+            document.querySelector('.custom-file-container').innerHTML = '';
+            for(let i = 0; i < this.evidence.length; i++){
+                this.evidence[i].focused = false;
+                this.evidence[i].open = i == index;
+            }
+            if (!this.fileUploadMap[this.evidence[index].id]) {
+              var preloadFiles = [];
+              for (var file in this.evidence[index].files) {
+                preloadFiles.push([this.evidence[index].files[file],`/evidence/${this.evidence[index].id}/files/${this.evidence[index].files[file]}`])
+              }
+              this.fileUploadMap[this.evidence[index].id] = new FileUploadWithPreview.FileUploadWithPreview(`upload-${this.evidence[index].id}`, {multiple:true, text:{browse: 'Choose',chooseFile: 'Choose files to upload...'}, presetFiles:preloadFiles});
+            }
+            setTimeout(()=>document.getElementById(`titleField${index}`).focus(),10);
+        },
+        defocusEvidence: function() {
+            for(let i = 0; i < this.evidence.length; i++){
+                this.evidence[i].focused = false;
+                this.evidence[i].open = false;
+            }
+        },
+        deleteEvidence: function() {
+            request("DELETE",
+                `/api/v1/evidence/${this.selectedItem.id}`,
+                data => {
+                    toast("Removed evidence")
+                    this.showDeleteModal = false;
+                    this.getItems()
+                    return(data)
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        addEvidence: function() {
+            d = {
+                name: '',
+                description: '',
+                content: '',
+                focused: false,
+                open: false
+            }
+            this.evidence.unshift(d);
+            setTimeout(()=>this.openEvidence(0),10);
+
+            /* push to bottom
+            this.evidence.push(d);
+            setTimeout(()=>this.openEvidence(this.evidence.length-1),10);
+            setTimeout(()=>this.scrollDiv(),100);
+            */
+        },
+        scrollDiv: function() {
+          var objDiv = document.getElementById("evidence-body");
+          objDiv.scrollTop = objDiv.scrollHeight;
+        },
+        updateEvidence: function(index) {
+          var fd = new FormData();
+
+          fd.append("name", this.selectedItem.name)
+          fd.append("content", this.selectedItem.content)
+          fd.append("description", this.selectedItem.description)
+          fd.append("group", this.selectedItem.group)
+          fd.append("collected", this.selectedItem.collected_on)
+
+          this.updatePondInstance.getFiles().forEach(fileItem => {
+                fd.append("file", fileItem.file);
+          });
+
+          fetch(`/api/v1/evidence/${this.selectedItem.id}`, {
+              method: "PUT",
+              body: fd,
+              cache: "no-cache"
+            })
+            .then(response => {
+              if (!response.ok) {
+                // Convert non-2xx HTTP responses into errors
+                return response.json().then(errorData => {
+                  throw new Error(errorData.message);
+                });
+              }
+              return response.json(); // Parse JSON response
+            })
+            .then(data => {
+              toast("Updated evidence")
+              this.showModal = false;
+              return data;
+            })
+            .catch(errMsg => {
+              toast(errMsg.message, "error");
+              return errMsg;
+          });
+        },
+        createEvidence: function() {
+          if (!this.formData.name) {
+            toast("Name is required","error")
+            return
+          }
+          var fd = new FormData();
+
+          fd.append("name", this.formData.name)
+          fd.append("content", this.formData.content)
+          fd.append("group", this.formData.group)
+          fd.append("description", this.formData.description)
+          if (this.formData.collected_on) {
+            fd.append("collected_on", this.formData.collected_on)
+          }
+          this.createPondInstance.getFiles().forEach(fileItem => {
+                fd.append("file", fileItem.file);
+          });
+          requestWithForm("POST",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence`,
+            data => {
+              toast("Created evidence")
+              this.getItems()
+              this.showCreateModal = false
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            fd
+          );
+
+        },
+        getTenantEvidence: function(subcontrol) {
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence`,
+            data => {
+              this.tenantEvidence = data;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        getEvidence: function(subcontrol) {
+          // get evidence for a subcontrol
+          this.evidence = []
+          this.evidence_map = [];
+
+          request("GET",
+            `/api/v1/projects/${this.projectId}/subcontrols/${subcontrol.id}/evidence`,
+            data => {
+              for (var item in data) {
+                console.log(data[item])
+                this.evidence.push(data[item])
+                this.evidence_map[data[item].id] = data[item].name;
+              }
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+    }
+}
 </script>
 {%endblock%}

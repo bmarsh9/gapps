@@ -10,3 +10,24 @@
     display: inline-block;
     line-height: 12px;
 }
+.tox .tox-tbtn--enabled, .tox .tox-tbtn--enabled:hover {
+    background: #707070 !important;
+
+}
+.tox .tox-tbtn--bespoke, .tox:not(.tox-tinymce-inline) .tox-editor-header, .tox .tox-toolbar-overlord, .tox .tox-menubar, .tox .tox-toolbar{
+    background: #292929 !important;
+    color: white;
+}
+.mce-content-body {
+    background: rgba(0, 0, 0, 0.08) !important;
+}
+.tox .tox-tbtn svg {
+    fill: #ffffff6b !important;
+}
+.tox .tox-tbtn--bespoke .tox-tbtn__select-label, .tox .tox-mbtn {
+    color: #ffffff6b !important;
+}
+.tox-tinymce {
+  border: 1px solid rgba(0, 0, 0, 0.4) !important;
+}
+

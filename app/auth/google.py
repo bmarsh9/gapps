@@ -1,82 +1,50 @@
-from datetime import datetime as dt
-from secrets import token_urlsafe
-from flask import flash, redirect, url_for
+from . import auth
+from flask import request, abort, redirect, url_for, session, current_app, flash
+from authlib.integrations.base_client.errors import MismatchingStateError
+from app.auth.flows import UserFlow
+from app.models import Tenant
+import secrets
 
-from flask_babel import lazy_gettext as _l
-from flask_login import login_user, current_user
-from flask_dance.consumer.storage.sqla import SQLAlchemyStorage
-from flask_dance.consumer import oauth_authorized, oauth_error
-from flask_dance.contrib.google import make_google_blueprint
-from sqlalchemy.orm.exc import NoResultFound
 
-from app.utils.misc import generate_uuid
-from app import db
-from app.models import OAuth, User
+@auth.route("/oidc/google/<string:flow>")
+def google_auth(flow):
+    """Authenticate the user through Google provider for login or registration"""
+    if flow not in UserFlow.VALID_FLOW_TYPES:
+        abort(400, "Invalid authentication flow")
 
-google_bp = make_google_blueprint(
-    scope=[
-        'https://www.googleapis.com/auth/plus.me',
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/userinfo.profile'
-    ],
-    storage=SQLAlchemyStorage(OAuth, db.session, user=current_user),
-)
+    if flow == "accept" and not request.args.get("token"):
+        abort(400, "Invalid authentication flow: missing acceptance token")
 
-@oauth_authorized.connect_via(google_bp)
-def google_logged_in(blueprint, token):
-    if not token:
-        flash("Failed to log in.", category="error")
-        current_app.logger.warning("Missing token for OAuth login")
-        return redirect(url_for('main.home'))
+    if not current_app.is_google_auth_configured:
+        flash("Provider not configured", "error")
+        return redirect(url_for("auth.get_login"))
 
-    resp = blueprint.session.get("/oauth2/v1/userinfo")
-    if not resp.ok:
-        msg = "Failed to fetch user info."
-        flash(msg, category="error")
-        current_app.logger.warning("Failed response for OAuth login")
-        return redirect(url_for('main.home'))
+    nonce = secrets.token_urlsafe(16)
+    session["nonce"] = nonce
+    session["flow_type"] = flow
+    session["token"] = request.args.get("token")
+    redirect_uri = url_for(
+        "auth.authorize_with_google",
+        _external=True,
+        _scheme=current_app.config["SCHEME"],
+    )
+    return current_app.providers["google"].authorize_redirect(redirect_uri, nonce=nonce)
 
-    info = resp.json()
-    user_id = info.get("id", None)
-    query = OAuth.query.filter_by(
-        provider=blueprint.name,
-        provider_user_id=user_id)
+
+@auth.route("/oidc/google/authorize")
+def authorize_with_google():
+    """Handles Google callback after authentication"""
+    flow = session.get("flow_type")
 
     try:
-        oauth = query.one()
-    except NoResultFound:
-        oauth = OAuth(
-            provider=blueprint.name,
-            provider_user_id=user_id,
-            token=token)
+        token = current_app.providers["google"].authorize_access_token()
+    except MismatchingStateError as e:
+        abort(403, "Mismatch error")
 
-    if oauth.user:
-        user = oauth.user
-    else:
-        # Create a new local user account for this user
-        username = info.get("given_name", "No name")
-        user = User(
-            username=username.lower(),
-            email=info.get("email", "No email"),
-            token=token_urlsafe(),
-            token_expiration=dt.now()
-        )
-        password_generated = generate_uuid()
-        user.set_password(password_generated)
-        # Associate the new local user account with the OAuth token
-        oauth.user = user
-        db.session.add_all([user, oauth])
-        db.session.commit()
-        flash(_l("Signed up with your Google account"), 'success')
-    login_user(user)
-    next_page = request.args.get('next')
-    return redirect(next_page or url_for('main.home'))
+    nonce = session.pop("nonce", None)
+    user_info = current_app.providers["google"].parse_id_token(token, nonce=nonce)
 
-@oauth_error.connect_via(google_bp)
-def google_error(blueprint, message, response):
-    msg = ("OAuth error{name}! ""{message} {response}").format(
-        name=blueprint.name, message=message, response=response
+    attributes = {"token": session.get("token")}
+    return UserFlow(user_info=user_info, flow_type=flow, provider="google").handle_flow(
+        attributes
     )
-    flash(msg, "error")
-    current_app.logger.warning("Google OAuth error:{}".format(msg))
-    return redirect(url_for('main.home'))

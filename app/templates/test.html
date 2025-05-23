@@ -1,0 +1,57 @@
+{% extends "layouts/empty.html" %}
+
+{%block head%}
+    <style>
+        .tiptap.ProseMirror {
+            height: 200px;
+        }
+    </style>
+    <script type="module">
+        // Import the function from the external file
+        import { initializeEditor } from '/static/js/editor.js'; // Adjust the path if needed
+
+        // Initialize the editor
+        initializeEditor();
+    </script>
+{%endblock%}
+
+{%block body%}
+
+    <div class="flex h-screen">
+        <div class="w-64 bg-base-100 p-6 flex flex-col border-r border-base-300">
+            <h1 class="text-2xl font-bold mb-8">Docs</h1>
+            <nav class="space-y-4">
+                <a href="#" class="text-lg">Introduction</a>
+                <a href="#" class="text-lg">Getting Started</a>
+                <a href="#" class="text-lg">API Reference</a>
+                <a href="#" class="text-lg">Guides</a>
+                <a href="#" class="text-lg">FAQ</a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- Topbar -->
+            <header class="bg-base-100 shadow px-4 py-2 flex items-center justify-between border-b border-base-300">
+                <h1 class="text-xl font-semibold">Policy Center</h1>
+                <div class="flex items-center space-x-4">
+                    <input type="search" placeholder="Search..." class="p-2 rounded border border-base-300">
+                    <button class="px-4 py-2 rounded">Log In</button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 p-6 bg-white overflow-y-auto element">
+            </main>
+        </div>
+    </div>
+    <div class="absolute bg-base-300 bottom-24 left-1/2 transform -translate-x-1/2 py-2 px-8 rounded-lg shadow-lg flex space-x-4">
+        <button class="btn btn-sm">Bold</button>
+        <button class="btn btn-sm">Underline</button>
+    </div>
+
+{%endblock%}
+
+{%block extrajs%}
+
+{%endblock%}
