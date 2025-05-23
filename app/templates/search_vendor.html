@@ -1,0 +1,250 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(grid=True) }}
+{% endblock %}
+
+{%block page_header_title%}{%endblock%}
+{%block page_header_title_border%}{%endblock%}
+{%block page_header_buttons%}{%endblock%}
+{%block tenant_btn%}{%endblock%}
+
+{%block content%}
+<div x-data="sample()" class="grid grid-cols-6 gap-4 px-32 mt-8">
+
+  <!-- Hero -->
+  <div class="col-span-6">
+    <div class="mx-auto px-8 py-10 bg-base-200 rounded-lg">
+      <div class="text-center">
+        <h1 class="text-4xl font-bold py-8">
+          Search Vendors
+        </h1>
+        <p class="">
+          Search vendors or applications to gather information and check status.
+        </p>
+        <div class="mt-12 mx-auto max-w-xl relative w-1/2dd">
+          <label class="input input-bordered flex items-center gap-2">
+            <input x-model="recordSearch" type="text" class="grow" placeholder="Start typing vendor or app name" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 opacity-70"><path fill-rule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clip-rule="evenodd" /></svg>
+          </label>
+          <div class="block absolute top-0 end-0 -translate-y-12 translate-x-20">
+              <svg class="w-16 h-auto text-orange-500" width="121" height="135" viewBox="0 0 121 135" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 16.4754C11.7688 27.4499 21.2452 57.3224 5 89.0164" stroke="currentColor" stroke-width="10" stroke-linecap="round"></path>
+                <path d="M33.6761 112.104C44.6984 98.1239 74.2618 57.6776 83.4821 5" stroke="currentColor" stroke-width="10" stroke-linecap="round"></path>
+                <path d="M50.5525 130C68.2064 127.495 110.731 117.541 116 78.0874" stroke="currentColor" stroke-width="10" stroke-linecap="round"></path>
+              </svg>
+          </div>
+          <div class="block absolute bottom-0 start-0 translate-y-10 -translate-x-32">
+              <svg class="w-40 h-auto text-cyan-500" width="347" height="188" viewBox="0 0 347 188" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 82.4591C54.7956 92.8751 30.9771 162.782 68.2065 181.385C112.642 203.59 127.943 78.57 122.161 25.5053C120.504 2.2376 93.4028 -8.11128 89.7468 25.5053C85.8633 61.2125 130.186 199.678 180.982 146.248L214.898 107.02C224.322 95.4118 242.9 79.2851 258.6 107.02C274.299 134.754 299.315 125.589 309.861 117.539L343 93.4426" stroke="currentColor" stroke-width="7" stroke-linecap="round"></path>
+              </svg>
+            </div>
+        </div>
+
+        <div class="mt-10 sm:mt-20">
+          <a class="m-1 py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-base-200 bg-neutral  shadow-sm  disabled:opacity-50 disabled:pointer-events-none" href="#">
+            <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Business
+          </a>
+          <a class="m-1 py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-base-200 bg-neutral  shadow-sm  disabled:opacity-50 disabled:pointer-events-none" href="#">
+            <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            Strategy
+          </a>
+          <a class="m-1 py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-base-200 bg-neutral  shadow-sm  disabled:opacity-50 disabled:pointer-events-none" href="#">
+            <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            Health
+          </a>
+          <a class="m-1 py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-base-200 bg-neutral  shadow-sm  disabled:opacity-50 disabled:pointer-events-none" href="#">
+            <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+            Creative
+          </a>
+          <a class="m-1 py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-base-200 bg-neutral  shadow-sm  disabled:opacity-50 disabled:pointer-events-none" href="#">
+            <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+            Environment
+          </a>
+          <a class="m-1 py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-base-200 bg-neutral  shadow-sm  disabled:opacity-50 disabled:pointer-events-none" href="#">
+            <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+            Adventure
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Hero -->
+  <div class="col-span-6">
+    <div x-show="noRecords && recordSearch.length>0">
+      <div role="alert" class="alert shadow-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-error shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+          <h3 class="font-bold">No results! Modify the search or remove the filter.</h3>
+        </div>
+        <button x-show="recordSearch.length>0" @click="recordSearch=''" class="btn btn-sm btn-ghost"><i class="ti ti-filter text-error my-auto text-lg"></i></button>
+      </div>
+    </div>
+    <div x-show="!noRecords && recordSearch.length>0" class="card-body border border-base-200 bg-neutral rounded-lg">
+      <div class="flex justify-between">
+          <h2 class="card-title my-auto">Results</h2>
+          <button x-show="recordSearch.length>0" @click="recordSearch=''" class="btn btn-sm btn-ghost"><i class="ti ti-filter text-error my-auto text-lg"></i></button>
+      </div>
+      <table class="table">
+        <!-- head -->
+        <thead>
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>View</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="(record, index) in filteredList" :key="record.id">
+            <tr>
+              <th x-text="index+1"></th>
+              <td class="capitalize font-semibold" x-text="record.name"></td>
+              <td class="capitalize font-semibold" x-text="record.type"></td>
+              <td class="capitalize font-semibold" x-text="record.status"></td>
+              <td><button @click="selectedItem=record;showModal=true" class="btn btn-sm btn-ghost bg-base-100">View</button></td>
+
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+  <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showModal }">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-6">View Application</h2>
+                <div class="grid grid-cols-10 gap-6 card-body">
+                    <div class="col-span-4">
+                        <div class="card w-full bg-base-200 shadow-xl">
+                          <figure class="mt-4" id="appModalRiskScore"></figure>
+                          <div class="card-body py-3">
+                            <h2 class="card-title uppercase p-3 bg-base-100 rounded-lg mx-auto" x-text="selectedItem.status"></h2>
+                            <p x-text="selectedItem.status_description"></p>
+                            <div class="card-actions justify-end mt-2">
+                                <button class="btn btn-warning btn-sm">Edit</button>
+                                <a :href="'/applications/'+selectedItem.id" class="btn btn-primary btn-sm">Explore</a>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="col-span-6 px-8 prose">
+                        <h2 class="capitalize" x-text="selectedItem.name"></h2>
+                        <p x-text="selectedItem.description"></p>
+                        <ol x-show="selectedItem.approved_use_cases">
+                            <template x-for="record in selectedItem.approved_use_cases">
+                                <li class="capitalize" x-text="record"></li>
+                            </template>
+                        </ol>
+                        <div class="grid grid-cols-6">
+                            <div class="col-span-3">
+                                <h4>Status</h4>
+                                <p class="capitalize" x-text="selectedItem.status"></p>
+                            </div>
+                            <div class="col-span-3">
+                                <h4>Data classification</h4>
+                                <p class="capitalize" x-text="selectedItem.data_classification||'Unknown'"></p>
+                            </div>
+                            <div class="col-span-2">
+                                <h4>Category</h4>
+                                <p class="capitalize" x-text="selectedItem.category"></p>
+                            </div>
+                            <div class="col-span-2">
+                                <h4>Business Unit</h4>
+                                <p class="capitalize" x-text="selectedItem.business_unit"></p>
+                            </div>
+                            <div class="col-span-2">
+                                <h4>Saas</h4>
+                                <p x-text="selectedItem.is_saas"></p>
+                            </div>
+                            <div class="col-span-2">
+                                <h4>On Premise</h4>
+                                <p x-text="selectedItem.is_on_premise"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-action">
+                    <button class="btn" @click="showModal=false">Close</button>
+                    <button class="btn btn-primary">Explore</button>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+function sample(){
+    return {
+        init() {
+          this.hasSidebar = false
+          this.getApplications()
+          this.getVendors()
+        },
+        applications: [],
+        vendors: [],
+        noRecords: true,
+        showModal: false,
+        selectedItem: {},
+        recordSearch: "",
+        filteredList: function() {
+          let results = this.applications.concat(this.vendors);
+          if (results.length === 0 || !results) {
+            console.log("No apps or vendors")
+            return
+          }
+          let recordList = results.filter(record => {
+            const recordSearchTerm = this.recordSearch.toLowerCase();
+            const recordName = record.name.toLowerCase();
+            return recordName.includes(recordSearchTerm);
+          });
+          if (recordList.length > 0) {
+            this.noRecords = false;
+          } else {
+            this.noRecords = true;
+          }
+          return recordList
+        },
+        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        getApplications: function() {
+          request("GET",
+            "/api/v1/tenants/" + this.$store.currentUser.selectedTenant.id +"/applications",
+            data => {
+              this.applications = data;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        getVendors: function() {
+          request("GET",
+            "/api/v1/tenants/" + this.$store.currentUser.selectedTenant.id +"/vendors",
+            data => {
+              this.vendors = data;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+    }
+}
+</script>
+{%endblock%}

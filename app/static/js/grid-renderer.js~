@@ -1,0 +1,26 @@
+class CustomRenderer {
+  // Add "cellRenderer": CustomRenderer to column def
+
+  eGui;
+
+  // init method gets the details of the cell to be renderer haaaaaaaa
+  init(params) {
+    return
+    console.log(params)
+    this.eGui = document.createElement('span');
+
+    var id = `expand-${params.data.id}`;
+    this.eGui.innerHTML = '<button @click="$dispatch(\'' + id + '\')" class="btn btn-xs">Expand</button><div @' + id + '.window="test()"></div>';
+
+
+//    this.eGui = "<button class='btn btn-xs'>click</button>"
+  }
+
+  getGui() {
+    return this.eGui;
+  }
+
+  refresh(params) {
+    return false;
+  }
+}

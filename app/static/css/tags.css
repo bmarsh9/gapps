@@ -1,0 +1,89 @@
+.msa-wrapper:focus-within .input-presentation {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.msa-wrapper > * {
+  display: block;
+  width: 100%;
+}
+
+.msa-wrapper .input-presentation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  min-height: 40px;
+  padding: 6px 40px 6px 12px;
+  font-size: 1rem;
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+}
+
+.msa-wrapper .input-presentation {
+  font-weight: 400;
+}
+
+.msa-wrapper .input-presentation:after {
+  content: '';
+  border-top: 6px solid;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  right: 14px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.msa-wrapper .input-presentation.active {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.msa-wrapper .input-presentation .tag-badge {
+  padding-left: 10px;
+  padding-right: 25px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.msa-wrapper .input-presentation .tag-badge span {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+
+}
+
+.msa-wrapper .input-presentation .tag-badge button {
+  display: inline-block;
+  padding: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  position: absolute;
+  right: 0px;
+  padding-right: 10px;
+  padding-left: 5px;
+  cursor: pointer;
+  line-height: 26px;
+  height: 26px;
+  font-weight: 600;
+}
+
+.msa-wrapper .input-presentation .tag-badge button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.msa-wrapper ul {
+  font-size: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+

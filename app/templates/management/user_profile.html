@@ -4,33 +4,32 @@
 
 {%block content%}
   <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
-    <div class="card bg-base-100 border border-base-200">
+    <div class="card bg-base-200">
       <div class="card-body">
         <h2 class="card-title">User Information</h2>
-        <p class="text-sm font-medium ">Edit information</p>
-        <form action="{{url_for("main.user_profile",uid=user.id)}}" method="POST">
+        <form action="{{url_for("main.user_profile", uid=user.id)}}" method="POST">
           <div class="overflow-hidden sm:rounded-md">
             <div class="px-4 py-5">
               <div class="grid grid-cols-6 gap-6">
                 <div class="col-span-6 sm:col-span-3">
-                  <label for="first" class="block text-sm font-medium ">First name</label>
-                  <input type="text" name="first" id="first" value="{{user.first_name}}" class="mt-1 block w-full input-md rounded-md border border-base-300 shadow-sm  sm:text-sm">
+                  <label for="first" class="block text-sm font-medium mb-2">First name</label>
+                  <input type="text" name="first" id="first" value="{{user.first_name}}" class="input input-sm input-bordered w-full">
                 </div>
                 <div class="col-span-6 sm:col-span-3">
-                  <label for="last" class="block text-sm font-medium ">Last name</label>
-                  <input type="text" name="last" id="last" value="{{user.last_name}}" class="mt-1 block w-full input-md rounded-md border border-base-300 shadow-sm  sm:text-sm">
+                  <label for="last" class="block text-sm font-medium mb-2">Last name</label>
+                  <input type="text" name="last" id="last" value="{{user.last_name}}" class="input input-sm input-bordered w-full">
                 </div>
                 <div class="col-span-6 sm:col-span-3">
-                  <label for="username" class="block text-sm font-medium ">Username</label>
-                  <input type="text" name="username" id="username" value="{{user.username}}" class="mt-1 block w-full input-md rounded-md border border-base-300 shadow-sm  sm:text-sm">
+                  <label for="username" class="block text-sm mb-2">Username</label>
+                  <input type="text" name="username" id="username" value="{{user.username}}" class="input input-sm input-bordered w-full">
                 </div>
                 <div class="col-span-6 sm:col-span-3">
-                  <label for="email" class="block text-sm font-medium ">Email</label>
-                  <input type="text" name="email" id="email" autocomplete="email" value="{{user.email}}" class="{%if not is_admin%}pointer-events-none bg-slate-200{%endif%} mt-1 input-md block w-full rounded-md border border-base-300 shadow-sm  sm:text-sm">
+                  <label for="email" class="block text-sm font-medium mb-2">Email</label>
+                  <input type="text" name="email" id="email" autocomplete="email" value="{{user.email}}" class="input input-sm input-bordered w-full">
                 </div>
                 <div class="col-span-6 sm:col-span-3">
-                  <label for="active" class="block text-sm font-medium ">Active</label>
-                  <select id="active" name="active" class="{%if not is_admin%}pointer-events-none bg-slate-200{%endif%} mt-1 input-md block w-full rounded-md border border border-base-300 py-2 px-3 shadow-sm sm:text-sm">
+                  <label for="active" class="block text-sm font-medium mb-2">Active</label>
+                  <select id="active" name="active" class="input input-sm input-bordered w-full">
                     <option value="yes" {%if user.is_active%}selected{%endif%}>Active</option>
                     <option value="no" {%if not user.is_active%}selected{%endif%}>Inactive</option>
                   </select>
@@ -45,21 +44,21 @@
       </div>
     </div>
   </div>
-  <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 mt-6">
-    <div class="card bg-base-100 border border-base-200">
+  <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 my-6">
+    <div class="card bg-base-200">
       <div class="card-body">
         <h2 class="card-title">Change Password</h2>
-        <form action="{{url_for("main.change_password",uid=user.id)}}" method="POST">
+        <form action="{{url_for("main.change_password", uid=user.id)}}" method="POST">
           <div class="overflow-hidden sm:rounded-md">
             <div class="px-4 py-5">
               <div class="grid grid-cols-6 gap-6">
                 <div class="col-span-6 sm:col-span-3">
-                  <label for="first" class="block text-sm font-medium ">Password</label>
-                  <input type="text" name="password" id="password" class="mt-1 block w-full input-md rounded-md border border-base-300 shadow-sm  sm:text-sm">
+                  <label for="first" class="block text-sm font-medium mb-2">New Password</label>
+                  <input type="text" name="password" id="password" class="input input-sm input-bordered w-full">
                 </div>
                 <div class="col-span-6 sm:col-span-3">
-                  <label for="last" class="block text-sm font-medium ">Repeat password</label>
-                  <input type="text" name="password2" id="password2" class="mt-1 block w-full input-md rounded-md border border-base-300 shadow-sm  sm:text-sm">
+                  <label for="last" class="block text-sm font-medium mb-2">Repeat password</label>
+                  <input type="text" name="password2" id="password2" class="input input-sm input-bordered w-full">
                 </div>
               </div>
             </div>

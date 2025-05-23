@@ -1,0 +1,1450 @@
+{% extends "layouts/sidebar-nav.html" %}
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(grid=True, editor=True, select=True, apex=True) }}
+<style xmlns="http://www.w3.org/1999/html" xmlns="http://www.w3.org/1999/html">
+    .breadcrumbs>ul>li+:before {
+      margin-top: 5px;
+    }
+
+</style>
+{% endblock %}
+
+{%block header%}{%endblock%}
+{%block page_header%}{%endblock%}
+
+{%block tenant_btn%}{%endblock%}
+
+{%block content%}
+<div x-data="vendor()">
+    <div :class="{'mb-5': !simpleInterface}" class="grid grid-cols-9 gap-8">
+        <div class="col-span-9">
+            <div class="lg:flex lg:items-center lg:justify-between">
+                <div class="min-w-0 flex-1">
+                    <div class="breadcrumbs text-xl font-bold sm:tracking-tight py-0">
+                        <ul>
+                            <li><a href="{{url_for('main.vendors')}}">Vendors</a></li>
+                            <li><a class="capitalize" href="{{url_for('main.get_vendor', id=application.vendor.id)}}">{{application.vendor.name}}</a></li>
+                            <li><a class="capitalize">{{application.name}}</a></li>
+                            <li>
+                                <select x-model="selectedTab" @change="switchTab"
+                                        class="select text-xl font-bold text-primary sm:tracking-tight pl-0 focus:border-transparent focus:outline-none hover:text-secondary">
+                                    <option selected value="summary">Summary</option>
+                                    <option value="applications">Applications</option>
+                                    <option value="questionnaires">Questionnaires</option>
+                                    <option value="history">History</option>
+                                    <option value="notes">Notes</option>
+<!--                                    <option value="comments">Comments</option>-->
+                                    <option value="report">Report</option>
+                                    <option value="settings">Settings</option>
+                                </select>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="flex">
+    <span class="ml-3 hidden sm:block">
+      <div class="tooltip tooltip-left" data-tip="Remove distractions"><button
+              :class="{'btn-info': simpleInterface, 'btn-ghost': !simpleInterface}"
+              class="btn btn-sm border border-base-300"
+              @click="simpleInterface=!simpleInterface;hasSidebar=!hasSidebar">Zen Mode</button></div>
+    </span>
+                    <span class="ml-3 hidden sm:block">
+    </span>
+                    <span class="ml-3 hidden sm:block">
+      <div class="tooltip tooltip-left" data-tip="Refresh data from Server"><button @click="refreshData"
+                                                                                    class="format-btn btn btn-sm btn-primary">Refresh Data</button></div>
+    </span>
+                </div>
+            </div>
+
+            <div x-cloak x-show="!simpleInterface" x-transition
+                 class="flex flex-row border-b border-base-300 py-3 cursor-pointer">
+                <div @click="showMetadataModal=true" class="flex gap-x-1 py-1 px-1 tooltip" data-tip="Status">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                    </svg>
+                    <span x-show="vendorData" class="text-xs font-medium" x-text="vendorData.status"></span>
+                </div>
+                <div @click="showMetadataModal=true" class="flex gap-x-1 py-1 px-1 tooltip"
+                     :class="{'hidden': isSidebarOpen}" data-tip="Start Date">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                         stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"/>
+                    </svg>
+                    <span x-show="vendorData" class="text-xs font-medium"
+                          x-text="'2/' + ('0' + (new Date(vendorData.date_added).getMonth() + 1)).slice(-2) + '/' + (new Date(vendorData.date_added).getFullYear() % 100)"></span>
+                </div>
+                <div class="divider divider-horizontal mx-0"></div>
+                <div class="flex space-x-2 tabs">
+                    <template x-for="tab in tabs" :key="tab">
+                      <span
+                              @click="switchTab({tab: tab})"
+                              x-bind:id="'tab-' + tab"
+                              class="cursor-pointer rounded-md btn btn-sm bg-base-100 font-medium capitalize border border-base-100"
+                              x-bind:class="{ 'bg-base-300': selectedTab === tab }"
+                              x-text="tab"
+                      ></span>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div x-cloak id="main-body" class="grid grid-cols-6">
+
+        <div class="col-span-full mx-auto mt-10" x-show="tabLoading" x-transition x-html="loadingSkeleton"></div>
+        <div class="col-span-full" x-show="!tabLoading" x-transition>
+            <!-- All tabs -->
+            <div class="col-span-full" x-show="selectedTab === 'summary'">
+                <div class="grid grid-cols-3 gap-6">
+                    <!-- Card -->
+                    <div class="flex flex-col border border-base-300 rounded-lg">
+                      <div class="p-4 md:p-5">
+                        <div class="flex items-center gap-x-2">
+                          <p class="text-sm font-semibold">
+                            Vendor Risk
+                          </p>
+                          <i class="ti ti-point"></i>
+                        </div>
+                        <h3 class="mt-2 text-3xl">
+                          <span class="font-semibold" x-text="vendor.risk"></span><span class="text-sm ml-1 opacity-75">/100</span>
+                          <button @click="showVendorModal=true" class="btn btn-sm btn-ghost"><i class="ti ti-external-link my-auto"></i></button>
+                        </h3>
+                      </div>
+                    </div>
+                    <div class="flex flex-col border border-base-300 rounded-lg">
+                      <div class="p-4 md:p-5">
+                        <div class="flex items-center gap-x-2">
+                          <p class="text-sm font-semibold">
+                            Applications
+                          </p>
+                          <i class="ti ti-point"></i>
+                        </div>
+                        <h3 class="mt-2 text-3xl">
+                          <span class="font-semibold" x-text="vendor.application_count"></span>
+                          <button @click="switchTab({tab:'applications'})" class="btn btn-sm btn-ghost"><i class="ti ti-external-link my-auto"></i></button>
+                        </h3>
+                      </div>
+                    </div>
+                    <div class="flex flex-col border border-base-300 rounded-lg">
+                      <div class="p-4 md:p-5">
+                        <div class="flex items-center gap-x-2">
+                          <p class="text-sm font-semibold">
+                            Questionnaires
+                          </p>
+                          <i class="ti ti-point"></i>
+                        </div>
+                        <h3 class="mt-2 text-3xl">
+                          <span class="font-semibold" x-text="vendor.questionnaire_count"></span>
+                          <button @click="switchTab({tab:'questionnaires'})" class="btn btn-sm btn-ghost"><i class="ti ti-external-link my-auto"></i></button>
+
+                        </h3>
+                      </div>
+                    </div>
+                    <!-- End Card -->
+                    <div class="col-span-1 card border border-base-300 shadow-md bg-base-300">
+                        <div class="card-body">
+                            <div class="flex justify-between mb-4">
+                                <h2 class="card-title">Overview</h2>
+                                <button @click="showVendorModal=true" class="btn btn-sm btn-ghost"><i class="ti ti-external-link my-auto text-lg"></i></button>
+                            </div>
+                            <div class="flex flex-col mb-2">
+                                <span class="text-primary font-semibold">Vendor Name</span>
+                                <span class="capitalize" x-text="vendor.name"></span>
+                            </div>
+                            <div class="flex flex-col mb-2">
+                                <span class="text-primary font-semibold">Description</span>
+                                <span x-text="vendor.description"></span>
+                            </div>
+                            <div class="flex flex-row justify-between">
+                                <div class="flex flex-col mb-2">
+                                    <span class="text-primary font-semibold">Status</span>
+                                    <span class="capitalize" x-text="vendor.status"></span>
+                                </div>
+                                <button class="btn btn-sm btn-ghost"><i class="ti ti-info-square-rounded my-auto"></i></button>
+                            </div>
+                            <div class="flex flex-row justify-between">
+                                <div class="flex flex-col mb-2">
+                                    <span class="text-primary font-semibold">Criticality</span>
+                                    <span class="capitalize" x-text="vendor.criticality"></span>
+                                </div>
+                                <button class="btn btn-sm btn-ghost"><i class="ti ti-info-square-rounded my-auto"></i></button>
+                            </div>
+                            <div class="flex flex-row justify-between">
+                                <div class="flex flex-col mb-2">
+                                    <span class="text-primary font-semibold">Data Classification</span>
+                                    <span class="capitalize" x-text="vendor.data_classification"></span>
+                                </div>
+                                <button class="btn btn-sm btn-ghost"><i class="ti ti-info-square-rounded my-auto"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-2 card border border-base-300 shadow-md">
+                        <div class="card-body">
+                            <div class="flex justify-between mb-4">
+                                <h2 class="card-title">Applications<span class="ml-1" x-text="'('+applications.length+')'"></span></h2>
+                                <button @click="switchTab({tab: 'applications'})" class="btn btn-sm btn-ghost"><i class="ti ti-external-link text-lg"></i></button>
+                            </div>
+                            <div class="overflow-x-auto">
+                              <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th class="w-1"></th>
+                                    <th>Name</th>
+                                    <th class="w-1">Review Status</th>
+                                    <th>Risk</th>
+                                    <th class="w-1">View</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="(app, index) in applications">
+                                      <template x-if="index < 5">
+                                      <tr>
+                                        <th x-text="index+1"></th>
+                                        <td x-text="app.name"></td>
+                                        <td class="capitalize" x-text="app.status"></td>
+                                        <td>
+                                            <div class="flex w-full h-4 bg-base-200 rounded-full overflow-hidden "><div class="flex flex-col font-semibold text-primary-content justify-center rounded-full overflow-hidden bg-primary text-xs text-center whitespace-nowrap transition duration-500" :style="'width:'+app.risk+'%'" x-text="app.risk"></div></div>
+                                        </td>
+                                        <td><a :href="'/applications/'+app.id" class="btn btn-sm btn-ghost"><i class="ti ti-external-link"></i></a></td>
+                                      </tr>
+                                      </template>
+                                    </template>
+                                </tbody>
+                              </table>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-span-3 card border border-base-300 shadow-md">
+                        <div class="card-body">
+                            <div class="flex justify-between mb-4">
+                                <h2 class="card-title">Events</h2>
+                                <i class="ti ti-info-circle my-auto"></i>
+
+                            </div>
+                            <div class="overflow-x-auto">
+                              <table class="table">
+                                <!-- head -->
+                                <thead>
+                                  <tr>
+                                    <th></th>
+                                    <th>Name</th>
+                                    <th>Job</th>
+                                    <th>Favorite Color</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <!-- row 1 -->
+                                  <tr>
+                                    <th>1</th>
+                                    <td>Cy Ganderton</td>
+                                    <td>Quality Control Specialist</td>
+                                    <td>Blue</td>
+                                  </tr>
+                                  <!-- row 2 -->
+                                  <tr>
+                                    <th>2</th>
+                                    <td>Hart Hagerty</td>
+                                    <td>Desktop Support Technician</td>
+                                    <td>Purple</td>
+                                  </tr>
+                                  <!-- row 3 -->
+                                  <tr>
+                                    <th>3</th>
+                                    <td>Brice Swyre</td>
+                                    <td>Tax Accountant</td>
+                                    <td>Red</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+            </div>
+            </div>
+            <div class="col-span-full" x-show="selectedTab === 'applications'">
+                <div class="grid grid-cols-4 gap-6">
+                    <div class="flex flex-col border border-base-300 rounded-lg">
+                      <div class="p-4 md:p-5">
+                        <div class="flex items-center gap-x-2">
+                          <p class="text-sm font-semibold">
+                            Applications
+                          </p>
+                          <i class="ti ti-point"></i>
+                        </div>
+                        <h3 class="mt-2 text-3xl">
+                          <span class="font-semibold" x-text="vendor.application_count"></span>
+                        </h3>
+                      </div>
+                    </div>
+                    <div class="flex flex-col border border-base-300 rounded-lg">
+                      <div class="p-4 md:p-5">
+                        <div class="flex items-center gap-x-2">
+                          <p class="text-sm font-semibold">
+                            Actions Required
+                          </p>
+                          <i class="ti ti-point"></i>
+                        </div>
+                        <h3 class="mt-2 text-3xl">
+                          <span class="font-semibold">3</span><button class="btn btn-sm btn-ghost ml-1"><i class="ti ti-external-link my-auto"></i></button>
+                        </h3>
+                      </div>
+                    </div>
+                    <div class="flex flex-col border border-base-300 rounded-lg">
+                      <div class="p-4 md:p-5">
+                        <div class="flex items-center gap-x-2">
+                          <p class="text-sm font-semibold">
+                            Approved Apps
+                          </p>
+                          <i class="ti ti-point"></i>
+                        </div>
+                        <h3 class="mt-2 text-3xl">
+                          <span class="font-semibold">1</span> <span class="opacity-75" x-text="'/'+vendor.application_count">/</span><button class="btn btn-sm btn-ghost ml-1"><i class="ti ti-external-link my-auto"></i></button>
+                        </h3>
+                      </div>
+                    </div>
+                    <div class="flex flex-col border border-base-300 rounded-lg">
+                      <div class="p-4 md:p-5">
+                        <div class="flex items-center gap-x-2">
+                          <p class="text-sm font-semibold">
+                            Denied Apps
+                          </p>
+                          <i class="ti ti-point"></i>
+                        </div>
+                        <h3 class="mt-2 text-3xl">
+                          <span class="font-semibold">1</span> <span class="opacity-75" x-text="'/'+vendor.application_count"></span><button class="btn btn-sm btn-ghost ml-1"><i class="ti ti-external-link my-auto"></i></button>
+                        </h3>
+                      </div>
+                    </div>
+                    <div class="col-span-4 card border border-base-300 shadow-md">
+                        <div x-show="applicationView==='table'" class="card-body">
+
+                            <div class="flex justify-between mb-4">
+                                <h2 class="card-title">Vendor Applications</h2>
+                                <div class="flex flex-row gap-x-2">
+                                    <button @click="applicationView='card'" class="btn btn-sm">Card View</button>
+                                    <button @click="showCreateAppModal=true" class="btn btn-sm btn-primary">Create Application</button>
+                                </div>
+
+                            </div>
+                            <div class="mx-auto text-center mt-5" x-html="loadingSkeleton" x-transition
+                                 x-show="tableLoading"></div>
+                            <div x-show="!tableLoading" class="ag-theme-quartz" x-transition id="applications-table"></div>
+                        </div>
+                        <div x-show="applicationView==='card'" class="card-body">
+                            <div class="flex justify-between mb-4">
+                                <h2 class="card-title">Vendor Applications</h2>
+                                <div class="flex flex-row gap-x-2">
+                                    <i x-show="appSearch" class="ti ti-filter text-error my-auto"></i>
+                                    <input type="text" x-model="appSearch" placeholder="Find app" class="input input-sm input-bordered w-full max-w-xs" />
+                                    <button @click="applicationView='table'" class="btn btn-sm">Table View</button>
+                                    <button @click="showCreateAppModal=true" class="btn btn-sm btn-primary">Create Application</button>
+                                </div>
+
+                            </div>
+                            <div x-show="!tableLoading" class="grid grid-cols-8 gap-6">
+                                <div class="mx-auto text-center mt-5" x-html="loadingSkeleton" x-transition
+                                     x-show="tableLoading"></div>
+                                <div class="col-span-full">
+                                    <div x-show="noApps" role="alert" class="alert">
+                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-warning shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                      <span>No apps found. Please create an application or remove any filters.</span>
+                                    </div>
+                                </div>
+
+                                <template x-for="app in filteredApplications" :key="app.id">
+                                    <div class="col-span-2">
+                                        <div class="group flex flex-col h-full border bg-base-300 border-base-300 shadow-sm rounded-xl">
+                                          <div class="pt-8 pb-2 flex flex-col justify-center items-center rounded-t-xl gap-y-4">
+                                              <div class="flex flex-row gap-x-2">
+                                                  <h1 class="text-6xl" x-text="app.risk"></h1>
+                                                  <i class="ti ti-heart"></i>
+                                              </div>
+                                              <div class="h-4 w-1/2 bg-base-200 overflow-hidden"><div class="flex flex-col justify-center h-full bg-primary rounded transition-width duration-500 ease-in-out leading-none" :style="'width:'+app.risk+'%'"></div></div>
+                                          </div>
+                                          <div class="p-4 md:p-6 bg-base-300">
+                                            <span class="block mb-1 text-xs font-semibold uppercase text-primary" x-text="app.status"></span>
+                                            <h3 class="text-xl font-semibold" x-text="app.name">
+                                            </h3>
+                                            <p class="mt-3" x-text="app.description">
+                                            </p>
+                                          </div>
+                                          <div class="mt-auto flex border-t border-base-100">
+                                            <a class="rounded-bl-lg bg-base-300 w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium shadow-sm hover:bg-base-100 border-r-base-100 border-y-base-300 border-l-base-300 border" href="#">
+                                              Edit
+                                            </a>
+                                            <button @click="openSelectedAppModal(app)" class="rounded-br-lg bg-base-300 w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-medium shadow-sm hover:bg-base-100">
+                                              View
+                                            </button>
+                                          </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+            <div class="col-span-full" x-show="selectedTab === 'questionnaires'">
+                <div class="grid grid-cols-4 gap-6">
+                    <div class="col-span-4 card border border-base-300 shadow-md">
+                        <div class="card-body">
+                            <div class="flex justify-between mb-4">
+                                <h2 class="card-title">Vendor Questionnaires</h2>
+                                <div class="flex flex-row gap-x-2">
+                                    <button @click="showCreateQuestionnaireModal=true" class="btn btn-sm btn-primary">Create Questionnaire</button>
+                                </div>
+
+                            </div>
+                            <div class="mx-auto text-center mt-5" x-html="loadingSkeleton" x-transition
+                                 x-show="tableLoading"></div>
+                            <div x-show="!tableLoading" class="ag-theme-quartz" x-transition id="questionnaire-table"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-full" x-show="selectedTab === 'history'">
+                <div class="col-span-1 card border border-base-300 shadow-md">
+                    <div class="card-body">
+                        <!-- Timeline -->
+                        <div class="grid grid-cols-6 gap-6">
+                            <div class="col-span-2 prose px-10">
+                                <h2>Search History</h2>
+                                <p>Placeholder for searching the history</p>
+                                <label class="input input-bordered flex items-center gap-2 mb-4 font-semibold">
+                                  Title
+                                  <input type="text" class="grow bg-base-100" placeholder="Search by title" />
+                                </label>
+                                <label class="input input-bordered flex items-center gap-2 font-semibold">
+                                  Date
+                                  <input type="text" class="grow bg-base-100" placeholder="Search by date" />
+                                </label>
+                                <button class="btn btn-md btn-primary mt-4">Search</button>
+                            </div>
+                            <div class="col-span-4 h-96 overflow-auto ml-20">
+                                <div class="mx-auto">
+                                  <!-- Heading -->
+                                  <div class="ps-2 my-2 first:mt-0">
+                                    <h3 class="text-xs font-medium uppercase">
+                                      1 Aug, 2023
+                                    </h3>
+                                  </div>
+                                  <!-- End Heading -->
+
+                                  <!-- Item -->
+                                  <div class="flex gap-x-3">
+                                    <!-- Icon -->
+                                    <div class="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200">
+                                      <div class="relative z-10 size-7 flex justify-center items-center">
+                                        <div class="size-2 rounded-full bg-gray-400"></div>
+                                      </div>
+                                    </div>
+                                    <!-- End Icon -->
+
+                                    <!-- Right Content -->
+                                    <div class="grow pt-0.5 pb-8">
+                                      <h3 class="flex gap-x-1.5 font-semibold">
+                                        <svg class="flex-shrink-0 size-4 mt-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                                          <polyline points="14 2 14 8 20 8"></polyline>
+                                          <line x1="16" x2="8" y1="13" y2="13"></line>
+                                          <line x1="16" x2="8" y1="17" y2="17"></line>
+                                          <line x1="10" x2="8" y1="9" y2="9"></line>
+                                        </svg>
+                                        Created "Preline in React" task
+                                      </h3>
+                                      <p class="mt-1 text-sm">
+                                        Find more detailed insctructions here.
+                                      </p>
+                                      <button type="button" class="mt-1 -ms-1 p-1 inline-flex items-center gap-x-2 text-xs rounded-lg border border-transparent disabled:opacity-50 disabled:pointer-events-none">
+                                        <img class="flex-shrink-0 size-4 rounded-full" src="https://images.unsplash.com/photo-1659482633369-9fe69af50bfb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8auto=format&fit=facearea&facepad=3&w=320&h=320&q=80" alt="Image Description">
+                                        James Collins
+                                      </button>
+                                    </div>
+                                    <!-- End Right Content -->
+                                  </div>
+                                  <!-- End Item -->
+
+                                  <!-- Item -->
+                                  <div class="flex gap-x-3">
+                                    <!-- Icon -->
+                                    <div class="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200">
+                                      <div class="relative z-10 size-7 flex justify-center items-center">
+                                        <div class="size-2 rounded-full bg-gray-400"></div>
+                                      </div>
+                                    </div>
+                                    <!-- End Icon -->
+
+                                    <!-- Right Content -->
+                                    <div class="grow pt-0.5 pb-8">
+                                      <h3 class="flex gap-x-1.5 font-semibold">
+                                        Marked "Install Charts" completed
+                                      </h3>
+                                      <p class="mt-1 text-sm">
+                                        Finally! You can check it out here.
+                                      </p>
+                                      <button type="button" class="mt-1 -ms-1 p-1 inline-flex items-center gap-x-2 text-xs rounded-lg border border-transparent disabled:opacity-50 disabled:pointer-events-none">
+                                        <img class="flex-shrink-0 size-4 rounded-full" src="https://images.unsplash.com/photo-1659482633369-9fe69af50bfb?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=3&w=320&h=320&q=80" alt="Image Description">
+                                        James Collins
+                                      </button>
+                                    </div>
+                                    <!-- End Right Content -->
+                                  </div>
+                                  <!-- End Item -->
+
+                                  <!-- Heading -->
+                                  <div class="ps-2 my-2 first:mt-0">
+                                    <h3 class="text-xs font-medium uppercase">
+                                      31 Jul, 2023
+                                    </h3>
+                                  </div>
+                                  <!-- End Heading -->
+
+                                  <!-- Item -->
+                                  <div class="flex gap-x-3">
+                                    <!-- Icon -->
+                                    <div class="relative last:after:hidden after:absolute after:top-7 after:bottom-0 after:start-3.5 after:w-px after:-translate-x-[0.5px] after:bg-gray-200">
+                                      <div class="relative z-10 size-7 flex justify-center items-center">
+                                        <div class="size-2 rounded-full bg-gray-400"></div>
+                                      </div>
+                                    </div>
+                                    <!-- End Icon -->
+
+                                    <!-- Right Content -->
+                                    <div class="grow pt-0.5 pb-8">
+                                      <h3 class="flex gap-x-1.5 font-semibold">
+                                        Take a break ⛳️
+                                      </h3>
+                                      <p class="mt-1 text-sm">
+                                        Just chill for now... 😉
+                                      </p>
+                                    </div>
+                                    <!-- End Right Content -->
+                                  </div>
+                                  <!-- End Item -->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-full" x-show="selectedTab === 'comments'">
+                <div class="col-span-1 card border border-base-300 shadow-md">
+                    <div class="card-body">
+                        <div class="flex justify-between mb-4">
+                            <h2 class="card-title">Comments</h2>
+                            <button class="btn btn-sm btn-success">Save</button>
+                        </div>
+                        <div class="">
+                          <div class="max-w-4xl px-8 mx-auto overflow-auto h-96">
+
+                            <ul class="mt-16 space-y-5">
+                              <!-- Chat Bubble -->
+                              <li class="flex gap-x-2 sm:gap-x-4">
+                                <svg class="flex-shrink-0 w-[2.375rem] h-[2.375rem] rounded-full" width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <rect width="38" height="38" rx="6" fill="#2563EB"/>
+                                  <path d="M10 28V18.64C10 13.8683 14.0294 10 19 10C23.9706 10 28 13.8683 28 18.64C28 23.4117 23.9706 27.28 19 27.28H18.25" stroke="white" stroke-width="1.5"/>
+                                  <path d="M13 28V18.7552C13 15.5104 15.6863 12.88 19 12.88C22.3137 12.88 25 15.5104 25 18.7552C25 22 22.3137 24.6304 19 24.6304H18.25" stroke="white" stroke-width="1.5"/>
+                                  <ellipse cx="19" cy="18.6554" rx="3.75" ry="3.6" fill="white"/>
+                                </svg>
+
+                                <!-- Card -->
+                                <div class="bg-neutral text-neutral-content border border-base-200 rounded-lg p-4 space-y-3">
+                                  <h2 class="font-medium ">
+                                    How can we help?
+                                  </h2>
+                                  <div class="space-y-1.5">
+                                    <p class="mb-1.5 text-sm ">
+                                      You can ask questions like:
+                                    </p>
+                                    <ul class="list-disc list-outside space-y-1.5 ps-3.5">
+                                      <li class="text-sm ">
+                                        What's Preline UI?
+                                      </li>
+
+                                      <li class="text-sm ">
+                                        How many Starter Pages & Examples are there?
+                                      </li>
+
+                                      <li class="text-sm ">
+                                        Is there a PRO version?
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                <!-- End Card -->
+                              </li>
+                              <!-- End Chat Bubble -->
+
+                              <!-- Chat Bubble -->
+                              <li class="max-w-2xl ms-auto flex justify-end gap-x-2 sm:gap-x-4">
+                                <div class="grow text-end space-y-3">
+                                  <!-- Card -->
+                                  <div class="inline-block bg-primary rounded-lg p-4 shadow-sm">
+                                    <p class="text-sm">
+                                      what's preline ui?
+                                    </p>
+                                  </div>
+                                  <!-- End Card -->
+                                </div>
+                                <span class="flex-shrink-0 inline-flex items-center justify-center size-[38px] rounded-full bg-base-300">
+                                  <span class="text-sm font-medium leading-none">AZ</span>
+                                </span>
+                              </li>
+                              <!-- End Chat Bubble -->
+
+                            </ul>
+                          </div>
+
+                          <!-- Search -->
+                          <footer class="max-w-4xl mx-auto sticky bottom-0 z-10 border-t border-base-200 pt-2 pb-4 sm:pt-4 sm:pb-6 px-4 sm:px-6 lg:px-0">
+                            <!-- Input -->
+                            <div class="relative">
+                              <textarea class="p-4 pb-12 block w-full border-base-200 rounded-lg text-sm disabled:opacity-50 disabled:pointer-events-none" placeholder="Ask me anything..."></textarea>
+
+                              <!-- Toolbar -->
+                              <div class="absolute bottom-px inset-x-px p-2 rounded-b-md">
+                                <div class="flex justify-between items-center">
+                                  <!-- Button Group -->
+                                  <div class="flex items-center">
+
+                                    <!-- Attach Button -->
+                                    <button type="button" class="inline-flex flex-shrink-0 justify-center items-center size-8 rounded-lg focus:z-10 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                      <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                                    </button>
+                                    <!-- End Attach Button -->
+                                  </div>
+                                  <!-- End Button Group -->
+
+                                  <!-- Button Group -->
+                                  <div class="flex items-center gap-x-1">
+
+                                    <!-- Send Button -->
+                                    <button type="button" class="inline-flex flex-shrink-0 justify-center items-center size-8 rounded-lg focus:z-10 focus:outline-none focus:ring-2">
+                                      <svg class="flex-shrink-0 size-3.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/>
+                                      </svg>
+                                    </button>
+                                    <!-- End Send Button -->
+                                  </div>
+                                  <!-- End Button Group -->
+                                </div>
+                              </div>
+                              <!-- End Toolbar -->
+                            </div>
+                            <!-- End Input -->
+                          </footer>
+                          <!-- End Search -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-full" x-show="selectedTab === 'notes'">
+                <div class="col-span-1 card border border-base-300 shadow-md">
+                    <div class="card-body">
+                        <div class="flex justify-between mb-4">
+                            <div class="flex flex-col">
+                                <h2 class="card-title">Vendor Notes</h2>
+                                <p>Use the space below to capture any notes or details about the Vendor.</p>
+                            </div>
+                            <button @click="saveNotes" :class="{'btn-disabled': saveNotesDisabled}" class="btn btn-sm btn-success">Save Changes</button>
+                        </div>
+                        <div id="notes"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-full" x-show="selectedTab === 'reports'">
+                <div class="col-span-1 card border border-base-300 shadow-md">
+                    <div class="card-body">
+                        <div class="flex justify-between mb-4">
+                            <h2 class="card-title">Reports</h2>
+                            <button class="btn btn-sm btn-success">Save</button>
+                        </div>
+                        <div>Not Implemented</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-span-full" x-show="selectedTab === 'settings'">
+                <div class="col-span-1 card border border-base-300 shadow-md">
+                    <div class="card-body">
+                        <div class="flex justify-between mb-4">
+                            <h2 class="card-title">Settings</h2>
+                            <button @click="updateVendor" class="btn btn-sm btn-success">Save</button>
+                        </div>
+                        <div class="grid grid-cols-6 gap-6">
+                            <div class="col-span-3">
+                                <label class="text-sm font-medium">Vendor</label>
+                                <input x-model="vendor.name" type="text" class="input input-bordered w-full text-sm mt-2">
+                            </div>
+                            <div class="col-span-3">
+                                <label class="text-sm font-medium">Description</label>
+                                <input x-model="vendor.description" type="text" class="input input-bordered w-full text-sm mt-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End all tabs -->
+    </div>
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showVendorModal }">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showVendorModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-6">View Vendor</h2>
+                <div class="grid grid-cols-10 gap-6 card-body">
+                    <div class="col-span-4">
+                        <div class="card w-full bg-base-200 shadow-xl">
+                          <figure class="mt-4" id="vendorModalRiskScore"></figure>
+                          <div class="card-body py-3">
+                            <h2 class="card-title uppercase p-3 bg-base-100 rounded-lg mx-auto" x-text="vendor.status"></h2>
+                            <p x-text="vendor.status_description"></p>
+                            <div class="card-actions justify-end mt-2">
+                                <button class="btn btn-warning btn-sm">Edit</button>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="col-span-6 px-8 prose">
+                        <h2 class="capitalize" x-text="vendor.name"></h2>
+                        <p x-text="vendor.description"></p>
+                        <div class="grid grid-cols-6">
+                            <div class="col-span-3">
+                                <h4>Status</h4>
+                                <p class="capitalize" x-text="vendor.status"></p>
+                            </div>
+                            <div class="col-span-3">
+                                <h4>Data classification</h4>
+                                <p class="capitalize" x-text="vendor.data_classification||'Unknown'"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-action">
+                    <button class="btn" @click="showVendorModal=false">Close</button>
+                    <button class="btn btn-primary">Explore</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showApplicationModal }">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="closeControlModal"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-6">View Application</h2>
+                <div class="grid grid-cols-10 gap-6 card-body">
+                    <div class="col-span-4">
+                        <div class="card w-full bg-base-200 shadow-xl">
+                          <figure class="mt-4" id="appModalRiskScore"></figure>
+                          <div class="card-body py-3">
+                            <h2 class="card-title uppercase p-3 bg-base-100 rounded-lg mx-auto" x-text="selectedApp.status"></h2>
+                            <p x-text="selectedApp.status_description"></p>
+                            <div class="card-actions justify-end mt-2">
+                                <button class="btn btn-warning btn-sm">Edit</button>
+                                <a :href="'/applications/'+selectedApp.id" class="btn btn-primary btn-sm">Explore</a>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="col-span-6 px-8 prose">
+                        <h2 class="capitalize" x-text="selectedApp.name"></h2>
+                        <p x-text="selectedApp.description"></p>
+                        <ol x-show="selectedApp.approved_use_cases">
+                            <template x-for="record in selectedApp.approved_use_cases">
+                                <li class="capitalize" x-text="record"></li>
+                            </template>
+                        </ol>
+                        <div class="grid grid-cols-6">
+                            <div class="col-span-3">
+                                <h4>Status</h4>
+                                <p class="capitalize" x-text="selectedApp.status"></p>
+                            </div>
+                            <div class="col-span-3">
+                                <h4>Data classification</h4>
+                                <p class="capitalize" x-text="selectedApp.data_classification||'Unknown'"></p>
+                            </div>
+                            <div class="col-span-2">
+                                <h4>Category</h4>
+                                <p class="capitalize" x-text="selectedApp.category"></p>
+                            </div>
+                            <div class="col-span-2">
+                                <h4>Business Unit</h4>
+                                <p class="capitalize" x-text="selectedApp.business_unit"></p>
+                            </div>
+                            <div class="col-span-2">
+                                <h4>Saas</h4>
+                                <p x-text="selectedApp.is_saas"></p>
+                            </div>
+                            <div class="col-span-2">
+                                <h4>On Premise</h4>
+                                <p x-text="selectedApp.is_on_premise"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-action">
+                    <button class="btn" @click="closeControlModal">Close</button>
+                    <a :href="'/applications/'+selectedApp.id" class="btn btn-primary">Explore</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showMetadataModal }">
+            <div class="modal-box">
+                <form method="dialog">
+                    <button @click="showMetadataModal = false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <pre x-text="JSON.stringify(vendorData, null, 2)"></pre>
+                <div class="modal-action">
+                    <button class="btn" @click="showMetadataModal = false">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showCreateAppModal }">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form method="dialog">
+                    <button @click="showCreateAppModal = false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <div class="px-4">
+
+                <span class="text-lg font-semibold">Create Application</span>
+                <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-3">
+                      <label class="text-sm font-medium">Name</label>
+                      <input x-model="newAppPayload.name" type="text" class="input input-bordered w-full text-sm mt-2" placeholder="Enter the name of the application">
+                  </div>
+                  <div class="col-span-3">
+                      <label class="text-sm font-medium">Description</label>
+                      <input x-model="newAppPayload.description" type="text" class="input input-bordered w-full text-sm mt-2" placeholder="Enter the description of the application">
+                  </div>
+                  <div class="col-span-3 flex flex-col gap-y-2">
+                      <label class="text-sm font-medium">Category</label>
+                      <select x-ref="categories" x-model="newAppPayload.category" class="bg-base-100 border-base-300 p-3 rounded-lg w-full text-primary-content">
+                        <template x-for="option in categories" :key="option">
+                            <option :value="option" x-text="option"></option>
+                        </template>
+                      </select>
+                  </div>
+                  <div class="col-span-3 flex flex-col gap-y-2">
+                      <label class="text-sm font-medium">Business Unit</label>
+                      <select x-ref="bus" x-model="newAppPayload.business_unit" class="bg-base-100 border-base-300 p-3 rounded-lg w-full text-primary-content">
+                        <template x-for="option in businessUnits" :key="option">
+                            <option :value="option" x-text="option"></option>
+                        </template>
+                      </select>
+                  </div>
+                  <div class="col-span-3 flex flex-col gap-y-2">
+                      <label class="text-sm font-medium">On premise</label>
+                      <input x-ref="is_on_premise" x-model="newAppPayload.is_on_premise" type="checkbox" class="checkbox" />
+                  </div>
+                  <div class="col-span-3 flex flex-col gap-y-2">
+                      <label class="text-sm font-medium">SaaS</label>
+                      <input x-ref="is_saas" x-model="newAppPayload.is_saas" type="checkbox" class="checkbox" />
+                  </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showCreateAppModal = false">Close</button>
+                    <button class="btn btn-primary" @click="createApplication">Create App</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showCreateQuestionnaireModal }">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form method="dialog">
+                    <button @click="showCreateQuestionnaireModal = false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-lg">Create Questionnaire</h3>
+                <div class="card card-body">
+                    <div class="grid grid-cols-6 gap-6">
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">Name</label>
+                            <input x-model="questionnaireFormData.name" type="text" placeholder="Questionnaire name"
+                                   class="input input-bordered w-full" required/>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-sm font-medium pb-2">Description</label>
+                            <input x-model="questionnaireFormData.description" placeholder="Input description"
+                                   class="input input-bordered w-full" required/>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showCreateQuestionnaireModal = false">Close</button>
+                    <button class="btn btn-success" @click="createQuestionnaire">
+                        Create
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{%endblock%}
+
+{%block extrajs%}
+<script>
+function vendor(){
+    return {
+        init() {
+          //this.getUsers()
+          this.getVendor()
+          var params = new window.URLSearchParams(window.location.search);
+          this.switchTab({"tab": params.get('tab') ?? "summary", "view": params.get('view') ?? "default"})
+          this.initNotesEditor()
+          this.$watch(
+            "applications", (newValue, oldValue) => {
+                this.drawTable({"selector": "#applications-table", "tableData":newValue, "formatter": "applications"})
+          })
+          this.$watch(
+            "questionnaires", (newValue, oldValue) => {
+                this.drawTable({"selector": "#questionnaire-table", "tableData":newValue, "formatter": "questionnaires"})
+          })
+          this.getBusinessUnits()
+          this.getCategories()
+          this.getApplications()
+          this.createVendorRiskInModal()
+        },
+        categories: [],
+        businessUnits: [],
+        newAppPayload: {},
+        applicationView: "card",
+        showCreateAppModal: false,
+        showCreateQuestionnaireModal: false,
+        vendor: {{application.vendor.as_dict() | tojson}},
+        subcontrolTab: "overview",
+        vendorData: null,
+        vendorId: "{{application.vendor.id}}",
+        showApplicationModal: false,
+        showMetadataModal: false,
+        currentUserEmail: "{{current_user.email}}",
+        simpleInterface: false,
+        showVendorModal: false,
+        users: [],
+        applications: [],
+        questionnaires: [],
+        tabs: ["summary", "applications", "questionnaires", "history", "notes", "reports", "settings"],
+        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        tabLoading: true,
+        tableLoading: true,
+        selectedApp: {},
+        selectedQuestionnaire: {},
+        selectedTab: "summary",
+        view: "default",
+        contextEditor: null,
+        appSearch: "",
+        noApps: false,
+        questionnaireFormData: {},
+        // vars for controls tab
+        controlsFilter: "1",
+        controlsFilterOwner: "",
+        controlsFilterOperator: "",
+        saveNotesDisabled: true,
+
+        applicationsGrid: null,
+        questionnairesGrid: null,
+
+        applicationTableHeaders: [
+          {"field": "id", "headerName": "#", "width": 25, "filter": "agTextColumnFilter", "hide": true},
+          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter"},
+          {"field": "risk", "headerName": "Risk", "cellRenderer": toDots, "cellRendererParams": {"color":"primary"}},
+          {"field": "status", "headerName": "Status", "width": 50, "filter": "agTextColumnFilter", "cellClass": "capitalize"}
+        ],
+        questionnairesTableHeaders: [
+          {"field": "id", "headerName": "#", "width": 25, "filter": "agTextColumnFilter", "hide": true},
+          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter"},
+          {"field": "status", "headerName": "Status", "filter": "agTextColumnFilter", "cellRenderer": questionnaireStatusToBadge},
+          {"field": "date_added", "headerName": "Created At", "filter": "agTextColumnFilter", "modal": {"disable": true}}
+        ],
+        createVendorRiskInModal: function() {
+        //haaaa
+            let config = getApexCircleConfig(this.vendor.risk)
+            config["labels"] = ['Remaining Risk', 'Risk Score']
+            let color = this.vendor.risk >= 75 ? "#4ade80" : this.vendor.risk >= 50 ? "#facc15" : "#f87171";
+
+            config["fill"] = {
+              "colors": ['#2a303c', color]
+            }
+            let chart = new ApexCharts(document.querySelector("#vendorModalRiskScore"), config);
+            chart.render();
+        },
+        filteredApplications: function() {
+          let appList = this.applications.filter(app => {
+            // Case-insensitive search
+            const searchTerm = this.appSearch.toLowerCase();
+            const appName = app.name.toLowerCase();
+            return appName.includes(searchTerm);
+          });
+          if (appList.length > 0) {
+            this.noApps = false;
+          } else {
+            this.noApps = true;
+          }
+          return appList
+        },
+        saveNotes: function() {
+            var data = {"data": tinymce.get("notes").getContent()}
+            request("PUT",
+                `/api/v1/vendors/${this.vendorId}/notes`,
+                data => {
+                    this.vendor.notes = data;
+                    toast("Saved notes")
+                    this.saveNotesDisabled = true;
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                data
+            );
+        },
+        updateVendor: function() {
+            var data = {"name": this.vendor.name, "description": this.vendor.description}
+            request("PUT",
+                `/api/v1/vendors/${this.vendorId}`,
+                data => {
+                    this.vendor = data;
+                    toast("Updated vendor")
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                data
+            );
+        },
+        openSelectedAppModal: function(app) {
+            this.selectedApp = app
+            this.showApplicationModal = true;
+            if (document.querySelector("#appModalRiskScore") !== null) {
+                document.querySelector("#appModalRiskScore").innerHTML = "";
+            }
+            let config = getApexCircleConfig(this.selectedApp.risk)
+            config["labels"] = ['Remaining Risk', 'Risk Score']
+            let color = this.selectedApp.risk >= 75 ? "#4ade80" : this.selectedApp.risk >= 50 ? "#facc15" : "#f87171";
+
+            config["fill"] = {
+              "colors": ['#2a303c', color]
+            }
+            let chart = new ApexCharts(document.querySelector("#appModalRiskScore"), config);
+            chart.render();
+        },
+        // begin functions
+        closeControlModal: function(){
+            this.showApplicationModal = false;
+            this.subcontrolTab = "overview";
+            var queryParams = new URLSearchParams(window.location.search);
+            queryParams.delete("subcontrolTab")
+            history.replaceState(null, null, "?"+queryParams.toString());
+        },
+        initNotesEditor: function() {
+            console.log("Trying to create notes editor")
+            let editor = tinymce.get("notes");
+            if (editor) {
+                console.log("Editor already exists")
+            } else {
+                console.log("Creating a new editor")
+                let config = getEditorConfig("#notes");
+                config["height"] = "700"
+                config.setup = (editor) => {
+                  editor.on('init', () => {
+                    editor.setContent(this.vendor.notes);
+                  });
+                  editor.on('Paste Change input Undo Redo', () => {
+                    console.log(1)
+                    this.saveNotesDisabled = false;
+                  });
+                };
+                tinymce.init(config);
+            }
+        },
+        saveEditorContext: function() {
+            let selector = "contextEditor-"+this.selectedApp.id
+            var jsonData = {"data": tinymce.get(selector).getContent()}
+            request("PUT",
+                `/api/v1/vendors/${this.vendorId}/subcontrols/${this.selectedSubcontrolInControlModal.id}/context`,
+                data => {
+                  this.selectedSubcontrolInControlModal.context = jsonData["data"];
+                  toast("Saved data")
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+
+        keyExistsInLocalStorage: function(key, parse=false) {
+          let value = localStorage.getItem(key);
+          if (value) {
+            if (parse) {
+              return JSON.parse(value)
+            }
+            return value
+          }
+          return false
+        },
+        switchTab: function({tab = null, view = null, useCache = true}) {
+          this.tabLoading = true;
+          var tab = tab ?? this.selectedTab
+          var view = view ?? this.view
+          var queryParams = new URLSearchParams(window.location.search);
+
+          if (tab) {
+            this.selectedTab = tab;
+            queryParams.set("tab", tab);
+          }
+
+          if (view) {
+            this.view = view;
+            queryParams.set("view", view);
+          }
+
+          history.replaceState(null, null, "?"+queryParams.toString());
+
+          const tabFunctions = {
+              "applications": this.getApplications,
+              "summary": this.getSummary,
+              "questionnaires": this.getQuestionnaires,
+              "history": this.getSummary,
+              "comments": this.getSummary,
+              "notes": this.getSummary,
+              "reports": this.getSummary,
+              "settings": this.getSummary
+          };
+
+          // Get the function corresponding to the tab
+          const tabFunction = tabFunctions[tab];
+
+          // Call the function if it exists
+          if (tabFunction) {
+            tabFunction.call(this, useCache);
+          } else {
+            console.log("Tab not found: "+tab)
+          }
+
+        },
+        formattedApplicationTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.applicationTableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              /*
+              if (row.name === "Limit unsuccessful logon") {
+                row.name = `<button class='btn btn-sm' @click='alert(1)' x-text='${this.applications.length}'></button>`
+              }*/
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+
+          return filteredData
+        },
+        formattedQuestionnaireTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.questionnairesTableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+
+          return filteredData
+        },
+        drawTable: function({ selector = null, tableData = null, formatter = null }) {
+          console.log("Drawing table: "+selector)
+          var data = tableData;
+          var columns = [];
+
+          gridOptions = {
+            pagination: true,
+            paginationPageSize: 25,
+            domLayout: "autoHeight",
+            suppressMenuHide: true,
+            suppressHorizontalScroll: true,
+            enableCellTextSelection:true,
+            suppressFieldDotNotation: true,
+            onFirstDataRendered: (params) => {
+            //onGridReady: (params) => {
+              params.api.sizeColumnsToFit();
+              this.tableLoading = false;
+              window.onresize = () => {
+                this.tableLoading = true;
+                params.api.sizeColumnsToFit();
+                this.tableLoading = false;
+              }
+            },
+            autoSizeStrategy: {
+              type: 'fitGridWidth',
+              defaultMinWidth: 50,
+            }
+          }
+
+          const gridElement = document.querySelector(selector);
+          if (formatter === "applications") {
+            if (this.applicationsGrid) {
+              this.applicationsGrid.destroy();
+            }
+            gridOptions.rowData = this.formattedApplicationTable(tableData);
+            gridOptions.columnDefs = this.applicationTableHeaders
+
+            gridOptions.onRowDoubleClicked = (row) => {
+              this.selectedApp = this.applications.find(obj => obj.id === row.data.id);
+              this.showApplicationModal = true;
+
+              if (document.querySelector("#appModalRiskScore") !== null) {
+                document.querySelector("#appModalRiskScore").innerHTML = "";
+              }
+              let config = getApexCircleConfig(this.selectedApp.risk)
+              config["labels"] = ['Remaining Risk', 'Risk Score']
+              let color = this.selectedApp.risk >= 75 ? "#4ade80" : this.selectedApp.risk >= 50 ? "#facc15" : "#f87171";
+
+              config["fill"] = {
+                "colors": ['#2a303c', color]
+              }
+              let chart = new ApexCharts(document.querySelector("#appModalRiskScore"), config);
+              chart.render();
+            },
+
+            this.applicationsGrid = agGrid.createGrid(gridElement, gridOptions);
+
+          } else if (formatter === "questionnaires") {
+            if (this.questionnairesGrid) {
+              this.questionnairesGrid.destroy();
+            }
+            gridOptions.rowData = this.formattedQuestionnaireTable(tableData);
+            gridOptions.columnDefs = this.questionnairesTableHeaders
+
+            gridOptions.onRowDoubleClicked = (row) => {
+              this.selectedQuestionnaire = this.questionnaires.find(obj => obj.id === row.data.id);
+              this.showQuestionnaireModal = true;
+            }
+            this.questionnairesGrid = agGrid.createGrid(gridElement, gridOptions);
+
+          } else {
+            console.log("Formatter does not exist: "+formatter)
+            return
+          }
+
+          //this.agGrid.columnApi.setColumnsVisible(["COL_ID_1", "COL_ID_2"], false);
+          //this.agGrid.columnApi.setColumnsVisible(["COL_ID_1", "COL_ID_2"], true);
+
+        },
+        refreshData: function() {
+          this.switchTab({"tab": this.selectedTab, "useCache": false})
+        },
+        getSummary: function(useCache=true) {
+          this.tabLoading=false;
+        },
+        getVendor: function() {
+          request("GET",
+            "/api/v1/vendors/" + this.vendorId,
+            data => {
+              this.vendorData = data;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        getBusinessUnits: function() {
+          request("GET",
+            "/api/v1/vendors/" + this.vendorId+"/bus",
+            data => {
+              const formatted = data.map(item => {
+                return { text: item };
+              });
+              new SlimSelect({
+                select: this.$refs.bus,
+                data: formatted,
+                events: {
+                    addable: function (value) {
+                      return value
+                    }
+                }
+              })
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        getCategories: function() {
+          request("GET",
+            "/api/v1/vendors/" + this.vendorId+"/categories",
+            data => {
+              const formatted = data.map(item => {
+                return { text: item };
+              });
+              new SlimSelect({
+                select: this.$refs.categories,
+                data: formatted,
+                events: {
+                    addable: function (value) {
+                      return value
+                    }
+                }
+              })
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        getUsers: function() {
+          $.ajax({
+            type: "GET",
+            url: "/api/v1/tenants/{{application.tenant_id}}/users",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: (data) => {
+              this.users = data;
+            },
+            error: (errMsg) => {
+              toast(errMsg["responseJSON"]["message"], "error")
+            }
+          })
+        },
+        saveScratchPad: function(showToast=true) {
+            var data = {"data": tinymce.get("notes-editor").getContent()}
+            $.ajax({
+                type: "PUT",
+                url: "/api/v1/vendors/{{application.vendor.id}}/notes",
+                data: JSON.stringify(data),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: (data) => {
+                    // TODO - fix
+                    $("#save-notes-btn").html("Save")
+                    $("#save-notes-btn").removeClass("btn-warning")
+                    $("#save-notes-btn").addClass("btn-primary")
+                    return(data)
+                },
+                error: (errMsg) => {
+                    // we autosave when a user clicks away but some users
+                    // dont have access to save, so we hide the error
+                    if (showToast) {
+                      toast(errMsg["responseJSON"]["message"], "error")
+                    }
+                    return(errMsg);
+                }
+            })
+        },
+        createApplication: function() {
+            if (!this.newAppPayload.name) {
+                toast("Name is required", "warning")
+                return
+            }
+            if (this.applications.includes(this.newAppPayload.name.toLowerCase())) {
+                toast("Name must be unique", "warning")
+                return
+            }
+            request("POST",
+                "/api/v1/vendors/" + this.vendorId +"/applications",
+                data => {
+                    toast("Created app")
+                    this.newAppPayload = {};
+                    this.showCreateAppModal = false;
+                    this.applications.push(data)
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                this.newAppPayload
+            );
+        },
+        getApplications: function(useCache=true) {
+          request("GET",
+            "/api/v1/vendors/" + this.vendorId +"/applications",
+            data => {
+              this.tabLoading = false;
+              this.tableLoading = false;
+              this.applications = data;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        getQuestionnaires: function(useCache=true) {
+          request("GET",
+            "/api/v1/vendors/" + this.vendorId +"/questionnaires",
+            data => {
+              this.questionnaires = data;
+              this.tabLoading = false;
+              this.tableLoading = false;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        loadSummary: function() {
+        },
+        loadComments: function() {
+        },
+        loadSettings: function() {
+        },
+        createQuestionnaire() {
+          this.questionnaireFormData.vendor_id = this.vendor.id;
+          if (!this.questionnaireFormData.name) {
+            toast("Name is required", "error")
+            return
+          }
+          this.buttonDisabled = true;
+          request("POST",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/questionnaires`,
+            data => {
+              toast("Created questionnaire")
+              this.questionnaireFormData = {}
+              this.showCreateQuestionnaireModal = false;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.questionnaireFormData
+          );
+        },
+    }
+}
+</script>
+{%endblock%}

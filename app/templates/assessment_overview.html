@@ -1,0 +1,2806 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(sortable=True, driver=True, confetti=True, datepicker=True, editor=True) }}
+{% endblock %}
+
+{%block page_header%}{%endblock%}
+
+{%block content%}
+  <div x-data="kanban()">
+      <div id="pageHeader" class="flex justify-between mb-3">
+        <div class="breadcrumbs text-2xl font-bold sm:tracking-tight py-0">
+            <ul>
+                <li><a :href="'/tenants/'+$store.currentUser.selectedTenant.id+'/risk?tab=assessments'">Assessments</a></li>
+                <li class="capitalize">{{assessment.name}}</li>
+            </ul>
+        </div>
+        <div class="flex flex-row gap-x-2">
+            <button x-transition class="btn btn-sm capitalize tooltip tooltip-bottom"
+                @click="showGuestModal=true" data-tip="View Vendor Users"><i class="ti ti-users-plus text-lg"></i></button>
+            <button x-transition class="btn btn-sm capitalize tooltip tooltip-bottom"
+                @click="showEmailModal=true" data-tip="Send Email Reminder"><i class="ti ti-mail-forward text-lg"></i></button>
+            <button x-transition class="btn btn-sm capitalize tooltip tooltip-bottom"
+                @click="copyLink(null)" data-tip="Copy Link"><i class="ti ti-link text-lg"></i></button>
+            <button x-show="formDisabled" x-transition class="btn btn-sm capitalize tooltip tooltip-bottom"
+                    @click="alert('export')" data-tip="Export answers"><i class="ti ti-download text-lg"></i></button>
+            <button x-transition class="btn btn-sm capitalize tooltip tooltip-bottom"
+                    @click="driverAssessmentTour" data-tip="Show help"><i class="ti ti-question-mark text-lg"></i></button>
+            <button x-transition class="btn btn-sm capitalize tooltip tooltip-bottom"
+                    @click="getItems" data-tip="Refresh"><i class="ti ti-refresh text-lg"></i></button>
+            <button id="dueDate" @click="showDueModal=true" x-transition class="btn btn-sm capitalize tooltip tooltip-bottom"
+                    data-tip="Due date" x-text="'Due Date: '+assessment.due_date_humanize">
+                <i x-show="assessment.past_due" class="ti ti-alert-circle text-error mr-1"></i>
+
+            </button>
+            <button id="changeStatus" @click="showStatusModal=true" :class="'btn-'+selectedOption.color" data-tip="Change Status" class="btn tooltip tooltip-bottom btn-active btn-sm">
+              <span class="my-auto" x-text="selectedOption.label"></span>
+              <div class="badge badge-xs ml-1"></div>
+            </button>
+            <button x-show="!formDisabled" id="submitAssessment" :class="{'btn-disabled': !readyToSubmit}" x-transition class="btn btn-sm capitalize tooltip tooltip-bottom btn-success"
+                    @click="showSubmitModal=true" data-tip="Submit">
+                <label class="cursor-pointer" x-show="readyToSubmit">Submit Assessment</label>
+                <label class="cursor-pointer" x-show="!readyToSubmit">Unanswered Questions</label>
+            </button>
+        </div>
+      </div>
+        <div x-show="assessment.disabled" role="alert" class="alert bg-error mb-4">
+            <i class="ti ti-x text-lg"></i>
+            <span class="text-sm">
+                The assessment has been disabled.
+            </span>
+        </div>
+        <div x-show="assessment.is_complete" role="alert" class="alert bg-success text-neutral mb-4">
+            <i class="ti ti-check text-lg"></i>
+            <span class="text-sm">
+                The assessment is complete. There are no other action items.
+            </span>
+        </div>
+        <div x-show="!assessment.assessment_published && !assessment.is_review_complete" role="alert" class="alert mb-2">
+            <i class="ti ti-alert-circle text-error text-lg"></i>
+            <span class="text-sm font-semibold">
+                The assessment has not been published! Edit/publish the questionnaire and then the vendor can respond.
+            </span>
+            <div>
+              <a :href="'/assessments/'+assessment.id+'/manage'" class="btn btn-xs btn-warning ml-2">Edit Form</a>
+              <button @click="setStatusOption('pending_response');showUpdateStatusModal=true" class="btn btn-xs btn-success animate-pulse ml-2">Publish Assessment</button>
+            </div>
+        </div>
+        <div x-show="assessment.review_status === 'pending_review' && assessment.infosec_review_percentage!==100" role="alert" class="alert mb-2">
+            <i class="ti ti-alert-circle text-error text-lg"></i>
+            <span class="text-sm">
+                The assessment is waiting on your review. You are <i x-text="assessment.infosec_review_percentage+'%'"></i> complete with the review. Please review the responses from the vendor and then update the status to <b>Pending Response</b>.
+            </span>
+            <div>
+                <button @click="setSelectedTab('responses')" class="btn btn-xs btn-error ml-2"><i class="ti ti-arrow-right text-lg"></i></button>
+            </div>
+        </div>
+        <div x-show="assessment.review_status === 'pending_review' && assessment.infosec_review_percentage===100 && assessment.question_statuses['complete']!==totalItems" role="alert" class="alert mb-2">
+            <i class="ti ti-alert-circle text-error text-lg"></i>
+            <span class="text-sm">
+                The assessment is waiting on your review however you have reviewed all questions. The vendor has <i class="text-error" x-text="assessment.question_statuses['info_required']"></i> action items. Please update the status to <b>Pending Response</b>.
+            </span>
+            <div>
+              <button @click="setStatusOption('pending_response');showUpdateStatusModal=true" class="btn btn-xs btn-success ml-2 animate-pulse">Update Status</button>
+            </div>
+        </div>
+        <div x-show="assessment.review_status === 'pending_review' && assessment.question_statuses['complete']===totalItems" role="alert" class="alert mb-2">
+            <i class="ti ti-alert-circle text-error text-lg"></i>
+            <span class="text-sm">
+                There are no remaining action items. Please mark the assessment as complete.
+            </span>
+            <div>
+              <button @click="setStatusOption('complete');showUpdateStatusModal=true" class="btn btn-xs btn-success ml-2 animate-pulse">Mark Complete</button>
+            </div>
+        </div>
+
+        <div x-show="assessment.review_status === 'pending_response'" role="alert" class="alert bg-base-200 mb-2">
+            <i class="ti ti-hourglass-empty text-warning text-lg"></i>
+            <div class="flex flex-row">
+                <span class="text-sm">
+                    Waiting on response from the vendor. The vendor has answered <i x-text="assessment.vendor_answered_percentage"></i>% of the questions. Please wait until providing your review.
+                </span>
+            </div>
+            <div>
+                <button @click="showEmailModal=true" class="btn btn-sm btn-warning">Send Email Reminder</button>
+            </div>
+        </div>
+      <div class="grid grid-cols-10 gap-6">
+        <div class="col-span-10 pb-2">
+            <div x-transition class="prose max-w-none">
+                <div class="card pt-6 pb-2 px-5 border border-base-200 bg-base-200">
+                        <div
+                                class="flex flex-row mx-6 justify-between"
+                        >
+                            <button
+                                    x-on:click="setSelectedTab('overview')"
+                                    x-bind:class="{ 'tab-active border-primary border-b-2': selectedMenu === 'overview' }"
+                                    class="tab hover:tab-active hover:border-primary hover:border-b-2 tab-lg capitalize text-lg font-semibold focus:border-primary"
+                            >
+                                <i class="ti ti-home mr-2"></i>Overview
+                            </button>
+                            <button
+                                    x-on:click="setSelectedTab('responses')"
+                                    x-bind:class="{ 'tab-active border-primary border-b-2': selectedMenu === 'responses' }"
+                                    class="tab hover:tab-active hover:border-primary hover:border-b-2 tab-lg capitalize text-lg font-semibold focus:border-primary"
+                            >
+                                <i :class="{'text-error':assessment.question_statuses['complete']!==totalItems}" class="ti ti-versions mr-2"></i>Questions<span class="badge badge-md ml-1 text-sm" x-show="totalItems>0" x-text="assessment.question_statuses['complete']+'/'+totalItems"></span>
+                            </button>
+                            <button
+                                    x-on:click="setSelectedTab('remediation')"
+                                    x-bind:class="{ 'tab-active border-primary border-b-2': selectedMenu === 'remediation' }"
+                                    class="tab hover:tab-active hover:border-primary hover:border-b-2 tab-lg capitalize text-lg font-semibold focus:border-primary"
+                            >
+                                <i :class="{'text-error':completeRemediations!==totalRemediations}" class="ti ti-tool mr-2"></i>Remediation
+                                <span class="badge badge-md ml-1 text-sm" x-show="totalRemediations>0" x-text="completeRemediations+'/'+totalRemediations"></span>
+                            </button>
+                            <button
+                                    x-on:click="setSelectedTab('notes')"
+                                    x-bind:class="{ 'tab-active border-primary border-b-2': selectedMenu === 'notes' }"
+                                    class="tab hover:tab-active hover:border-primary hover:border-b-2 tab-lg capitalize text-lg font-semibold focus:border-primary"
+                            >
+                                <i class="ti ti-note mr-2"></i>Notes<span class="ml-1 text-sm"></span>
+                                <span class="badge badge-xs ml-1 text-sm" x-show="selectedControl.notes"></span>
+                            </button>
+                        </div>
+                        <ul class="text-sm card px-2 py-4 pt-2 border-t border-base-100 rounded-none max-h-screen overflow-auto">
+                            <div x-show="selectedMenu === 'overview'">
+                                <div class="grid grid-cols-10">
+                                    <div class="col-span-3">
+                                        <div class="shadow-lg rounded-lg p-6 bg-base-100 capitalize">
+                                            <div x-show="assessment.review_status === 'new'" class="w-full h-full block">
+                                                <div class="flex justify-center gap-16 m-8 my-4 items-center">
+                                                    <h3 class="text-3xl font-semibold mt-0 mb-2">Draft</h3>
+                                                </div>
+                                                <div class="flex flex-row gap-x-4 justify-center mt-5">
+                                                    <a :href="'/assessments/'+assessment.id+'/manage'" class="btn btn-sm btn-warning">Edit Form</a>
+                                                    <button @click="setStatusOption('pending_response');showUpdateStatusModal=true" class="btn btn-sm btn-success">Publish Assessment</button>
+                                                </div>
+                                            </div>
+                                            <div x-show="assessment.review_status === 'pending_response'" class="w-full h-full block">
+                                                    <div class="flex justify-between">
+                                                        <h3 class="text-lg font-semibold mt-0 mb-2">Vendor Progress</h3>
+                                                        <button @click="showOverviewHelp=true" class="btn btn-sm btn-ghost"><i class="ti ti-question-mark text-lg"></i></button>
+                                                    </div>
+                                                    <div class="flex justify-center gap-16 m-8 my-4 items-center">
+                                                        <div
+                                                          class="radial-progress"
+                                                          :style="'--value:'+assessment.vendor_answered_percentage+'; --size:12rem; --thickness: 2px;'"
+                                                          role="progressbar" x-text="assessment.vendor_answered_percentage+'%'">
+                                                        </div>
+                                                    </div>
+                                                    <div @click="showStatusModal=true" class="bg-base-200 rounded-lg p-4 text-center hover:cursor-pointer">
+                                                        <span :class="'text-'+selectedOption.color" class="font-semibold uppercase" x-text="selectedOption.label"></span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            <div x-show="assessment.review_status === 'pending_review' || assessment.review_status === 'complete'" class="w-full h-full block">
+                                                    <div class="flex justify-between">
+                                                        <h3 class="text-lg font-semibold mt-0 mb-2">InfoSec Review Progress</h3>
+                                                        <button @click="showOverviewHelp=true" class="btn btn-sm btn-ghost"><i class="ti ti-question-mark text-lg"></i></button>
+                                                    </div>
+                                                    <div class="flex justify-center gap-16 m-8 my-4 items-center">
+                                                        <div
+                                                          class="radial-progress"
+                                                          :style="'--value:'+assessment.infosec_review_percentage+'; --size:12rem; --thickness: 2px;'"
+                                                          role="progressbar" x-text="assessment.infosec_review_percentage+'%'">
+                                                        </div>
+                                                    </div>
+                                                    <div @click="showStatusModal=true" class="bg-base-200 rounded-lg p-4 text-center hover:cursor-pointer">
+                                                        <div class="flex flex-row justify-center">
+                                                            <span :class="'text-'+selectedOption.color" class="font-semibold uppercase" x-text="selectedOption.label"></span>
+                                                            <button @click="setSelectedTab('responses')" class="btn btn-ghost btn-xs ml-2"><i class="ti ti-arrow-right text-lg"></i></button>
+
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-span-7 px-8">
+
+                                        <h2 class="capitalize my-2" x-text="assessment.name"></h2>
+                                        <p x-show="assessment.description" x-text="assessment.description"></p>
+                                        <p x-show="!assessment.description">The assessment does not have a description.</p>
+
+                                        <div class="border-t border-base-100">
+                                            <dl class="divide-y bg-base-200">
+                                              <div class="py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                <dt class="text-sm font-medium leading-6 my-auto">Review Status</dt>
+                                                <dd class="mt-1 text-sm leading-6 sm:col-span-2 sm:mt-0" x-text="assessment.review_description"></dd>
+                                              </div>
+                                            </dl>
+                                            <dl class="divide-y bg-base-200">
+                                              <div class="pt-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                <dt class="text-sm font-medium leading-6 my-auto">Due Date</dt>
+                                                <dd @click="showDueModal=true" x-show="assessment.is_complete" class="mt-1 text-sm leading-6 sm:col-span-1 sm:mt-0 capitalize hover:cursor-pointer"><i class="mr-2 ti ti-circle-check text-success"></i>Complete</dd>
+                                                <dd @click="showDueModal=true" x-show="!assessment.is_complete" class="mt-1 text-sm leading-6 sm:col-span-1 sm:mt-0 capitalize hover:cursor-pointer" x-text="assessment.due_date + ' ('+assessment.due_date_humanize+')'"></dd>
+                                                <dd @click="showDueModal=true" x-show="!assessment.is_complete && assessment.past_due" class="mt-1 text-sm leading-6 sm:col-span-1 sm:mt-0 capitalize hover:cursor-pointer tooltip" data-tip="Past due"><i class="ti ti-alert-circle text-error"></i></dd>
+                                                <dd @click="showDueModal=true" x-show="!assessment.is_complete && assessment.due_date_upcoming && !assessment.past_due" class="mt-1 text-sm leading-6 hover:cursor-pointer sm:col-span-1 sm:mt-0 capitalize tooltip" data-tip="Due date upcoming"><i class="ti ti-alert-circle text-warning"></i></dd>
+                                              </div>
+                                            </dl>
+                                            <div class="divider font-semibold py-4">Status Overview</div>
+                                            <dl class="divide-y bg-base-200">
+                                              <div class="grid grid-cols-3">
+                                                <dt class="text-sm my-auto col-span-3 bg-base-100 rounded-lg p-4">
+                                                    <div class="overflow-x-auto">
+                                                      <table class="table my-0">
+                                                        <thead>
+                                                          <tr>
+                                                            <th>Review Status</th>
+                                                            <th>Waiting On</th>
+                                                            <th># of Questions</th>
+                                                            <th>View</th>
+                                                          </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                          <tr>
+                                                            <th>
+                                                                <div class="flex flex-row">
+                                                                    <span x-show="assessment.question_statuses['pending'] > 0"><i class="ti ti-alert-circle text-error mr-1"></i></span>
+                                                                    <span>Pending Review from InfoSec</span>
+                                                                </div>
+                                                            </th>
+                                                            <td>InfoSec</td>
+                                                            <td :class="{'text-error':assessment.question_statuses['pending'] > 0}" x-text="assessment.question_statuses['pending']"></td>
+                                                            <td><button @click="setSelectedTab('responses');setSelectedReviewStatus('pending')" class="btn btn-xs"><ti class="ti ti-arrow-right"></ti></button></td>
+                                                          </tr>
+                                                          <tr>
+                                                            <th>Info Required from Vendor</th>
+                                                            <td>Vendor</td>
+                                                            <td :class="{'text-error':assessment.question_statuses['info_required'] > 0}" x-text="assessment.question_statuses['info_required']"></td>
+                                                            <td><button @click="setSelectedTab('responses');setSelectedReviewStatus('info_required')" class="btn btn-xs"><ti class="ti ti-arrow-right"></ti></button></td>
+                                                          </tr>
+                                                          <tr>
+                                                            <th>Complete Questions</th>
+                                                            <td>N/A</td>
+                                                            <td :class="{'text-error':assessment.question_statuses['complete'] !== totalItems}" x-text="assessment.question_statuses['complete']+'/'+totalItems"></td>
+                                                            <td><button @click="setSelectedTab('responses');setSelectedReviewStatus('complete')" class="btn btn-xs"><ti class="ti ti-arrow-right"></ti></button></td>
+                                                          </tr>
+                                                        </tbody>
+                                                      </table>
+                                                    </div>
+                                                </dt>
+                                              </div>
+                                            </dl>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div x-show="selectedMenu === 'responses'">
+
+                                <div class="grid grid-cols-10 gap-x-4">
+                                    <div class="col-span-2">
+                                        <div class="grid grid-cols-2 gap-y-2">
+                                          <div class="col-span-2 p-6 bg-base-100 border border-base-100 rounded-lg">
+                                            <div x-transition class="flex flex-col">
+                                                <div class="flex flex-row justify-between">
+                                                    <h3 class="font-semibold text-lg capitalize my-auto">Sections</h3>
+                                                    <span class="font-semibold text-md my-auto" x-text="sections.length"></span>
+                                                </div>
+
+                                                <div class="flex flex-row">
+                                                    <p class="font-semibold text-xs my-2" x-text="'Answered '+assessment.vendor_answered_percentage+'% of questions.'"></p>
+                                                    <i @click="answerStatusHelp=true" class="ti ti-question-mark text-warning hover:cursor-pointer my-auto"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col gap-y-4">
+                                              <div class="mx-auto text-center mt-5" x-show="sectionZoneLoading" x-transition x-html="loadingSkeleton"></div>
+                                              <div :class="{'h-40 overflow-auto': sections.length>2}" class="flex flex-col gap-y-4" x-ref="sections">
+                                                  <template x-for="section in sections" :key="section.id+section.order">
+                                                    <button :data-id="section.id" @click="changeSection(section)" :class="{'btn-active': section === selectedSection }" class="btn btn-ghost capitalize border border-base-300 text-sm bg-base-300 flex justify-between px-2">
+                                                        <div class="flex flex-row">
+                                                            <i x-transition :class="{'text-success':sectionDict[section.id].responses === sectionDict[section.id].total}" class='ti ti-progress-check text-lg my-auto mt-1'></i>
+
+                                                            <span class="my-auto ml-2" x-text="section.title"></span>
+                                                        </div>
+                                                        <span x-transition x-text="sectionDict[section.id].responses+'/'+sectionDict[section.id].total"></span>
+                                                    </button>
+                                                  </template>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="col-span-2 p-6 bg-base-100 border border-base-100 rounded-lg">
+                                            <div x-transition class="flex flex-col">
+                                                <div class="flex flex-row justify-between">
+                                                    <h3 class="font-semibold text-lg capitalize my-auto">Review Status</h3>
+                                                    <button x-show="itemFilters.review_status" @click="setSelectedReviewStatus('remove')" data-tip="Remove filter" class="tooltip tooltip-bottom btn btn-sm btn-circle btn-ghost text-error"><i class="ti ti-filter-x text-xl"></i></button>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col">
+                                              <div class="font-semibold flex flex-row">
+                                                   <span class="my-2 text-xs" x-text="'Your review is '+assessment.infosec_review_percentage+'% complete.'"></span>
+                                                    <i x-show="assessment.infosec_review_percentage===100" @click="infoSecReviewStatusHelp=true" class="ti ti-question-mark text-warning hover:cursor-pointer my-auto"></i>
+                                              </div>
+                                              <div class="flex flex-col gap-y-4">
+                                                  <div class="flex flex-col gap-y-4">
+                                                    <button @click="setSelectedReviewStatus('pending')" :class="{'btn-active': selectedReviewStatus === 'pending' }" class="btn btn-ghost capitalize border border-base-300 text-sm bg-base-300 flex justify-between px-2">
+                                                        <div class="flex flex-row">
+                                                            <i x-transition :class="{'text-error':assessment.question_statuses['pending']>0}" class='ti ti-spy text-lg my-auto mt-1'></i>
+                                                            <span class="my-auto ml-2">Todo: InfoSec</span>
+                                                        </div>
+                                                        <span x-transition x-text="assessment.question_statuses['pending']+'/'+totalItems"></span>
+                                                    </button>
+                                                    <button @click="setSelectedReviewStatus('info_required')" :class="{'btn-active': selectedReviewStatus === 'info_required' }" class="btn btn-ghost capitalize border border-base-300 text-sm bg-base-300 flex justify-between px-2">
+                                                        <div class="flex flex-row">
+                                                            <i x-transition :class="{'text-warning':assessment.question_statuses['info_required']>0}" class='ti ti-info-hexagon text-lg my-auto mt-1'></i>
+                                                            <span class="my-auto ml-2">Todo: Vendor</span>
+                                                        </div>
+                                                        <span x-transition x-text="assessment.question_statuses['info_required']+'/'+totalItems"></span>
+                                                    </button>
+                                                    <button @click="setSelectedReviewStatus('complete')" :class="{'btn-active': selectedReviewStatus === 'complete' }" class="btn btn-ghost capitalize border border-base-300 text-sm bg-base-300 flex justify-between px-2">
+                                                        <div class="flex flex-row">
+                                                            <i x-transition :class="{'text-success':assessment.question_statuses['complete']>0}" class='ti ti-circle-check text-lg my-auto mt-1'></i>
+                                                            <span class="my-auto ml-2">Complete</span>
+                                                        </div>
+                                                        <span x-transition x-text="assessment.question_statuses['complete']+'/'+totalItems"></span>
+                                                    </button>
+                                                  </div>
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                        </div>
+                                    </div>
+                                  <div class="col-span-8 mockup-browser border-2 border-base-300 bg-base-300 shadow-lg">
+                                      <div class="mockup-browser-toolbar">
+                                        <div @click="showSwitchSectionModal=true" class="input capitalize font-semibold before:invisible after:invisible text-center cursor-pointer hover:text-primary">
+                                            <span x-show="Object.keys(selectedSection).length>0" x-text="selectedSection.title+ ' ('+sectionDict[selectedSection.id].total+')'"></span>
+                                            <span x-show="Object.keys(selectedSection).length===0" x-text="'All Questions'+ ' ('+totalItems+')'"></span>
+
+                                        </div>
+                                      </div>
+                                        <div id="drop-zone-container" class="flex justify-center pr-6 pb-16 pt-4 bg-base-200 grid grid-cols-10 overflow-y-auto">
+
+                                        <button x-show="!searchUnanswered" @click="searchUnanswered=true;viewSearchResults()" class="btn btn-sm absolute left-28 top-2" x-text="'Show Unanswered ('+unansweredItems+')'"></button>
+                                        <button x-show="searchUnanswered" @click="searchUnanswered=false;viewSearchResults()" class="btn btn-sm absolute left-28 top-2"><i x-show="searchUnanswered" class="ti ti-filter text-error"></i>Show All</button>
+
+
+
+                                      <button x-show="Object.keys(itemFilters).length > 0" @click="removeItemFilter" data-tip="Remove filter" class="tooltip right-56 tooltip-bottom btn btn-sm btn-circle btn-ghost absolute top-2 text-error"><i class="ti ti-filter-x text-xl"></i></button>
+                                      <button @click="showSearchModal=true" data-tip="Search" class="btn btn-sm btn-circle btn-ghost absolute right-24 top-2 tooltip tooltip-bottom"><i class="ti ti-search text-xl"></i></button>
+                                      <button @click="scrollDownInDropZone" data-tip="Page down" class="btn btn-sm btn-circle btn-ghost absolute right-12 top-2 tooltip tooltip-bottom"><i class="ti ti-chevrons-down text-xl"></i></button>
+                                      <button @click="scrollUpInDropZone" data-tip="Page up" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 tooltip tooltip-bottom tooltip-left"><i class="ti ti-chevrons-up text-xl"></i></button>
+                                      <div class="mx-auto text-center mt-5 col-span-full" x-show="dropZoneLoading" x-transition x-html="loadingSkeleton"></div>
+                                      <div id="drop-zone" x-ref="items" style="height:32rem;" :class="{'py-4 rounded-lg': !dropZoneLoading && filteredItems.length === 0}" class="col-span-full flex flex-col gap-y-4">
+
+                                        <div x-show="Object.keys(itemFilters).length > 0" role="alert" class="alert bg-base-100 ml-4">
+                                            <i class="ti ti-filter text-error text-lg"></i>
+                                            <div class="flex flex-row">
+                                                <span class="text-sm" x-text="'The questions are currently filtered ('+filteredItems.length+'/'+totalItems+'). Remove the filter to see all questions.'"></span>
+                                            </div>
+                                            <div>
+                                                <button @click="removeItemFilter" class="btn btn-sm btn-error">Remove Filter</button>
+                                            </div>
+                                        </div>
+                                        <div class="justify-center text-xl flex flex-row mt-10" x-show="filteredItems.length < 1 && itemFilters.review_status ==='pending'">
+                                            <i class="ti ti-check text-success mr-2 my-auto"></i>
+                                            <h4 class="my-0">There are 0 todo items for InfoSec</h4>
+                                        </div>
+                                        <div class="justify-center text-xl flex flex-row mt-10" x-show="filteredItems.length < 1 && itemFilters.review_status ==='info_required'">
+                                            <i class="ti ti-check text-success mr-2 my-auto"></i>
+                                            <h4 class="my-0">There are 0 todo items for the Vendor in this section.</h4>
+                                        </div>
+                                        <div class="justify-center text-xl flex flex-row" x-show="filteredItems.length < 1 && itemFilters.review_status ==='complete'">
+                                            <i class="ti ti-check text-success mr-2 my-auto"></i>
+                                            <h4 class="my-0">There are 0 todo items in Complete in this section.</h4>
+                                            <button data-tip="Remove filter" @click="setSelectedReviewStatus('remove')" class="btn btn-xs ml-2 my-auto bg-base-100 tooltip"><i class="ti ti-filter-x text-error"></i></button>
+                                        </div>
+
+                                        <template x-for="item in filteredItems" :key="item.id+item.order">
+                                            <div :data-id="item.id" class="grid grid-cols-10">
+                                                <div class="col-span-1 m-auto">
+                                                    <button
+                                                            class="btn btn-sm btn-ghost tooltip tooltip-right"
+                                                            :data-tip="getItemStatus(item)['label']"
+                                                            @click="openItemModal(item, 'overview')">
+                                                        <i :class="getItemStatus(item)['class']" class="ti text-2xl"></i>
+                                                    </button>
+                                                </div>
+                                                <div x-on:mousedown="selectedItem=item" class="col-span-9 bg-base-300 border border-base-300 rounded-lg">
+                                                    <div x-transition @click="showCriticalHelpModal=true" x-show="item.critical" class="p-2 cursor-pointer hover:text-base-content text-xs font-semibold text-success px-6 col-span-full bg-base-100 rounded-t-lg border-2 border-base-100">
+                                                        Critical Control<i class="ti ti-help ml-1"></i>
+                                                    </div>
+                                                    <div class="grid grid-cols-10 py-6">
+                                                        <div class="col-span-1 my-auto mx-auto">
+                                                            <span x-show="item.response" @click="copyQuestionLink(item.id)" class="m-auto font-semibold uppercase tooltip cursor-pointer" data-tip="Question answered">
+                                                                <i class="ti ti-progress-check text-success text-xl"></i>
+                                                            </span>
+                                                            <span x-show="!item.response" @click="copyQuestionLink(item.id)" class="m-auto font-semibold uppercase tooltip cursor-pointer" data-tip="Not answered">
+                                                                 <i class="ti ti-progress-check text-xl"></i>
+                                                            </span>
+                                                        </div>
+                                                        <div class="col-span-9">
+                                                            <div class="flex justify-between my-auto">
+                                                                <label class="text-sm font-medium my-auto mx-2 mr-8 mb-4"><span @dblclick="openItemModal(item)" class="hover:cursor-pointer hover:underline" x-text="item.index+'. '+item.attributes.label"></span></label>
+                                                                <div class="flex flex-row gap-x-2">
+                                                                    <div class="indicator my-auto">
+                                                                          <span x-show="item.messages.length" style="height: 0.45rem;font-size: 0.45rem;line-height: 0.45rem;padding-left:0.180rem;padding-right:0.180rem" class="indicator-item indicator-end badge badge-warning"></span>
+                                                                          <i @click="openItemModal(item, tab='chat')" class="ti ti-message leading-6 text-xl hover:text-warning hover:cursor-pointer"></i>
+                                                                    </div>
+                                                                    <div class="dropdown dropdown-bottom dropdown-end mr-2 my-auto">
+                                                                      <div tabindex="0" role="button" class="btn btn-sm btn-ghost m-1"><i class="ti ti-dots-vertical text-xl"></i></div>
+                                                                      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                                                                        <li><button class="btn btn-sm btn-ghost flex justify-between" x-transition @click="openItemModal(item)"><span>Open</span> <i class="ti ti-mail-opened text-success ml-2"></i></button></li>
+                                                                        <li><button class="btn btn-sm btn-ghost flex justify-between" x-transition @click="copyQuestionLink(item.id)"><span>Copy Link</span> <i class="ti ti-link text-primary ml-2"></i></button></li>
+                                                                        <li x-show="!formDisabled"><button class="btn btn-sm btn-ghost flex justify-between" x-transition @click="console.log(1)"><span>Mark as N/A</span> <i class="ti ti-eraser text-error ml-2"></i></button></li>
+                                                                        <li x-show="formDisabled"><button class="btn btn-sm btn-ghost flex justify-between" x-transition @click="openItemModal(item, 'overview');"><span>Update Status</span> <i class="ti ti-edit-circle text-warning ml-2"></i></button></li>
+                                                                        <li><button class="btn btn-sm btn-ghost flex justify-between" x-transition @click="openItemModal(item, tab='remediation')"><span>Remediation Plan</span> <i class="ti ti-tool text-error ml-2"></i></button></li>
+
+                                                                      </ul>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                            <!-- Text input -->
+                                                            <div class="ml-2 mr-4" x-transition x-show="item.data_type === 'text'">
+                                                                <textarea :disabled="formDisabled" :value="item.response" class="textarea textarea-bordered w-full" @blur="saveResponse(item, $event.target)" :placeholder="item.attributes.placeholder"></textarea>
+                                                            </div>
+
+                                                            <!-- Select input -->
+                                                            <div class="ml-2 mr-4" x-transition x-show="item.data_type === 'select'">
+                                                                <select :disabled="formDisabled" @change="saveResponse(item, $event.target)" class="select select-bordered w-full">
+                                                                    <option x-show="!item.response" value="" selected>Select an option</option>
+                                                                    <template x-for="option in item.attributes.options">
+                                                                          <option :selected="item.response==option" :value="option" x-text="option"></option>
+                                                                    </template>
+                                                                </select>
+                                                            </div>
+
+                                                            <!-- File input -->
+                                                            <div class="ml-2 mr-4" x-transition x-show="item.data_type === 'file_input'">
+                                                                <span x-show="!item.response"><i class="ti ti-progress-alert text-error mr-2"></i>No files attached</span>
+                                                                <div x-show="item.response">
+                                                                    <p class="my-auto text-sm"><span>Current file: </span><span class="font-bold" x-text="item.response"></span><a class="ml-2" :href="'/api/v1/assessments/{{assessment.id}}/items/'+item.id+'/file'" download target="_blank"><i class='ti ti-download text-lg'></i></a></p>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Checkbox input -->
+                                                            <div class="ml-2 mr-4" x-transition x-show="item.data_type === 'checkbox'">
+                                                                <input :disabled="formDisabled" @change="saveResponse(item, $event.target)" type="checkbox" x-bind:checked="isChecked(item)" class="checkbox" />
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                      </div>
+                                    </div>
+                                      </div>
+                                </div>
+                            </div>
+                            <div class="px-8" x-show="selectedMenu === 'remediation'">
+                                <div class="justify-between flex">
+                                    <div>
+                                        <h1 class="text-xl font-semibold mb-4">Vendor Remediation</h1>
+                                    </div>
+                                </div>
+                                <div x-show="totalRemediations>0" role="alert" class="alert  bg-base-100 mb-2">
+                                    <i class="ti ti-exclamation-mark text-warning text-lg"></i>
+                                    <div class="flex flex-row">
+                                        <span class="text-sm">
+                                            Notice: Remediation actions must be complete by the Vendor. Select each one to view the identified gap and remediation plan.
+                                        </span>
+                                    </div>
+                                </div>
+                                <div x-show="totalRemediations===0" role="alert" class="alert  bg-base-100 mb-2">
+                                    <i class="ti ti-check text-success text-lg"></i>
+                                    <div class="flex flex-row">
+                                        <span class="text-sm">
+                                            There are no remediation items required from the Vendor. Create remediation items by selecting specific questions and requesting the vendor to complete the remediation plan.
+                                        </span>
+                                    </div>
+                                </div>
+                                <div x-show="totalRemediations>0" class="overflow-x-auto bg-base-100 rounded-lg px-4">
+                                  <table class="table mt-3">
+                                    <thead>
+                                      <tr>
+                                        <th class="text-base">Status</th>
+                                        <th class="text-base">Title</th>
+                                        <th class="text-base">Risk</th>
+                                        <th class="text-base">Due Date</th>
+                                        <th class="text-base">Copy Link</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <template x-for="item in allItems" :key="item.id">
+                                          <template x-if="item.remediation_plan_required">
+
+                                          <tr>
+                                            <th class="hover:cursor-pointer" @click="openItemModal(item, 'remediation')">
+                                                <div x-show="item.remediation_status === 'Vendor has not responded'" class="flex flex-row">
+                                                    <div class="bg-base-200 rounded-md px-3 py-1">
+                                                      <i class="ti ti-exclamation-mark text-error my-auto mr-1"></i>
+                                                        No Response from Vendor
+                                                    </div>
+                                                </div>
+                                                <div x-show="item.remediation_status === 'Vendor has disagreed'" class="flex flex-row">
+                                                    <div class="bg-base-200 rounded-md px-3 py-1">
+                                                        <i class="ti ti-x text-error my-auto mr-1"></i>
+                                                        Vendor Declined
+                                                    </div>
+                                                </div>
+                                                <div x-show="item.remediation_status === 'Remediation is complete'" class="flex flex-row">
+                                                    <div class="bg-base-200 rounded-md px-3 py-1">
+                                                        <i class="ti ti-check text-success my-auto mr-1"></i>
+                                                        Complete
+                                                    </div>
+                                                </div>
+                                                <div x-show="item.remediation_status === 'Vendor has not completed the remediation'" class="flex flex-row">
+                                                    <div class="bg-base-200 rounded-md px-3 py-1">
+                                                        <i class="ti ti-progress text-warning my-auto mr-1"></i>
+                                                        In Progress
+                                                    </div>
+                                                </div>
+                                            </th>
+                                            <td @click="openItemModal(item, 'remediation')" class="font-semibold underline underline-offset-2 hover:cursor-pointer" x-text="item.attributes.label"></td>
+                                            <td>
+                                                <badge x-show="item.remediation_risk==='high'" class="badge badge-sm uppercase badge-error font-semibold">High</badge>
+                                                <badge x-show="item.remediation_risk==='moderate'" class="badge badge-sm uppercase badge-warning font-semibold">Moderate</badge>
+                                                <badge x-show="item.remediation_risk==='low'" class="badge badge-sm uppercase badge-primary font-semibold">Low</badge>
+                                                <badge x-show="item.remediation_risk==='unknown'" class="badge badge-sm uppercase font-semibold">Unknown</badge>
+                                            </td>
+                                            <td>
+                                                <div class="flex flex-row">
+                                                    <div class="tooltip" data-tip="Past Due"><i x-show="item.remediation_past_due" class="ti ti-alert-circle text-error mr-1 my-auto"></i></div>
+                                                    <div class="tooltip" data-tip="Due Date Upcoming"><i x-show="item.remediation_due_date_upcoming && !item.remediation_past_due" class="ti ti-alert-circle text-warning mr-1 my-auto"></i></div>
+                                                    <span x-text="item.remediation_due_date">></span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="text-center">
+                                                    <i @click="copyRemediationLink(item.id)" class="ti ti-copy hover:cursor-pointer"></i>
+                                                </div>
+                                            </td>
+                                          </tr>
+                                          </template>
+                                      </template>
+                                    </tbody>
+                                  </table>
+                                </div>
+                            </div>
+                            <div x-show="selectedMenu === 'notes'">
+                                <div class="justify-between flex">
+                                    <div>
+                                        <h1 class="text-xl font-semibold">Internal Assessment Notes</h1>
+                                        <p class="text-sm">Compile internal notes about the assessment. Only viewable by the InfoSec team.</p>
+                                    </div>
+                                    <button @click="saveAssessmentNotes" class="btn btn-s btn-success">Save Notes</button>
+                                </div>
+                                <div id="assessmentNotes" class="mb-5"></div>
+
+                            </div>
+                        </ul>
+                    </div>
+            </div>
+        </div>
+      </div>
+
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showOverviewHelp }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showOverviewHelp = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Help: Overview Status</span>
+              <div class="grid grid-cols-6 gap-8 mt-6">
+                  <div class="col-span-6">
+                      <label class="font-semibold mb-2">Review Status:</label>
+                      <p x-text="assessment.review_status"></p>
+                  </div>
+                  <div class="col-span-6">
+                      <label class="font-semibold mb-2">What does this mean?</label>
+                      <p x-show="assessment.review_status === 'new'">
+                        The assessment has not been published! Edit/publish the questionnaire and the vendor can respond.<a :href="'/assessments/'+assessment.id+'/manage'" class="btn btn-xs ml-2">Edit</a>
+                      </p>
+                      <p x-show="assessment.review_status === 'pending_response'">The assessment is waiting on the vendor to provide their response. There are <i x-text="assessment.question_statuses['info_required']"></i> outstanding items for the vendor to address.</p>
+                      <p x-show="assessment.review_status === 'pending_review'">The assessment is waiting on the InfoSec team to review the questionnaire. There are <i x-text="assessment.question_statuses['pending']"></i> outstanding items for the InfoSec team to review.</p>
+                      <p x-show="assessment.review_status === 'info_required'">The assessment is waiting on the vendor to provide more information for specific questions. There are <i x-text="assessment.question_statuses['info_required']"></i> outstanding items for the vendor to address.</p>
+                      <p x-show="assessment.review_status === 'complete'">The assessment is complete.</p>
+
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showOverviewHelp = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showItemModal }">
+          <div class="modal-box w-12/12 max-w-7xl h-screen">
+              <div class="justify-between flex">
+
+                <div class="breadcrumbs text-2xl font-bold sm:tracking-tight">
+                    <ul>
+                        <li>
+                          <badge @click="copyQuestionLink(selectedItem.id)" class="badge badge-neutral font-semibold text-sm uppercase rounded-sm my-auto hover:cursor-pointer py-3" x-text="selectedItem.id"></badge>
+                        </li>
+                        <li>
+                          <badge @click="copyQuestionLink(selectedItem.id)" class="badge badge-error font-semibold text-sm uppercase rounded-sm my-auto hover:cursor-pointer py-3" x-show="selectedItem.review_status === 'pending'">Pending InfoSec Review</badge>
+                          <badge @click="copyQuestionLink(selectedItem.id)" class="badge badge-warning font-semibold text-sm uppercase rounded-sm my-auto hover:cursor-pointer py-3" x-show="selectedItem.review_status === 'info_required'">Info Required from Vendor</badge>
+                          <badge @click="copyQuestionLink(selectedItem.id)" class="badge badge-success font-semibold text-sm uppercase rounded-sm my-auto hover:cursor-pointer py-3" x-show="selectedItem.review_status === 'complete'">Complete</badge>
+                        </li>
+                    </ul>
+                </div>
+                <button @click="copyQuestionLink(selectedItem.id, modalTab='dynamic')" class="btn btn-sm mr-8 my-auto">Copy Direct Link</button>
+              </div>
+
+              <form method="dialog">
+                  <button @click="closeItemModal"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <div id="itemModal" class="rounded-lg border border-base-300 bg-base-200 mt-2 h-4/5">
+                  <div id="itemModalTabs" class="border-b border-base-100 px-20 py-6 flex flex-row gap-x-8 my-auto justify-between">
+                    <button :class="{'tab-active border-primary border-b-2': activeTab=='overview'}" @click="changeTabInItemModal('overview')" class="tab tab-lg text-lg font-semibold my-auto">Overview</button>
+                    <button x-show="selectedItem.review_status === 'remediation_required' || selectedItem.remediation_gap !== null" :class="{'tab-active border-primary border-b-2': activeTab=='remediation'}" @click="changeTabInItemModal('remediation')" class="tab tab-lg text-lg font-semibold my-auto"><i :class="{'ti-progress text-warning':selectedItem.remediation_plan_required && selectedItem.remediation_vendor_agreed && !selectedItem.remediation_complete,'ti-alert-circle text-error':selectedItem.remediation_plan_required && (!selectedItem.remediation_vendor_agreed || !selectedItem.remediation_complete), 'ti-check text-success':selectedItem.remediation_complete}" class="mr-1 ti text-lg"></i>Remediation Plan</button>
+                    <div class="indicator">
+                          <span x-show="selectedItem.messages.length" style="height: 0.45rem;font-size: 0.45rem;line-height: 0.45rem;padding-left:0.180rem;padding-right:0.180rem" class="indicator-item indicator-end badge badge-warning"></span>
+                          <button :class="{'tab-active border-primary border-b-2': activeTab=='chat'}" @click="changeTabInItemModal('chat')" class="tab tab-lg text-lg font-semibold my-auto">Comments</button>
+                    </div>
+                  </div>
+                  <div  x-show="activeTab=='overview'" class="flex flex-col h-full bg-base-200 rounded-b-lg px-6 py-4 border-1 border-base-300 overflow-auto">
+
+                        <div class="px-4 px-8">
+                            <div class="flex flex-row mb-6">
+                              <i :class="getItemStatus(selectedItem)['class']" class="ti text-2xl mr-2 my-auto"></i>
+                              <h3 class="font-semibold text-lg capitalize" x-text="'Question: '+selectedItem.attributes.label"></h3>
+                              <badge class="badge badge-sm my-auto capitalize ml-2" x-text="selectedItem.review_status"></badge>
+                            </div>
+                            <div x-show="assessment.review_status === 'pending_response'">
+                                <div x-show="selectedItem.review_status === 'complete'" role="alert" class="alert bg-neutral mb-4">
+                                    <i class="ti ti-check text-lg text-success"></i>
+                                    <span class="text-sm">
+                                        The review is complete for this question. There are no action items left.
+                                    </span>
+                                    <div>
+                                        <button @click="closeItemModal" class="btn btn-xs ml-2">Close</button>
+                                    </div>
+                                </div>
+                                <div x-show="assessment.review_status === 'pending_response' && selectedItem.review_status !== 'complete'" role="alert" class="alert bg-neutral mb-4">
+                                    <i class="ti ti-hourglass-empty text-lg text-warning"></i>
+                                    <span class="text-sm">
+                                        Please wait until the vendor submits the assessment before providing your review.
+                                    </span>
+                                    <div>
+                                        <button @click="closeItemModal" class="btn btn-xs ml-2">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div x-show="assessment.review_status === 'pending_review'">
+                                <div x-show="selectedItem.response && selectedItem.review_status === 'complete'" role="alert" class="alert bg-neutral mb-4">
+                                    <i class="ti ti-check text-lg text-success"></i>
+                                    <span class="text-sm">
+                                        The review is complete for this question. There are no action items left.
+                                    </span>
+                                    <div>
+                                        <button @click="closeItemModal" class="btn btn-xs ml-2">Close</button>
+                                    </div>
+                                </div>
+                                <div x-show="!selectedItem.response" role="alert" class="alert bg-neutral mb-4">
+                                    <i class="ti ti-hourglass-empty text-lg text-warning"></i>
+                                    <span class="text-sm">
+                                        The vendor has not provided a response. Please wait until providing a review.
+                                    </span>
+                                </div>
+
+                                <div x-show="selectedItem.review_status === 'pending' && selectedItem.response">
+                                    <div x-show="!selectedItem.remediation_plan_required" role="alert" class="alert bg-neutral mb-4">
+                                        <i class="ti ti-progress-alert text-error text-lg"></i>
+                                        <span class="text-sm">
+                                            The vendor has provided a response and is waiting on your review. Please view the comments and then update the review status.
+                                        </span>
+                                        <div>
+                                            <button @click="changeTabInItemModal('chat')" class="btn btn-xs btn-error"><i class="ti ti-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                    <div x-show="selectedItem.remediation_plan_required && selectedItem.remediation_vendor_agreed" role="alert" class="alert bg-neutral mb-4">
+                                        <i class="ti ti-progress-alert text-error text-lg"></i>
+                                        <span class="text-sm">
+                                        The vendor has completed the remediation plan. Please review and then update the review status.
+                                        </span>
+                                        <div>
+                                            <button @click="changeTabInItemModal('remediation')" class="btn btn-xs btn-error"><i class="ti ti-arrow-right text-lg"></i></button>
+                                        </div>
+                                    </div>
+                                    <div x-show="selectedItem.remediation_plan_required && !selectedItem.remediation_vendor_agreed" role="alert" class="alert bg-neutral mb-4">
+                                        <i class="ti ti-progress-alert text-error text-lg"></i>
+                                        <span class="text-sm">
+                                        The vendor has <i class="text-error">disagreed</i> with the remediation request. Please review and then update the review status.
+                                        </span>
+                                        <div>
+                                            <button @click="changeTabInItemModal('remediation')" class="btn btn-xs btn-error"><i class="ti ti-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div x-show="selectedItem.review_status === 'info_required' && selectedItem.response">
+                                    <div x-show="!selectedItem.remediation_plan_required" role="alert" class="alert bg-neutral mb-4">
+                                        <i class="ti ti-progress-alert text-error text-lg"></i>
+                                        <span class="text-sm">
+                                            You have requested more information from the vendor. Please wait for a response.
+                                        </span>
+                                    </div>
+                                    <div x-show="selectedItem.remediation_plan_required && selectedItem.remediation_vendor_agreed" role="alert" class="alert bg-neutral mb-4">
+                                        <i class="ti ti-progress-alert text-error text-lg"></i>
+                                        <span class="text-sm">
+                                        The vendor has completed the remediation plan.
+                                        </span>
+                                        <div>
+                                            <button @click="changeTabInItemModal('remediation')" class="btn btn-xs ml-2"><i class="ti ti-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                    <div x-show="selectedItem.remediation_plan_required && !selectedItem.remediation_vendor_agreed && selectedItem.review_status === 'info_required'" role="alert" class="alert bg-neutral mb-4">
+                                        <i class="ti ti-progress-alert text-error text-lg"></i>
+                                        <span class="text-sm">
+                                        The vendor has <i class="text-error">disagreed</i> with the remediation request. You have requested more information from the vendor. Please wait for a response.
+                                        </span>
+                                        <div>
+                                            <button @click="changeTabInItemModal('remediation')" class="btn btn-xs ml-2"><i class="ti ti-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                    <div x-show="selectedItem.remediation_plan_required && !selectedItem.remediation_vendor_agreed && selectedItem.review_status === 'pending'" role="alert" class="alert bg-neutral mb-4">
+                                        <i class="ti ti-progress-alert text-error text-lg"></i>
+                                        <span class="text-sm">
+                                        The vendor has <i class="text-error">disagreed</i> with the remediation request. Please review the comments from the Vendor.
+                                        </span>
+                                        <div>
+                                            <button @click="changeTabInItemModal('chat')" class="btn btn-xs ml-2"><i class="ti ti-arrow-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                          <div class="grid grid-cols-6 gap-6">
+                            <div x-transition :class="{'col-span-2': showUpdateItemStatusDiv, 'col-span-3': !showUpdateItemStatusDiv}" class="">
+                                <div class="p-6 rounded-lg bg-base-100">
+                                    <div x-transition class="flex flex-col">
+                                        <div class="flex flex-row justify-between">
+                                            <h3 class="pb-4 font-semibold text-lg capitalize">Vendor Response</h3>
+                                            <button x-show="selectedItem.review_status === 'complete'" class="btn btn-sm btn-ghost"><i class="ti ti-check text-success text-xl"></i></button>
+                                        </div>
+                                        <!-- Text input -->
+                                        <div class="" x-transition x-show="selectedItem.data_type === 'text'">
+                                            <textarea :disabled="formDisabled" :value="selectedItem.response" class="textarea textarea-bordered w-full" @blur="saveResponse(selectedItem, $event.target)" :placeholder="selectedItem.attributes.placeholder"></textarea>
+                                        </div>
+
+                                        <!-- Select input -->
+                                        <div class="" x-transition x-show="selectedItem.data_type === 'select'">
+                                            <select :disabled="formDisabled" @change="saveResponse(selectedItem, $event.target)" class="select select-bordered w-full">
+                                                <option x-show="!selectedItem.response" value="" selected>Select an option</option>
+                                                <template x-for="option in selectedItem.attributes.options">
+                                                      <option :selected="selectedItem.response==option" :value="option" x-text="option"></option>
+                                                </template>
+                                            </select>
+                                        </div>
+
+                                        <!-- File input -->
+                                        <div class="" x-transition x-show="selectedItem.data_type === 'file_input'">
+                                            <div x-show="formDisabled">
+                                                <span x-show="!item.response"><i class="ti ti-progress-alert text-error mr-2"></i>No files attached</span>
+                                                <div x-show="item.response">
+                                                    <p class="my-auto text-sm"><span>Current file: </span><span class="font-bold" x-text="item.response"></span><a class="ml-2" :href="'/api/v1/assessments/{{assessment.id}}/items/'+item.id+'/file'" download target="_blank"><i class='ti ti-download text-lg'></i></a></p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Checkbox input -->
+                                        <div class="" x-transition x-show="selectedItem.data_type === 'checkbox'">
+                                            <input :disabled="formDisabled" @change="saveResponse(selectedItem, $event.target)" type="checkbox" x-bind:checked="isChecked(selectedItem)" class="checkbox" />
+                                        </div>
+
+                                        <div x-show="!selectedItem.response" role="alert" class="alert bg-neutral mb-4">
+                                            <i class="ti ti-progress-alert text-error text-lg"></i>
+                                            <span class="text-sm">
+                                                The vendor has not provided a response to the question.
+                                            </span>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div x-transition :class="{'col-span-4': showUpdateItemStatusDiv, 'col-span-3': !showUpdateItemStatusDiv}" class="">
+                                <div :class="{'border border-error animate-pulse':highlightStatusDiv}" class="p-6 bg-base-100 rounded-lg">
+                                    <div x-transition class="flex flex-col">
+                                        <div class="flex flex-row justify-between">
+                                            <h3 class="pb-4 font-semibold text-lg capitalize">InfoSec Review</h3>
+                                            <button x-show="selectedItem.review_status === 'complete'" class="btn btn-sm btn-ghost"><i class="ti ti-check text-success text-xl"></i></button>
+
+                                        </div>
+                                        <div x-show="showUpdateItemStatusDiv">
+                                        <div x-show="tempSelectedStatus!=='info_required'" role="alert" class="alert bg-neutral flex mb-4">
+                                            <button @click="showUpdateItemStatusDiv=false;tempSelectedStatus=selectedItem.review_status" class="btn btn-sm text-lg"><i class="ti ti-arrow-left"></i></button>
+                                            <i class="ti ti-alert-circle text-warning text-lg"></i>
+                                            <span class="text-sm" x-html="'You are changing the status to: <i>'+tempSelectedStatus+'</i>. Please complete the fields below.'"></span>
+                                        </div>
+                                        <div x-show="tempSelectedStatus==='info_required' && !selectedItem.remediation_plan_required" role="alert" class="alert bg-neutral flex mb-4">
+                                            <button @click="showUpdateItemStatusDiv=false;tempSelectedStatus=selectedItem.review_status" class="btn btn-sm text-lg"><i class="ti ti-arrow-left"></i></button>
+                                            <i class="ti ti-alert-circle text-warning text-lg"></i>
+                                            <div class="flex flex-col text-sm">
+                                                <p class="mb-2">You are changing the status to: <i>info_required</i>.</p>
+                                                <p>You can request more information below OR request a remediation plan from the vendor. <i @click="changeTabInItemModal('remediation');showUpdateItemStatusDiv=false" class="text-primary hover:underline hover:cursor-pointer">Click here to request the plan.</i></p>
+                                            </div>
+                                        </div>
+                                        <div x-show="tempSelectedStatus==='info_required' && selectedItem.remediation_plan_required" role="alert" class="alert bg-neutral flex mb-4">
+                                            <button @click="showUpdateItemStatusDiv=false;tempSelectedStatus=selectedItem.review_status" class="btn btn-sm text-lg"><i class="ti ti-arrow-left"></i></button>
+                                            <i class="ti ti-alert-circle text-warning text-lg"></i>
+                                            <div class="flex flex-col text-sm">
+                                                <p class="mb-2">You are changing the status to: <i>info_required</i>.</p>
+                                                <p>You can request more information below OR <i @click="changeTabInItemModal('remediation');showUpdateItemStatusDiv=false" class="text-primary hover:underline hover:cursor-pointer">view the current remediation plan.</i></p>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-span-6">
+                                          <div x-show="tempSelectedStatus==='info_required'">
+                                              <div class="col-span-4 flex flex-col mb-4">
+                                                <label class="text-sm font-medium mb-2">(Optional) Additional Information</label>
+                                                <textarea x-model="additionalInformation" class="textarea textarea-bordered" placeholder="Describe any additional information you need from the vendor (this will be added as a comment). If you have already added comments, you can skip this field."></textarea>
+                                              </div>
+
+                                          </div>
+                                          <div x-show="tempSelectedStatus==='remediation_required'" class="grid grid-cols-6 gap-2 mt-2">
+                                              <div x-show="selectedItem.remediation_vendor_plan" class="col-span-4 flex flex-col">
+                                                <label class="text-sm font-medium mb-2">Vendor Feedback</label>
+                                                <textarea :disabed="!isVendor" x-model="selectedItem.remediation_vendor_plan" class="textarea textarea-bordered" disabled placeholder="To be completed by the Vendor"></textarea>
+                                              </div>
+                                              <div x-show="selectedItem.remediation_vendor_agreed" class="col-span-2 flex flex-col">
+                                                <label class="text-sm font-medium mb-2">Vendor Agreed</label>
+                                                <div x-show="selectedItem.remediation_vendor_agreed === true" class="flex flex-row">
+                                                    <i class="ti ti-circle-check text-success mr-2 my-auto"></i>
+                                                    <span class="text-sm font-semibold">Vendor has agreed</span>
+                                                </div>
+                                                <div x-show="selectedItem.remediation_vendor_agreed === false" class="flex flex-row">
+                                                    <i class="ti ti-circle-x text-error mr-2 my-auto"></i>
+                                                    <span class="text-sm font-semibold">Vendor has declined</span>
+                                                </div>
+                                                <div x-show="selectedItem.remediation_vendor_agreed === null" class="flex flex-row">
+                                                    <i class="ti ti-hourglass-empty text-warning mr-2 my-auto"></i>
+                                                    <span class="text-sm font-semibold">Vendor has not responded</span>
+                                                </div>
+                                              </div>
+
+                                          </div>
+                                          <div x-show="tempSelectedStatus==='complete'">
+                                              <div class="col-span-4 flex flex-col">
+                                                <label class="text-sm font-medium mb-2">Optional Notes</label>
+                                                <textarea x-model="selectedItem.complete_notes" class="textarea textarea-bordered" placeholder="Optional: Place any internal notes about the question"></textarea>
+                                              </div>
+                                          </div>
+                                        </div>
+
+                                        <div x-show="assessment.review_status !== 'pending_response'" class="grid grid-cols-4 gap-x-6 mt-4">
+                                            <button @click="showUpdateItemStatusDiv=false;tempSelectedStatus=selectedItem.review_status" class="col-span-1 btn btn-block">Back</button>
+                                            <button @click="updateItemStatus(selectedItem, 'pending');showUpdateItemStatusDiv=false" x-show="tempSelectedStatus=='pending'" class="btn btn-success col-span-3">Update Status</button>
+                                            <button @click="requestMoreInformation;showUpdateItemStatusDiv=false" x-show="tempSelectedStatus=='info_required'" class="btn btn-success col-span-3">Update Status</button>
+                                            <button @click="updateItemStatus(selectedItem, 'complete');showUpdateItemStatusDiv=false" x-show="tempSelectedStatus=='complete'" class="btn btn-success col-span-3">Update Status</button>
+                                        </div>
+                                        <div x-show="assessment.review_status === 'pending_response'" class="grid grid-cols-4 gap-x-6 mt-4">
+                                            <button @click="showUpdateItemStatusDiv=false;tempSelectedStatus=selectedItem.review_status" class="col-span-1 btn btn-block">Back</button>
+                                            <button class="btn btn-disabled col-span-3">Waiting on Vendor Response</button>
+                                        </div>
+                                    </div>
+                                        <div x-show="!showUpdateItemStatusDiv" class="text-sm pb-4">
+                                      <div class="col-span-6">
+                                          <table class="table table-sm">
+                                            <thead class="rounded-lg">
+                                              <tr>
+                                                <th>Status</th>
+                                                <th>Description</th>
+                                                <th>Active</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              <tr>
+                                                  <td class="font-semibold">Pending</td>
+                                                  <td>Waiting to be reviewed by the InfoSec team</td>
+                                                  <td><button @click="switchItemStatus('pending')" :class="{'btn-primary btn-active btn-block cursor-default no-animation': tempSelectedStatus==='pending'}" class="btn btn-sm" x-html="tempSelectedStatus==='pending' ? '✓' : 'Select'">Select</button></td>
+                                              </tr>
+                                              <tr>
+                                                  <td class="font-semibold">Info Required</td>
+                                                  <td>InfoSec team is requesting more information from the Vendor</td>
+                                                  <td><button @click="switchItemStatus('info_required')" :class="{'btn-primary btn-active btn-block cursor-default no-animation': tempSelectedStatus==='info_required'}" class="btn btn-sm" x-text="tempSelectedStatus==='info_required' ? '✓' : 'Select'">Select</button></td>
+                                              </tr>
+                                              <tr>
+                                                  <td class="font-semibold">Complete</td>
+                                                  <td>InfoSec team determines the review is complete</td>
+                                                  <td><button @click="switchItemStatus('complete')" :class="{'btn-primary btn-active btn-block cursor-default no-animation': tempSelectedStatus==='complete'}" class="btn btn-sm" x-text="tempSelectedStatus==='complete' ? '✓' : 'Select'">Select</button></td>
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                      </div>
+                                      <div x-show="selectedItem.remediation_plan_required && selectedItem.remediation_vendor_agreed && selectedItem.review_status !== 'complete'"  role="alert" class="alert bg-neutral mt-2">
+                                        <i class="ti ti-progress-alert text-error text-lg"></i>
+                                        <span class="text-sm">
+                                            Please review the vendor response, add comments and/or change the review status above to continue.
+                                        </span>
+                                        <div>
+                                            <button @click="changeTabInItemModal('chat')" class="btn btn-xs ml-2"><i class="ti ti-arrow-right text-lg"></i></button>
+                                        </div>
+                                      </div>
+                                      <div class="col-span-6 px-3 pt-2">
+                                          <div x-show="selectedItem.review_status==='remediation_required'" class="grid grid-cols-6 gap-2 mt-2">
+                                              <div class="col-span-4 flex flex-col">
+                                                <label class="text-sm font-medium mb-2">Proposed Remediation</label>
+                                                <textarea x-model="selectedItem.remediation_gap" class="textarea textarea-bordered" placeholder="Describe why the control is not satisfied"></textarea>
+                                              </div>
+                                              <div class="col-span-2 flex flex-col">
+                                                <label class="text-sm font-medium mb-2">Due Date</label>
+                                                <label class="input input-bordered flex items-center gap-2">
+                                                  <i class="ti ti-calendar-due text-lg"></i>
+                                                  <input x-model="selectedItem.remediation_due_date" x-init="initFlatpickr" id="datePicker" type="text" class="grow bg-transparent text-sm" placeholder="Proposed Due Date" />
+                                                </label>
+                                              </div>
+                                              <div x-show="selectedItem.remediation_vendor_plan" class="col-span-4 flex flex-col">
+                                                <label class="text-sm font-medium mb-2">Vendor Feedback</label>
+                                                <textarea :disabed="!isVendor" x-model="selectedItem.remediation_vendor_plan" class="textarea textarea-bordered" disabled placeholder="To be completed by the Vendor"></textarea>
+                                              </div>
+                                              <div x-show="selectedItem.remediation_vendor_agreed" class="col-span-2 flex flex-col">
+                                                <label class="text-sm font-medium mb-2">Vendor Agreed<button @click="showVendorAgreedHelp=true" class="btn btn-xs bg-base-100 ml-2"><i class="ti ti-question-mark"></i></button></label>
+                                                <div x-show="selectedItem.remediation_vendor_agreed === true" class="flex flex-row">
+                                                    <i class="ti ti-circle-check text-success mr-2 my-auto"></i>
+                                                    <span class="text-sm font-semibold">Vendor has agreed</span>
+                                                </div>
+                                                <div x-show="selectedItem.remediation_vendor_agreed === false" class="flex flex-row">
+                                                    <i class="ti ti-circle-x text-error mr-2 my-auto"></i>
+                                                    <span class="text-sm font-semibold">Vendor has declined</span>
+                                                </div>
+                                                <div x-show="selectedItem.remediation_vendor_agreed === null" class="flex flex-row">
+                                                    <i class="ti ti-hourglass-empty text-warning mr-2 my-auto"></i>
+                                                    <span class="text-sm font-semibold">Vendor has not responded</span>
+                                                </div>
+                                              </div>
+
+                                          </div>
+                                          <div x-show="selectedItem.review_status==='complete'">
+                                              <div class="col-span-4 flex flex-col">
+                                                <label class="text-sm font-medium mb-2">Optional Notes</label>
+                                                <textarea x-model="selectedItem.complete_notes" class="textarea textarea-bordered" placeholder="Optional: Place any internal notes about the question"></textarea>
+                                                <button @click="updateQuestionNotes(selectedItem)" class="btn btn-success mt-2">Update Notes</button>
+                                              </div>
+                                          </div>
+                                        </div>
+
+
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                          </div>
+                        </div>
+                  </div>
+                  <div  x-show="activeTab=='remediation'" class="flex flex-col h-full bg-base-200 rounded-b-lg px-10 py-4 border-1 border-base-300 overflow-auto">
+                    <div x-show="selectedItem.remediation_plan_required && selectedItem.remediation_complete_from_vendor === true && selectedItem.remediation_complete === false" role="alert" class="alert bg-neutral mb-4">
+                        <i class="ti ti-alert-hexagon text-error text-lg"></i>
+                        <span class="text-sm">
+                            The vendor has reported the remediation as complete. Please review.
+                        </span>
+                    </div>
+                    <div x-show="selectedItem.remediation_plan_required && selectedItem.remediation_complete_from_vendor === true && selectedItem.remediation_complete === true" role="alert" class="alert bg-neutral mb-4">
+                        <i class="ti ti-check text-success text-lg"></i>
+                        <span class="text-sm">
+                            The remediation plan is complete and implemented. There are no other action items from either group.
+                        </span>
+                    </div>
+                    <div x-show="!selectedItem.remediation_plan_required" role="alert" class="alert bg-neutral mb-4">
+                        <i class="ti ti-info-hexagon text-lg"></i>
+                        <span class="text-sm">
+                            You have not requested any remediation actions from the vendor. If you require a remediation plan, please enable and complete the fields below.
+                        </span>
+                    </div>
+                    <div x-show="selectedItem.remediation_plan_required && selectedItem.remediation_vendor_agreed && selectedItem.remediation_complete_from_vendor === false" role="alert" class="alert bg-neutral mb-4">
+                        <i class="ti ti-check text-success text-lg"></i>
+                        <span class="text-sm">
+                            The vendor has <b class="text-success">agreed</b> to the identified gap and created a remediation plan. Please wait until they complete the remediation.
+                        </span>
+                    </div>
+                    <div x-show="selectedItem.remediation_plan_required && selectedItem.remediation_vendor_agreed !== null" role="alert" class="alert bg-neutral mb-4">
+                        <i class="ti ti-alert-circle text-error text-lg"></i>
+                        <span class="text-sm">
+                            The vendor has <i class="text-error">disagreed</i> with the identified gap. You can use the comments to converse with the Vendor.
+                        </span>
+                        <div>
+                            <button @click="changeTabInItemModal('chat')" class="btn btn-xs btn-error"><i class="ti ti-arrow-right"></i></button>
+                        </div>
+                    </div>
+                    <div x-show="selectedItem.remediation_plan_required && selectedItem.remediation_vendor_agreed === null" role="alert" class="alert bg-neutral mb-4">
+                        <i class="ti ti-hourglass-empty text-warning text-lg"></i>
+                        <span class="text-sm">
+                            Waiting on the vendor to submit a remediation plan. Please wait.
+                        </span>
+                        <div>
+                            <button @click="changeTabInItemModal('remediation')" class="btn btn-xs"><i class="ti ti-arrow-right"></i></button>
+                        </div>
+                    </div>
+                    <div x-show="!selectedItem.remediation_plan_required" class="grid grid-cols-6 gap-6">
+                        <div class="col-span-6 text-center mt-16">
+                            <h3 class="text-xl font-semibold mb-5">Enable Remediation Plan</h3>
+                            <input type="checkbox" @click="showRemediationWarning=true" class="toggle toggle-primary" :checked="selectedItem.remediation_plan_required === true" />
+                        </div>
+                    </div>
+                    <div x-show="selectedItem.remediation_plan_required" class="grid grid-cols-6 gap-6">
+                          <div class="p-6 col-span-3 rounded-lg bg-base-100">
+                            <div class="flex flex-row justify-between mb-2">
+                                 <h3 class="pb-4 font-semibold text-lg capitalize">InfoSec Feedback</h3>
+                            </div>
+                            <div class="grid grid-cols-6 gap-6 pb-6">
+                              <div class="col-span-6 flex flex-col">
+                                <label class="text-sm font-medium mb-2">1. Identified Gap by InfoSec<b class="text-error ml-1">*</b></label>
+                                <textarea x-model="selectedItem.remediation_gap" class="textarea textarea-bordered" placeholder="Describe why the control is not satisfied"></textarea>
+                              </div>
+                              <div class="col-span-3 flex flex-col">
+                                <label class="text-sm font-medium mb-2">2. Risk<b class="text-error ml-1">*</b></label>
+                                <select x-model="selectedItem.remediation_risk" class="select select-bordered w-full">
+                                  <option value="unknown" :selected="selectedItem.remediation_risk === 'unknown'">Unknown</option>
+                                  <option value="low" :selected="selectedItem.remediation_risk === 'low'">Low</option>
+                                  <option value="moderate" :selected="selectedItem.remediation_risk === 'moderate'">Moderate</option>
+                                  <option value="high" :selected="selectedItem.remediation_risk === 'high'">High</option>
+                                </select>
+                              </div>
+
+                              <div class="col-span-3 flex flex-col">
+                                <label class="text-sm font-medium mb-2">3. Due Date<b class="text-error ml-1">*</b></label>
+                                <label class="input input-bordered flex items-center gap-2">
+                                  <i class="ti ti-calendar-due text-lg"></i>
+                                  <input x-model="selectedItem.remediation_due_date" x-init="initFlatpickr" id="datePicker" type="text" class="grow bg-transparent text-sm" placeholder="Proposed Due Date" />
+                                </label>
+                              </div>
+                            </div>
+                        </div>
+
+                          <div class="p-6 col-span-3 rounded-lg bg-base-100">
+                            <div class="flex flex-row justify-between mb-2">
+                                 <h3 class="pb-4 font-semibold text-lg capitalize">Vendor Response</h3>
+                            </div>
+                            <div class="grid grid-cols-6 gap-6 pb-6">
+                              <div class="col-span-6 flex flex-col">
+                                <label class="text-sm font-medium mb-3">1. Vendor Remediation Plan</label>
+                                  <div x-show="selectedItem.remediation_vendor_plan === null" class="bg-base-200 px-6 py-4 rounded-lg text-sm flex flex-row" >
+                                      <i x-show="selectedItem.remediation_vendor_agreed !== false" class="ti ti-hourglass-empty text-warning mr-2 my-auto"></i>
+                                      <p x-show="selectedItem.remediation_vendor_agreed !== false" class="text-sm">Waiting on Vendor</p>
+                                      <i x-show="selectedItem.remediation_vendor_agreed === false" class="ti ti-circle-x text-error mr-2 my-auto"></i>
+                                      <p x-show="selectedItem.remediation_vendor_agreed === false" class="text-sm font-semibold">Vendor has declined
+                                        <button @click="changeTabInItemModal('chat')" class="btn btn-xs ml-2"><i class="ti ti-arrow-right"></i></button>
+                                      </p>
+                                  </div>
+                                  <div x-show="selectedItem.remediation_vendor_plan" x-text="selectedItem.remediation_vendor_plan" x-model="selectedItem.remediation_vendor_plan" class="bg-base-200 px-6 py-4 rounded-lg text-sm"></div>
+                              </div>
+                              <div class="col-span-6 flex flex-col">
+                                <label class="text-sm font-medium mb-2">2. Vendor Agreed<button @click="showVendorAgreedHelp=true" class="btn btn-xs ml-2 bg-base-200"><i class="ti ti-question-mark"></i></button></label>
+                                <div x-show="selectedItem.remediation_vendor_agreed === true" class="flex flex-row bg-base-200 px-6 py-4 rounded-lg">
+                                    <i class="ti ti-circle-check text-success mr-2 my-auto"></i>
+                                    <span class="text-sm font-semibold">Vendor has agreed</span>
+                                </div>
+                                <div x-show="selectedItem.remediation_vendor_agreed === false" class="flex flex-row bg-base-200 px-6 py-4 rounded-lg">
+                                    <i class="ti ti-circle-x text-error mr-2 my-auto"></i>
+                                    <span class="text-sm font-semibold">Vendor has declined</span>
+                                    <button @click="changeTabInItemModal('chat')" class="btn btn-xs ml-2"><i class="ti ti-arrow-right"></i></button>
+
+                                </div>
+                                <div x-show="selectedItem.remediation_vendor_agreed === null" class="flex flex-row bg-base-200 px-6 py-4 rounded-lg">
+                                    <i class="ti ti-hourglass-empty text-warning mr-2 my-auto"></i>
+                                    <span class="text-sm">Waiting on Vendor</span>
+                                </div>
+                              </div>
+                            </div>
+                        </div>
+
+
+                          <div class="col-span-full flex flex-col bg-base-100 rounded-lg p-4" x-show="selectedItem.remediation_vendor_agreed && selectedItem.remediation_plan_required">
+                              <label class="text-sm font-medium mb-2">Mark Remediation as Complete</label>
+                              <p class="text-xs text-warning mb-2">After the vendor has implemented the described mitigation above, you can mark it as complete. This will automatically mark the question/control to "Complete".</p>
+                              <input type="checkbox" :checked="selectedItem.remediation_complete" class="checkbox" />
+                          </div>
+
+                          <div class="col-span-2">
+                              <button @click="showRemediationWarning=true" :class="{'btn-disabled':!selectedItem.remediation_plan_required}" class="btn btn-warning btn-block">Disable Remediation Plan</button>
+                          </div>
+                          <div class="col-span-4">
+                              <button @click="updateRemediationDetails(selectedItem)" :class="{'btn-disabled':!selectedItem.remediation_gap || selectedItem.remediation_due_date === null}" class="btn btn-success btn-block">Update</button>
+                          </div>
+                    </div>
+                  </div>
+                  <div  x-show="activeTab=='chat'" class="flex flex-col h-full bg-base-200 rounded-b-lg border-1 border-base-300">
+                        <div x-show="selectedItem.response && selectedItem.review_status === 'pending'" role="alert" class="alert bg-neutral mb-4">
+                            <i class="ti ti-spy text-warning text-lg"></i>
+                            <span class="text-sm">
+                                Please review the response below from the vendor and then update the status.
+                            </span>
+                            <div>
+                                <button @click="showInfoSecReviewWorkflow=true" class="btn btn-xs btn-warning">Workflow Help</button>
+                                <button @click="changeTabInItemModal('overview');highlightStatusDiv=true" class="btn btn-xs btn-primary">Change Status</button>
+                            </div>
+                        </div>
+                       <div id="messageDiv" class="flex flex-col p-6 overflow-y-auto h-full">
+                         <template x-for="message in selectedItem.messages" :key="message.id">
+                            <div :class='{"chat-start": message.is_vendor, "chat-end": !message.is_vendor}' class="chat">
+                              <div @click="deleteMessage(message)" @mouseenter="showDeleteMessage=true" @mouseleave="showDeleteMessage=false" class="chat-image avatar placeholder cursor-pointer">
+                                  <div class="bg-neutral text-neutral-content rounded-full w-8">
+                                    <span x-show="!showDeleteMessage" class="text-xs uppercase" x-text="message.author[0]"></span>
+                                    <span x-show="showDeleteMessage" class="text-xs uppercase"><i class='ti ti-trash text-error'></i></span>
+                                  </div>
+                              </div>
+                              <div class="chat-header mb-2">
+                                <span x-text="message.author"></span>
+                                <span class="text-xs opacity-50" x-text="message.created_at"></span>
+                              </div>
+                              <div class="chat-bubble" x-text="message.text"></div>
+                            </div>
+                         </template>
+                       </div>
+                       <div class="border-t-2 border-base-200 p-4">
+                          <div class="relative flex">
+                             <input x-model="currentMessage" @keyup.enter="createMessage" type="text" placeholder="Write your message!" class="w-full border border-base-300 focus:outline-none pl-6 rounded-md py-3">
+                             <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
+                                <button @click="createMessage" :class='{"btn-disabled": !currentMessage}' class="btn btn-primary text-neutral-content">
+                                   <span class="font-bold">Send</span>
+                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-6 w-6 ml-2 transform rotate-90">
+                                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                                   </svg>
+                                </button>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+              </div>
+              <div class="modal-action">
+                  <button @click="updateItemStatus(selectedItem, 'info_required')" :class='{"btn-disabled": !selectedItem.info_required}' x-show="activeTab=='status' && tempSelectedStatus=='info_required'" class="btn btn-success animate-pulse" x-text="selectedItem.info_required ? 'Save' : 'Incomplete'">Save</button>
+                  <button @click="updateItemStatus(selectedItem, 'remediation_required')" :class='{"btn-disabled": !selectedItem.remediation_due_date || !selectedItem.remediation_gap}' x-show="activeTab=='status' && tempSelectedStatus=='remediation_required'" class="btn btn-success animate-pulse" x-text="selectedItem.remediation_due_date && selectedItem.remediation_gap ? 'Save' : 'Incomplete'">Save</button>
+                  <button @click="updateItemStatus(selectedItem, 'complete')" x-show="activeTab=='status' && tempSelectedStatus=='complete'" class="btn btn-success animate-pulse">Save</button>
+
+              </div>
+          </div>
+      </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showCriticalHelpModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showCriticalHelpModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Critical Question</span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-6">
+                      When a control is marked as <b class="text-success">critical</b>, the control is a priority and we may ask additional questions.
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showCriticalHelpModal = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showSwitchSectionModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showSwitchSectionModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <h2 class="py-2 text-xl font-semibold">Switch Section</h2>
+              <select @change="changeSectionByTitle($event.target.value)" class="select select-bordered w-full mt-5">
+                  <template x-for="section in sections" :key="section.id">
+                    <option class="capitalize" :selected="selectedSection==section" :value="section.title" x-text="section.title"></option>
+                  </template>
+              </select>
+              <div class="modal-action">
+                  <button class="btn" @click="showSwitchSectionModal = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showHelpModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showHelpModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <div x-transition x-show="selectedItem.disabled">
+                  <span class="text-lg font-semibold"><i class="ti text-lg ti-alert-circle text-error mr-2"></i>Disabled Question</span>
+                  <div class="grid grid-cols-6 gap-4 mt-8">
+                      <div class="col-span-6">
+                          <h3>When a new question is added, you <b>must update the label/question.</b> We don't want to show disabled questions in your assessment!</h3>
+                      </div>
+                  </div>
+              </div>
+              <div x-transition x-show="!selectedItem.disabled">
+                  <span class="text-lg font-semibold"><i class="ti text-lg ti-circle-check text-success mr-2"></i>All Set!</span>
+                  <div class="grid grid-cols-6 gap-4 mt-8">
+                      <div class="col-span-6">
+                          <h3>Your question is ready to go! There are no other actions required (for this question).</h3>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="modal-action">
+                  <button class="btn" @click="showHelpModal = false">Close</button>
+                  <button x-show="selectedItem.disabled" class="btn btn-warning" @click="openEditModal(selectedItem)">Edit</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showFileSelection }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showFileSelection = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <h2 class="py-2 text-xl font-semibold">Attach file</h2>
+              <p class="text-sm mb-3">You can only attach one file to a question. You can view all of your available files <a class="text-warning hover:underline" target="_blank" href="{{url_for('main.get_vendor', id=assessment.vendor_id)}}">here</a></p>
+              <input
+                x-ref="searchField"
+                x-model="fileSearch"
+                x-on:keydown.window.prevent.slash="$refs.searchField.focus()"
+                placeholder="Search for an file..."
+                type="search"
+                class="input input-bordered w-full"
+              />
+              <div class="overflow-y-auto h-72 mt-2">
+                  <table class="table">
+                      <template x-for="file in filteredVendorFiles" :key="file.id">
+                          <tr>
+                              <th x-text="file.name"></th>
+                              <td class="text-center">
+                                  <button x-show="file.name !== selectedItem.response" @click="attachFileToItem(selectedItem, file.name)" class="btn btn-sm">Attach</button>
+                                  <button x-show="file.name === selectedItem.response" @click="removeResponseFromItem(selectedItem)" class="btn btn-sm btn-error opacity-75">Remove</button>
+
+                              </td>
+                          </tr>
+                      </template>
+                  </table>
+              </div>
+
+              <div class="modal-action">
+                  <button class="btn" @click="showFileSelection = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showGuestModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showGuestModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Update Guests</span>
+              <div class="p-6 px-10 mt-4 rounded-lg bg-base-200 h-96 overflow-auto">
+                  <div class="form-control border-b border-base-100">
+                      <label class="cursor-pointer label">
+                        <span class="label-text font-semibold">Vendor Access</span>
+                        <span class="label-text font-semibold">Email</span>
+                      </label>
+                  </div>
+                  <template x-for="guest in guests" :key="guest.email">
+                        <div class="form-control">
+                          <label class="cursor-pointer label">
+                            <input type="checkbox" x-model="guest.access" :checked="guest.access" class="checkbox checkbox-secondary" />
+                            <span class="label-text font-semibold" x-text="guest.email"></span>
+                          </label>
+                        </div>
+                  </template>
+
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showGuestModal = false">Close</button>
+                  <button class="btn btn-success" @click="updateGuests">Update</button>
+
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showEmailModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showEmailModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Send Email Reminder?</span>
+              <p class="text-sm mt-4">The vendor (guests) will receive an email notification.</p>
+              <div class="modal-action">
+                  <button class="btn" @click="showEmailModal = false">Close</button>
+                  <button class="btn btn-success" @click="sendEmailReminder">Send</button>
+
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showDeleteFileModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showDeleteFileModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Remove File</span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-6">
+                      <span class="block text-sm font-medium mb-2">Are you sure you want to remove the file? You can always add it back.</span>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showDeleteFileModal = false">Close</button>
+                  <button class="btn btn-error" @click="removeResponseFromItem(selectedItem);showDeleteFileModal=false">Remove</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showSubmitModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showSubmitModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Submit Assessment?</span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-6">
+                      <span class="block text-sm font-medium mb-2">Are you sure you want to submit the assessment? You will not be able to edit your responses afterwards. We will review your responses and follow up.</span>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showSubmitModal = false">Close</button>
+                  <button class="btn btn-primary" @click="submitAssessment">Submit</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showRemediationModal }">
+          <div class="modal-box w-12/12 max-w-7xl h-screen">
+              <form method="dialog">
+                  <button @click="showRemediationModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Remediation Plan</span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-6">
+                      <span class="block text-sm font-medium mb-2">Remediation Plan</span>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showRemediationModal = false">Close</button>
+                  <button class="btn btn-primary" @click="showRemediationModal">Submit</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showStatusModal }">
+          <div class="modal-box w-11/12 max-w-5xl">
+              <form method="dialog">
+                  <button @click="showStatusModal = false;setStatusOption(assessment.review_status)"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Change Assessment Status</span>
+              <p class="text-sm mt-4">Please select the desired review status below.</p>
+              <div x-show="assessment.review_status !=='pending_review'" class="grid grid-cols-6 gap-4 mt-6">
+                  <div class="col-span-6">
+                      <table class="table">
+                        <thead class="bg-base-300 rounded-lg">
+                          <tr>
+                            <th class="w-1" x-show="!isVendor">Selected</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <template x-for="option in statusOptions" :key="option.value+option.checked">
+                              <tr>
+                                <td class="text-center my-auto" x-show="!isVendor">
+
+                                    <input x-show="option.checked" type="checkbox" disabled checked class="checkbox checkbox-sm my-auto" />
+                                    <input x-show="!option.checked && option.value !== 'new'" @click="setStatusOption(option.value);showUpdateStatusModal=true" type="checkbox" class="checkbox checkbox-sm my-auto" />
+                                    <input disabled x-show="!option.checked && option.value === 'new'" @click="setStatusOption(option.value);showUpdateStatusModal=true" type="checkbox" class="checkbox checkbox-sm my-auto" />
+                                </td>
+                                <td>
+                                    <div :class="'text-'+option.color" class="font-bold" x-text="option.label"></div>
+                                </td>
+                                <td x-text="option.description"></td>
+                              </tr>
+                          </template>
+                        </tbody>
+                      </table>
+                  </div>
+              </div>
+              <div x-show="assessment.review_status ==='pending_review'" class="grid grid-cols-9 gap-4 mt-6">
+                  <div class="col-span-4">
+                    <div @click="setStatusOption('pending_response');showUpdateStatusModal=true" class="card bg-base-200 rounded-box p-16 place-items-center hover:cursor-pointer hover:bg-base-300 hover:shadow-lg">
+                        <h3 class="text-xl font-semibold text-warning">Pending Response</h3>
+                        <p class="text-sm mt-2">Vendor will be able to respond to your review.</p>
+                    </div>
+                  </div>
+                  <div class="col-span-1 divider font-bold divider-horizontal mx-auto">OR</div>
+
+                  <div class="col-span-4">
+                    <div @click="setStatusOption('complete');showUpdateStatusModal=true" class="card bg-base-200 rounded-box p-16 place-items-center hover:cursor-pointer hover:bg-base-300 hover:shadow-lg">
+                        <h3 class="text-xl font-semibold text-success">Complete</h3>
+                        <p class="text-sm mt-2">Mark the assessment as complete.</p>
+                    </div>
+
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showStatusModal = false;setStatusOption(assessment.review_status)">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showUpdateStatusModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showUpdateStatusModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold" x-text="'Change Status to: '+selectedOption.label"></span>
+              <div class="grid grid-cols-6 mt-4">
+                  <div class="col-span-6 mb-2">
+                      <span class="block text-sm font-medium" x-text="'Are you sure you want to change the status to: '+selectedOption.label+'?'"></span>
+                  </div>
+                  <div class="col-span-6">
+                      <div x-show="selectedOption.value==='pending_response'" role="alert" class="alert bg-neutral">
+                        <i class="ti ti-alert-circle text-error text-lg"></i>
+                        <span class="text-sm">
+                            The vendor will have a chance to address any comments or remediation plans you've requested.
+                        </span>
+                      </div>
+                      <div x-show="selectedOption.value==='complete'" role="alert" class="alert bg-neutral">
+                        <i class="ti ti-alert-circle text-error text-lg"></i>
+                        <span class="text-sm">
+                            After the assessment is marked as Complete, the assessment will conclude. The vendor may have remediation actions.
+                        </span>
+                      </div>
+                  </div>
+                  <div class="col-span-6">
+                      <div class="form-control">
+                          <label class="cursor-pointer label">
+                            <span class="label-text">Send Email Notification to Vendor?</span>
+                            <input x-model="sendNotification" type="checkbox" checked="checked" class="checkbox" />
+                          </label>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showUpdateStatusModal = false">Close</button>
+                  <button class="btn btn-primary" @click="updateStatus(selectedOption.value)">Save</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showSubmittedModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showSubmittedModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Great Job</span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-6 text-sm font-medium">
+                      <span class="block">You have successfully submitted the assessment. Here are the next steps:</span>
+                      <ul class="list-decimal ml-10 mt-2">
+                          <li>We will review your responses</li>
+                          <li>You will be notified if we have additional questions</li>
+                      </ul>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showSubmittedModal = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showHowDoesThisWorkModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showHowDoesThisWorkModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Help</span>
+              <div class="text-sm mt-4" x-show="howDoesThisWorkCategory==='update_status'">
+                After the vendor submits the assessment, you must review each question and update the status. For example, if you don't believe the answer provided by the Vendor satisfies the question/control, you can update the question to 'Remediation Required'. The vendor will then have to submit a remediation plan.
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showHowDoesThisWorkModal = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showDueModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showDueModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <i x-show="assessment.past_due" class="ti ti-alert-circle text-error mr-1"></i>
+              <span class="text-lg font-semibold" x-text="'Due Date: '+assessment.due_date_humanize"></span>
+              <div class="text-sm mt-4">
+                  The assessment is due before <b x-text="assessment.due_before"></b> (<i x-text="assessment.due_date_humanize"></i>)
+              </div>
+              <div role="alert" class="alert my-4">
+                <i class="ti ti-alert-circle text-error text-lg"></i>
+                <span class="text-sm">
+                    If you would like to update the due date and give the vendor more/less time, please do so below.
+                </span>
+              </div>
+              <div class="col-span-2 flex flex-col">
+                <label class="text-sm font-medium mb-2">Update Due Date</label>
+                <label class="input input-bordered flex items-center gap-2">
+                  <i class="ti ti-calendar-due text-lg"></i>
+                  <input x-model="assessment.due_before" x-init="initFlatpickr" id="datePicker2" type="text" class="grow bg-transparent text-sm" placeholder="Proposed Due Date" />
+                </label>
+              </div>
+
+              <div class="modal-action">
+                  <button class="btn" @click="showDueModal = false">Close</button>
+                  <button class="btn btn-success" @click="updateAssessmentDueDate">Update Due Date</button>
+
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showVendorAgreedHelp }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showVendorAgreedHelp = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-sm mt-4">When a remediation plan is requested by the InfoSec team, the Vendor can either Agree or Disagree with the identified gap. If they agree, the Vendor should describe how they plan to address the gap. If the Vendor disagrees (maybe they don't think it's a valid finding), they should describe why the identified gap is not accurate.</span>
+              <div class="modal-action">
+                  <button class="btn" @click="showVendorAgreedHelp = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showInfoSecReviewWorkflow }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showInfoSecReviewWorkflow = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <div class="text-sm mt-4">
+                  <p>After the InfoSec team reviews the response from the Vendor, they can either of the following:</p>
+                  <ol class="list-decimal">
+                    <li>Set the status to "Info Required": Use this status to tell the Vendor that you need more information. Add your feedback in comments.</li>
+                    <li>Request a Remediation Plan: If you feel the vendor does not properly address the question, you can request a remediation plan.</li>
+                    <li>Set the status to "Complete": Use this status to designate the control as satisfied.</li>
+                  </ol>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showInfoSecReviewWorkflow = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showSearchModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showSearchModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Search for Question</span>
+
+              <div class="flex flex-col gap-y-2 mt-4">
+                <label class="font-semibold text-sm">Find by Question Title</label>
+                <label class="input input-bordered flex items-center gap-2">
+                  <input x-model="searchTitle" @input="searchItems" type="text" class="grow" placeholder="e.g. Do you have MFA" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    class="h-4 w-4 opacity-70">
+                    <path
+                      fill-rule="evenodd"
+                      d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                      clip-rule="evenodd" />
+                  </svg>
+                </label>
+                <label class="font-semibold text-sm mt-4">Find by Question ID</label>
+                <label class="input input-bordered flex items-center gap-2">
+                  <input x-model="searchId" @input="searchItems" type="text" class="grow" placeholder="e.g. n8j34" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    class="h-4 w-4 opacity-70">
+                    <path
+                      fill-rule="evenodd"
+                      d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                      clip-rule="evenodd" />
+                  </svg>
+                </label>
+                <div class="form-control font-semibold text-sm mt-4">
+                  <label class="label cursor-pointer">
+                    <span class="label-text">Show Unanswered Questions Only</span>
+                    <input :checked="searchUnanswered" type="checkbox" x-model="searchUnanswered" @change="searchItems" class="checkbox" />
+                  </label>
+                </div>
+
+              </div>
+
+              <div x-show="searchItemCount>0" role="alert" class="alert mt-4">
+                  <i class="ti ti-alert-circle text-success text-lg"></i>
+                  <span class="text-sm" x-text="'Found '+searchItemCount+' questions to match your search'"></span>
+                  <div><button @click="viewSearchResults" class="btn btn-xs btn-success">View Results</button></div>
+              </div>
+              <div x-show="searchItemCount === 0 && (searchTitle || searchId || searchUnanswered)" role="alert" class="alert mt-4">
+                  <i class="ti ti-alert-circle text-error text-lg"></i>
+                  <span class="text-sm">Sorry, your query does not match any questions</span>
+              </div>
+
+              <div class="modal-action">
+                  <button class="btn" @click="showSearchModal = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showRemediationHelp }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showRemediationHelp = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-sm mt-4">If the InfoSec team believes they have identified a gap (e.g. maybe the Vendor lacks MFA), they can request a Remediation Plan from the Vendor.</span>
+              <p class="text-sm mt-2">The Vendor will then need to provide a plan on how they will mitigate the gap. Or the Vendor can disagree and a discussion will ensue.</p>
+              <div class="modal-action">
+                  <button class="btn" @click="showRemediationHelp = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': infoSecReviewStatusHelp }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="infoSecReviewStatusHelp = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-sm mt-4">When the InfoSec review is 100% complete, that means the InfoSec team has reviewed all outstanding questions (but you may have requested more information or a remediation plan). However it does NOT mean the assessment is complete.</span>
+              <div class="flex flex-row gap-x-10 mt-5">
+                  <span><i class="ti ti-spy text-lg"></i></span>
+                  <span class="text-sm">Question requires action from the InfoSec team.</span>
+              </div>
+              <div class="flex flex-row gap-x-10 mt-5">
+                  <span><i class="ti ti-info-hexagon text-warning text-lg"></i></span>
+                  <span class="text-sm">Question requires action from the Vendor.</span>
+              </div>
+              <div class="flex flex-row gap-x-10 mt-5">
+                  <span><i class="ti ti-circle-check text-success text-lg"></i></span>
+                  <span class="text-sm">InfoSec has finished the review of the question.</span>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="infoSecReviewStatusHelp = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': answerStatusHelp }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="answerStatusHelp = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-sm mt-4" x-text="'The vendor has answered '+assessment.vendor_answered_percentage+'% of questions. When the vendor answers all questions in a section, a green checkmark will appear next to the section.'"></span>
+              <div class="flex flex-row gap-x-10 mt-5">
+                  <span><i class="ti ti-progress-check text-lg"></i></span>
+                  <span class="text-sm">The section has unanswered questions.</span>
+              </div>
+              <div class="flex flex-row gap-x-10 mt-5">
+                  <span><i class="ti ti-progress-check text-success text-lg"></i></span>
+                  <span class="text-sm">All questions have been answered in the section.</span>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="answerStatusHelp = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showRemediationWarning }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showRemediationWarning = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <p x-show="!selectedItem.remediation_plan_required" class="text-sm mt-2">Are you sure you want to enable the remediation plan? This will require the vendor to submit a remediation plan on how they plan to address the identified gap.</p>
+              <p x-show="!selectedItem.remediation_plan_required" class="text-sm mt-2">Please complete the applicable fields and save your feedback for the vendor.</p>
+
+              <p x-show="selectedItem.remediation_plan_required" class="text-sm mt-2">Are you sure you want to disable the remediation plan? The vendor will no longer be required to submit a plan or remediate any gaps for this control.</p>
+              <div class="modal-action">
+                  <button class="btn" @click="showRemediationWarning=false">Cancel</button>
+                  <button x-show="selectedItem.remediation_plan_required" class="btn btn-success" @click="disableRemediationPlan">Confirm</button>
+                  <button x-show="!selectedItem.remediation_plan_required" class="btn btn-success" @click="enableRemediationPlan">Confirm</button>
+
+              </div>
+          </div>
+      </div>
+  </div>
+
+{% endblock %}
+
+{%block extrajs%}
+<script>
+function kanban(){
+    return {
+        init() {
+          this.hasSidebar=false;
+          this.getItems()
+          this.getVendorFiles()
+          this.getGuests()
+
+          this.$watch(
+            "statusTitle", (newValue, oldValue) => {this.setStatusOption(newValue)}
+          )
+          this.$watch(
+            "completeItems", (newValue, oldValue) => {console.log("changed")}
+          )
+
+          this.setStatusOption("{{assessment.review_status}}")
+
+          if (this.getURLParam("tab")) {
+            this.setSelectedTab(this.getURLParam("tab"))
+          }
+          if (this.getURLParam("review-status")) {
+            this.setSelectedReviewStatus(this.getURLParam("review-status"))
+          }
+
+          this.searchTitle = this.getURLParam("title")
+          this.searchId = this.getURLParam("search-id")
+          this.searchUnanswered = this.getURLParam("unanswered", false)
+          this.searchItems()
+          this.viewSearchResults()
+
+          this.initAssessmentNotesEditor()
+
+          if (this.getURLParam("modal-tab")) {
+            this.changeTabInItemModal(this.getURLParam("modal-tab"))
+          }
+
+        },
+        dueDateHumanize: "?",
+        isVendor: false,
+        assessment: {{assessment.as_dict() | tojson}},
+        assessmentId:"{{assessment.id}}",
+        vendorID:"{{assessment.vendor_id}}",
+        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        dropZoneLoading:true,
+        sectionZoneLoading: true,
+        showOverviewHelp: false,
+        showDueModal: false,
+        showHelpModal: false,
+        showItemModal: false,
+        showFileSelection: false,
+        showSwitchSectionModal: false,
+        showDeleteFileModal: false,
+        showCriticalHelpModal: false,
+        showDeleteMessage: false,
+        showStatusModal: false,
+        showSubmitModal: false,
+        showUpdateStatusModal: false,
+        sendNotification: true,
+        showSubmittedModal: false,
+        showHowDoesThisWorkModal: false,
+        completeItems: 0,
+        totalItems: 0,
+        isComplete: false,
+        currentMessage: "",
+        dropZone: null,
+        sectionZone: null,
+        activeTab: "overview",
+        modalItemHeight: "0px",
+        items:[],
+        vendorFiles: [],
+        sectionTitle: "",
+        sections: [],
+        sectionDict: {},
+        allData:[],
+        filteredItems: [],
+        allItems: [],
+        selectedMenu: "overview",
+        selectedSection: {},
+        selectedItem: {},
+        messages: [],
+        itemFilters: {},
+        formDisabled: true,
+        readyToSubmit: false,
+        statusTitle: "{{assessment.status}}",
+        selectedOption: {},
+        tempSelectedStatus: "",
+        dueDate: "",
+        howDoesThisWorkCategory: "",
+        showUpdateItemStatusDiv: false,
+        showVendorAgreedHelp: false,
+        showRemediationHelp: false,
+        showRemediationWarning: false,
+        additionalInformation: null,
+        infoSecReviewStatusHelp: false,
+        answerStatusHelp: false,
+        completeRemediations: 0,
+        totalRemediations: 0,
+        unansweredItems: 0,
+        showRemediationModal: false,
+        highlightStatusDiv:false,
+        selectedReviewStatus: null,
+        showInfoSecReviewWorkflow: false,
+        showUpdateCompleteNotesBtn:false,
+        showGuestModal: false,
+        showEmailModal: false,
+        showSearchModal: false,
+        searchItemCount: 0,
+        searchTitle: "",
+        searchId: "",
+        searchUnanswered: false,
+        searchItems: function() {
+            let searchedItems = []
+            if (this.searchTitle.length < 1 && this.searchId.length < 1 && this.searchUnanswered === false) {
+                this.searchItemCount = 0;
+                return
+            }
+            this.allItems.forEach((item, index) => {
+                if (this.searchTitle.length > 0 &&
+                    !item.attributes.label.toLowerCase().includes(this.searchTitle.toLowerCase())) {
+                    return;
+                }
+
+                // Skip if searchId is provided and does not match
+                if (this.searchId.length > 0 &&
+                    !item.id.toString().toLowerCase().includes(this.searchId.toLowerCase())) {
+                    return;
+                }
+
+                // Skip if searchUnanswered is true and the item is answered
+                if (this.searchUnanswered) {
+                    if (item.vendor_answered) {
+                        return;
+                    }
+                }
+
+                searchedItems.push(item);
+            })
+
+            this.searchItemCount = searchedItems.length;
+            return searchedItems
+        },
+        viewSearchResults: function() {
+        //haaaaaaaaa
+            if (this.searchTitle) {
+                this.itemFilters.title = this.searchTitle
+                this.setURLParam("title", this.searchTitle)
+            } else {
+                delete this.itemFilters.title
+                this.deleteURLParam("title")
+            }
+            if (this.searchId) {
+                this.itemFilters.id = this.searchId
+                this.setURLParam("search-id", this.searchId)
+            } else {
+                delete this.itemFilters.id
+                this.deleteURLParam("search-id")
+            }
+            if (this.searchUnanswered) {
+                this.itemFilters.unanswered = this.searchUnanswered
+                this.setURLParam("unanswered", this.searchUnanswered)
+            } else {
+                delete this.itemFilters.unanswered
+                this.deleteURLParam("unanswered")
+            }
+            this.setDataForPage()
+            this.showSearchModal=false
+        },
+        updateGuests: function() {
+            const emailsWithAccess = [];
+
+            this.guests.forEach(user => {
+                if (user.access) {
+                    emailsWithAccess.push(user.email);
+                }
+            });
+            let jsonData = {
+                "guests": emailsWithAccess
+            }
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/guests`,
+                data => {
+                    this.showGuestModal = false;
+                    toast("Updated guests")
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+
+        },
+        sendEmailReminder: function() {
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/nudge`,
+                data => {
+                  toast("Sent the reminder")
+                  this.showEmailModal = false;
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        getGuests: function() {
+            request("GET",
+                `/api/v1/assessments/${this.assessmentId}/guests`,
+                data => {
+                  this.guests = data;
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        updateAssessmentDueDate: function() {
+            let jsonData = {
+                "due_before": this.assessment.due_before
+            }
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}`,
+                data => {
+                    toast("Updated the Due Date")
+                    this.showDueModal = false;
+                    this.assessment = data;
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        setSelectedReviewStatus: function(status, refresh=true) {
+            if (this.selectedReviewStatus === status || status === "remove") {
+                this.selectedReviewStatus = null
+                delete this.itemFilters.review_status
+                this.deleteURLParam("review-status")
+            } else {
+                this.selectedReviewStatus = status
+                this.itemFilters.review_status = status
+                this.setURLParam("review-status", status)
+            }
+            if (refresh) {
+                this.setDataForPage()
+            }
+        },
+        setSelectedTab: function(tab) {
+            this.selectedMenu = tab;
+            this.setURLParam("tab", tab)
+        },
+        openRemediationItem: function() {
+            this.showRemediationModal=true;
+        },
+        initAssessmentNotesEditor: function() {
+            let selector = "assessmentNotes"
+            tinymce.EditorManager.execCommand('mceRemoveEditor', true, selector);
+
+            console.log("Trying to create editor:"+selector)
+            let config = getEditorConfig("#" + selector, readOnly=false);
+            config.setup = (editor) => {
+              editor.on('init', () => {
+                editor.setContent(this.assessment.notes ?? "");
+              });
+            };
+            tinymce.init(config);
+        },
+        enableRemediationPlan: function() {
+            let jsonData = {"remediation_plan_required": true}
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/items/${this.selectedItem.id}/remediation`,
+                data => {
+                    toast("Enabled the remediation plan")
+                    this.selectedItem.remediation_plan_required = true;
+                    this.showRemediationWarning = false
+                    //let newData = this.patchItemInData(item.id, data, tempData)
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        disableRemediationPlan: function() {
+            let jsonData = {"remediation_plan_required": false}
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/items/${this.selectedItem.id}/remediation`,
+                data => {
+                    toast("Disabled the remediation plan")
+                    this.selectedItem.remediation_plan_required = false
+                    this.showRemediationWarning = false
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        switchItemStatus: function(status) {
+            if (this.selectedItem.review_status === status) {
+                return
+            }
+            this.showUpdateItemStatusDiv = true;
+            this.tempSelectedStatus=status
+        },
+        openHowDoesThisWorkModal: function(category) {
+            this.howDoesThisWorkCategory = category
+            this.showHowDoesThisWorkModal = true;
+        },
+        checkItem: function(agree, e) {
+            this.selectedItem.remediation_plan_required = null;
+            if (agree === "agree") {
+                if (e.target.checked) {
+                    this.selectedItem.remediation_plan_required = true;
+                }
+            } else {
+                if (e.target.checked) {
+                    this.selectedItem.remediation_plan_required = false;
+                }
+            }
+        },
+        updateQuestionNotes: function(item) {
+            let jsonData = {
+                "complete_notes": item.complete_notes
+            }
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/items/${item.id}/review-status`,
+                data => {
+                    toast("Updated the notes")
+                    let tempData = this.allData;
+                    let newData = this.patchItemInData(item.id, data, tempData)
+                    this.setDataForPage({"data": newData})
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        updateRemediationDetails: function(item) {
+            let jsonData = {
+                "review_status": item.review_status,
+                "remediation_gap": item.remediation_gap,
+                "remediation_due_date": item.remediation_due_date,
+                "remediation_risk": item.remediation_risk
+            }
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/items/${item.id}/review-status`,
+                data => {
+                    toast("Updated the status")
+                    let tempData = this.allData;
+                    let newData = this.patchItemInData(item.id, data, tempData)
+                    this.setDataForPage({"data": newData})
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+
+        },
+        updateItemStatus: function(item, status) {
+            if (this.assessment.review_status === "pending_response") {
+                toast("The assessment is Pending Response from the vendor. Please wait.", "warning")
+                return
+            }
+            let jsonData = {"review_status": status}
+
+            if (status === "info_required") {
+                jsonData.review_status = "info_required"
+
+            } else if (status === "complete") {
+                jsonData["complete_notes"] = item.complete_notes
+            }
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/items/${item.id}/review-status`,
+                data => {
+                    toast("Updated the status")
+                    let tempData = this.allData;
+                    let newData = this.patchItemInData(item.id, data, tempData)
+                    this.setDataForPage({"data": newData})
+                    this.updateAssessmentQuestionStatus()
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        updateAssessmentQuestionStatus: function() {
+            request("GET",
+                `/api/v1/assessments/${this.assessmentId}/review-summary`,
+                data => {
+                  this.assessment.question_statuses = data;
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        saveAssessmentNotes: function() {
+            let selector = "assessmentNotes"
+            var jsonData = {"data": tinymce.get(selector).getContent()}
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/notes`,
+                data => {
+                  this.assessment.notes = jsonData["data"];
+                  toast("Saved data")
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        statusOptions: [
+            {"label": "New", "value": "new", "description": "The assessment is in draft waiting to be published by the InfoSec team", "checked": false, "color": "primary"},
+            {"label": "Waiting on Vendor", "value": "pending_response", "description": "The assessment is waiting on a response from the Vendor", "checked": false, "color": this.isVendor ? "red" : "warning"},
+            {"label": "Waiting on InfoSec", "value": "pending_review", "description": "The assessment is waiting on the review from the InfoSec team", "checked": false, "color": this.isVendor ? "orange" : "error"},
+            {"label": "Complete", "value": "complete", "description": "The assessment has been successfully filled out, reviewed, and finalized, and no further action is required", "checked": false, "color": "success"}
+        ],
+        initFlatpickr: function() {
+            flatpickr("#datePicker", {minDate: "today"});
+            flatpickr("#datePicker2");
+
+        },
+        updateStatus: function(status) {
+            let jsonData = {"status": status, "notification": this.sendNotification}
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/review-status`,
+                data => {
+                    this.sendNotification = false;
+                    this.showStatusModal = false;
+                    this.showUpdateStatusModal = false;
+                    this.statusTitle = status;
+                    toast("Updated the status")
+                    this.assessment = data;
+                },
+                error => {
+                  toast(error.message, "error");
+                  this.setStatusOption(this.assessment.review_status)
+
+                },
+                jsonData
+            );
+        },
+        setStatusOption: function(status) {
+          let toggledOptions = [];
+          this.statusOptions.forEach(item => {
+            if (item.value === status) {
+                item.checked = true;
+                this.selectedOption = item;
+            } else {
+                item.checked = false;
+            }
+            toggledOptions.push(item)
+          })
+          this.statusOptions = toggledOptions;
+        },
+        submitAssessment: function() {
+            if (!this.readyToSubmit) {
+                toast("Unable to submit. There are unanswered questions.", "warning")
+                return
+            }
+            let jsonData = {"status": "pending_review"}
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/status`,
+                data => {
+                    this.showSubmitModal = false;
+                    this.setStatusOption("pending_review")
+                    confetti({particleCount: 200,spread: 300,origin: { y: .6 }})
+                    this.showSubmittedModal=true;
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        isChecked: function(item) {
+            if (item.response === "yes") {
+                return "checked"
+            }
+            return ""
+        },
+        attachFileToItem: function(item, fileName) {
+            if (item.data_type !== 'file_input') {
+                toast("Item is not a file_input", "error")
+                return
+            }
+            var jsonData = {"response": fileName}
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/items/${item.id}/response`,
+                data => {
+                    toast("Saved response")
+                    let tempData = this.allData;
+                    let newData = this.patchItemInData(item.id, data, tempData)
+                    this.setDataForPage({"data": newData})
+                    this.showFileSelection = false;
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        deleteMessage: function(message) {
+            request("DELETE",
+                `/api/v1/items/${this.selectedItem.id}/messages/${message.id}`,
+                data => {
+                    toast("Removed message")
+                    this.selectedItem.messages = this.selectedItem.messages.filter(item => item.id !== message.id);
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        removeResponseFromItem: function(item) {
+            request("DELETE",
+                `/api/v1/assessments/${this.assessmentId}/items/${item.id}/response`,
+                data => {
+                    toast("Removed response")
+                    let tempData = this.allData;
+                    let newData = this.patchItemInData(item.id, data, tempData)
+                    this.setDataForPage({"data": newData})
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        saveResponse: function(item, target) {
+            if (this.formDisabled) {
+                toast("Form is disabled", "warning")
+                return
+            }
+            if (item.data_type === 'file_input') {
+                const file = target.files[0];
+                if (!file) {
+                    return
+                }
+                const isFilePresent = this.vendorFiles.some(item => item.name.toLowerCase() === file.name.toLowerCase());
+                if (isFilePresent) {
+                    toast("File already exists with the same name. We have attached the file for you.", "warning")
+                    this.attachFileToItem(item, file.name)
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+                fetch(`/api/v1/assessments/${this.assessmentId}/items/${item.id}/response`, {
+                    method: 'PUT',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                      return response.json();
+                    } else {
+                      // If response is not ok, extract error message from response
+                      return response.json().then(error => {
+                        throw new Error(error.message);
+                      });
+                    }
+                })
+                .then(data => {
+                    let tempData = this.allData;
+                    let newData = this.patchItemInData(item.id, data, tempData)
+                    this.setDataForPage({"data": newData})
+                })
+                .catch(error => {
+                    toast('Error occurred: ' + error.message, "error");
+                    target.value = '';
+                });
+            } else {
+                let value = null;
+                if (item.data_type === 'text') {
+                    value = target.value
+                } else if (item.data_type === 'select') {
+                    value = target.value
+                } else if (item.data_type === 'checkbox') {
+                    if (target.checked) {
+                        value = "yes"
+                    } else {
+                        value = "no"
+                    }
+                }
+                // dont save in certain scenarios
+                if ((!item.response && (value === null || value === '')) || (item.response === value) || (!item.response && value.trim() === '')) {
+                    return
+                }
+                var jsonData = {"response": value}
+                request("PUT",
+                    `/api/v1/assessments/${this.assessmentId}/items/${item.id}/response`,
+                    data => {
+                        toast("Saved response")
+                        item.response = value
+                        let tempData = this.allData;
+                        let newData = this.patchItemInData(item.id, data, tempData)
+                        this.setDataForPage({"data": newData})
+                    },
+                    error => {
+                      toast(error.message, "error");
+                    },
+                    jsonData
+                );
+            }
+        },
+        removeItemFilter: function() {
+            this.deleteURLParam("id")
+            this.searchId = ""
+            this.searchTitle = ""
+            this.searchUnanswered = false;
+            this.searchItemCount = 0
+            this.deleteURLParam("title")
+            this.deleteURLParam("unanswered")
+            this.deleteURLParam("section")
+            this.selectedSection = {};
+            this.setSelectedReviewStatus("remove", refresh=false)
+            this.itemFilters = {};
+            this.setDataForPage()
+
+        },
+        isReadyAlert: function(section) {
+            disabledCount = section.items.filter(item => item.disabled).length;
+            if (disabledCount === 0) {
+                return true;
+            }
+            return false;
+        },
+        copyRemediationLink: function(id) {
+            let url = new URL(window.location.href);
+            url.searchParams.set("tab", "remediation");
+            url.searchParams.set("modal-tab", "remediation");
+            url.searchParams.set("item", id);
+            this.copyLink(url=url)
+        },
+        copyQuestionLink: function(id, modalTab="overview") {
+            let url = new URL(window.location.href);
+            url.searchParams.set("tab", "responses");
+
+            if (modalTab === "dynamic") {
+                modalTab = this.getURLParam("modal-tab") || "overview"
+            }
+
+            url.searchParams.set("modal-tab", modalTab);
+            url.searchParams.set("item", id);
+            this.copyLink(url=url)
+        },
+        copyLink: function(url=null) {
+            // Create a temporary textarea element
+            let textarea = document.createElement('textarea');
+            if (url == null) {
+                // Set the value of the textarea to the text you want to copy
+                url = new URL(window.location.href);
+                if ("title" in this.selectedSection) {
+                    url.searchParams.set("section", this.selectedSection.title);
+                }
+                if ("id" in this.selectedItem) {
+                    url.searchParams.set("id", this.selectedItem.id);
+                }
+            }
+
+            textarea.value = url.toString();
+
+            // Append the textarea to the document
+            document.body.appendChild(textarea);
+
+            // Select the text in the textarea
+            textarea.select();
+
+            // Execute the copy command
+            document.execCommand('copy');
+
+            // Remove the textarea from the document
+            document.body.removeChild(textarea);
+            toast("Link copied to your clipboard")
+        },
+        pageToItem: function(sectionTitle, id) {
+            let section = this.allData.find(item => item.title.toLowerCase() === sectionTitle.toLowerCase());
+            this.changeSection(section)
+            setTimeout(() => {
+                let dropZoneDiv = document.getElementById("drop-zone-container");
+                let itemDiv = dropZoneDiv.querySelector(`[data-id="${id}"]`);
+                dropZoneDiv.scrollTop = itemDiv.offsetTop - dropZoneDiv.offsetTop - 10;
+            }, 500);
+        },
+        getHTMLSectionStatus: function(section) {
+            if (this.sectionDict[section.id].responses === this.sectionDict[section.id].total) {
+                return "ti-progress-check text-success"
+            }
+            return "ti-progress-alert text-error"
+        },
+        getItemStatus: function(item) {
+            if (this.assessment.review_status === "complete") {
+                return {"label":"Assessment is complete", "class":"ti-circle-check text-success"}
+            }
+            if (item.review_status === "complete") {
+                return {"label":"Review complete", "class":"ti-circle-check text-success"}
+            }
+            if (this.assessment.review_status === "pending_review") {
+                if (item.review_status === "pending") {
+                    return {"label":"Please review", "class":"ti-spy text-error"}
+
+                } else if (item.review_status === "info_required") {
+                    return {"label":"Info required from Vendor", "class":"ti-info-hexagon text-warning"}
+                }
+            }
+            if (this.assessment.review_status === "pending_response") {
+                if (item.review_status === "pending") {
+                    return {"label":"Please review", "class":"ti-spy text-error"}
+
+                } else if (item.review_status === "info_required") {
+                    return {"label":"Info required from Vendor", "class":"ti-info-hexagon text-warning"}
+
+                }
+            }
+        },
+        driverAssessmentTour: function() {
+            const driver = window.driver.js.driver;
+            const driverObj = driver({
+              showProgress: true,
+              steps: [
+                { element: '#section-zone', popover: { title: 'Sections', description: 'Questions are broken down into sections' } },
+                { element: '#drop-zone-container', popover: { title: 'Questions', description: 'Complete all questions to complete the section' } },
+                { element: '#changeStatus', popover: { title: 'Info', description: 'Click here for information on the current status of the assessment' } },
+                { element: '#dueDate', popover: { title: 'Info', description: 'Here is the due date of the assessment' } },
+                { element: '#submitAssessment', popover: { title: 'Complete', description: 'When you done, submit the assessment for review' } },
+                { element: '#questions', popover: { title: 'Info', description: 'If you have any issues, you can click here' } },
+
+              ]
+            });
+            driverObj.drive();
+        },
+        changeFilter: function() {
+            this.deleteURLParam("filter")
+        },
+        changeSectionByTitle: function(sectionTitle) {
+            let section = this.sections.find(element => element.title === sectionTitle.toLowerCase())
+            this.changeSection(section)
+            this.showSwitchSectionModal = false;
+        },
+        changeSection: function(section) {
+        //haaaaaaaaa
+            if (this.selectedSection === section) {
+                this.selectedSection = {};
+                delete this.itemFilters.section
+            } else {
+                this.filter = "";
+                this.selectedSection = section
+                this.setURLParam("section", this.selectedSection.title)
+            }
+            this.setDataForPage()
+        },
+        changeTabInItemModal: function(tab) {
+            this.activeTab = tab;
+            //this.setURLParam("tab", tab)
+            this.setURLParam("modal-tab", tab)
+            if (this.activeTab === "chat") {
+                setTimeout(function() {
+                    var divElement = document.getElementById("messageDiv");
+                    divElement.scrollTop = divElement.scrollHeight;
+                }, 100);
+            }
+        },
+       requestMoreInformation: function() {
+            if (this.additionalInformation) {
+                let jsonData = {"text": this.additionalInformation}
+                request("POST",
+                    `/api/v1/items/${this.selectedItem.id}/messages`,
+                    data => {
+                        this.selectedItem.messages.push(data)
+                        this.additionalInformation = "";
+                    },
+                    error => {
+                      toast(error.message, "error");
+                    },
+                    jsonData
+                );
+            }
+            this.updateItemStatus(this.selectedItem, 'info_required')
+
+        },
+        createMessage: function() {
+            if (this.currentMessage) {
+                let jsonData = {"text": this.currentMessage}
+                request("POST",
+                    `/api/v1/items/${this.selectedItem.id}/messages`,
+                    data => {
+                        this.selectedItem.messages.push(data)
+                        this.currentMessage = "";
+                        setTimeout(function() {
+                            var divElement = document.getElementById("messageDiv");
+                            divElement.scrollTop = divElement.scrollHeight;
+                        }, 100);
+                    },
+                    error => {
+                      toast(error.message, "error");
+                    },
+                    jsonData
+                );
+            }
+        },
+        scrollDownInDropZone: function() {
+            var divElement = document.getElementById("drop-zone-container");
+            divElement.scrollTop = divElement.scrollHeight;
+        },
+        scrollUpInDropZone: function() {
+            var divElement = document.getElementById("drop-zone-container");
+            divElement.scrollTop = 0;
+        },
+        openItemModalById: function(itemId) {
+            if (!itemId) {
+                return
+            }
+            let item = this.allItems.find(element => element.id === itemId)
+            this.openItemModal(item)
+        },
+        closeItemModal: function(item) {
+            this.showItemModal = false;
+            this.selectedItem = null;
+            this.deleteURLParam("item")
+            this.deleteURLParam("modal-tab")
+            this.activeTab = "overview"
+        },
+        openItemModal: function(item, tab=null) {
+            if (tab === null) {
+                this.changeTabInItemModal(this.activeTab || "overview")
+            } else {
+                this.changeTabInItemModal(tab)
+            }
+            this.selectedItem = item
+            this.tempSelectedStatus = item.review_status
+            this.messages = [];
+            this.showEditModal = false;
+            this.highlightStatusDiv = false;
+            this.additionalInformation = null;
+            this.showUpdateItemStatusDiv = false;
+            this.showItemModal = true;
+            this.modalItemHeight = `${document.getElementById("itemModal").clientHeight - document.getElementById("itemModalTabs").clientHeight - 1}px`
+            setTimeout(function() {
+                var divElement = document.getElementById("messageDiv");
+                divElement.scrollTop = divElement.scrollHeight;
+            }, 100);
+            this.setURLParam("item", item.id)
+
+        },
+        patchItemInData: function(itemId, newData, currentData) {
+            // Allows you to update an item. Usually you call this function,
+            // and the response is a updated allData, which you then pass to
+            // setDataForPage or use directly
+            // Usage: patchItemInData("jsk8Zw", {"critical": true}, this.allData)
+            for (let section of currentData) {
+                for (let item of section.items) {
+                    // Check if the current item ID matches the target item ID
+                    if (item.id === itemId) {
+                        // Update the item with new data
+                        Object.assign(item, newData);
+                        return currentData;
+                    }
+                }
+            }
+            return currentData;
+        },
+        setDataForPage: function(options) {
+
+            this.searchItemCount = 0
+            if (options && options.data) {
+                data = options.data;
+            } else {
+                data = this.allData;
+            }
+            let allItems = []
+            let filteredItems = []
+            let sections = []
+            let sectionDict = {}
+
+            // If we are filtering for a section
+            if (Object.keys(this.selectedSection).length > 0) {
+                this.itemFilters.section = this.selectedSection.title.toLowerCase()
+            }
+
+            console.log(this.itemFilters)
+
+            let filtersEnabled = Object.keys(this.itemFilters).length > 0;
+
+            console.log(filtersEnabled)
+
+            let completeItems = 0
+            let totalItems = 0
+            let unansweredItems = 0
+            let totalRemediations = 0
+            let completeRemediations = 0
+
+            let currentIndex = 1;
+            data.forEach(section => {
+                if (section.items.length === 0) {
+                    return
+                }
+
+                sections.push(section)
+                sectionDict[section.id] = {"total": 0, "responses": 0}
+                section.items.forEach((item, index) => {
+                    item.index = item.order //currentIndex
+                    currentIndex++
+
+                    totalItems+=1
+
+                    allItems.push(item)
+
+                    sectionDict[section.id].total += 1
+                    if (item.response) {
+                        completeItems+=1
+                        sectionDict[section.id].responses += 1
+                    }
+
+                    if (item.remediation_plan_required) {
+                        totalRemediations+=1
+
+                        if (item.remediation_complete) {
+                            completeRemediations+=1
+                        }
+                    }
+
+                    if (!item.vendor_answered) {
+                        unansweredItems++
+                    }
+                    if (filtersEnabled) {
+                        const allFiltersPass = Object.entries(this.itemFilters).every(([key, value]) => {
+                            if (key === 'title') {
+                                return item.attributes.label.toLowerCase().includes(value.toLowerCase());
+                            }
+                            if (key === 'id') {
+                                return item.id.toLowerCase().includes(value.toLowerCase());
+                            }
+                            if (key === 'unanswered') {
+                                return item.vendor_answered === false
+                            }
+                            // Default condition for other filters
+                            return item[key] === value;
+                        });
+
+                        if (allFiltersPass) {
+                            filteredItems.push(item);
+                            this.searchItemCount++
+                        }
+                    } else {
+                        filteredItems.push(item)
+                    }
+
+                });
+            });
+
+            this.allData = data;
+            this.allItems = allItems;
+            this.totalItems = totalItems;
+            this.filteredItems = filteredItems.sort((a, b) => a.order - b.order);
+            this.sections = sections.sort((a, b) => a.order - b.order);
+            this.sectionDict = sectionDict;
+            //let section = sections.find(element => element.id === this.selectedSection.id)
+            //this.selectedSection = section
+            this.completeItems = completeItems
+            this.totalItems = totalItems
+            disabledCount = filteredItems.filter(item => item.disabled).length;
+            this.totalRemediations = totalRemediations
+            this.completeRemediations = completeRemediations
+            this.unansweredItems = unansweredItems
+
+            if (this.completeItems === this.totalItems) {
+                this.readyToSubmit = true;
+            } else {
+                this.readyToSubmit = false;
+            }
+        },
+        getItems: function() {
+            this.filteredItems = [];
+            this.dropZoneLoading = true;
+            this.sectionZoneLoading = true;
+            request("GET",
+                `/api/v1/assessments/${this.assessmentId}/questions`,
+                data => {
+                    urlId = this.getURLParam("id")
+                    urlSection = this.getURLParam("section")
+
+                    if (urlId) {
+                        this.itemFilters.id = urlId;
+
+                        for (let section of data) {
+                            let foundItem = section.items.find(element => element.id === urlId);
+                            if (foundItem) {
+                                this.selectedSection = section;
+                                break
+                            }
+                        }
+                    } else if (urlSection) {
+                        let foundSection = data.find(element => element.title.toLowerCase() === urlSection.toLowerCase());
+                        if (foundSection) {
+                            this.selectedSection = foundSection;
+                        }
+                    }
+
+                    this.setDataForPage({"data": data})
+                    this.dropZoneLoading = false;
+                    this.sectionZoneLoading = false;
+
+                    item = this.getURLParam("item")
+                    this.openItemModalById(item)
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        getVendorFiles: function() {
+            request("GET",
+                `/api/v1/vendors/${this.vendorID}/files`,
+                data => {
+                    this.vendorFiles = data;
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        fileSearch: "",
+        filteredVendorFiles: function() {
+            if (this.fileSearch === "") {
+                return this.vendorFiles
+            }
+            return this.vendorFiles.filter((item) => {
+              return item.name
+                .toLowerCase()
+                .includes(this.fileSearch.toLowerCase());
+            });
+        },
+
+    }
+}
+</script>
+{% endblock %}

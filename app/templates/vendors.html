@@ -1,0 +1,2459 @@
+{% extends "layouts/sidebar-nav.html" %}
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(grid=True, datepicker=True, select=True) }}
+<style xmlns="http://www.w3.org/1999/html">
+    .breadcrumbs>ul>li+:before {
+      margin-top: 5px;
+    }
+</style>
+
+{% endblock %}
+
+{%block header%}{%endblock%}
+{%block page_header%}{%endblock%}
+
+{%block tenant_btn%}{%endblock%}
+
+{%block content%}
+<div x-data="vendors()">
+    <div :class="{'mb-5': !simpleInterface}" class="grid grid-cols-9 gap-8">
+        <div class="col-span-9">
+            <div class="lg:flex lg:items-center lg:justify-between">
+                <div class="min-w-0 flex-1">
+                    <div class="breadcrumbs text-xl font-bold sm:tracking-tight py-0">
+                        <ul>
+                            <li><a>Home</a></li>
+                            <li><a>Risk Register</a></li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="flex">
+                    <span class="ml-3 hidden sm:block">
+                      <div class="tooltip tooltip-left" data-tip="Refresh data from Server">
+                          <button @click="refreshData" :class="{'btn-disabled': disableRefreshBtn}" class="btn btn-sm btn-primary"><span x-show="disableRefreshBtn" class="loading loading-infinity loading-sm"></span>Refresh Data</button>
+                      </div>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div x-cloak id="main-body" class="grid grid-cols-6">
+        <div class="col-span-full mx-auto mt-10" x-show="tabLoading" x-transition x-html="loadingSkeleton"></div>
+        <div class="col-span-6" x-show="selectedTab === 'risk register' && !tabLoading">
+
+            <div class="card border border-base-200 bg-base-200">
+                <div class="card-body">
+                    <div x-transition x-show="showStats" class="border border-base-300 mb-4 rounded-lg p-6 bg-base-100">
+                        <div class="flex flex-row">
+                            <h3 class="text-xl font-semibold mb-4">Quick Statistics</h3>
+                            <button x-show="showStats" @click="showStats=false" class="btn btn-sm btn-ghost ml-1"><i class="ti ti-arrow-up text-warning"></i></button>
+                        </div>
+                        <div class="grid grid-cols-10 gap-6">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium mb-2">Total Risks</label>
+                                <span class="font-semibold" x-text="risks.length"></span>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium mb-2 text-error">High Risk (unresolved)</label>
+                                <span class="font-semibold" x-text="riskStats.unresolved_high_risk+'/'+risks.length"></span>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium mb-2 text-error">High Priority (unresolved)</label>
+                                <span class="font-semibold" x-text="riskStats.unresolved_high_priority+'/'+vendors.length"></span>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium mb-2 text-success">Total Resolved</label>
+                                <span class="font-semibold" x-text="riskStats.resolved+'/'+vendors.length"></span>
+
+                            </div>
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium mb-2 text-warning">Accepted Risks</label>
+                                <span class="font-semibold" x-text="riskStats.accepted+'/'+vendors.length"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="flex justify-between align-items-center">
+                        <div class="flex flex-row">
+                            <div class="flex flex-row">
+                                <i class="ti ti-dashboard text-2xl mr-2 mt-1"></i>
+                                <h2 class="card-title mb-4" x-text="'Risks ('+risks.length+')'"></h2>
+                            </div>
+                            <button x-show="!showStats" @click="showStats=!showStats" class="btn btn-sm btn-ghost ml-1">Show stats<i class="ti ti-arrow-down ml-1 text-success"></i></button>
+                            <button x-show="showStats" @click="showStats=!showStats" class="btn btn-sm btn-ghost ml-1">Hide stats<i class="ti ti-arrow-up ml-1 text-warning"></i></button>
+                        </div>
+                        <div class="flex flex-row gap-x-2">
+                            <div class="space-x-2 flex">
+                                <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-success"
+                                        @click="editRiskColumnsModal=true" data-tip="Edit Columns"><i class="ti ti-columns"></i>
+                                </button>
+                                <button class="btn btn-sm border border-base-300 capitalize tooltip btn-ghost text-success"
+                                        @click="openCreateRiskModal" data-tip="Add Risk"><i
+                                        class="ti ti-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mx-auto text-center mt-5" x-html="loadingSkeleton" x-transition
+                         x-show="tableLoading"></div>
+                    <div x-show="!tableLoading" class="ag-theme-quartz" x-transition id="risks-table"></div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': editVendorColumnsModal }">
+            <div class="modal-box w-11/12">
+                <form method="dialog">
+                    <button @click="editVendorColumnsModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-6">Edit Table Columns</h2>
+                <div class="grid grid-cols-10 gap-6 card-body">
+                    <ul class="menu bg-base-200 col-span-10 rounded-box">
+                      <li>
+                        <h2 class="menu-title">Visible Columns</h2>
+                        <ul>
+                          <template x-for="col in vendorsTableHeaders" :key="col.field">
+                              <li>
+                                  <div class="flex flex-row justify-between">
+                                      <span class="label-text" x-text="col.headerName"></span>
+                                      <input @change="updateVendorColVisibility(col.field)" type="checkbox" :checked="!col.hide ? 'checked': ''" class="checkbox ml-4" />
+                                  </div>
+                              </li>
+                          </template>
+                        </ul>
+                      </li>
+                    </ul>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="editVendorColumnsModal=false">Close</button>
+                    <button  @click="saveVendorColumns" class="btn btn-success">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': editRiskColumnsModal }">
+            <div class="modal-box w-11/12">
+                <form method="dialog">
+                    <button @click="editRiskColumnsModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-6">Edit Table Columns</h2>
+                <div class="grid grid-cols-10 gap-6 card-body">
+                    <ul class="menu bg-base-200 col-span-10 rounded-box">
+                      <li>
+                        <h2 class="menu-title">Visible Columns</h2>
+                        <ul>
+                          <template x-for="col in risksTableHeaders" :key="col.field">
+                              <li>
+                                  <div class="flex flex-row justify-between">
+                                      <span class="label-text" x-text="col.headerName"></span>
+                                      <input @change="updateRiskColVisibility(col.field)" type="checkbox" :checked="!col.hide ? 'checked': ''" class="checkbox ml-4" />
+                                  </div>
+                              </li>
+                          </template>
+                        </ul>
+                      </li>
+                    </ul>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="editRiskColumnsModal=false">Close</button>
+                    <button  @click="saveRiskColumns" class="btn btn-success">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': editAppColumnsModal }">
+            <div class="modal-box w-11/12">
+                <form method="dialog">
+                    <button @click="editAppColumnsModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-6">Edit Table Columns</h2>
+                <div class="grid grid-cols-10 gap-6 card-body">
+                    <ul class="menu bg-base-200 col-span-10 rounded-box">
+                      <li>
+                        <h2 class="menu-title">Visible Columns</h2>
+                        <ul>
+                          <template x-for="col in applicationsTableHeaders" :key="col.field">
+                              <li>
+                                  <div class="flex flex-row justify-between">
+                                      <span class="label-text" x-text="col.headerName"></span>
+                                      <input @change="updateAppColVisibility(col.field)" type="checkbox" :checked="!col.hide ? 'checked': ''" class="checkbox ml-4" />
+                                  </div>
+                              </li>
+                          </template>
+                        </ul>
+                      </li>
+                    </ul>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="editAppColumnsModal=false">Close</button>
+                    <button  @click="saveAppColumns" class="btn btn-success">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': editAssessmentColumnsModal }">
+            <div class="modal-box w-11/12">
+                <form method="dialog">
+                    <button @click="editAssessmentColumnsModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-6">Edit Table Columns</h2>
+                <div class="grid grid-cols-10 gap-6 card-body">
+                    <ul class="menu bg-base-200 col-span-10 rounded-box">
+                      <li>
+                        <h2 class="menu-title">Visible Columns</h2>
+                        <ul>
+                          <template x-for="col in assessmentsTableHeaders" :key="col.field">
+                              <li>
+                                  <div class="flex flex-row justify-between">
+                                      <span class="label-text" x-text="col.headerName"></span>
+                                      <input @change="updateAssessmentColVisibility(col.field)" type="checkbox" :checked="!col.hide ? 'checked': ''" class="checkbox ml-4" />
+                                  </div>
+                              </li>
+                          </template>
+                        </ul>
+                      </li>
+                    </ul>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="editAssessmentColumnsModal=false">Close</button>
+                    <button  @click="saveAssessmentColumns" class="btn btn-success">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showAddVendor }">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form method="dialog">
+                    <button @click="showAddVendor = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                        ✕
+                    </button>
+                </form>
+                <h3 class="font-bold text-lg px-6">Create Vendor</h3>
+                <div class="card card-body">
+                    <div class="grid grid-cols-6 gap-4">
+                        <div class="col-span-3">
+                            <label class="font-semibold">Vendor Name</label>
+                            <input type="text" x-model="payload.name" placeholder="Input vendor name" class="input input-bordered w-full mt-2" />
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Description</label>
+                            <textarea class="textarea textarea-bordered mt-2 w-full" x-model="payload.description" placeholder="Input vendor description and/or what they are used for"></textarea>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Contact Email</label>
+                            <input type="text" x-model="payload.contact_email" placeholder="Email of the internal owner" class="input input-bordered w-full mt-2" />
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Vendor Contact Email</label>
+                            <input type="text" x-model="payload.vendor_contact_email" placeholder="Input vendor contact" class="input input-bordered w-full mt-2" />
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Location</label>
+                            <input type="text" x-model="payload.location" placeholder="Input location" class="input input-bordered w-full mt-2" />
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Contract Start Date</label>
+                            <input x-model="payload.start_date" x-init="initFlatpickr" id="datePicker3" type="text" class="grow input w-full input-bordered mt-2" placeholder="Contract start date" />
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Criticality</label>
+                            <select x-model="payload.criticality" class="select select-bordered w-full mt-2">
+                              <option value="unknown" selected>Unknown</option>
+                              <option value="low">Low</option>
+                              <option value="moderate">Moderate</option>
+                              <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Review Frequency</label>
+                            <select x-model="payload.review_cycle" class="select select-bordered w-full mt-2">
+                              <option value="12" selected>12 months</option>
+                              <option value="3">3 months</option>
+                              <option value="6">6 months</option>
+                              <option value="9">9 months</option>
+                            </select>
+                        </div>
+                        <div class="col-span-6">
+                            <label class="font-semibold">Notes</label>
+                            <textarea class="textarea textarea-bordered mt-2 w-full" x-model="payload.notes" placeholder="Input any notes about the vendor"></textarea>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showAddVendor = false">Close</button>
+                    <button class="btn btn-primary"
+                            @click="createVendor">Create
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showPublishAssessment }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showPublishAssessment = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Publish Assessment?</span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-6">
+                      <span class="block text-sm font-medium mb-2">Are you sure you want to publish the assessment? Once published, respondents will be able to access and complete the form. </span>
+                      <span class="block text-sm font-medium mb-2">If you aren't ready, you can <a class="underline text-warning" :href="'/assessments/'+selectedAssessment.id">edit the form</a>.</span>
+
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showPublishAssessment = false;showAssessmentModal=true">Close</button>
+                  <button class="btn btn-success" @click="publishAssessment">Publish</button>
+              </div>
+          </div>
+      </div>
+    </div>    
+    <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showDeleteVendorModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showDeleteVendorModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Delete Vendor</span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-6">
+                      <span class="block text-sm font-medium mb-2" x-text="'Are you sure you want to delete '+selectedVendor.name+'?'"></span>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showDeleteVendorModal = false">Close</button>
+                  <button class="btn btn-error" @click="deleteVendor">Remove</button>
+              </div>
+          </div>
+      </div>
+    </div>
+    <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showDeleteAppModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showDeleteAppModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Delete Application</span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-6">
+                      <span class="block text-sm font-medium mb-2" x-text="'Are you sure you want to delete '+selectedApp.name+'?'"></span>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showDeleteAppModal = false">Close</button>
+                  <button class="btn btn-error" @click="deleteApp">Remove</button>
+              </div>
+          </div>
+      </div>
+    </div>
+    <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showDeleteAssessmentModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showDeleteAssessmentModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Delete Assessment</span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-6">
+                      <span class="block text-sm font-medium mb-2" x-text="'Are you sure you want to delete '+selectedAssessment.name+'?'"></span>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showDeleteAssessmentModal = false">Close</button>
+                  <button class="btn btn-error" @click="deleteAssessment">Remove</button>
+              </div>
+          </div>
+      </div>
+    </div>
+    <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showDeleteRiskModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showDeleteRiskModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Delete Risk</span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+                  <div class="col-span-6">
+                      <span class="block text-sm font-medium mb-2" x-text="'Are you sure you want to delete '+selectedRisk.title+'?'"></span>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showDeleteRiskModal = false">Close</button>
+                  <button class="btn btn-error" @click="deleteRisk">Remove</button>
+              </div>
+          </div>
+      </div>
+    </div>
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showAddApp }">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form method="dialog">
+                    <button @click="showAddApp = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                        ✕
+                    </button>
+                </form>
+                <h3 x-show="vendors.length > 0" class="font-bold text-lg px-6">Create Application</h3>
+                <div class="card card-body">
+                    <div x-show="vendors.length === 0" class="hero-content text-center">
+                        <div class="max-w-md">
+                          <h1 class="text-3xl font-bold">Create a Vendor</h1>
+                          <p class="py-6">You need to create a vendor before adding applications.</p>
+                          <button @click="switchTab({'tab': 'vendors'});showAddApp=false;showAddVendor=true" class="btn btn-primary">Get Started</button>
+                        </div>
+                    </div>
+                    <div x-show="vendors.length > 0" class="grid grid-cols-6 gap-4">
+                        <div class="col-span-3">
+                            <label class="font-semibold">Application Name</label>
+                            <input type="text" x-model="payload.name" placeholder="Input vendor name" class="input input-bordered w-full mt-2" />
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Description</label>
+                            <textarea class="textarea textarea-bordered mt-2 w-full" x-model="payload.description" placeholder="Input vendor description and/or what they are used for"></textarea>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Vendor</label>
+                            <select x-model="payload.vendor_id"
+                                    class="select select-bordered w-full mt-2">
+                                <option value="" selected>Select Vendor</option>
+                                <template x-for="vendor in vendors" :key="vendor.id">
+                                    <option class="capitalize" :value="vendor.id" x-text="vendor.name"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Contact Email</label>
+                            <input type="text" x-model="payload.contact_email" placeholder="Input vendor contact" class="input input-bordered w-full mt-2" />
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Category</label>
+                            <input type="text" x-model="payload.category" placeholder="Input business unit" class="input input-bordered input-md w-full mt-2" />
+
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Business Unit</label>
+                            <input type="text" x-model="payload.business_unit" placeholder="Input business unit" class="input input-bordered input-md w-full mt-2" />
+                        </div>
+                        <div class="col-span-3 flex flex-col gap-y-2">
+                            <label class="font-semibold">On Premise</label>
+                            <input x-model="payload.is_on_premise" type="checkbox" class="checkbox" />
+                        </div>
+                        <div class="col-span-3">
+                            <label class="font-semibold">Contract Start Date</label>
+                            <input x-model="payload.start_date" x-init="initFlatpickr" id="datePicker4" type="text" class="grow input w-full input-bordered mt-2" placeholder="Contract start date" />
+                        </div>
+                        <div class="col-span-3 flex flex-col gap-y-2">
+                            <label class="font-semibold">SaaS</label>
+                            <input x-model="payload.is_saas" type="checkbox" class="checkbox" />
+                        </div>
+                        <div class="col-span-2">
+                            <label class="font-semibold">Contract End Date</label>
+                            <input x-model="payload.end_date" x-init="initFlatpickr" id="datePicker5" type="text" class="grow input w-full input-bordered mt-2" placeholder="Contract start date" />
+                        </div>
+                        <div class="col-span-2">
+                            <label class="font-semibold">Criticality</label>
+                            <select x-model="payload.criticality" class="select select-bordered w-full mt-2">
+                              <option value="unknown" selected>Unknown</option>
+                              <option value="low">Low</option>
+                              <option value="moderate">Moderate</option>
+                              <option value="high">High</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="font-semibold">Review Frequency</label>
+                            <select x-model="payload.review_cycle" class="select select-bordered w-full mt-2">
+                              <option value="12" selected>12 months</option>
+                              <option value="3">3 months</option>
+                              <option value="6">6 months</option>
+                              <option value="9">9 months</option>
+                            </select>
+                        </div>
+                        <div class="col-span-6">
+                            <label class="font-semibold">Notes</label>
+                            <textarea class="textarea textarea-bordered mt-2 w-full" x-model="payload.notes" placeholder="Input any notes about the application"></textarea>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div x-show="vendors.length > 0" class="modal-action">
+                    <button class="btn" @click="showAddApp = false">Close</button>
+                    <button class="btn btn-primary"
+                            @click="createApp">Create
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--    <div>-->
+<!--        <div class="modal" x-bind:class="{ 'modal-open': showAddAssessment }">-->
+<!--            <div class="modal-box w-11/12 max-w-5xl">-->
+<!--                <form method="dialog">-->
+<!--                    <button @click="showAddAssessment = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">-->
+<!--                        ✕-->
+<!--                    </button>-->
+<!--                </form>-->
+<!--                <h3 x-show="vendors.length > 0" class="font-bold text-lg px-6">Create Assessment</h3>-->
+<!--                <div class="card card-body">-->
+<!--                    <div x-show="vendors.length === 0" class="hero-content text-center">-->
+<!--                        <div class="max-w-md">-->
+<!--                          <h1 class="text-3xl font-bold">Create a Vendor</h1>-->
+<!--                          <p class="py-6">You need to create a vendor before adding applications.</p>-->
+<!--                          <button @click="switchTab({'tab': 'vendors'});showAddAssessment=false" class="btn btn-primary">Get Started</button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div x-show="vendors.length > 0" class="grid grid-cols-6 gap-4">-->
+<!--                        <div class="col-span-3">-->
+<!--                            <label class="font-semibold">Assessment Name</label>-->
+<!--                            <input type="text" x-model="payload.name" placeholder="Provide a label for the assessment" class="input input-bordered w-full mt-2" />-->
+<!--                        </div>-->
+<!--                        <div class="col-span-3">-->
+<!--                            <label class="font-semibold">Select a Vendor</label>-->
+<!--                            <select x-model="payload.vendor_id"-->
+<!--                                    class="select select-bordered w-full mt-2">-->
+<!--                                <option value="" selected>Select Vendor</option>-->
+<!--                                <template x-for="vendor in vendors" :key="vendor.id">-->
+<!--                                    <option class="capitalize" :value="vendor.id" x-text="vendor.name"></option>-->
+<!--                                </template>-->
+<!--                            </select>-->
+<!--                        </div>-->
+<!--                        <div class="col-span-4">-->
+<!--                            <label class="font-semibold">Description</label>-->
+<!--                            <textarea x-model="payload.description" class="textarea textarea-bordered w-full mt-2" placeholder="Insert description"></textarea>-->
+<!--                        </div>-->
+<!--                        <div class="col-span-2">-->
+<!--                            <label class="font-semibold">Due Date</label>-->
+<!--                            <input x-model="payload.due_date" x-init="initFlatpickr" id="datePicker" type="text" class="grow input w-full input-bordered mt-2" placeholder="Due date" />-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div x-show="vendors.length > 0" class="modal-action">-->
+<!--                    <button class="btn" @click="showAddAssessment = false">Close</button>-->
+<!--                    <button class="btn btn-primary"-->
+<!--                            @click="createAssessment">Create-->
+<!--                    </button>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showAddAssessment }">
+            <div class="modal-box w-11/12 max-w-5xl">
+                <form method="dialog">
+                    <button @click="showAddAssessment = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                        ✕
+                    </button>
+                </form>
+                <h3 x-show="vendors.length > 0" class="font-bold text-lg px-8 mt-4">Create Assessment</h3>
+                <div class="card card-body">
+                    <div x-show="vendors.length === 0" class="hero-content text-center">
+                        <div class="max-w-md">
+                          <h1 class="text-3xl font-bold">Create a Vendor</h1>
+                          <p class="py-6">You need to create a vendor before adding applications.</p>
+                          <button @click="switchTab({'tab': 'vendors'});showAddAssessment=false;showAddVendor=true" class="btn btn-primary">Get Started</button>
+                        </div>
+                    </div>
+                    <div x-show="vendors.length > 0" class="grid grid-cols-6 gap-4">
+                        <div class="col-span-6 rounded-lg p-6 text-center">
+                            <ul class="steps w-full font-semibold hover:cursor-pointer">
+                              <li @click="currentAssessmentStep=1" :class="{'step-primary':currentAssessmentStep>0}" class="step">Details</li>
+                              <li @click="currentAssessmentStep=2" :class="{'step-primary':currentAssessmentStep>1}" class="step">Access</li>
+                              <li @click="currentAssessmentStep=3" :class="{'step-primary':currentAssessmentStep>2}" class="step">Edit</li>
+                            </ul>
+                        </div>
+                        <div class="col-span-6 bg-base-200 rounded-md h-96 p-8 prose max-w-full">
+                            <div x-show="currentAssessmentStep===1">
+                                <div class="grid grid-cols-6 gap-4">
+                                    <div class="col-span-3">
+                                        <label class="font-semibold">1. Assessment Name</label>
+                                        <input type="text" x-model="payload.name" placeholder="Provide a label for the assessment" class="input input-bordered w-full mt-2" />
+                                    </div>
+                                    <div class="col-span-3">
+                                        <label class="font-semibold">2. Select a Vendor</label>
+                                        <select x-model="payload.vendor_id"
+                                                class="select select-bordered w-full mt-2">
+                                            <option value="" selected>Select Vendor</option>
+                                            <template x-for="vendor in vendors" :key="vendor.id">
+                                                <option class="capitalize" :value="vendor.id" x-text="vendor.name"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="col-span-4">
+                                        <label class="font-semibold">3. Description</label>
+                                        <textarea x-model="payload.description" class="textarea textarea-bordered w-full mt-2" placeholder="Insert description"></textarea>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <label class="font-semibold">4. Due Date</label>
+                                        <input x-model="payload.due_date" x-init="initFlatpickr" id="datePicker" type="text" class="grow input w-full input-bordered mt-2" placeholder="Due date" />
+                                        <p class="text-xs px-2 my-2">Note: By default, the due date is 30 days in the future</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div x-show="currentAssessmentStep===2">
+                                <div class="grid grid-cols-6 gap-6">
+                                    <div class="col-span-6">
+                                        <label class="font-semibold">Who should have access to <i class="italic">manage</i> the assessment?</label>
+                                        <select x-model="payload.managers" class="bg-base-100 border border-base-content border-opacity-30 rounded-lg p-2 mt-2" id="manageAssessmentUsers" multiple></select>
+                                        <p class="text-xs text-warning">Note: You may want to give other members of the team access. You can always edit this later.</p>
+                                    </div>
+                                    <div class="col-span-6">
+                                        <label class="font-semibold">Who should have access to <i class="italic">respond</i> to the assessment?</label>
+                                        <div class="flex flex-row mt-2">
+                                            <input type="text" @keyup.enter="addTempUser" x-model="tempAssessmentUser" placeholder="Add mulitple email addresses (press enter)" class="input input-bordered w-full" />
+                                            <button @click="addTempUser" :class="{'btn-disabled':!tempAssessmentUser || !tempAssessmentUser.includes('@')}" class="btn btn-success ml-2">Add</button>
+                                        </div>
+
+                                        <div class="flex flex-row gap-x-2 my-2">
+                                            <template x-for="user in assessmentUsers">
+                                                <div class="p-1 px-2 rounded-lg text-sm bg-neutral"><span x-text="user"></span><i @click="removeTempUser(user)" class="ti ti-x ml-1 hover:cursor-pointer hover:text-error"></i></div>
+                                            </template>
+                                        </div>
+                                        <p class="text-xs text-warning">Note: In other words, who is completing the assessment? You can always edit this later.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div x-show="currentAssessmentStep===3">
+                                <div class="grid grid-cols-6 gap-4">
+                                    <div class="col-span-6">
+                                        <label class="font-semibold">Would you like to start with a template?</label>
+                                        <select x-model="payload.clone_from" class="select select-bordered w-full mt-2">
+                                            <option value="" selected>Select Template</option>
+                                            <template x-for="form in forms" :key="form.id">
+                                                <option class="capitalize" :value="form.id" x-text="form.name"></option>
+                                            </template>
+                                        </select>
+                                        <p class="text-xs text-warning">Note: You can create new templates by navigating <i class="underline hover:cursor-pointer" @click="showAddAssessment=false;switchTab({tab: 'templates'})">here</i></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <div x-show="vendors.length > 0" class="modal-action">
+                    <button x-show="currentAssessmentStep!==1" @click="previousAssessmentStep" class="btn">Back</button>
+                    <button x-show="currentAssessmentStep!==3" @click="nextAssessmentStep" class="btn btn-primary">Next</button>
+                    <button x-show="currentAssessmentStep===3" class="btn btn-success"
+                            @click="createAssessment">Create
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showVendorModal }">
+            <div class="modal-box w-12/12 max-w-6xl">
+                <form method="dialog">
+                    <button @click="showVendorModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                        ✕
+                    </button>
+                </form>
+                <div class="flex justify-between mt-3">
+                    <div class="lg:flex lg:items-center lg:justify-between">
+                        <div class="min-w-0 flex-1">
+                            <div class="breadcrumbs text-xl font-bold sm:tracking-tight py-0">
+                                <ul>
+                                    <li><a>Vendors</a></li>
+                                    <li class="capitalize" x-text="selectedVendor.name"></li>
+                                    <li class="capitalize text-primary" x-text="vendorModalTab"></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-row gap-x-2">
+                        <div class="dropdown">
+                          <div tabindex="0" role="button" class="btn capitalize">
+                              <span x-text="vendorModalTab"></span>
+                              <i class="ti ti-caret-down ml-2"></i>
+                          </div>
+                          <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-200 rounded-box w-52">
+                            <li><button @click="vendorModalTab='overview'">Overview</button></li>
+                            <li><button @click="vendorModalTab='applications'">Applications</button></li>
+                            <li><button @click="vendorModalTab='assessments'">Assessments</button></li>
+                            <li><button @click="vendorModalTab='risks'">Risks</button></li>
+                          </ul>
+                        </div>
+                        <button x-show="vendorModalTab==='overview'" class="btn btn-success" @click="updateVendor">Save Changes</button>
+                        <button x-show="vendorModalTab==='applications'" class="btn btn-success" @click="showVendorModal=false;showAddApp=true">Create</button>
+                        <button x-show="vendorModalTab==='assessments'" class="btn btn-success" @click="showVendorModal=false;showAddAssessment=true">Create</button>
+                        <button x-show="vendorModalTab==='risks'" class="btn btn-success" @click="showVendorModal=false;showCreateRisk=true">Create</button>
+
+                    </div>
+                </div>
+
+
+                <div x-show="vendorModalTab==='overview'" class="grid grid-cols-10 mt-5">
+                    <div class="col-span-4">
+                        <div class="shadow-lg rounded-lg p-6 bg-base-200 capitalize h-full">
+                            <div class="w-full h-full block">
+                                <div class="flex justify-between">
+                                    <h3 class="text-lg font-semibold mt-0 mb-2">Approval Status<i @click="showVendorStatusKey=!showVendorStatusKey" class="ti ti-question-mark ml-2 hover:cursor-pointer"></i></h3>
+                                </div>
+                                <div class="flex justify-center m-6 my-4 items-center capitalize hero-content text-3xl font-bold">
+                                    <i :class="{'ti-x text-error': selectedVendor.status==='not approved', 'ti-progress': selectedVendor.status==='pending', 'ti-check text-success': selectedVendor.status==='approved'}" class="ti text-2xl mr-1"></i>
+                                    <p x-text="selectedVendor.status"></p>
+                                </div>
+                                <div x-show="showVendorStatusKey" class="mt-5">
+                                    <div class="overflow-x-auto">
+                                      <table class="table">
+                                        <thead>
+                                          <tr>
+                                            <th>Status</th>
+                                            <th>Description</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr :class="{'bg-base-100': selectedVendor.status==='pending'}" class="text-xs">
+                                            <td>Pending</td>
+                                            <td>The vendor has not completed the vendor review process. They are not approved for use.</td>
+                                          </tr>
+                                          <tr :class="{'bg-base-100': selectedVendor.status==='approved'}" class="text-xs">
+                                            <td>Approved</td>
+                                            <td>The vendor has been explicitly <i class="text-success">approved</i>. However, specific applications of the vendor may not be approved. Please check the Applications section.</td>
+                                          </tr>
+                                          <tr :class="{'bg-base-100': selectedVendor.status==='not approved'}" class="text-xs">
+                                            <td>Not Approved</td>
+                                            <td>The vendor has been explicitly <i class="text-error">not approved</i>. You may not utilize the vendor or any applications</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-6 px-8 prose max-w-full">
+                        <div x-show="selectedVendor.status === 'not approved'" role="alert" class="alert bg-error mb-4">
+                            <i class="ti ti-x text-lg"></i>
+                            <span class="text-sm">
+                                The vendor has been marked as "Not Approved".
+                            </span>
+                        </div>
+                        <div x-show="selectedVendor.status === 'approved'" role="alert" class="alert bg-success text-neutral mb-4">
+                            <i class="ti ti-check text-lg"></i>
+                            <span class="text-sm">
+                                The vendor has been marked as "Approved".
+                            </span>
+                        </div>
+                        <h2 class="capitalize my-2" x-text="selectedVendor.name"></h2>
+                        <textarea :value="selectedVendor.description" x-model="selectedVendor.description" class="textarea textarea-bordered w-full mt-2" placeholder="Insert description"></textarea>
+                        <div class="grid grid-cols-6 gap-x-6 gap-y-4">
+                            <div class="col-span-3">
+                                <h4>Approval Status</h4>
+                                <div class="flex flex-row">
+                                    <i :class="{'ti-x text-error': selectedVendor.status==='not approved', 'ti-progress': selectedVendor.status==='pending', 'ti-check text-success': selectedVendor.status==='approved'}" class="ti mr-2 my-auto"></i>
+                                    <select x-model="selectedVendor.status" class="select select-bordered select-sm w-full">
+                                      <option :selected="selectedVendor.status==='pending'" value="pending">Pending</option>
+                                      <option :selected="selectedVendor.status==='approved'" value="approved">Approved</option>
+                                      <option :selected="selectedVendor.status==='not approved'" value="not approved">Not Approved</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-span-3">
+                                <h4>Review Status</h4>
+                                <div class="flex flex-row">
+                                    <i :class="{'ti-alert-triangle text-error':selectedVendor.review_description === 'past due' || selectedVendor.review_description === 'never reviewed', 'ti-alert-triangle text-warning':selectedVendor.review_description === 'upcoming review', 'ti-check text-success':selectedVendor.review_description === 'compliant'}" class="ti mr-2 my-auto text-lg"></i>
+                                    <p class="capitalize my-auto" x-text="selectedVendor.review_description"></p>
+                                </div>
+                            </div>
+                            <div class="col-span-3">
+                                <h4>Next Review Date</h4>
+                                <div class="flex flex-row">
+                                    <i :class="{'ti-alert-triangle text-error':selectedVendor.days_until_next_review_date <= 7, 'ti-alert-triangle text-warning':selectedVendor.days_until_next_review_date <= 14, 'ti-check text-success':selectedVendor.days_until_next_review_date > 14}" class="ti mr-2 my-auto text-lg"></i>
+                                    <p class="capitalize my-auto" x-text="selectedVendor.next_review_date+' ('+selectedVendor.next_review_date_humanize+')'"></p>
+                                </div>
+                            </div>
+                            <div class="col-span-3">
+                                <h4>Last Review Date</h4>
+                                <div class="flex flex-row">
+                                    <i x-show="!selectedVendor.last_reviewed" class="ti mr-2 my-auto ti-alert-triangle text-error text-lg"></i>
+                                    <p x-show="selectedVendor.last_reviewed" class="capitalize my-auto" x-text="selectedVendor.last_reviewed"></p>
+                                    <p x-show="!selectedVendor.last_reviewed" class="capitalize my-auto">Never</p>
+                                </div>
+                            </div>
+                            <div class="col-span-3">
+                                <label class="font-semibold">Contact Email</label>
+                                <input type="text" x-model="selectedVendor.contact_email" placeholder="Input vendor contact" class="input input-bordered w-full mt-2" />
+                            </div>
+                            <div class="col-span-3">
+                                <label class="font-semibold">Location</label>
+                                <input type="text" x-model="selectedVendor.location" placeholder="Input location" class="input input-bordered w-full mt-2" />
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold">Contract Start Date</label>
+                                <input x-model="selectedVendor.start_date" x-init="initFlatpickr" id="datePicker8" type="text" class="grow input w-full input-bordered mt-2" placeholder="Contract start date" />
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold"><i x-show="selectedVendor.criticality === 'high'" class="ti ti-star text-error mr-1 my-auto"></i>Criticality</label>
+                                <select x-model="selectedVendor.criticality" class="select select-bordered w-full mt-2">
+                                  <option value="unknown" selected>Unknown</option>
+                                  <option value="low">Low</option>
+                                  <option value="moderate">Moderate</option>
+                                  <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold">Review Frequency</label>
+                                <select x-model="selectedVendor.review_cycle" class="select select-bordered w-full mt-2">
+                                  <option value="12" selected>12 months</option>
+                                  <option value="3">3 months</option>
+                                  <option value="6">6 months</option>
+                                  <option value="9">9 months</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold">Contract End Date</label>
+                                <input x-model="selectedVendor.end_date" x-init="initFlatpickr" id="datePicker9" type="text" class="grow input w-full input-bordered mt-2" placeholder="Contract end date" />
+                            </div>
+                            <div class="col-span-4">
+                                <label class="font-semibold">Notes</label>
+                                <textarea class="textarea textarea-bordered mt-2 w-full" x-model="selectedVendor.notes" placeholder="Input any notes about the vendor"></textarea>
+                            </div>
+                            <div class="col-span-6">
+                                <div class="divider font-bold text-primary">Actions</div>
+                            </div>
+                            <div class="col-span-2">
+                                <button class="btn btn-sm">View Applications</button>
+                            </div>
+                            <div class="col-span-2">
+                                <button class="btn btn-sm">New Application</button>
+                            </div>
+                            <div class="col-span-2">
+                                <button class="btn btn-sm">Start an Review</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div x-show="vendorModalTab==='applications'" class="grid grid-cols-10 mt-5">
+                    <div class="col-span-10">
+                        <div class="overflow-x-auto">
+                          <table class="table">
+                            <!-- head -->
+                            <thead>
+                              <tr>
+                                <th>Name</th>
+                                <th>Review Status</th>
+                                <th>Criticality</th>
+                                <th>Risk</th>
+                                <th></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="app in applications">
+                                    <template x-if="app.vendor_id === selectedVendor.id">
+                                      <tr>
+                                        <td class="capitalize font-semibold" x-text="app.name"></td>
+                                        <td class="capitalize" x-text="app.review_status"></td>
+                                        <td class="capitalize" x-text="app.criticality"></td>
+                                        <td x-text="app.risk"></td>
+                                        <td><button @click="selectedApp=app;showAppModal=true" class="btn btn-xs">Open</button></td>
+                                      </tr>
+                                    </template>
+                                </template>
+                            </tbody>
+                          </table>
+                        </div>
+                    </div>
+                </div>
+                <div x-show="vendorModalTab==='assessments'" class="grid grid-cols-10 mt-5">
+                    <div class="col-span-10">
+                        <div class="overflow-x-auto">
+                          <table class="table">
+                            <!-- head -->
+                            <thead>
+                              <tr>
+                                <th>Name</th>
+                                <th>Status</th>
+                                <th>Complete</th>
+                                <th>Due Date</th>
+                                <th></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="record in assessments">
+                                    <template x-if="record.vendor_id === selectedVendor.id">
+                                      <tr>
+                                        <td class="capitalize font-semibold" x-text="record.name"></td>
+                                        <td class="capitalize" x-text="record.status"></td>
+                                        <td class="capitalize" x-text="record.is_complete"></td>
+                                        <td class="capitalize" x-text="record.due_date_humanize"></td>
+                                        <td><button @click="selectedAssessment=record;showAppModal=true" class="btn btn-xs">Open</button></td>
+                                      </tr>
+                                    </template>
+                                </template>
+                            </tbody>
+                          </table>
+                        </div>
+                    </div>
+
+                </div>
+                <div x-show="vendorModalTab==='risks'" class="grid grid-cols-10 mt-5">
+                    <div class="col-span-10">
+                        <div class="overflow-x-auto">
+                          <table class="table">
+                            <!-- head -->
+                            <thead>
+                              <tr>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Risk</th>
+                                <th>Priority</th>
+                                <th></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="record in risks">
+                                    <template x-if="record.vendor_id === selectedVendor.id">
+                                      <tr>
+                                        <td class="capitalize font-semibold" x-text="record.title"></td>
+                                        <td class="capitalize" x-text="record.status"></td>
+                                        <td class="capitalize" x-text="record.risk"></td>
+                                        <td class="capitalize" x-text="app.priority"></td>
+                                        <td><button @click="selectedRisk=record;showAppModal=true" class="btn btn-xs">Open</button></td>
+                                      </tr>
+                                    </template>
+                                </template>
+                            </tbody>
+                          </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-action">
+                    <button class="btn" @click="showVendorModal = false">Close</button>
+                    <button x-show="vendorModalTab==='overview'" class="btn btn-success" @click="updateVendor">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showAppModal }">
+            <div class="modal-box w-12/12 max-w-6xl">
+                <form method="dialog">
+                    <button @click="showAppModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                        ✕
+                    </button>
+                </form>
+                <div class="lg:flex lg:items-center lg:justify-between px-6 mt-5">
+                    <div class="min-w-0 flex-1">
+                        <div class="breadcrumbs text-xl font-bold sm:tracking-tight py-0">
+                            <ul>
+                                <li><a>Applications</a></li>
+                                <li class="capitalize" x-text="selectedApp.name"></li>
+                            </ul>
+                        </div>
+                    </div>
+<!--                    <div class="flex">-->
+<!--                        <span class="ml-3 hidden sm:block">-->
+<!--                          <div class="tooltip tooltip-left" data-tip="Preview assessment">-->
+<!--                              <button @click="refreshData" :class="{'btn-disabled': disableRefreshBtn}" class="btn btn-sm btn-primary"><span x-show="disableRefreshBtn" class="loading loading-infinity loading-sm"></span>Preview</button>-->
+<!--                          </div>-->
+<!--                        </span>-->
+<!--                    </div>-->
+                </div>
+
+                <div class="grid grid-cols-10 mt-5 px-6 gap-x-8">
+                    <div class="col-span-4">
+                        <div class="shadow-lg rounded-lg p-6 bg-base-200 capitalize">
+                            <div class="w-full h-full block">
+                                <div class="flex justify-between">
+                                    <h3 class="text-lg font-semibold mt-0 mb-2">Approval Status<i @click="showAppStatusKey=!showAppStatusKey" class="ti ti-question-mark ml-2 hover:cursor-pointer"></i></h3>
+                                </div>
+                                <div class="flex justify-center m-6 my-4 items-center capitalize hero-content text-3xl font-bold">
+                                    <i :class="{'ti-x text-error': selectedApp.status==='not approved', 'ti-progress': selectedApp.status==='pending', 'ti-check text-success': selectedApp.status==='approved'}" class="ti text-2xl mr-1"></i>
+                                    <p x-text="selectedApp.status"></p>
+                                </div>
+                                <div x-show="showAppStatusKey" class="mt-5">
+                                    <div class="overflow-x-auto">
+                                      <table class="table">
+                                        <thead>
+                                          <tr>
+                                            <th>Status</th>
+                                            <th>Description</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr :class="{'bg-base-100': selectedVendor.status==='pending'}" class="text-xs">
+                                            <td>Pending</td>
+                                            <td>The app has not completed the app review process. They are not approved for use.</td>
+                                          </tr>
+                                          <tr :class="{'bg-base-100': selectedVendor.status==='approved'}" class="text-xs">
+                                            <td>Approved</td>
+                                            <td>The app has been explicitly <i class="text-success">approved</i>.</td>
+                                          </tr>
+                                          <tr :class="{'bg-base-100': selectedVendor.status==='not approved'}" class="text-xs">
+                                            <td>Not Approved</td>
+                                            <td>The app has been explicitly <i class="text-error">not approved</i>.</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-6 prose max-w-full">
+                        <div x-show="selectedApp.status === 'not approved'" role="alert" class="alert bg-error mb-4">
+                            <i class="ti ti-x text-lg"></i>
+                            <span class="text-sm">
+                                This application is not approved for use.
+                            </span>
+                        </div>
+                        <div x-show="selectedApp.status === 'approved'" role="alert" class="alert bg-success text-neutral mb-4">
+                            <i class="ti ti-check text-lg"></i>
+                            <span class="text-sm">
+                                This application has been approved for use.
+                            </span>
+                        </div>
+                        <h2 class="capitalize my-2" x-text="selectedApp.name"></h2>
+                        <textarea :value="selectedApp.description" x-model="selectedApp.description" class="textarea textarea-bordered w-full mt-2" placeholder="Insert description"></textarea>
+                        <div class="grid grid-cols-6 gap-x-6 gap-y-4 mt-2">
+                            <div class="col-span-3">
+                                <h4>Approval Status</h4>
+                                <div class="flex flex-row">
+                                    <i :class="{'ti-x text-error': selectedApp.status==='not approved', 'ti-progress': selectedApp.status==='pending', 'ti-check text-success': selectedApp.status==='approved'}" class="ti mr-2 my-auto"></i>
+                                    <select x-model="selectedApp.status" class="select select-bordered select-sm w-full">
+                                      <option :selected="selectedApp.status==='pending'" value="pending">Pending</option>
+                                      <option :selected="selectedApp.status==='approved'" value="approved">Approved</option>
+                                      <option :selected="selectedApp.status==='not approved'" value="not approved">Not Approved</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-span-3">
+                                <h4>Review Status</h4>
+                                <div class="flex flex-row">
+                                    <i :class="{'ti-alert-triangle text-error':selectedApp.review_description === 'past due' || selectedApp.review_description === 'never reviewed', 'ti-alert-triangle text-warning':selectedApp.review_description === 'upcoming review', 'ti-check text-success':selectedApp.review_description === 'compliant'}" class="ti mr-2 my-auto text-lg"></i>
+                                    <p class="capitalize my-auto" x-text="selectedApp.review_description"></p>
+                                </div>
+                            </div>
+                            <div class="col-span-3">
+                                <h4>Next Review Date</h4>
+                                <div class="flex flex-row">
+                                    <i :class="{'ti-alert-triangle text-error':selectedApp.days_until_next_review_date <= 7, 'ti-alert-triangle text-warning':selectedApp.days_until_next_review_date <= 14, 'ti-check text-success':selectedApp.days_until_next_review_date > 14}" class="ti mr-2 my-auto text-lg"></i>
+                                    <p class="capitalize my-auto" x-text="selectedApp.next_review_date+' ('+selectedApp.next_review_date_humanize+')'"></p>
+                                </div>
+                            </div>
+                            <div class="col-span-3">
+                                <h4>Last Review Date</h4>
+                                <div class="flex flex-row">
+                                    <i x-show="!selectedApp.last_reviewed" class="ti mr-2 my-auto ti-alert-triangle text-error text-lg"></i>
+                                    <p x-show="selectedApp.last_reviewed" class="capitalize my-auto" x-text="selectedApp.last_reviewed"></p>
+                                    <p x-show="!selectedApp.last_reviewed" class="capitalize my-auto">Never</p>
+                                </div>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold">Contact Email</label>
+                                <input type="text" x-model="selectedApp.contact_email" placeholder="Input app contact" class="input input-bordered input-md w-full mt-2" />
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold">Category</label>
+                                <input type="text" x-model="selectedApp.category" placeholder="Input category" class="input input-bordered input-md w-full mt-2" />
+
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold">Business Unit</label>
+                                <input type="text" x-model="selectedApp.business_unit" placeholder="Input business unit" class="input input-bordered input-md w-full mt-2" />
+                            </div>
+                            <div class="col-span-2 flex flex-col gap-y-2">
+                                <label class="font-semibold">On Premise</label>
+                                <input x-model="selectedApp.is_on_premise" type="checkbox" class="checkbox" />
+                            </div>
+                            <div class="col-span-2 flex flex-col gap-y-2">
+                                <label class="font-semibold">SaaS</label>
+                                <input x-model="selectedApp.is_saas" type="checkbox" class="checkbox" />
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold">Contract Start Date</label>
+                                <input x-model="selectedApp.start_date" x-init="initFlatpickr" id="datePicker6" type="text" class="grow input w-full input-bordered mt-2" placeholder="Contract start date" />
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold">Contract End Date</label>
+                                <input x-model="selectedApp.end_date" x-init="initFlatpickr" id="datePicker7" type="text" class="grow input w-full input-bordered mt-2" placeholder="Contract start date" />
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold"><i x-show="selectedApp.criticality === 'high'" class="ti ti-star text-error mr-1 my-auto"></i>Criticality</label>
+                                <select x-model="selectedApp.criticality" class="select select-bordered w-full mt-2">
+                                  <option value="unknown" selected>Unknown</option>
+                                  <option value="low">Low</option>
+                                  <option value="moderate">Moderate</option>
+                                  <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="font-semibold">Review Frequency</label>
+                                <select x-model="selectedApp.review_cycle" class="select select-bordered w-full mt-2">
+                                  <option value="12" selected>12 months</option>
+                                  <option value="3">3 months</option>
+                                  <option value="6">6 months</option>
+                                  <option value="9">9 months</option>
+                                </select>
+                            </div>
+                            <div class="col-span-4">
+                                <label class="font-semibold">Vendor</label>
+                                <select disabled x-model="selectedApp.vendor_id"
+                                        class="select select-bordered w-full mt-2">
+                                    <option value="" :selected="!selectedapp.vendor_id">No Vendor</option>
+                                    <template x-for="vendor in vendors" :key="vendor.id">
+                                        <option :selected="selectedApp.vendor_id === vendor.id" class="capitalize" :value="vendor.id" x-text="vendor.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="col-span-6">
+                                <label class="font-semibold">Notes</label>
+                                <textarea class="textarea textarea-bordered mt-2 w-full" x-model="selectedApp.notes" placeholder="Input any notes about the application"></textarea>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showAppModal = false">Close</button>
+                    <button class="btn btn-success"
+                            @click="updateApp">Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div class="modal" x-bind:class="{ 'modal-open': showAssessmentModal }">
+            <div class="modal-box w-12/12 max-w-6xl">
+                <form method="dialog">
+                    <button @click="showAssessmentModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                        ✕
+                    </button>
+                </form>
+                <div class="lg:flex lg:items-center lg:justify-between px-6 mt-5">
+                    <div class="min-w-0 flex-1">
+                        <div class="breadcrumbs text-xl font-bold sm:tracking-tight py-0">
+                            <ul>
+                                <li><a>Assessments</a></li>
+                                <li class="capitalize" x-text="selectedAssessment.name"></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a x-show="selectedAssessment.review_status !== 'new'" :href="'/assessments/'+selectedAssessment.id+'/review'" class="btn btn-sm btn-primary mr-4">View Assessment</a>
+
+                    <div x-show="selectedAssessment.review_status === 'new'" class="flex">
+                        <span class="flex gap-x-4">
+                          <div class="tooltip tooltip-left" data-tip="Publish assessment">
+                              <button @click="showAssessmentModal=false;showPublishAssessment=true" class="btn btn-sm btn-success">Publish Assessment</button>
+                          </div>
+                          <div class="tooltip tooltip-left" data-tip="Edit form">
+                              <a :href="'/assessments/'+selectedAssessment.id+'/manage'" class="btn btn-sm btn-warning">Edit Form</a>
+                          </div>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-10 mt-5 px-6 gap-x-8">
+                    <div class="col-span-4">
+                        <div class="shadow-lg rounded-lg p-6 bg-base-200 capitalize">
+                            <div class="w-full h-full block">
+                                <div class="flex justify-between">
+                                    <h3 class="text-lg font-semibold mt-0 mb-2">Approval Status<i @click="showAppStatusKey=!showAppStatusKey" class="ti ti-question-mark ml-2 hover:cursor-pointer"></i></h3>
+                                </div>
+                                <div class="flex justify-center m-6 my-4 items-center capitalize hero-content text-3xl font-bold">
+                                    <i :class="{'ti-x text-error': selectedAssessment.status==='not approved', 'ti-progress': selectedAssessment.status==='pending', 'ti-check text-success': selectedAssessment.status==='approved'}" class="ti text-2xl mr-1"></i>
+                                    <p x-text="selectedAssessment.status"></p>
+                                </div>
+                                <div x-show="showAppStatusKey" class="mt-5">
+                                    <div class="overflow-x-auto">
+                                      <table class="table">
+                                        <thead>
+                                          <tr>
+                                            <th>Status</th>
+                                            <th>Description</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr :class="{'bg-base-100': selectedVendor.status==='pending'}" class="text-xs">
+                                            <td>Pending</td>
+                                            <td>The assessment is ongoing. Please check the "Review Status"</td>
+                                          </tr>
+                                          <tr :class="{'bg-base-100': selectedVendor.status==='approved'}" class="text-xs">
+                                            <td>Approved</td>
+                                            <td>The assessment has been explicitly <i class="text-success">approved</i>.</td>
+                                          </tr>
+                                          <tr :class="{'bg-base-100': selectedVendor.status==='not approved'}" class="text-xs">
+                                            <td>Not Approved</td>
+                                            <td>The assessment has been explicitly <i class="text-error">not approved</i>.</td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-6 prose max-w-full">
+                        <div x-show="selectedAssessment.status === 'not approved'" role="alert" class="alert bg-error mb-4">
+                            <i class="ti ti-x text-lg"></i>
+                            <span class="text-sm">
+                                This assessment has been marked as "Not Approved"
+                            </span>
+                        </div>
+                        <div x-show="selectedAssessment.status === 'approved'" role="alert" class="alert bg-success text-neutral mb-4">
+                            <i class="ti ti-check text-lg"></i>
+                            <span class="text-sm">
+                                This assessment has been marked as "Approved"
+                            </span>
+                        </div>
+                        <div x-show="selectedAssessment.review_status === 'pending' && selectedAssessment.past_due" role="alert" class="alert bg-success text-neutral mb-4">
+                            <i class="ti ti-check text-lg"></i>
+                            <span class="text-sm">
+                                The assessment is past due! Please check the review status below.
+                            </span>
+                        </div>
+                        <h2 class="capitalize my-2" x-text="selectedAssessment.name"></h2>
+                        <textarea :value="selectedAssessment.description" x-model="selectedAssessment.description" class="textarea textarea-bordered w-full mt-2" placeholder="Insert description"></textarea>
+                        <div class="grid grid-cols-6 gap-x-6 gap-y-4 mt-2">
+                            <div class="col-span-3">
+                                <h4>Approval Status</h4>
+                                <div class="flex flex-row">
+                                    <i :class="{'ti-x text-error': selectedAssessment.status==='not approved', 'ti-progress': selectedAssessment.status==='pending', 'ti-check text-success': selectedAssessment.status==='approved'}" class="ti mr-2 my-auto"></i>
+                                    <select x-model="selectedAssessment.status" class="select select-bordered select-sm w-full">
+                                      <option :selected="selectedAssessment.status==='pending'" value="pending">Pending</option>
+                                      <option :selected="selectedAssessment.status==='approved'" value="approved">Approved</option>
+                                      <option :selected="selectedAssessment.status==='not approved'" value="not approved">Not Approved</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-span-3">
+                                <h4>Review Status</h4>
+                                <div class="flex flex-row">
+                                    <i :class="{'ti-user-exclamation text-error':selectedAssessment.review_status === 'new' || selectedAssessment.review_description === 'pending_review', 'ti-hourglass-empty text-warning':selectedAssessment.review_status === 'pending_response' || selectedAssessment.review_status === 'info_required', 'ti-check text-success':selectedAssessment.review_status === 'complete'}" class="ti mr-2 my-auto text-lg"></i>
+                                    <p class="my-auto text-sm" x-text="selectedAssessment.review_description"></p>
+                                </div>
+                            </div>
+                            <div class="col-span-2">
+                                <h4>Due Date<i @click="editAssessmentDueDate=!editAssessmentDueDate" class="ti ti-edit text-warning hover:cursor-pointer ml-1"></i></h4>
+<!--                                haaaaa-->
+                                <input x-show="editAssessmentDueDate" x-model="selectedAssessment.due_date" x-init="initFlatpickr" id="datePicker10" type="text" class="grow input w-full input-bordered mt-2" placeholder="" />
+                                <div x-show="!editAssessmentDueDate" class="flex flex-row">
+                                    <i :class="{'ti-alert-triangle text-error':selectedAssessment.days_until_due_date <= 7, 'ti-alert-triangle text-warning':selectedAssessment.days_until_due_date <= 14}" class="ti mr-2 my-auto text-lg"></i>
+                                    <p class="capitalize my-auto" x-text="selectedAssessment.due_date+' ('+selectedAssessment.due_date_humanize+' )'"></p>
+                                </div>
+                            </div>
+                            <div class="col-span-4">
+                                <h4>Guests</h4>
+                                <select x-model="selectedAssessment.guests" class="bg-base-100 border border-base-content border-opacity-30 rounded-lg p-2 mt-2" id="updateAssessmentUsers" multiple></select>
+
+                            </div>
+                            <div class="col-span-6">
+                                <label class="font-semibold">Notes</label>
+                                <textarea class="textarea textarea-bordered mt-2 w-full" x-model="selectedAssessment.notes" placeholder="Input any notes about the assessment"></textarea>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-action">
+                    <button class="btn" @click="showAssessmentModal = false">Close</button>
+                    <button class="btn btn-success"
+                            @click="updateAssessment">Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showRiskModal }">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showRiskModal=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <div class="px-6">
+                    <div class="breadcrumbs text-xl font-bold sm:tracking-tight py-0">
+                        <ul>
+                            <li><a>Risks</a></li>
+                            <li class="capitalize" x-text="selectedRisk.title"></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="grid grid-cols-6 gap-4 mt-4">
+                    <div class="col-span-2">
+                        <div class="shadow-lg rounded-lg p-6 bg-base-200 capitalize h-full">
+                            <div class="w-full h-full block">
+                                <div class="flex justify-between">
+                                    <h3 class="text-lg font-semibold mt-0 mb-2">Risk</h3>
+                                </div>
+                                <div class="flex justify-center gap-16 m-8 my-4 items-center capitalize hero-content text-3xl font-bold" x-text="selectedRisk.risk">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-4">
+                        <div class="grid grid-cols-12 gap-4 prose max-w-full">
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Title</label>
+                        <input x-model="selectedRisk.title" type="text" placeholder="Provide a title for the risk" class="input input-bordered w-full">
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Description</label>
+                        <textarea x-model="selectedRisk.description" class="textarea textarea-bordered w-full" placeholder="Provide a description for the risk"></textarea>
+                    </div>
+                    <div class="col-span-12">
+                        <label class="block text-sm font-medium mb-2">Remediation</label>
+                        <textarea x-model="selectedRisk.remediation" class="textarea textarea-bordered w-full" placeholder="Provide the remediation for the risk"></textarea>
+                    </div>
+                    <div class="col-span-5">
+                        <label class="block text-sm font-medium mb-2">Assignee</label>
+                        <select x-model="selectedRisk.assignee" class="select select-bordered w-full">
+                            <option value="">Select user</option>
+                            <template x-for="user in tenantUsers">
+                                <option :value="user.email" x-text="user.email"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="col-span-5">
+                        <label class="block text-sm font-medium mb-2">Tags</label>
+                        <select x-model="selectedRisk.tags" class="bg-base-100 border border-base-content border-opacity-30 rounded-lg p-2 mt-2" id="updateRiskTags" multiple></select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium mb-2">Enabled</label>
+                        <input x-model="selectedRisk.enabled" type="checkbox" checked="checked" class="checkbox" />
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-sm font-medium mb-2">Risk</label>
+                        <select x-model="selectedRisk.risk" class="select select-bordered w-full">
+                          <option :selected="!selectedRisk.risk">Please select...</option>
+                          <option :selected="selectedRisk.risk === 'unknown'" class="capitalize" value="unknown">unknown</option>
+                          <option :selected="selectedRisk.risk === 'low'" class="capitalize" value="low">low</option>
+                          <option :selected="selectedRisk.risk === 'moderate'" class="capitalize" value="moderate">moderate</option>
+                          <option :selected="selectedRisk.risk === 'high'" class="capitalize" value="high">high</option>
+                          <option :selected="selectedRisk.risk === 'critical'" class="capitalize" value="critical">critical</option>
+                        </select>
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-sm font-medium mb-2">Status</label>
+                        <select x-model="selectedRisk.status" class="select select-bordered w-full">
+                          <option :selected="!selectedRisk.status">Please select...</option>
+                          <option :selected="selectedRisk.status === 'new'" class="capitalize" value="new">new</option>
+                          <option :selected="selectedRisk.status === 'in_progress'" class="capitalize" value="in_progress">In Progress</option>
+                          <option :selected="selectedRisk.status === 'accepted'" class="capitalize" value="accepted">accepted</option>
+                          <option :selected="selectedRisk.status === 'mitigated'" class="capitalize" value="mitigated">mitigated</option>
+                          <option :selected="selectedRisk.status === 'false_positive'" class="capitalize" value="false_positive">False Positive</option>
+                        </select>
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-sm font-medium mb-2">Priority</label>
+                        <select x-model="selectedRisk.priority" class="select select-bordered w-full">
+                          <option :selected="!selectedRisk.priority">Please select...</option>
+                          <option :selected="selectedRisk.priority === 'unknown'" class="capitalize" value="unknown">unknown</option>
+                          <option :selected="selectedRisk.priority === 'low'" class="capitalize" value="low">low</option>
+                          <option :selected="selectedRisk.priority === 'moderate'" class="capitalize" value="moderate">moderate</option>
+                          <option :selected="selectedRisk.priority === 'high'" class="capitalize" value="high">high</option>
+                        </select>
+                    </div>
+                </div>
+                    </div>
+                </div>
+
+                <div class="modal-action">
+                    <button class="btn" @click="showRiskModal=false">Close</button>
+                    <button @click="showRiskModal=false;showDeleteRiskModal=true" class="btn btn-error">Delete</button>
+                    <button @click="updateRisk" class="btn btn-warning">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showCreateRisk}">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showCreateRisk=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-6 capitalize">Create New Risk</h2>
+                <div class="grid grid-cols-12 gap-4 card-body">
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Title</label>
+                        <input x-model="payload.title" type="text" placeholder="Provide a title for the risk" class="input input-bordered w-full">
+                    </div>
+                    <div class="col-span-6">
+                        <label class="font-semibold">(Optional) Associate with Vendor?</label>
+                        <select x-model="payload.vendor_id"
+                                class="select select-bordered w-full mt-2">
+                            <option value="" selected>Select Vendor</option>
+                            <template x-for="vendor in vendors" :key="vendor.id">
+                                <option class="capitalize" :value="vendor.id" x-text="vendor.name"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Description</label>
+                        <textarea x-model="payload.description" class="textarea textarea-bordered w-full" placeholder="Provide a description for the risk"></textarea>
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Remediation</label>
+                        <textarea x-model="payload.remediation" class="textarea textarea-bordered w-full" placeholder="Provide the remediation for the risk"></textarea>
+                    </div>
+                    <div class="col-span-5">
+                        <label class="block text-sm font-medium mb-2">Assignee</label>
+                        <select x-model="payload.assignee" class="select select-bordered w-full">
+                            <option value="">Select user</option>
+                            <template x-for="user in tenantUsers">
+                                <option :value="user.email" x-text="user.email"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div class="col-span-5">
+                        <label class="block text-sm font-medium mb-2">Tags</label>
+                        <select x-model="payload.tags" class="bg-base-100 border border-base-content border-opacity-30 rounded-lg p-2 mt-2" id="createRiskTags" multiple></select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium mb-2">Enabled</label>
+                        <input x-model="payload.enabled" type="checkbox" checked="checked" class="checkbox" />
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-sm font-medium mb-2">Risk</label>
+                        <select x-model="payload.risk" class="select select-bordered w-full">
+                          <option selected="">Please select...</option>
+                          <option class="capitalize" value="unknown">unknown</option>
+                          <option class="capitalize" value="low">low</option>
+                          <option class="capitalize" value="moderate">moderate</option>
+                          <option class="capitalize" value="high">high</option>
+                          <option class="capitalize" value="critical">critical</option>
+                        </select>
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-sm font-medium mb-2">Status</label>
+                        <select x-model="payload.status" class="select select-bordered w-full">
+                          <option value="new" selected="">Please select...</option>
+                          <option class="capitalize" value="new">new</option>
+                          <option class="capitalize" value="in_progress">In Progress</option>
+                          <option class="capitalize" value="accepted">accepted</option>
+                          <option class="capitalize" value="mitigated">mitigated</option>
+                          <option  class="capitalize" value="false_positive">False Positive</option>
+                        </select>
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-sm font-medium mb-2">Priority</label>
+                        <select x-model="payload.priority" class="select select-bordered w-full">
+                          <option selected="">Please select...</option>
+                          <option class="capitalize" value="unknown">unknown</option>
+                          <option class="capitalize" value="low">low</option>
+                          <option class="capitalize" value="moderate">moderate</option>
+                          <option class="capitalize" value="high">high</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-action">
+                    <button class="btn" @click="showCreateRisk=false">Close</button>
+                    <button @click="createRisk" class="btn btn-success">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showAddForm}">
+            <div class="modal-box w-11/12 max-w-4xl">
+                <form method="dialog">
+                    <button @click="showAddForm=false"
+                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                    </button>
+                </form>
+                <h2 class="py-2 text-xl font-semibold px-6 capitalize">Create New Template</h2>
+                <div class="grid grid-cols-12 gap-4 card-body">
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Name</label>
+                        <input x-model="payload.name" type="text" placeholder="Provide a name for the template" class="input input-bordered w-full">
+                    </div>
+                    <div class="col-span-6">
+                        <label class="block text-sm font-medium mb-2">Description</label>
+                        <textarea x-model="payload.description" class="textarea textarea-bordered w-full" placeholder="Provide a description for the template"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-action">
+                    <button class="btn" @click="showAddForm=false">Close</button>
+                    <button @click="createForm" class="btn btn-success">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  </div>
+
+{%endblock%}
+
+{%block extrajs%}
+
+<script>
+function vendors(){
+    return {
+        init() {
+
+          // TODO
+          // projectData.show_driver (boolean)
+<!--          setTimeout(() => {-->
+<!--              this.driverAssessmentTour()-->
+<!--              this.dropZoneHeight = `${document.getElementById("main").clientHeight+document.getElementById("pageHeader").clientHeight}px`;-->
+<!--          }, 1000);-->
+
+          this.loadingRiskData = true;
+
+          flatpickr("#datePicker");
+          flatpickr("#datePicker2");
+          flatpickr("#datePicker3");
+          flatpickr("#datePicker4");
+          flatpickr("#datePicker5");
+          flatpickr("#datePicker6");
+          flatpickr("#datePicker7");
+          flatpickr("#datePicker8");
+          flatpickr("#datePicker9");
+          flatpickr("#datePicker10");
+
+          this.$watch(
+            "vendors", (newValue, oldValue) => {
+                this.drawTable({"selector": "#vendors-table", "tableData":newValue, "formatter": "vendors"})
+          })
+          this.$watch(
+            "applications", (newValue, oldValue) => {
+                this.drawTable({"selector": "#applications-table", "tableData":newValue, "formatter": "applications"})
+          })
+          this.$watch(
+            "risks", (newValue, oldValue) => {
+                this.drawTable({"selector": "#risks-table", "tableData":newValue, "formatter": "risks"})
+          })
+          this.$watch(
+            "assessments", (newValue, oldValue) => {
+                this.drawTable({"selector": "#assessments-table", "tableData":newValue, "formatter": "assessments"})
+          })
+          this.$watch(
+            "forms", (newValue, oldValue) => {
+                this.drawTable({"selector": "#template-table", "tableData":newValue, "formatter": "templates"})
+          })
+          this.$watch(
+            "files", (newValue, oldValue) => {
+                this.drawTable({"selector": "#files-table", "tableData":newValue, "formatter": "files"})
+          })
+          this.getTenantUsers()
+          this.getVendors()
+          this.getApps()
+          this.getAssessments()
+          this.getForms()
+          this.getRisks()
+
+          var params = new window.URLSearchParams(window.location.search);
+          this.switchTab({"tab": params.get('tab') ?? "summary", "view": params.get('view') ?? "default"})
+
+          setTimeout(() => {
+            this.tabsLoading = false
+          }, 1500)
+        },
+        currentUserEmail: "{{current_user.email}}",
+        tabsLoading: true,
+        simpleInterface: false,
+        tabs: ["summary", "vendors", "applications", "assessments", "risk register", "report", "templates", "settings"],
+        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        tabLoading: true,
+        showPublishAssessment: false,
+        vendorModalTab: "overview",
+        tableLoading: true,
+        selectedTab: "risk register",
+        view: "default",
+        risksGrid: null,
+        templateGrid: null,
+        vendorsGrid: null,
+        filesGrid: null,
+        applicationsGrid: null,
+        assessmentsGrid: null,
+        vendors: [],
+        applications: [],
+        risks: [],
+        assessments: [],
+        forms: [],
+        files: [],
+        disableRefreshBtn: false,
+        loadingRiskData: false,
+        projectData: {},
+        controlsFilter: "",
+        editVendorColumnsModal: false,
+        editAppColumnsModal: false,
+        editAssessmentColumnsModal: false,
+        showStats: false,
+        selectedVendor: {},
+        selectedApp: {},
+        selectedAssessment: {},
+        selectedRisk: {},
+        selectedTemplate: {},
+        showAddVendor: false,
+        showAddAssessment: false,
+        showAddForm: false,
+        showAddApp: false,
+        payload: {},
+        showAssessmentModal: false,
+        showVendorModal: false,
+        showAppModal: false,
+        currentAssessmentStep: 1,
+        tenantUsers: [],
+        assessmentUsers: [],
+        tempAssessmentUser: null,
+        showRiskModal: false,
+        showCreateRisk: false,
+        editRiskColumnsModal: false,
+        showDeleteRiskModal: false,
+        showDeleteVendorModal: false,
+        showDeleteAppModal: false,
+        showDeleteAssessmentModal: false,
+        showVendorStatusKey: true,
+        showAppStatusKey: true,
+        riskManagers: [],
+        riskViewers: [],
+        riskVendors: [],
+        editAssessmentDueDate: false,
+        addTempUser: function() {
+            if (!this.tempAssessmentUser || !this.tempAssessmentUser.includes("@")) {
+                toast("Invalid email", "warning")
+                return
+            }
+            this.assessmentUsers.push(this.tempAssessmentUser)
+            this.tempAssessmentUser = null;
+        },
+        removeTempUser: function(user) {
+            this.assessmentUsers = this.assessmentUsers.filter(item => item !== user);
+        },
+        vendorsTableHeaders: [
+          {"field": "id", "headerName": "#", "width": 25, "filter": "agTextColumnFilter", "hide": true},
+          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter", "cellClass": "capitalize"},
+          {"field": "review_status", "headerName": "Review Status", "width": 50, "filter": "agTextColumnFilter", "cellRenderer":controlStatusToBadge},
+          {"field": "data_classification", "headerName": "Classification", "width": 50, "filter": "agTextColumnFilter"},
+          {"field": "next_review_date", "headerName": "Next Review Date", "width": 50, "filter": "agTextColumnFilter"},                          
+          {"field": "criticality", "headerName": "Criticality", "width": 50, "filter": "agTextColumnFilter", "cellRenderer": riskPriorityToBadge},
+          {"field": "location", "headerName": "Location", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "contact_email", "headerName": "Contact", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "last_reviewed", "headerName": "Last Reviewed", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "start_date", "headerName": "First Contracted", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "application_count", "headerName": "Applications", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "assessment_count", "headerName": "Assessments", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "next_review_date_humanize", "headerName": "Next Review", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "days_until_next_review_date", "headerName": "Next Review (Days)", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "review_due", "headerName": "Review Due", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true, "cellRenderer":booleanBadge},
+          {"field": "date_updated", "headerName": "Updated", "width": 50, "filter": "agTextColumnFilter", "hide": true},
+          {"field": "date_added", "headerName": "Added", "width": 50, "filter": "agTextColumnFilter", "hide": true},
+
+        ],
+        applicationsTableHeaders: [
+          {"field": "id", "headerName": "#", "width": 25, "filter": "agTextColumnFilter", "hide": true},
+          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter", "cellClass": "capitalize"},
+          {"field": "category", "headerName": "Category", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "business_unit", "headerName": "BUnit", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "is_saas", "headerName": "SaaS", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "is_on_premise", "headerName": "On Prem", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "review_status", "headerName": "Review Status", "width": 50, "filter": "agTextColumnFilter", "cellRenderer":controlStatusToBadge},
+          {"field": "contact_email", "headerName": "Contact", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "start_date", "headerName": "First Contracted", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "last_reviewed", "headerName": "Last Reviewed", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "criticality", "headerName": "Criticality", "width": 50, "filter": "agTextColumnFilter"},
+          {"field": "data_classification", "headerName": "Classification", "width": 50, "filter": "agTextColumnFilter"},
+          {"field": "disabled", "headerName": "Disabled", "width": 50, "filter": "agTextColumnFilter", "cellRenderer":booleanBadge},
+          {"field": "vendor", "headerName": "Vendor", "width": 100, "filter": "agTextColumnFilter", "cellClass": "capitalize"},
+          {"field": "date_updated", "headerName": "Updated", "width": 50, "filter": "agTextColumnFilter", "hide": true},
+        ],
+        assessmentsTableHeaders: [
+          {"field": "id", "headerName": "#", "width": 25, "filter": "agTextColumnFilter", "hide": true},
+          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter", "cellClass": "capitalize"},
+          {"field": "vendor", "headerName": "Vendor", "width": 100, "filter": "agTextColumnFilter", "cellClass": "capitalize"},
+          {"field": "review_status", "headerName": "Status", "width": 130, "filter": "agTextColumnFilter", "cellRenderer":assessmentStatusToBadge},
+          {"field": "approval", "headerName": "Approval", "width": 75, "filter": "agTextColumnFilter", "hide": true},
+          {"field": "disabled", "headerName": "Disabled", "width": 75, "filter": "agTextColumnFilter", "cellRenderer": booleanBadge, "hide": true},
+          {"field": "is_complete", "headerName": "Complete", "width": 75, "filter": "agTextColumnFilter", "cellRenderer": booleanBadge},
+          {"field": "description", "headerName": "Description", "filter": "agTextColumnFilter", "hide": true},
+          {"field": "due_before", "width": 50, "headerName": "Due", "filter": "agTextColumnFilter", "hide": true},
+          {"field": "due_date_humanize", "headerName": "Due Date", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": false},
+          {"field": "id", "headerName": "Review", "width": 100, "filter": "agTextColumnFilter", "cellRenderer": idToButton, "cellRendererParams": {"text": "Go", "class": "btn-xs btn-primary", "link": "/assessments/{value}/review"}},
+          {"field": "date_updated", "headerName": "Updated", "width": 50, "filter": "agTextColumnFilter", "hide": true},
+        ],
+        risksTableHeaders: [
+          {"field": "id", "headerName": "#", "width": 25, "filter": "agTextColumnFilter", "hide": true},
+          {"field": "title", "headerName": "Title", "filter": "agTextColumnFilter", "cellClass": "capitalize"},
+          {"field": "status", "headerName": "Status", "filter": "agTextColumnFilter", "cellRenderer": riskStatusToBadge},
+          {"field": "risk", "headerName": "Risk", "filter": "agTextColumnFilter", "cellRenderer": riskToVertBar},
+          {"field": "priority", "headerName": "Priority", "filter": "agTextColumnFilter", "cellRenderer": priorityToVertBar},
+          {"field": "scope", "headerName": "Scope", "filter": "agTextColumnFilter", "cellClass": "capitalize", "hide": true},
+          {"field": "project", "headerName": "Project", "filter": "agTextColumnFilter", "cellClass": "capitalize"},
+          {"field": "vendor", "headerName": "Vendor", "filter": "agTextColumnFilter", "cellClass": "capitalize"},
+        ],
+        templatesTableHeaders: [
+          {"field": "id", "headerName": "#", "width": 25, "filter": "agTextColumnFilter"},
+          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter", "cellClass": "capitalize"},
+          {"field": "description", "headerName": "Description", "filter": "agTextColumnFilter"},
+          {"field": "id", "headerName": "Edit", "width": 100, "filter": "agTextColumnFilter", "cellRenderer": idToButton, "cellRendererParams": {"text": "View", "class": "btn-xs btn-primary", "link": "/forms/{value}"}},
+        ],
+        filesTableHeaders: [
+          {"field": "id", "headerName": "#", "width": 25, "filter": "agTextColumnFilter"},
+        ],
+        nextAssessmentStep: function() {
+            this.currentAssessmentStep += 1
+        },
+        previousAssessmentStep: function() {
+            this.currentAssessmentStep -= 1
+        },
+        updateVendorColVisibility: function(field) {
+            const record = this.vendorsTableHeaders.find(obj => obj.field === field);
+            record.hide = !record.hide
+        },
+        saveVendorColumns: function() {
+            this.drawTable({"selector": "#vendors-table", "tableData":this.vendors, "formatter": "vendors"})
+            this.editVendorColumnsModal = false;
+        },
+        updateAppColVisibility: function(field) {
+            const record = this.applicationsTableHeaders.find(obj => obj.field === field);
+            record.hide = !record.hide
+        },
+        saveAppColumns: function() {
+            this.drawTable({"selector": "#applications-table", "tableData":this.applications, "formatter": "applications"})
+            this.editAppColumnsModal = false;
+        },
+        updateRiskColVisibility: function(field) {
+            const record = this.risksTableHeaders.find(obj => obj.field === field);
+            record.hide = !record.hide
+        },
+        saveRiskColumns: function() {
+            this.drawTable({"selector": "#risks-table", "tableData":this.risks, "formatter": "risks"})
+            this.editRiskColumnsModal = false;
+        },
+        updateAssessmentColVisibility: function(field) {
+            const record = this.assessmentsTableHeaders.find(obj => obj.field === field);
+            record.hide = !record.hide
+        },
+        saveAssessmentColumns: function() {
+            this.drawTable({"selector": "#assessments-table", "tableData":this.assessments, "formatter": "assessments"})
+            this.editAssessmentColumnsModal = false;
+        },
+        simpleDate: function(dateString) {
+            var date = new Date(dateString);
+            var dayOfWeek = date.toLocaleDateString('en', { weekday: 'short' });
+            var dayOfMonth = date.getDate();
+            var year = date.getFullYear();
+
+            // Format the result string
+            return dayOfWeek + ', ' + (dayOfMonth < 10 ? '0' : '') + dayOfMonth + ', ' + year;
+
+        },
+        keyExistsInLocalStorage: function(key, parse=false) {
+          let value = localStorage.getItem(key);
+          if (value) {
+            if (parse) {
+              return JSON.parse(value)
+            }
+            return value
+          }
+          return false
+        },
+        switchTab: function({tab = null, view = null, useCache = true, controlsFilter = null}) {
+          this.tabLoading = true;
+          this.tableLoading = true;
+          var tab = tab ?? this.selectedTab
+          var view = view ?? this.view
+          var queryParams = new URLSearchParams(window.location.search);
+
+          if (tab) {
+            this.selectedTab = tab;
+            queryParams.set("tab", tab);
+          }
+
+          if (view) {
+            this.view = view;
+            queryParams.set("view", view);
+          }
+
+          history.replaceState(null, null, "?"+queryParams.toString());
+
+          this.tabLoading = false;
+          this.tableLoading = false;
+
+          if (tab === "vendors") {
+            this.drawTable({"selector": "#vendors-table", "tableData":this.vendors, "formatter": "vendors"})
+          } else if (tab === "applications") {
+            this.drawTable({"selector": "#applications-table", "tableData":this.applications, "formatter": "applications"})
+          } else if (tab === "assessments") {
+            this.drawTable({"selector": "#assessments-table", "tableData":this.assessments, "formatter": "assessments"})
+          } else if (tab === "templates") {
+            this.drawTable({"selector": "#template-table", "tableData":this.forms, "formatter": "templates"})
+          } else if (tab === "files") {
+            this.drawTable({"selector": "#files-table", "tableData":this.files, "formatter": "files"})
+          }
+          this.disableRefreshBtn = false;
+
+        },
+        formattedVendorTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.vendorsTableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+          return filteredData
+        },
+        formattedApplicationsTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.applicationsTableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+          return filteredData
+        },
+        formattedTemplateTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.templatesTableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+          return filteredData
+        },
+        formattedFileTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.filesTableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+          return filteredData
+        },
+        formattedRisksTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.risksTableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+          return filteredData
+        },
+        formattedAssessmentsTable: function(data) {
+          var filteredData = [];
+          var keysToExtract = this.assessmentsTableHeaders.map(header => header.field)
+
+          data.forEach((row) => {
+            var filteredRow = {};
+            keysToExtract.forEach(key => {
+              filteredRow[key] = row[key];
+            });
+            filteredData.push(filteredRow);
+          });
+          return filteredData
+        },
+        drawTable: function({ selector = null, tableData = null, formatter = null }) {
+          console.log("Drawing table: "+selector)
+          var data = tableData;
+          var columns = [];
+
+          gridOptions = {
+            pagination: true,
+            paginationPageSize: 20,
+            domLayout: "autoHeight",
+            suppressMenuHide: true,
+            suppressHorizontalScroll: true,
+            enableCellTextSelection:true,
+            suppressFieldDotNotation: true,
+            onFirstDataRendered: (params) => {
+              params.api.sizeColumnsToFit();
+              this.tableLoading = false;
+              window.onresize = () => {
+                this.tableLoading = true;
+                params.api.sizeColumnsToFit();
+                this.tableLoading = false;
+              }
+            },
+            autoSizeStrategy: {
+              type: 'fitGridWidth',
+              defaultMinWidth: 50,
+            }
+          }
+
+          const gridElement = document.querySelector(selector);
+          if (formatter === "vendors") {
+            if (this.vendorsGrid) {
+              this.vendorsGrid.destroy();
+            }
+            gridOptions.rowData = this.formattedVendorTable(tableData);
+            gridOptions.columnDefs = this.vendorsTableHeaders
+
+            gridOptions.onRowDoubleClicked = (row) => {
+              this.selectedVendor = this.vendors.find(obj => obj.id === row.data.id);
+              this.vendorModalTab = "overview"
+              this.showVendorModal = true;
+            }
+
+            this.vendorsGrid = agGrid.createGrid(gridElement, gridOptions);
+
+          } else if (formatter === "applications") {
+            if (this.applicationsGrid) {
+              this.applicationsGrid.destroy();
+            }
+            gridOptions.rowData = this.formattedApplicationsTable(tableData);
+            gridOptions.columnDefs = this.applicationsTableHeaders
+
+            gridOptions.onRowDoubleClicked = (row) => {
+              this.selectedApp = this.applications.find(obj => obj.id === row.data.id);
+              this.showAppModal = true;
+            }
+
+            this.applicationsGrid = agGrid.createGrid(gridElement, gridOptions);
+
+          } else if (formatter === "assessments") {
+            if (this.assessmentsGrid) {
+              this.assessmentsGrid.destroy();
+            }
+            gridOptions.rowData = this.formattedAssessmentsTable(tableData);
+            gridOptions.columnDefs = this.assessmentsTableHeaders
+
+            gridOptions.onRowDoubleClicked = (row) => {
+              this.selectedAssessment = this.assessments.find(obj => obj.id === row.data.id);
+              let options = this.selectedAssessment.guests.map(record => ({
+                value: record["email"],
+                text: record["email"],
+                class: "!text-base-content"
+              }));
+              let selectedGuests = this.selectedAssessment.guests
+                .filter(record => record["access"])
+                .map(record => record["email"]);
+              console.log(options)
+              select({"id": "#updateAssessmentUsers", "destroy": true, "addable": true, "options": options, "selected": selectedGuests})
+
+              this.showAssessmentModal = true;
+            }
+
+            this.assessmentsGrid = agGrid.createGrid(gridElement, gridOptions);
+
+          } else if (formatter === "risks") {
+            if (this.risksGrid) {
+              this.risksGrid.destroy();
+            }
+            gridOptions.rowData = this.formattedRisksTable(tableData);
+            gridOptions.columnDefs = this.risksTableHeaders
+
+            gridOptions.onRowDoubleClicked = (row) => {
+              this.selectedRisk = this.risks.find(obj => obj.id === row.data.id);
+              this.openUpdateRiskModal()
+            }
+
+            this.risksGrid = agGrid.createGrid(gridElement, gridOptions);
+
+          } else if (formatter === "templates") {
+            if (this.templateGrid) {
+              this.templateGrid.destroy();
+            }
+            gridOptions.rowData = this.formattedTemplateTable(tableData);
+            gridOptions.columnDefs = this.templatesTableHeaders
+
+            this.templateGrid = agGrid.createGrid(gridElement, gridOptions);
+
+          } else if (formatter === "files") {
+            if (this.filesGrid) {
+              this.filesGrid.destroy();
+            }
+            gridOptions.rowData = this.formattedFileTable(tableData);
+            gridOptions.columnDefs = this.filesTableHeaders
+
+            this.filesGrid = agGrid.createGrid(gridElement, gridOptions);
+
+          } else {
+            console.log("Formatter does not exist: "+formatter)
+            return
+          }
+
+        },
+        updateVendor: function() {
+          let payload = {
+            "description": this.selectedVendor.description,
+            "status": this.selectedVendor.status,
+            "contact_email": this.selectedVendor.contact_email,
+            "vendor_contact_email": this.selectedVendor.vendor_contact_email,
+            "location": this.selectedVendor.location,
+            "start_date": this.selectedVendor.start_date,
+            "end_date": this.selectedVendor.end_date,
+            "criticality": this.selectedVendor.criticality,
+            "review_cycle": this.selectedVendor.review_cycle,
+            "notes": this.selectedVendor.notes
+          }
+          request("PUT",
+            `/api/v1/vendors/${this.selectedVendor.id}`,
+            data => {
+                toast("Updated Vendor")
+                this.getVendors()
+                this.showVendorModal = false;
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            payload
+          );
+        },
+        createVendor: function() {
+          if (!this.payload.name || !this.payload.description) {
+            toast("Name and description is required!", "warning")
+            return
+          }
+          if (!this.payload.contact_email) {
+            toast("Contact email is required!", "warning")
+            return
+          }
+          if (!this.payload.vendor_contact_email) {
+            toast("Vendor contact email is required!", "warning")
+            return
+          }
+
+          request("POST",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/vendors`,
+            data => {
+                toast("Created Vendor")
+                this.getVendors()
+                this.showAddVendor = false;
+                this.payload = {}
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.payload
+          );
+        },
+        createApp: function() {
+          if (!this.payload.vendor_id) {
+            toast("Please select a vendor", "warning")
+            return
+          }
+          if (!this.payload.name) {
+            toast("Name is required", "warning")
+            return
+          }
+          request("POST",
+            `/api/v1/vendors/${this.payload.vendor_id}/applications`,
+            data => {
+                toast("Created Application")
+                this.getApps()
+                this.showAddApp = false;
+                this.payload = {}
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.payload
+          );
+        },
+        updateApp: function() {
+          let payload = {
+            "description": this.selectedApp.description,
+            "contact_email": this.selectedApp.contact_email,
+            "category": this.selectedApp.category,
+            "business_unit": this.selectedApp.business_unit,
+            "is_on_premise": this.selectedApp.is_on_premise,
+            "is_saas": this.selectedApp.is_saas,
+            "criticality": this.selectedApp.criticality,
+            "review_cycle": this.selectedApp.review_cycle,
+            "notes": this.selectedApp.notes,
+            "start_date": this.selectedApp.start_date,
+            "end_date": this.selectedApp.end_date
+          }
+          request("PUT",
+            `/api/v1/applications/${this.selectedApp.id}`,
+            data => {
+                toast("Updated Application")
+                this.getApps()
+                this.showAppModal = false;
+                this.payload = {}
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            payload
+          );
+        },
+        createAssessment: function() {
+          if (!this.payload.vendor_id) {
+            toast("Please select a vendor", "warning")
+            return
+          }
+          if (!this.payload.name) {
+            toast("Name is required", "warning")
+            return
+          }
+          this.payload.guests = this.assessmentUsers
+
+          request("POST",
+            `/api/v1/vendors/${this.payload.vendor_id}/assessments`,
+            data => {
+                toast("Created Assessment")
+                this.getAssessments()
+                this.showAddAssessment = false;
+                this.payload = {}
+                this.assessmentUsers = []
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.payload
+          );
+        },
+        updateAssessment: function() {
+<!--        haaaaaaa-->
+          let guests = select({"id": "#updateAssessmentUsers", "get": true})
+
+
+
+          let payload = {
+            "description": this.selectedAssessment.description,
+            "status": this.selectedAssessment.status,
+            "due_before": this.selectedAssessment.due_date,
+            "notes": this.selectedAssessment.notes,
+            "guests": guests
+          }
+          request("PUT",
+            `/api/v1/assessments/${this.selectedAssessment.id}`,
+            data => {
+                toast("Updated Assessment")
+                this.getAssessments()
+                this.showAssessmentModal = false;
+                this.payload = {}
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            payload
+          );
+        },
+        getApps: function() {
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/applications`,
+            data => {
+              this.applications = data;
+              this.appReviewStatusCounts = data.reduce((acc, review) => {
+                acc[review.review_status] = (acc[review.review_status] || 0) + 1;
+                return acc;
+              }, {});
+              this.disableRefreshBtn = false
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        getVendors: function() {
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/vendors`,
+            data => {
+              this.vendors = data;
+              this.vendorReviewStatusCounts = data.reduce((acc, review) => {
+                acc[review.review_status] = (acc[review.review_status] || 0) + 1;
+                return acc;
+              }, {});
+              this.disableRefreshBtn = false
+              this.loadingRiskData = false;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        getForms: function() {
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/forms`,
+            data => {
+              this.forms = data
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        getAssessments: function() {
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/assessments`,
+            data => {
+              this.assessments = data
+              this.disableRefreshBtn = false
+              this.assessmentReviewStatusCounts = data.reduce((acc, review) => {
+                acc[review.status] = (acc[review.status] || 0) + 1;
+                return acc;
+              }, {});
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        getRisks: function() {
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks`,
+            data => {
+              this.risks = data;
+              this.disableRefreshBtn = false
+              this.riskStats = {
+                "unresolved_high_risk": 0,
+                "resolved": 0,
+                "unresolved_high_priority": 0,
+                "accepted": 0,
+                "unresolved": 0
+              }
+
+              for(let record in data) {
+                let risk = data[record];
+                if (risk.status === "new" || risk.status === "in_progress") {
+                    this.riskStats.unresolved += 1
+                }
+                if ((risk.risk === "high" || risk.risk === "critical") && (risk.status === "new" || risk.status === "in_progress")) {
+                    this.riskStats.unresolved_high_risk += 1
+                }
+                if (["accepted", "mitigated", "false_positive"].includes(risk.status)) {
+                    this.riskStats.resolved += 1
+                }
+                if (risk.priority === "high" && (risk.status === "new" || risk.status === "in_progress")) {
+                    this.riskStats.unresolved_high_priority += 1
+                }
+                if (risk.status === "accepted") {
+                    this.riskStats.accepted += 1
+                }
+              }
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        updateRiskAccess: function() {
+          request("PUT",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risk-viewers`,
+            data => {
+              return(data)
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.riskViewers
+          );
+          request("PUT",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risk-managers`,
+            data => {
+              return(data)
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            this.riskManagers
+          );
+<!--          request("PUT",-->
+<!--            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/vendors`,-->
+<!--            data => {-->
+<!--              return(data)-->
+<!--            },-->
+<!--            error => {-->
+<!--              toast(error.message, "error");-->
+<!--            },-->
+<!--            this.riskVendors-->
+<!--          );-->
+          toast("Updated user access")
+          location.reload()
+
+        },
+        getTenantUsers: function() {
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/users`,
+            data => {
+              this.tenantUsers = data;
+              data.forEach((user) => {
+                if (user.roles.includes("riskmanager")) {
+                    this.riskManagers.push(user)
+                }
+                if (user.roles.includes("riskviewer")) {
+                    this.riskViewers.push(user)
+                }
+                if (user.roles.includes("vendor")) {
+                    this.riskVendors.push(user)
+                }
+              })
+
+                let options = this.tenantUsers
+                  .filter(user => !user.roles.includes("vendor"))
+                  .map(user => ({ value: user.email, text: user.email, class: "!text-base-content" }));
+
+                let selected = this.tenantUsers
+                  .filter(user => user.roles.includes("riskmanager"))
+                  .map(user => user.email);
+                select({"id": "#manageRiskUsers", "addable": false, "options": options, "selected": selected})
+
+                let selectedViewers = this.tenantUsers
+                  .filter(user => user.roles.includes("riskviewer"))
+                  .map(user => user.email);
+                select({"id": "#viewRiskUsers", "addable": false, "options": options, "selected": selectedViewers})
+
+<!--               let selectedVendors = this.tenantUsers-->
+<!--                  .filter(user => user.roles.includes("vendor"))-->
+<!--                  .map(user => user.email);-->
+<!--                select({"id": "#vendorRiskUsers", "addable": false, "options": options, "selected": selectedVendors})-->
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        openCreateAssessment: function() {
+            let options = this.tenantUsers.map(user => ({ value: user.email, text: user.email, class: "!text-base-content" }));
+            select({"id": "#manageAssessmentUsers", "addable": false, "options": options})
+            this.showAddAssessment = true
+        },
+        refreshData: function() {
+          this.disableRefreshBtn = true;
+          this.switchTab({"tab": this.selectedTab, "useCache": false})
+        },
+        updateRisk: function() {
+            //TODO
+          data = {
+            "title": this.selectedRisk.title,
+            "description": this.selectedRisk.description,
+            "status":this.selectedRisk.status,
+            "risk":this.selectedRisk.risk,
+            "priority":this.selectedRisk.priority
+          }
+          request("PUT",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks/${this.selectedRisk.id}`,
+            data => {
+              toast("Updated risk")
+              this.showRiskModal = false
+              this.getRisks()
+              return(data)
+            },
+            error => {
+              toast(error.message, "error");
+            },
+            data
+          );
+        },
+        openCreateRiskModal: function() {
+            select({"id": "#createRiskTags", "addable": true, "placeholder": "(Optional) Select tags"})
+            this.showCreateRisk = true;
+
+        },
+        openUpdateRiskModal: function() {
+            let options = this.selectedRisk.tags.map(tag => ({ value: tag.name, text: tag.name, class: "!text-base-content" }));
+            let selected = this.selectedRisk.tags.map(tag => tag.name)
+            select({"id": "#updateRiskTags", "addable": true, "options": options, "selected": selected})
+            this.showRiskModal = true;
+        },
+        createForm: function() {
+            if (!this.payload.name) {
+                toast("Provide the risk with a title", "warning")
+                return
+            }
+            request("POST",
+                `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/forms`,
+                data => {
+                    toast("Created template")
+                    this.showAddForm = false
+                    this.payload = {}
+                    this.getForms()
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                this.payload
+            );
+        },
+        createRisk: function() {
+            if (!this.payload.title) {
+                toast("Provide the risk with a title", "warning")
+                return
+            }
+            request("POST",
+                `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks`,
+                data => {
+                    toast("Created risk")
+                    this.showCreateRisk = false
+                    this.payload = {}
+                    this.getRisks()
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                this.payload
+            );
+        },
+        deleteRisk: function() {
+            request("DELETE",
+                `/api/v1/projects/${this.projectId}/risks/${selectedRisk.id}`,
+                data => {
+                    this.showRiskModal = false
+                    this.payload = {}
+                    this.getRisks()
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        getSummary: function(useCache=true) {
+          this.tabLoading=false;
+        },
+        loadSettings: function() {
+        }
+    }
+}
+
+</script>
+{%endblock%}

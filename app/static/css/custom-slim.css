@@ -1,0 +1,7 @@
+.ss-addable {
+    border-color: transparent !important;
+    background-color: rgba(0, 0, 0, .5);
+}
+.ss-content .ss-search input {
+    color: black;
+}

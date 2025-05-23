@@ -1,0 +1,130 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import 'tailwindcss/typography';
+
+.pill {
+  @apply px-2 py-0.5 rounded-lg font-semibold uppercase justify-center inline-flex items-center self-start;
+}
+
+.green-badge {
+  @apply font-medium capitalize text-green-600 bg-green-400/10 rounded-md py-1 px-3 w-fit border-green-400/10;
+}
+
+.blue-badge {
+  @apply font-medium capitalize text-blue-600 bg-blue-400/10 rounded-md py-1 px-3 w-fit border-blue-400/10;
+}
+
+.red-badge {
+  @apply font-medium capitalize text-red-600 bg-red-400/10 rounded-md py-1 px-3 w-fit border-red-400/10;
+}
+
+.orange-badge {
+  @apply font-medium capitalize text-orange-600 bg-orange-400/10 rounded-md py-1 px-3 w-fit border-orange-400/10;
+}
+
+.yellow-badge {
+  @apply font-medium capitalize text-yellow-600 bg-yellow-400/10 rounded-md py-1 px-3 w-fit border-yellow-400/10;
+}
+
+.gray-badge {
+  @apply font-medium capitalize text-gray-600 bg-gray-400/10 rounded-md py-1 px-3 w-fit border-gray-400/10;
+}
+
+.subtitle {
+  @apply capitalize opacity-80 mb-1.5;
+}
+
+.text-ss {
+  @apply text-[9px];
+}
+
+
+@layer components {
+  .card-title {
+    @apply font-semibold text-lg;
+  }
+
+  .input-sm {
+    @apply text-sm;
+  }
+}
+
+@layer base {
+  p {
+    @apply font-medium text-sm;
+  }
+}
+
+@layer base {
+  span {
+    @apply font-medium text-sm;
+  }
+}
+
+@layer base {
+  tbody {
+    @apply text-sm;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply text-sm;
+  }
+
+  .btn-xs {
+    @apply text-xs;
+  }
+
+  .btn-sm {
+    @apply text-sm;
+  }
+
+  .btn-lg {
+    @apply text-lg;
+  }
+
+  .btn-success, .bg-success {
+    @apply text-white;
+  }
+
+  .btn-warning, .bg-warning {
+    @apply text-white;
+  }
+
+  .btn-error, .bg-error {
+    @apply text-white;
+  }
+
+}
+
+@layer components {
+  .select-xs {
+    @apply text-xs;
+  }
+
+  .select-sm {
+    @apply text-sm;
+  }
+}
+
+@layer components {
+  .textarea {
+    @apply text-sm;
+  }
+
+  .textarea-sm {
+    @apply text-sm;
+  }
+
+  .textarea-xs {
+    @apply text-xs;
+  }
+}
+.ag-row .ag-cell {
+  @apply justify-center my-auto;
+}
+span.ag-cell-value {
+    @apply m-[10px];
+}

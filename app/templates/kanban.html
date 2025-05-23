@@ -1,0 +1,1237 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% import "helpers/snippets.html" as snippet with context %}
+{% block before_head %}
+{{ super() }}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(sortable=True, driver=True) }}
+{% endblock %}
+
+{%block page_header%}{%endblock%}
+
+{%block content%}
+<div x-data="kanban()">
+  <div id="pageHeader" class="flex justify-between mb-5">
+      <h1 class="text-2xl font-semibold whitespace-nowrap capitalize"><a href="{{url_for('main.assessments')}}"><i class="ti ti-arrow-back mr-2"></i>{{assessment.name}}</a><span x-transition x-show="!editMode && canEdit" class="badge badge-sm badge-warning uppercase text-xs font-bold ml-4 opacity-90">Preview Mode</span><span x-transition x-show="editMode && canEdit" class="badge badge-sm badge-warning uppercase text-xs font-bold ml-4 opacity-90">Edit Mode</span></h1>
+    <div x-show="editMode" class="flex flex-row gap-x-2">
+<!--        <select x-transition x-show="!editMode" x-model="userFilter" @change="changeFilter" class="select select-ghost w-full select-sm border border-base-300">-->
+<!--          <option value="no-filter" selected>Filter Questions</option>-->
+<!--          <option value="unanswered">Unanswered</option>-->
+<!--        </select>-->
+        <button x-transition x-show="editMode && canEdit" class="btn btn-sm capitalize tooltip tooltip-bottom"
+                @click="showEditAssessmentModal" data-tip="Edit assessment"><i class="ti ti-settings"></i></button>
+        <button x-transition x-show="editMode" class="btn btn-sm capitalize tooltip tooltip-bottom"
+                @click="getItems" data-tip="Refresh"><i class="ti ti-refresh"></i></button>
+        <button x-show="editMode && canEdit" class="btn btn-sm btn-primary" @click="toggleEditMode">Preview</button>
+        <button x-show="!editMode" class="btn btn-sm btn-primary" @click="toggleEditMode">Edit</button>
+        <button x-show="canEdit" :class="{'btn-disabled': !isReadyToPublish}" class="btn btn-sm btn-success" @click="openPublishAssessment">Publish Assessment</button>
+        <button x-show="!canEdit" class="btn btn-sm btn-success btn-disabled">Assessment Published</button>
+
+    </div>
+  </div>
+    <div x-show="!canEdit" role="alert" class="alert mb-2">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-6 w-6 shrink-0 stroke-current"
+        fill="none"
+        viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <span class="text-sm text-warning font-semibold">The assessment has been published and can not be edited! Please view the assessment.</span>
+      <div>
+        <a :href="'/assessments/'+assessmentId+'/review'" class="btn btn-sm">View Assessment</a>
+      </div>
+    </div>
+  <div x-show="!editMode" role="alert" class="alert alert-warning p-2 px-6 my-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+      <span class="font-semibold">You are in preview mode. The end user will have a slightly different view.</span>
+      <button @click="toggleEditMode" class="btn btn-sm">Go back to edit mode</button>
+  </div>
+  <div class="grid grid-cols-10 gap-6">
+    <div x-transition x-show="editMode" class="col-span-2">
+      <div class="p-6 border border-base-300 rounded-lg">
+        <div class="flex justify-between">
+          <h3 class="p-4 pl-0 pt-0 font-semibold text-lg">Select Elements</h3>
+          <button class="btn btn-sm text-warning hidden" @click="undoDeletion"><i class="ti ti-arrow-back-up"></i></button>
+        </div>
+        <div id="element-list" class="flex flex-col gap-y-2" x-ref="elements">
+            <template x-for="element in elements" :key="element.id">
+                <div class="flex flex-row justify-between font-semibold p-3 text-sm bg-base-300 rounded-lg hover:bg-base-200 border-2 border-base-300">
+                    <h3 x-text="element.title"></h3>
+                    <button x-show="!buttonsLoading" :class="{'btn-disabled':!canEdit}" @click="addElementToDropZone(element)" class="btn btn-xs">Add</button>
+                    <button class="btn btn-xs" x-show="buttonsLoading"><span class="loading loading-spinner loading-xs"></span></button>
+                </div>
+            </template>
+        </div>
+        <div x-show="canEdit" id="trash-zone" class="p-5 text-warning font-semibold uppercase mx-auto border border-warning text-center rounded-lg mt-5">
+          Trash
+        </div>
+      </div>
+    </div>
+    <div :class="{'col-span-8': !editMode}" class="col-span-6">
+      <div class="mockup-browser border border-base-300 bg-base-300">
+          <div class="mockup-browser-toolbar">
+            <div @click="showEditSectionModal=true" class="input capitalize font-semibold before:invisible after:invisible text-center cursor-pointer hover:text-primary flex flex-row">
+                <div>
+                    <i class="ti ti-click mr-1 my-auto"></i>
+                    <span x-text="selectedSection.title"></span>
+                </div>
+            </div>
+          </div>
+        <div id="drop-zone-container" class="flex justify-center px-8 pb-16 pt-8 bg-base-200 grid grid-cols-10 overflow-y-auto">
+          <button x-show="Object.keys(itemFilters).length > 0" @click="removeItemFilter" style="right:8rem" data-tip="Remove filter" class="tooltip tooltip-bottom btn btn-sm btn-circle btn-ghost absolute top-2 text-error"><i class="ti ti-filter-x text-xl"></i></button>
+          <button x-show="editMode" @click="showEditSectionModal=true" style="right:5.5rem" @click="scrollDownInDropZone" data-tip="Edit section" class="tooltip tooltip-bottom btn btn-sm btn-circle btn-ghost absolute top-2"><i class="ti ti-settings text-xl"></i></button>
+          <button @click="scrollDownInDropZone" data-tip="Page down" class="btn btn-sm btn-circle btn-ghost absolute right-12 top-2 tooltip tooltip-bottom"><i class="ti ti-chevrons-down text-xl"></i></button>
+          <button @click="scrollUpInDropZone" data-tip="Page up" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 tooltip tooltip-bottom tooltip-left"><i class="ti ti-chevrons-up text-xl"></i></button>
+          <!-- Alert to show user that the section requires work -->
+          <div x-transition x-show="showDisabledAlert" role="alert" class="alert col-span-full mb-4 h-16 border border-error">
+              <i class="ti ti-alert-circle text-xl font-semibold text-error"></i>
+              <span class="text-sm" x-text="'This section has '+selectedSection.disabled+' disabled question(s). These are not shown to the end user.'"></span>
+              <div>
+                <button x-show="Object.keys(itemFilters).length === 0" class="btn btn-sm btn-error opacity-90" @click="itemFilters.disabled=true;setDataForPage()">Show</button>
+                <button x-show="Object.keys(itemFilters).length > 0" class="btn btn-sm btn-error opacity-90 btn-disabled" @click="itemFilters.disabled=true;setDataForPage()">Filtered</button>
+
+              </div>
+          </div>
+
+          <!-- Alert to show user that the section is ready -->
+          <div x-transition x-show="showReadyAlert && editMode" role="alert" class="alert col-span-full mb-4 h-16 border border-success">
+              <i class="ti ti-circle-check text-xl font-semibold text-success"></i>
+              <span class="text-sm">Section complete. You can add more questions OR create a new section on the right panel.</span>
+          </div>
+
+          <div class="mx-auto text-center mt-5 col-span-full" x-show="dropZoneLoading" x-transition x-html="loadingSkeleton"></div>
+          <div id="drop-zone" x-ref="items" style="height:32rem;" :class="{'py-4 rounded-lg': !dropZoneLoading && editMode && filteredItems.length === 0}" class="col-span-full flex flex-col gap-y-4">
+            <div class="mx-auto font-semibold text-lg mt-10" x-show="!dropZoneLoading && filteredItems.length===0 && Object.keys(itemFilters).length === 0">
+                <i class="ti ti-alert-triangle text-warning text-xl mr-2 mt-1"></i>Please add question types from the panel on the left.
+            </div>
+            <div class="mx-auto font-semibold text-lg mt-10" x-show="!dropZoneLoading && filteredItems.length===0 && Object.keys(itemFilters).length > 0">
+                Filter is applied. <i class="hover:cursor-pointer text-error" @click="removeItemFilter">Click here</i> to remove it.
+            </div>
+            <template x-for="item in filteredItems" :key="item.id+item.order">
+                <div :data-id="item.id" class="grid grid-cols-10">
+                    <div x-transition @click="showCriticalHelpModal=true" x-show="item.critical" :class="{'col-span-8 col-start-3': !editMode}" class="p-2 cursor-pointer hover:text-base-content text-sm font-semibold text-success px-6 col-span-full col-start-2 bg-base-100 rounded-t-lg">
+                        Critical Control<i class="ti ti-help ml-1"></i>
+                    </div>
+
+                    <div x-show="editMode" :class="{'col-span-1  my-auto': editMode, 'col-span-2 m-auto': !editMode}">
+                        <button class="btn btn-sm btn-ghost tooltip" :data-tip="item.id" @click="openItemModal(item)"><i :class="getHTMLIconStatus(item)" class="ti text-2xl"></i></button>
+                    </div>
+                    <div x-on:mousedown="selectedItem=item" :class="{'cursor-pointer col-span-9 hover:bg-base-200': editMode, 'rounded-b-lg': item.critical, 'rounded-lg': !item.critical}" class="col-span-10 p-6 bg-base-300 border-2 border-base-300">
+                        <div class="grid grid-cols-10">
+                            <div class="col-span-1 my-auto">
+                                <span :class="{'ml-6': !editMode, 'ml-2': editMode}" @click="copyLink" class="m-auto font-semibold uppercase tooltip cursor-pointer hover:text-success" data-tip="Copy Link" x-text="item.section[0]+item.order"></span>
+                            </div>
+                            <div class="col-span-9">
+                                <div class="flex justify-between my-auto mb-1">
+                                    <label class="text-sm font-medium my-auto mx-2"><span x-text="item.attributes.label"></span></label>
+                                    <div class="dropdown dropdown-bottom dropdown-end">
+                                      <div tabindex="0" role="button" class="btn btn-sm btn-ghost m-1"><i class="ti ti-dots-vertical text-warning text-xl"></i></div>
+                                      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                                        <li><button class="btn btn-sm btn-ghost flex justify-between" x-transition x-show="editMode" :class="{'btn-disabled':!canEdit}" @click="openEditModal(item)"><span>Edit</span><i class="ti ti-edit text-warning ml-2"></i></button></li>
+                                        <li><button class="btn btn-sm btn-ghost flex justify-between" x-transition x-show="editMode" :class="{'btn-disabled':!canEdit}" @click="showReorderModal=true"><span>Reorder</span> <i class="ti ti-arrows-sort ml-2"></i></button></li>
+                                        <li><button class="btn btn-sm btn-ghost flex justify-between" x-transition @click="copyLink"><span>Copy Link</span> <i class="ti ti-link text-primary ml-2"></i></button></li>
+                                        <li><button class="btn btn-sm btn-ghost flex justify-between" x-transition x-show="editMode" :class="{'btn-disabled':!canEdit}" @click="showDeleteModal=true"><span>Delete</span> <i class="ti ti-trash text-error ml-2"></i></button></li>
+                                      </ul>
+                                    </div>
+                                </div>
+
+                                <!-- Text input -->
+                                <div x-transition x-show="item.data_type === 'text'">
+                                    <textarea class="textarea textarea-bordered w-full" :placeholder="item.attributes.placeholder" disabled></textarea>
+                                </div>
+
+                                <!-- Select input -->
+                                <div x-transition x-show="item.data_type === 'select'">
+                                    <select class="select select-bordered w-full">
+                                      <option disabled selected>Select an option</option>
+                                        <template x-for="option in item.attributes.options">
+                                              <option :value="option" x-text="option"></option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <!-- File input -->
+                                <div x-transition x-show="item.data_type === 'file_input'">
+                                    <input type="file" class="file-input file-input-bordered w-full file-input-sm" disabled/>
+                                </div>
+
+                                <!-- Checkbox input -->
+                                <div x-transition x-show="item.data_type === 'checkbox'">
+                                    <input type="checkbox" class="checkbox" disabled/>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div :style="{ order: !editMode ? -1 : 'auto' }" id="section-zone" class="col-span-2">
+      <div class="p-6 border border-base-300 rounded-lg">
+        <div x-transition x-show="editMode" class="flex justify-between pb-2">
+            <h3 class="font-semibold text-lg" x-text="'Sections ('+sections.length+')'"></h3>
+            <button class="btn btn-xs btn-success" :class="{'btn-disabled':!canEdit}" @click="showAddSectionModal = true">Add<i class="ti ti-plus"></i></button>
+        </div>
+        <p x-show="editMode" class="text-sm font-semibold pb-3" x-text="'Total Questions: '+readyItems"></p>
+        <div x-transition x-show="!editMode" class="flex flex-col">
+            <h3 class="pb-2 font-semibold text-lg capitalize" x-text="'Sections ('+sections.length+')'"></h3>
+            <p class="text-sm font-semibold pb-3" x-text="'Total Questions: '+completeItems+'/'+readyItems"></p>
+        </div>
+        <div class="flex flex-col gap-y-4">
+          <div class="mx-auto text-center mt-5" x-show="sectionZoneLoading" x-transition x-html="loadingSkeleton"></div>
+          <div class="flex flex-col gap-y-2" x-ref="sections">
+              <template x-for="section in sections" :key="section.id+section.order">
+                <button :data-id="section.id" @click="changeSection(section)" :class="{'btn-active': section === selectedSection }" class="btn btn-ghost capitalize border border-base-300 text-sm bg-base-300 flex justify-between px-2">
+                    <div class="flex flex-row">
+                        <i x-transition x-show="!section.questions && editMode" class='ti ti-alert-triangle text-warning text-lg my-auto mt-1'></i>
+                        <i x-transition x-show="section.questions && editMode" :class='{"ti-circle-check text-success": isReadyAlert(section) === true, "ti-alert-circle text-error": isReadyAlert(section) === false}' class='ti text-lg my-auto mt-1'></i>
+                        <span class="my-auto ml-2" x-text="section.title"></span>
+                    </div>
+                    <span x-transition x-show="editMode" x-text="(section.questions-section.disabled)+'/'+section.questions"></span>
+                    <span x-transition x-show="!editMode" x-text="(section.questions-section.disabled)"></span>
+
+                </button>.
+              </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showItemModal }">
+          <div class="modal-box w-11/12 max-w-5xl h-screen">
+              <form method="dialog">
+                  <button @click="showItemModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <h2 class="py-2 text-xl font-semibold" x-text="'Question: '+selectedItem.id"></h2>
+              <div id="itemModal" class="rounded-lg border border-base-300 bg-base-200 mt-4 h-4/5">
+                  <div id="itemModalTabs" class="border-b border-base-300 px-6 py-4 flex flex-row gap-x-8">
+                    <button :class="{'btn-active': activeTab=='overview'}" @click="changeTabInItemModal('overview')" class="btn btn-ghost">Overview</button>
+                    <div class="indicator">
+                        <span class="indicator-item badge badge-xs badge-primary text-xs font-semibold"></span>
+                        <button :class="{'btn-active': activeTab=='chat'}" @click="changeTabInItemModal('chat')" class="btn btn-ghost">Messages</button>
+                    </div>
+                  </div>
+                  <div :style="{ height: modalItemHeight }" x-show="activeTab=='overview'" class="flex flex-col h-full bg-base-100 rounded-lg p-6">
+                    </div>
+                  <div :style="{ height: modalItemHeight }" x-show="activeTab=='chat'" class="flex flex-col h-full bg-base-100 rounded-lg">
+                       <div id="messageDiv" class="flex flex-col p-6 overflow-y-auto h-full">
+                         <template x-for="message in messages" :key="message.id">
+                            <div :class='{"chat-start": message.auditor, "chat-end": !message.auditor}' class="chat">
+                              <div @mouseenter="showDeleteMessage=true" @mouseleave="showDeleteMessage=false" class="chat-image avatar placeholder cursor-pointer">
+                                  <div class="bg-neutral text-neutral-content rounded-full w-8">
+                                    <span x-show="!showDeleteMessage" class="text-xs uppercase" x-text="message.author[0]"></span>
+                                    <span x-show="showDeleteMessage" class="text-xs uppercase"><i class='ti ti-trash text-error'></i></span>
+                                  </div>
+                              </div>
+                              <div class="chat-header mb-2">
+                                <span x-text="message.author"></span>
+                                <span class="text-xs opacity-50" x-text="message.created_at"></span>
+                              </div>
+                              <div class="chat-bubble" x-text="message.text"></div>
+                            </div>
+                         </template>
+                       </div>
+                       <div class="border-t-2 border-base-200 p-4">
+                          <div class="relative flex">
+                             <input x-model="currentMessage" @keyup.enter="addMessage" type="text" placeholder="Write your message!" class="w-full border border-base-300 focus:outline-none pl-6 rounded-md py-3">
+                             <div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
+                                <button @click="addMessage" :class='{"btn-disabled": !currentMessage}' class="btn btn-primary text-neutral-content">
+                                   <span class="font-bold">Send</span>
+                                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-6 w-6 ml-2 transform rotate-90">
+                                      <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                                   </svg>
+                                </button>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showItemModal = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showEditModal }">
+          <div class="modal-box w-11/12 max-w-5xl">
+              <form method="dialog">
+                  <button @click="showEditModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold" x-text="'Edit Question: '+selectedItem.id"></span>
+              <div class="grid grid-cols-6 gap-4 mt-4">
+
+                  <div x-show="'label' in selectedItem.attributes" class="col-span-4">
+                      <div class="flex flex-row">
+                          <i x-show="selectedItem.attributes.label === 'Please insert your question here'" class="ti ti-alert-triangle text-error mr-1 mt-1"></i>
+                          <label class='block text-sm font-medium mb-2 capitalize'>Question label</label>
+                      </div>
+                      <textarea class="textarea textarea-bordered w-full" x-model="selectedItem.attributes.label" placeholder="Update value"></textarea>
+                  </div>
+                  <div x-show="'placeholder' in selectedItem.attributes" class="col-span-2">
+                      <label class='block text-sm font-medium mb-2 capitalize'>Question placeholder</label>
+                      <textarea class="textarea textarea-bordered w-full" x-model="selectedItem.attributes.placeholder" placeholder="Update value"></textarea>
+                  </div>
+                  <template x-if="selectedItem.data_type === 'select'">
+                    <div class="col-span-6">
+                      <div x-show="!selectedItem.attributes.options || selectedItem.attributes.options.length===0"role="alert" class="alert mb-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-error shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                          <span>You must add options before you can enable this question!</span>
+                      </div>
+                      <label class='block text-sm font-medium mb-2 capitalize'>Add Options</label>
+                      <div class="flex flex-row gap-x-2">
+                        <input x-model="newOption" x-on:keydown.enter="addOption" type="text" placeholder="Add options (press enter)" :class="{'border border-error':!selectedItem.attributes.options || selectedItem.attributes.options.length===0}" class="input input-bordered w-full" />
+                        <button @click="addOption" class="btn">Add</button>
+                      </div>
+                      <div class="mt-2 flex flex-row">
+                          <span x-show="selectedItem.attributes.options.length>0" class="text-sm font-semibold my-auto mb-1 text-primary">Current Options:</span>
+                          <template x-for="option in selectedItem.attributes.options">
+                              <div class="badge badge-outline gap-2 ml-2 my-auto"><i class="ti ti-x cursor-pointer hover:text-error" @click="removeOption(option)"></i><span x-text="option"></span></div>
+                          </template>
+                      </div>
+                    </div>
+                  </template>
+                  <div x-show="'required' in selectedItem.attributes" class="col-span-3">
+                      <label class='block text-sm font-medium mb-2 capitalize'>Required</label>
+                      <select x-model="selectedItem.attributes.required" class="select select-bordered w-full">
+                          <option>True</option>
+                          <option>False</option>
+                      </select>
+                  </div>
+                  <div class="col-span-3">
+                      <label class='block text-sm font-medium mb-2 capitalize'>Disabled</label>
+                      <input x-model="selectedItem.disabled" type="checkbox" :checked="{'checked': selectedItem.disabled}" class="checkbox" />
+                      <p class="text-xs text-warning mt-2">Note: Disabled questions will not be shown to the end user</p>
+                  </div>
+                  <div class="col-span-3">
+                      <label class='block text-sm font-medium mb-2 capitalize'>Mark as a critical question</label>
+                      <input x-model="selectedItem.critical" type="checkbox" :checked="{'checked': selectedItem.critical}" class="checkbox" />
+                      <p class="text-xs text-warning mt-2">Note: Marking a question as 'critical' will serve as an emphasis tool</p>
+                  </div>
+                  <div class="col-span-3">
+                      <label class='block text-sm font-medium mb-2 capitalize'>Total score</label>
+                      <input x-model="selectedItem.score" type="number" placeholder="Enter a total score" class="input input-bordered w-full" />
+                      <p class="text-xs text-warning mt-2">Note: Assign a potential total score for acceptable answers</p>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showEditModal = false">Close</button>
+                  <button x-show="selectedItem.data_type !== 'select'" class="btn btn-success" @click="updateItem">Save</button>
+                  <button x-show="selectedItem.data_type === 'select'" :class="{'btn-disabled':!selectedItem.attributes.options || selectedItem.attributes.options.length===0}" class="btn btn-success" @click="updateItem">Save</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showAddSectionModal }">
+          <div class="modal-box w-11/12 max-w-5xl">
+              <form method="dialog">
+                  <button @click="showAddSectionModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Add Section</span>
+              <div class="grid grid-cols-6 gap-4 mt-8">
+                  <div class="col-span-6">
+                      <label class="block text-sm font-medium mb-2">Section Title</label>
+                      <input x-model="sectionTitle" class="input input-bordered w-full text-sm" placeholder="Add Section Title">
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showAddSectionModal = false">Close</button>
+                  <button class="btn btn-success" @click="saveSection">Save</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showReorderModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showReorderModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold" x-text="'Change order: '+selectedItem.id"></span>
+              <div class="grid grid-cols-6 gap-4 mt-8">
+                  <div class="col-span-6">
+                      <label class="block text-sm font-medium mb-2">Desired Order</label>
+                      <input x-model="desiredOrder" type="number" class="input input-bordered w-full text-sm" :placeholder="'0 - '+(filteredItems.length+1)">
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showReorderModal = false">Close</button>
+                  <button class="btn btn-success" @click="changeOrder">Save</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showCriticalHelpModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showCriticalHelpModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold">Critical Question</span>
+              <div class="grid grid-cols-6 gap-4 mt-8">
+                  <div class="col-span-6">
+                      When a control is marked as "critical", the control is priority and we may ask additional questions.
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showCriticalHelpModal = false">Close</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showDeleteModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showDeleteModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span class="text-lg font-semibold" x-text="'Delete question: '+selectedItem.id+'?'"></span>
+              <div class="grid grid-cols-6 gap-4 mt-8">
+                  <div class="col-span-6">
+                      <span class="block text-sm font-medium mb-2" x-text="'Are you sure you want to delete: '+selectedItem.id+'?'"></span>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showDeleteModal = false">Close</button>
+                  <button class="btn btn-error" @click="deleteItem">Delete</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showEditSectionModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showEditSectionModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <span x-show="editMode" class="text-lg font-semibold">Update Title</span>
+              <span x-show="!editMode" class="text-lg font-semibold">Change Section</span>
+              <div x-show="editMode" class="grid grid-cols-6 gap-4 mt-8">
+                  <div class="col-span-6">
+                      <label class="block text-sm font-medium mb-2">Provide the name of the section</label>
+                      <input x-model="selectedSection.title" type="text" class="input input-bordered w-full text-sm" placeholder="Enter the title of the section">
+                  </div>
+              </div>
+              <div x-show="!editMode" class="grid grid-cols-6 gap-4 mt-8">
+                  <div class="col-span-full">
+                      <div class="flex flex-col gap-y-2" x-ref="sections">
+                          <template x-for="section in sections" :key="section.id+section.order">
+                            <button :data-id="section.id" @click="changeSection(section);showEditSectionModal=false" :class="{'btn-active': section === selectedSection }" class="btn btn-ghost capitalize border border-base-300 text-sm bg-base-300 flex justify-between px-2">
+                                <div class="flex flex-row">
+                                    <i x-transition x-show="!section.questions && editMode" class='ti ti-alert-triangle text-warning text-lg my-auto mt-1'></i>
+                                    <i x-transition x-show="section.questions && editMode" :class='{"ti-circle-check text-success": isReadyAlert(section) === true, "ti-alert-circle text-error": isReadyAlert(section) === false}' class='ti text-lg my-auto mt-1'></i>
+                                    <span class="my-auto ml-2" x-text="section.title"></span>
+                                </div>
+                                <span x-transition x-show="editMode" x-text="(section.questions-section.disabled)+'/'+section.questions"></span>
+                                <span x-transition x-show="!editMode" x-text="(section.questions-section.disabled)"></span>
+
+                            </button>.
+                          </template>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showEditSectionModal = false">Close</button>
+                  <button x-show="editMode" :class="{'btn-disabled': !canEdit}" class="btn btn-success" @click="updateSection">Save</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showHelpModal }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showHelpModal = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <div x-transition x-show="selectedItem.disabled">
+                  <span class="text-lg font-semibold"><i class="ti text-lg ti-alert-circle text-error mr-2"></i>Disabled Question</span>
+                  <div class="grid grid-cols-6 gap-4 mt-8">
+                      <div class="col-span-6">
+                          <h3>When a new question is added, you <b>must update the label/question and enable it.</b> We will not show disabled questions in your assessment!</h3>
+                      </div>
+                  </div>
+              </div>
+              <div x-transition x-show="!selectedItem.disabled">
+                  <span class="text-lg font-semibold"><i class="ti text-lg ti-circle-check text-success mr-2"></i>All Set!</span>
+                  <div class="grid grid-cols-6 gap-4 mt-8">
+                      <div class="col-span-6">
+                          <h3>Your question is ready to go! There are no other actions required (for this question).</h3>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="modal-action">
+                  <button class="btn" @click="showHelpModal = false">Close</button>
+                  <button class="btn btn-warning" @click="openEditModal(selectedItem)">Edit Question</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div>
+      <div class="modal" x-bind:class="{ 'modal-open': showPublishAssessment }">
+          <div class="modal-box">
+              <form method="dialog">
+                  <button @click="showPublishAssessment = false"
+                          class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
+                  </button>
+              </form>
+              <div>
+                  <span class="text-lg font-semibold">Publish Assessment?</span>
+                  <div class="grid grid-cols-6 gap-4 mt-4">
+                      <div class="col-span-6">
+                          <h3>Are you sure you want to publish the assessment?</h3>
+                          <p class="mt-4" x-show="disabledQuestions > 0">There are <b class="text-error" x-text="disabledQuestions"></b> disabled questions in the assessment.</p>
+                          <p class="mt-4">Once published, you won't be able to edit the questions and the vendor will be able to provide a response.</p>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-action">
+                  <button class="btn" @click="showPublishAssessment = false">Close</button>
+                  <button class="btn btn-success" @click="publishAssessment">Publish</button>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+{% endblock %}
+
+{%block extrajs%}
+<script>
+function generateRandomId(length = 8) {
+    const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let randomId = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        randomId += characters[randomIndex];
+    }
+    return randomId;
+}
+function kanban(){
+    return {
+        init() {
+          this.hasSidebar=false;
+          this.drawBoard()
+          this.getItems()
+          this.activeTab = this.getURLParam("tab") || "overview";
+<!--          editMode = this.getURLParam("edit") ?? true;-->
+<!--          if (editMode === "true") {-->
+<!--            this.editMode = true;-->
+<!--          } else {-->
+<!--            this.editMode = false;-->
+<!--          }-->
+
+          setTimeout(() => {
+              this.driverAssessmentTour()
+              this.dropZoneHeight = `${document.getElementById("main").clientHeight+document.getElementById("pageHeader").clientHeight}px`;
+          }, 1000);
+
+          this.$watch(
+            "editMode", (newValue, oldValue) => {
+                console.log("Edit mode is: "+newValue)
+          })
+
+          let assessmentReviewStatus = "{{assessment.review_status}}"
+          if (assessmentReviewStatus != "new") {
+            this.canEdit = false
+          }
+
+        },
+        canEdit: true,
+        assessmentId:"{{assessment.id}}",
+        assessmentReviewStatus:"{{assessment.review_status}}",
+        itemFilters: {},
+        showCriticalHelpModal: false,
+        completeItems: 0,
+        readyItems: 0,
+        showEditSectionModal: false,
+        showDisabledAlert: false,
+        showReadyAlert: false,
+        showPublishAssessment: false,
+        userFilter: 'no-filter',
+        filter: 'no-filter',
+        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        dropZoneLoading:true,
+        showReorderModal: false,
+        showDeleteModal: false,
+        sectionZoneLoading: true,
+        editMode: true,
+        items:[],
+        desiredOrder: null,
+        selectedSection: {},
+        selectedItem: {},
+        deletedItems: [],
+        activeQuestions: [],
+        messages: [],
+        currentMessage: "",
+        dropZone: null,
+        sectionZone: null,
+        dropZoneHTML: "",
+        showDeleteMessage: false,
+        showHelpModal: false,
+        showAddSectionModal: false,
+        activeTab: "overview",
+        modalItemHeight: "0px",
+        sectionTitle: "",
+        sections: [],
+        allData:[],
+        filteredItems: [],
+        newOption:"",
+        isReadyToPublish: false,
+        disabledQuestions: 0,
+        buttonsLoading: false,
+        openPublishAssessment: function() {
+            this.disabledQuestions = 0;
+            this.allData.forEach(section => {
+                section.items.forEach(item => {
+                    if (item.disabled) {
+                        this.disabledQuestions += 1
+                    }
+                });
+
+            });
+            this.showPublishAssessment = true;
+        },
+        publishAssessment: function() {
+            let jsonData = {"status": "pending_response"}
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/review-status`,
+                data => {
+                    toast("Assessment has been published")
+                    this.showPublishAssessment = false;
+                    this.assessmentReviewStatus = "pending_response"
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            )
+        },
+        removeOption: function(option) {
+            let newArray = this.selectedItem.attributes.options.filter(item => item !== option);
+            this.selectedItem.attributes.options = newArray
+        },
+        addOption: function() {
+            if (!this.newOption) {
+                toast("Option can't be an empty string", "warning")
+                return
+            }
+            if (!Array.isArray(this.selectedItem.attributes.options)) {
+                this.selectedItem.attributes.options = [];
+            }
+            this.selectedItem.attributes.options.push(this.newOption)
+            this.newOption = "";
+            return
+        },
+        selectOptions: function(item) {
+            console.log(item.attributes.options)
+            return {
+                newTodo: "",
+                todos: [],
+                addToDo() {
+                    this.todos.push({
+                        todo: this.newTodo,
+                        completed: false
+                    });
+
+                    this.newTodo = "";
+                },
+                toggleToDoCompleted(index) {
+                    this.todos[index].completed = !this.todos[index].completed;
+                },
+                deleteToDo(index) {
+                    this.todos = this.todos.filter((todo, todoIndex) => {
+                        return index !== todoIndex
+                    })
+                },
+                numberOfToDosCompleted() {
+                    return this.todos.filter(todo => todo.completed).length;
+                },
+                toDoCount() {
+                    return this.todos.length
+                },
+                isLastToDo(index) {
+                    return this.todos.length - 1 === index
+                }
+            };
+        },
+        elements: [
+            {"id": "text", "title": "Text"},
+            {"id": "checkbox", "title": "Checkbox"},
+            {"id": "select", "title": "Dropdown"},
+            {"id": "file_input", "title": "File Input"},
+        ],
+        showEditModal: false,
+        showItemModal: false,
+        removeItemFilter: function() {
+            this.itemFilters = {}
+            this.setDataForPage()
+            this.deleteURLParam("id")
+        },
+        isReadyAlert: function(section) {
+            disabledCount = section.items.filter(item => item.disabled).length;
+            if (this.editMode && disabledCount === 0) {
+                return true;
+            }
+            return false;
+        },
+        updateSection: function() {
+            if (!this.selectedSection.title) {
+                toast("Please enter a title", "error")
+                return
+            }
+            // after success of network call, add the question to the total questions and redraw everything
+            let jsonData = {"title": this.selectedSection.title.toLowerCase()}
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/sections/${this.selectedSection.id}`,
+                data => {
+                    toast("Title updated")
+                    this.showEditSectionModal = false;
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        copyLink: function() {
+            // Create a temporary textarea element
+            let textarea = document.createElement('textarea');
+
+            // Set the value of the textarea to the text you want to copy
+            let currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set("section", this.selectedSection.title);
+            currentUrl.searchParams.set("id", this.selectedItem.id);
+            textarea.value = currentUrl.toString();
+
+            // Append the textarea to the document
+            document.body.appendChild(textarea);
+
+            // Select the text in the textarea
+            textarea.select();
+
+            // Execute the copy command
+            document.execCommand('copy');
+
+            // Remove the textarea from the document
+            document.body.removeChild(textarea);
+            toast("Link copied to your clipboard")
+        },
+        pageToItem: function(sectionTitle, id) {
+            let section = this.allData.find(item => item.title.toLowerCase() === sectionTitle.toLowerCase());
+            this.changeSection(section)
+            setTimeout(() => {
+                let dropZoneDiv = document.getElementById("drop-zone-container");
+                let itemDiv = dropZoneDiv.querySelector(`[data-id="${id}"]`);
+                dropZoneDiv.scrollTop = itemDiv.offsetTop - dropZoneDiv.offsetTop - 10;
+            }, 500);
+        },
+        changeOrder: function() {
+            this.showReorderModal = false;
+
+            let currentOrder = this.dropZone.toArray().filter(item => item.length > 5);
+            let currentItemIndex = currentOrder.indexOf(this.selectedItem.id)
+
+            // if desiredOrder is greater than the length of current list, we use the last item
+            if (this.desiredOrder > currentOrder.length) {
+                this.desiredOrder = currentOrder.length + 1
+            }
+
+            if (currentItemIndex !== -1) {
+                currentOrder.splice(currentItemIndex, 1);
+                currentOrder.splice(this.desiredOrder, 0, this.selectedItem.id)
+            }
+            this.selectedItem.order = this.desiredOrder;
+
+            let jsonData = {"order": currentOrder};
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/sections/${this.selectedSection.id}/order`,
+                data => {
+                    let newData = this.allData;
+                    let sectionIndex = newData.findIndex(item => item.title === this.selectedSection.title.toLowerCase());
+                    newData[sectionIndex].items.forEach((item, index) => {
+                        let orderIndex = currentOrder.indexOf(item.id);
+                        item.order = orderIndex !== -1 ? orderIndex : null;
+                    });
+                    this.setDataForPage({"data": newData})
+                    toast(`Moved question to index: ${this.desiredOrder}`)
+                    this.desiredOrder = null;
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        addElementToDropZone: function(element) {
+            this.buttonsLoading = true
+            if (this.filteredItems.length > 0) {
+                order = this.filteredItems[this.filteredItems.length - 1].order+1
+            } else {
+                order = 0
+            }
+            let jsonData = {
+                "section": this.selectedSection.title,
+                "data_type": element.id,
+                "order":order
+            }
+            let currentData = this.allData
+            request("POST",
+                `/api/v1/assessments/${this.assessmentId}/items`,
+                data => {
+                    toast("Added question")
+                    section = currentData.find(obj => obj.title.toLowerCase() === this.selectedSection.title.toLowerCase());
+                    section.questions += 1
+                    if (data.disabled) {
+                        section.disabled += 1
+                    }
+                    section.items.push(data)
+                    this.setDataForPage({"data": currentData})
+                    this.openEditModal(data)
+                    this.buttonsLoading = false
+                },
+                error => {
+                  toast(error.message, "error");
+                  this.buttonsLoading = false
+                },
+                jsonData
+            );
+
+        },
+        getHTMLIconStatus: function(item) {
+            if (this.editMode) {
+                if (item.disabled) {
+                    return "ti-alert-circle text-error"
+                }
+                if (item.data_type === "select" && !item.attributes.options) {
+                    return "ti-alert-circle text-error"
+                }
+                return "ti-circle-check text-success"
+            } else {
+                if (item.status === "not_started") {
+                    return "ti-circle-dashed"
+                } else if (item.status === "in_progress") {
+                    return "ti-progress text-warning"
+                } else if (item.status === "pending_review") {
+                    return "ti-spy text-primary"
+                } else if (item.status === "info_required") {
+                    return "ti-flag text-warning"
+                } else if (item.status === "remediation_required") {
+                    return "ti-bug text-error"
+                } else if (item.status === "complete") {
+                    return "ti-circle-check text-success"
+                } else {
+                    return "ti-question-mark text-error"
+                    console.log("Unknown status: "+item.status)
+                }
+            }
+        },
+        driverAssessmentTour: function() {
+            const driver = window.driver.js.driver;
+            const driverObj = driver({
+              showProgress: true,
+              steps: [
+                { element: '#element-list', popover: { title: 'Question Elements', description: 'Select your question element' } },
+                { element: '#drop-zone-container', popover: { title: 'Drop Zone', description: 'Drag elements here to create questions' } },
+                { element: '#section-zone', popover: { title: 'Sections', description: 'Create sections and add questions to each one' } },
+                { element: '#trash-zone', popover: { title: 'Trash', description: 'Drag elements here to delete them' } },
+              ]
+            });
+            driverObj.drive();
+        },
+        changeFilter: function() {
+            this.deleteURLParam("filter")
+        },
+        changeSection: function(section) {
+            this.filter = "";
+            this.selectedSection = section
+            this.setURLParam("section", this.selectedSection.title)
+            this.setDataForPage()
+        },
+        saveSection: function() {
+            if (!this.sectionTitle) {
+                toast("Please enter a title", "error")
+                return
+            }
+            let foundTitle = this.sections.filter(obj => obj.title.toLowerCase() === this.sectionTitle.toLowerCase());
+            if (foundTitle.length > 0) {
+                toast("Section already exists. Please create a unique title.", "error")
+                return
+            }
+            // after success of network call, add the question to the total questions and redraw everything
+            let jsonData = {"title": this.sectionTitle.toLowerCase()}
+            request("POST",
+                `/api/v1/assessments/${this.assessmentId}/sections`,
+                data => {
+                    toast("Section added")
+
+                    // reset values
+                    this.sectionTitle = "";
+                    this.showAddSectionModal = false;
+                    this.getItems()
+                    setTimeout(() => {
+                        console.log("changing section")
+                        this.changeSection(jsonData["section"])
+                    }, 1000);
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+
+        },
+        changeTabInItemModal: function(tab) {
+            this.activeTab = tab;
+            this.setURLParam("tab", tab)
+        },
+        addMessage: function() {
+            if (this.currentMessage) {
+                let m = {"id": generateRandomId(), "created_at": "02/24", "author": "bmarshall@gmail.com", "text": this.currentMessage, "auditor": false}
+                this.messages.push(m)
+                this.currentMessage = "";
+            }
+            setTimeout(function() {
+                var divElement = document.getElementById("messageDiv");
+                divElement.scrollTop = divElement.scrollHeight;
+            }, 100);
+        },
+        scrollDownInDropZone: function() {
+            var divElement = document.getElementById("drop-zone-container");
+            divElement.scrollTop = divElement.scrollHeight;
+        },
+        scrollUpInDropZone: function() {
+            var divElement = document.getElementById("drop-zone-container");
+            divElement.scrollTop = 0;
+        },
+        openItemModal: function(item) {
+            this.selectedItem = item
+            if (this.editMode) {
+                this.showHelpModal = true;
+                return
+            }
+            this.messages = [];
+            this.showEditModal = false;
+            this.showItemModal = true;
+            this.modalItemHeight = `${document.getElementById("itemModal").clientHeight - document.getElementById("itemModalTabs").clientHeight - 1}px`
+            setTimeout(function() {
+                var divElement = document.getElementById("messageDiv");
+                divElement.scrollTop = divElement.scrollHeight;
+            }, 100);
+        },
+        toggleEditMode: function() {
+            this.editMode = !this.editMode
+            this.sectionZone.option("disabled", !this.editMode)
+
+            this.dropZone.option("disabled", !this.editMode)
+            this.setDataForPage()
+        },
+        updateItem: function() {
+            let jsonData = {
+                "section": this.selectedItem.section,
+                "attributes": this.selectedItem.attributes,
+                "disabled": this.selectedItem.disabled,
+                "critical": this.selectedItem.critical,
+                "score": this.selectedItem.score
+            }
+
+            request("PUT",
+                `/api/v1/assessments/${this.assessmentId}/items/${this.selectedItem.id}`,
+                data => {
+                    toast("Saved item")
+
+                    let newData = this.allData;
+                    let sectionIndex = newData.findIndex(item => item.title === this.selectedSection.title.toLowerCase());
+                    let sectionItems = newData[sectionIndex].items;
+                    let index = sectionItems.findIndex(item => item.id === this.selectedItem.id);
+                    if (index !== -1) {
+                        sectionItems[index] = data;
+                    }
+                    this.setDataForPage({"data": newData})
+                    this.showEditModal = false;
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                jsonData
+            );
+        },
+        setDataForPage: function(options) {
+            if (options && options.data) {
+                data = options.data;
+            } else {
+                data = this.allData;
+            }
+            let filteredItems = []
+            let sections = []
+
+            let filtersEnabled = Object.keys(this.itemFilters).length > 0;
+
+            let completeItems = 0
+            let readyItems = 0
+
+            data.forEach(section => {
+                if (!this.editMode && section.items.length === 0) {
+                    return
+                }
+                sections.push(section)
+                section.items.forEach(item => {
+                    if (!this.editMode && item.disabled) {
+                        return
+                    }
+                    if (!item.disabled) {
+                        readyItems+=1
+                    }
+                    if (this.selectedSection.title.toLowerCase() === section.title.toLowerCase()) {
+                        if (filtersEnabled) {
+                            if (Object.entries(this.itemFilters).every(([key, value]) => item[key] === value)) {
+                                filteredItems.push(item)
+                            }
+                        } else {
+                            filteredItems.push(item)
+                        }
+                    }
+                });
+            });
+
+            this.allData = data;
+            this.readyItems = readyItems;
+            this.filteredItems = filteredItems.sort((a, b) => a.order - b.order);
+            this.sections = sections.sort((a, b) => a.order - b.order);
+            let section = sections.find(element => element.id === this.selectedSection.id)
+            this.selectedSection = section
+
+            disabledCount = filteredItems.filter(item => item.disabled).length;
+            this.showReadyAlert = false
+            this.showDisabledAlert = false;
+            if (this.editMode && disabledCount) {
+                this.showDisabledAlert = true;
+            } else {
+                this.showDisabledAlert = false;
+                if (filteredItems.length > 0) {
+                    this.showReadyAlert = true
+                }
+            }
+
+            if (this.readyItems > 0) {
+                this.isReadyToPublish = true;
+            } else {
+                this.isReadyToPublish = false;
+            }
+
+        },
+        getItems: function() {
+            this.filteredItems = [];
+            this.dropZoneLoading = true;
+            this.sectionZoneLoading = true;
+            request("GET",
+                `/api/v1/assessments/${this.assessmentId}/manage`,
+                data => {
+                    urlId = this.getURLParam("id")
+                    urlSection = this.getURLParam("section")
+
+                    if (urlId) {
+                        this.itemFilters.id = urlId;
+
+                        for (let section of data) {
+                            let foundItem = section.items.find(element => element.id === urlId);
+                            if (foundItem) {
+                                this.selectedSection = section;
+                                break
+                            }
+                        }
+                    } else if (urlSection) {
+                        let foundSection = data.find(element => element.title.toLowerCase() === urlSection.toLowerCase());
+                        if (foundSection) {
+                            this.selectedSection = foundSection;
+                        }
+                    }
+                    if (Object.keys(this.selectedSection).length === 0) {
+                        if (data.length > 0) {
+                            this.selectedSection = data[0];
+                        }
+                        this.setURLParam("section", this.selectedSection.title)
+                    }
+
+                    this.setDataForPage({"data": data})
+                    this.dropZoneLoading = false;
+                    this.sectionZoneLoading = false;
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        openEditModal: function(item) {
+          this.selectedItem = item;
+          this.showHelpModal = false;
+          this.showItemModal = false;
+          this.showEditModal = true;
+        },
+        deleteItem: function() {
+            request("DELETE",
+                `/api/v1/assessments/${this.assessmentId}/items/${this.selectedItem.id}`,
+                data => {
+                    const orderOfIds = this.dropZone.toArray().filter(item => item.length > 5);
+
+                    let newData = this.allData;
+                    let sectionIndex = newData.findIndex(item => item.title === this.selectedSection.title.toLowerCase());
+
+                    newData[sectionIndex].items = newData[sectionIndex].items.filter(item => item.id !== this.selectedItem.id);
+
+                    newData[sectionIndex].items.forEach((item, index) => {
+                        let orderIndex = orderOfIds.indexOf(item.id);
+                        item.order = orderIndex !== -1 ? orderIndex : null;
+                    });
+                    newData[sectionIndex].questions -= 1
+                    if (this.selectedItem.disabled) {
+                        newData[sectionIndex].disabled -= 1
+                    }
+
+                    this.setDataForPage({"data": newData})
+                    this.showDeleteModal=false
+
+                },
+                error => {
+                  toast(error.message, "error");
+                }
+            );
+        },
+        drawBoard: function() {
+          new Sortable(this.$refs.elements, {
+              group: {
+                  name: 'shared',
+                  pull: false,
+                  put: false
+              },
+              sort: false,
+              animation: 150
+          });
+          this.sectionZone = new Sortable(this.$refs.sections, {
+              group: {
+                  name: 'section',
+                  put: false
+              },
+              disabled: !this.editMode,
+              sort: true,
+              dataIdAttr: 'data-id',
+              animation: 150,
+              onSort: (evt) => {
+                // some divs that arent from db may have 3 digit ids so we filter them out
+                const orderOfIds = this.sectionZone.toArray().filter(item => item.length > 5);
+                let jsonData = {"order": orderOfIds};
+                request("PUT",
+                    `/api/v1/assessments/${this.assessmentId}/sections/order`,
+                    data => {
+                        let newData = this.allData;
+                        //let sectionIndex = newData.findIndex(item => item.title === this.selectedSection.title.toLowerCase());
+                        newData.forEach((section, index) => {
+                            let orderIndex = orderOfIds.indexOf(section.id);
+                            section.order = orderIndex !== -1 ? orderIndex : null;
+                        });
+
+                        this.setDataForPage({"data": newData})
+                        toast("Updated order")
+                    },
+                    error => {
+                      toast(error.message, "error");
+                    },
+                    jsonData
+                );
+              },
+          });
+
+          new Sortable(document.getElementById("trash-zone"), {
+              group: {
+                  name: 'shared',
+                  put: true
+              },
+              onAdd: (evt) => {
+                let item = evt.item;
+                this.deletedItems.push(item); // Store the deleted item in the array
+                item.remove(); // Remove the dropped item from the DOM
+                if (document.getElementById('drop-zone').innerText.trim() === '') {
+                  this.dropZoneHTML = false;
+                }
+              }
+          });
+          this.dropZone = new Sortable(this.$refs.items, {
+              group: {
+                  name: 'shared'
+              },
+              disabled: !this.editMode,
+              dataIdAttr: 'data-id',
+              animation: 150,
+              onAdd: (evt) => {
+                let item = evt.item;
+              },
+              onSort: (evt) => {
+                if (evt.type === "sort") {
+                    if (evt.to.getAttribute("id") === "trash-zone") {
+                        this.showDeleteModal = true;
+                    } else {
+                        // some divs that arent from db may have 3 digit ids so we filter them out
+                        const orderOfIds = this.dropZone.toArray().filter(item => item.length > 5);
+                        let jsonData = {"order": orderOfIds};
+                        request("PUT",
+                            `/api/v1/assessments/${this.assessmentId}/sections/${this.selectedSection.id}/order`,
+                            data => {
+                                let newData = this.allData;
+                                let sectionIndex = newData.findIndex(item => item.title === this.selectedSection.title.toLowerCase());
+                                newData[sectionIndex].items.forEach((item, index) => {
+                                    let orderIndex = orderOfIds.indexOf(item.id);
+                                    item.order = orderIndex !== -1 ? orderIndex : null;
+                                });
+
+                                this.setDataForPage({"data": newData})
+                            },
+                            error => {
+                              toast(error.message, "error");
+                            },
+                            jsonData
+                        );
+                    }
+                }
+              },
+          });
+        },
+        undoDeletion: function() {
+          if (this.deletedItems.length > 0) {
+            let itemToUndo = this.deletedItems.pop(); // Get the last deleted item
+            // Restore the item to its original position
+            // For example, append it back to the sortable container
+            console.log(this.dropZone)
+            this.dropZone.appendChild(itemToUndo);
+          }
+        }
+    }
+}
+</script>
+{% endblock %}

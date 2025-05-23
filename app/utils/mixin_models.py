@@ -1,101 +1,208 @@
 from app import db
 from flask import current_app
 from sqlalchemy.ext.declarative import declared_attr
-from app.utils.misc import get_class_by_tablename
+from functools import partial
+from app.utils.authorizer import Authorizer
+from sqlalchemy import func
 import arrow
 
+
 class ControlMixin(object):
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
     """
     mixin model should only be attached to
     class ProjectControl
     """
+
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
 
-    def as_dict(self, include_subcontrols=False, stats=False):
-        parent_fields = ["name","ref_code","system_level",
-            "category","subcategory","dtc","dti"]
+    def as_dict(self):
+        parent_fields = [
+            "name",
+            "ref_code",
+            "system_level",
+            "category",
+            "subcategory",
+            "is_custom",
+        ]
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         for field in parent_fields:
             data[field] = getattr(self.control, field)
-        data["status"] = self.status()
-        data["progress_completed"] = self.progress("complete")
-        data["progress_implemented"] = self.implemented_progress()
-        data["progress_evidence"] = self.progress("with_evidence")
-        data["is_complete"] = self.is_complete()
-        data["is_applicable"] = self.is_applicable()
-        data["description"] = self.control.description
-        data["guidance"] = self.control.guidance
-        data["subcontrol_count"] = self.subcontrols.count()
-        subcontrols = []
-        if include_subcontrols or stats:
-            subcontrols = [x.as_dict() for x in self.query_subcontrols(only_applicable=False)]
 
-        if include_subcontrols:
-            data["subcontrols"] = subcontrols
-        if stats:
-            data["stats"] = {
-                "feedback":0,
-                "comments":0,
-                "evidence":0,
-                "subcontrols":data["subcontrol_count"],
-                "subcontrols_complete":0,
-                "inapplicable_subcontrols":0,
-                "complete_feedback":0,
-                "infosec_status":0,
-                "auditor_status":0
-            }
-            for sub in subcontrols:
-                if sub["is_complete"]:
-                    data["stats"]["subcontrols_complete"] += 1
-                if not sub["is_applicable"]:
-                    data["stats"]["inapplicable_subcontrols"] += 1
-                data["stats"]["feedback"] += sub.get("feedback", 0)
-                data["stats"]["comments"] += sub.get("comments", 0)
-                data["stats"]["evidence"] += sub.get("evidence", 0)
-                data["stats"]["complete_feedback"] += sub.get("complete_feedback", 0)
-                data["stats"]["infosec_status"] += sub.get("infosec_status", 0)
-                data["stats"]["auditor_status"] += sub.get("auditor_status", 0)
+        return {**self.generate_stats(), **data}
+
+    def review_complete(self):
+        if self.review_status in ["complete"]:
+            return True
+        return False
+
+    def action_required_from_auditor(self):
+        if self.review_status in ["ready for auditor"]:
+            return True
+        return False
+
+    def action_required_from_infosec(self):
+        if self.review_status in ["infosec action"]:
+            return True
+        return False
+
+    def get_feedback(self, as_dict=False):
+        query = self.feedback.all()
+        if as_dict:
+            return [feedback.as_dict() for feedback in query]
+        return query
+
+    def complete_feedback(self):
+        data = []
+        for feedback in self.get_feedback():
+            if feedback.is_complete:
+                data.append(feedback)
         return data
+
+    def generate_stats(self, subcontrols=None):
+        if not subcontrols:
+            subcontrols = self.subcontrols.order_by(
+                current_app.models["ProjectSubControl"].date_added.desc()
+            ).all()
+        feedback = self.get_feedback()
+        data = {
+            "description": self.control.description,
+            "guidance": self.control.guidance,
+            "status": "not started",
+            "is_applicable": True,
+            "is_complete": False,
+            "review_complete": self.review_complete(),
+            "progress_completed": 0,
+            "progress_implemented": 0,
+            "progress_evidence": 0,
+            "feedback": self.get_feedback(as_dict=True),
+            "subcontrols": [],
+            "owners": [],
+            "tags": [{"id": tag.id, "name": tag.name} for tag in self.tags.all()],
+            "comments": self.get_comments(),
+            "stats": {
+                "feedback": len(feedback),
+                "complete_feedback": sum(1 for task in feedback if task.is_complete),
+                "evidence": 0,
+                "subcontrols": len(subcontrols),
+                "subcontrols_complete": 0,
+                "applicable_subcontrols": 0,
+                "inapplicable_subcontrols": 0,
+                "infosec_status": 0,
+                "auditor_status": 0,
+                "owners": 0,
+            },
+        }
+
+        implemented = 0
+        completed = 0
+        evidence = 0
+        for subcontrol in subcontrols:
+            sub = subcontrol.as_dict()
+            if subcontrol.owner_id:
+                data["owners"].append(sub["owner"])
+                data["stats"]["owners"] += 1
+
+            data["subcontrols"].append(sub)
+
+            if not sub["is_applicable"]:
+                data["stats"]["inapplicable_subcontrols"] += 1
+                continue
+            data["stats"]["applicable_subcontrols"] += 1
+            implemented += sub["implemented"]
+            completed += sub["progress_completed"]
+            if sub["has_evidence"]:
+                evidence += 1
+
+            if sub["is_complete"]:
+                data["stats"]["subcontrols_complete"] += 1
+
+            data["stats"]["evidence"] += len(sub.get("evidence", []))
+            data["stats"]["infosec_status"] += sub.get("infosec_status", 0)
+            data["stats"]["auditor_status"] += sub.get("auditor_status", 0)
+
+        if completed:
+            data["progress_completed"] = round(
+                (completed / data["stats"]["applicable_subcontrols"]), 0
+            )
+        if implemented:
+            data["progress_implemented"] = round(
+                (implemented / data["stats"]["applicable_subcontrols"]), 0
+            )
+        if evidence:
+            data["progress_evidence"] = round(
+                (evidence / data["stats"]["applicable_subcontrols"]) * 100, 0
+            )
+
+        if not data["stats"]["applicable_subcontrols"]:
+            data["is_applicable"] = False
+
+        if (
+            data["stats"]["subcontrols_complete"]
+            == data["stats"]["applicable_subcontrols"]
+        ):
+            data["is_complete"] = True
+
+        if not data["is_applicable"]:
+            data["status"] = "not applicable"
+        elif data["is_complete"]:
+            data["status"] = "complete"
+        elif data["progress_implemented"] or data["progress_evidence"]:
+            data["status"] = "in progress"
+
+        data["implemented_status"] = "partially implemented"
+        if data["progress_completed"] == 100:
+            data["implemented_status"] = "fully implemented"
+        elif data["progress_completed"] == 0:
+            data["implemented_status"] = "not implemented"
+
+        return data
+
+    def get_comments(self):
+        return [comment.as_dict() for comment in self.comments.all()]
+
+    def get_subcontrols(self, only_applicable=False, as_query=False):
+        _query = self.subcontrols
+        if only_applicable:
+            _query = _query.filter(
+                current_app.models["ProjectSubControl"].is_applicable == True
+            )
+        if as_query:
+            return _query
+        return _query.all()
 
     def framework(self):
         return self.control.framework
 
     def set_applicability(self, applicable):
-        for control in self.subcontrols.all():
-            control.is_applicable = applicable
+        for subcontrol in self.subcontrols.all():
+            subcontrol.is_applicable = applicable
         db.session.commit()
         return True
 
     def status(self):
+        """
+        If an auditor is added to the project, then the auditor must set the review_status to complete
+        for the control to be complete
+
+        If there is not an auditor in the project, then the team must 100% implement and add evidence
+        for the control to the complete
+        """
         if not self.is_applicable():
             return "not applicable"
+
+        # TODO - do we want to change the status to the review_status
+        # if there is an auditor in the project?
+        # if self.project.has_auditor():
+        #     return self.review_status
+
         if self.is_complete():
             return "complete"
-        if self.implemented_progress() > 0:
+        if self.implemented_progress():  # TODO > 0 or self.has_evidence():
             return "in progress"
         return "not started"
-
-    def get_color_from_int(self, number, alternate=False):
-        if number >= 90:
-            return "success" if alternate else "green"
-        if number >= 75:
-            return "warning" if alternate else "orange"
-        if number >= 25:
-            return "warning" if alternate else "yellow"
-        return "error" if alternate else "red"
-
-    def status_color(self):
-        color = {
-            "not applicable":"slate",
-            "complete":"green",
-            "in progress":"orange",
-            "not started":"gray"
-        }
-        status = self.status()
-        return color.get(status,"slate")
 
     def is_complete(self):
         if self.query_subcontrols(filter="uncomplete"):
@@ -111,7 +218,26 @@ class ControlMixin(object):
         count = self.query_subcontrols(filter=filter)
         if not count:
             return 0
-        return round((len(count) / len(self.query_subcontrols()))*100,2)
+        return round((len(count) / len(self.query_subcontrols())) * 100, 0)
+
+    def completed_progress(self, subcontrols=None, default=0):
+        total_progress = 0
+        applicable_subcontrols = 0
+        if not subcontrols:
+            subcontrols = self.get_subcontrols()
+
+        # If there are no applicable subcontrols, we will return 100% completion
+        if not subcontrols:
+            return default
+
+        for subcontrol in subcontrols:
+            if not subcontrol.is_applicable:
+                continue
+            applicable_subcontrols += 1
+            total_progress += subcontrol.get_completion_progress()
+        if not applicable_subcontrols:
+            return default
+        return round(total_progress / applicable_subcontrols, 0)
 
     def implemented_progress(self):
         total = 0
@@ -120,7 +246,7 @@ class ControlMixin(object):
             return total
         for control in subcontrols:
             total += control.implemented or 0
-        return round((total/len(subcontrols)),2)
+        return round((total / len(subcontrols)), 0)
 
     def query_subcontrols(self, filter=None, only_applicable=True):
         """
@@ -128,7 +254,7 @@ class ControlMixin(object):
         by default, will return applicable controls only
         """
         subcontrols = []
-        ProjectSubControl = get_class_by_tablename("ProjectSubControl")
+        ProjectSubControl = current_app.models["ProjectSubControl"]
         _query = self.subcontrols
         if only_applicable:
             _query = _query.filter(ProjectSubControl.is_applicable == True)
@@ -157,21 +283,24 @@ class ControlMixin(object):
                 subcontrols.append(subcontrol)
         return subcontrols
 
+
 class SubControlMixin(object):
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
     """
     mixin model should only be attached to
     class ProjectSubControl
     """
+
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
 
     def as_dict(self, include_evidence=False):
-        User = get_class_by_tablename("User")
+        User = current_app.models["User"]
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
         data["implementation_status"] = self.implementation_status()
-        data["has_evidence"] = self.has_evidence()
+        data["completion_status"] = self.completion_description()
+        data["progress_completed"] = self.get_completion_progress()
         data["is_complete"] = self.is_complete()
         data["framework"] = self.framework().name
         data["project"] = self.p_control.project.name
@@ -180,50 +309,54 @@ class SubControlMixin(object):
         data["description"] = self.subcontrol.description
         data["mitigation"] = self.subcontrol.mitigation
         data["ref_code"] = self.subcontrol.ref_code
-        data["comments"] = self.comments.count()
         data["evidence"] = self.evidence.count()
-        data["feedback"] = self.feedback.count()
-        data["owner"] = User.query.get(self.owner_id).email if self.owner_id else "Missing Owner"
-        data["operator"] = User.query.get(self.operator_id).email if self.operator_id else "Missing Operator"
-        data["complete_feedback"] = len(self.complete_feedback())
-        data["review_complete"] = self.review_complete()
-        data["infosec_status"] = self.action_required_from_infosec()
-        data["auditor_status"] = self.action_required_from_auditor()
-        if include_evidence:
-            data["evidence"] = [x.as_dict() for x in self.evidence.all()]
+
+        data["owner"] = (
+            User.query.get(self.owner_id).email if self.owner_id else "Missing Owner"
+        )
+        data["operator"] = (
+            User.query.get(self.operator_id).email
+            if self.operator_id
+            else "Missing Operator"
+        )
+        data["evidence"] = self.get_evidence(as_dict=True)
+        data["has_evidence"] = False
+        if data["evidence"]:
+            data["has_evidence"] = True
         return data
 
-    def review_complete(self):
-        if self.review_status in ["complete"]:
-            return True
-        return False
+    def get_evidence(self, as_dict=False):
+        query = self.evidence.all()
+        if as_dict:
+            return [evidence.as_dict() for evidence in query]
+        return query
 
-    def action_required_from_auditor(self):
-        if self.review_status in ["ready for auditor"]:
-            return True
-        return False
+    def get_completion_progress(self):
+        if not self.is_applicable:
+            return 0
 
-    def action_required_from_infosec(self):
-        if self.review_status in ["not started","infosec action", "action required"]:
-            return True
-        return False
+        has_evidence = 100 if self.has_evidence() else 0
 
-    def complete_feedback(self):
-        data = []
-        for feedback in self.feedback.all():
-            if feedback.complete():
-                data.append(feedback)
-        return data
+        # Base progress is the implementation percentage
+        implemented_adjusted = self.implemented
+
+        # If no evidence, reduce implemented progress by 25%
+        if not self.has_evidence():
+            implemented_adjusted *= 0.75
+
+        # Ensure that having evidence alone contributes some progress
+        return max(implemented_adjusted, has_evidence * 0.25)
 
     def completion_description(self):
         text = ""
         if not self.is_applicable:
-            return "Control is not applicable"
-        text += f"Control is {str(self.implementation_status())}"
+            return "Control is not applicable."
+        implemented_status = str(self.implementation_status())
+        text += f"Control is {implemented_status}"
         if self.has_evidence():
             text += " and has evidence attached."
         else:
-            text += " and is missing evidence."
+            text += " but is missing evidence."
         return text
 
     def framework(self):
@@ -236,26 +369,6 @@ class SubControlMixin(object):
         framework = self.framework()
         return framework.has_feature(name)
 
-    def get_color_from_int(self, number, alternate=False):
-        if number >= 90:
-            return "success" if alternate else "green"
-        if number >= 75:
-            return "warning" if alternate else "orange"
-        if number >= 25:
-            return "warning" if alternate else "yellow"
-        return "error" if alternate else "red"
-
-    def status_color(self):
-        color = {
-            "not applicable":"slate",
-            "not implemented":"gray",
-            "fully implemented":"green",
-            "mostly implemented":"orange",
-            "partially implemented":"yellow"
-        }
-        status = self.implementation_status()
-        return color.get(status,"slate")
-
     def implementation_status(self):
         if not self.is_applicable:
             return "not applicable"
@@ -263,101 +376,14 @@ class SubControlMixin(object):
             return "not implemented"
         if self.implemented == 100:
             return "fully implemented"
-        if self.implemented >= 50:
-            return "mostly implemented"
         return "partially implemented"
 
     def is_complete(self):
-        framework = self.framework()
-        """
-        every framework will require that the control
-        is 100% implemented
-        """
         if self.implemented != 100:
             return False
-
-        """
-        if the framework requires evidence collection,
-        we will check if the control has evidence attached
-        """
-        if self.has_feature("feature_evidence"):
-            if not self.has_evidence():
-                return False
-
-        if framework.name == "soc2":
-            """
-            control must be implemented and have evidence
-            attached
-            """
-            return True
-        elif framework.name == "cmmc":
-            """
-            control must be implemented, have evidence
-            attached and based on the level
-            """
-            #self.p_control.control.level
-            return True
-        elif framework.name == "cmmc_v2":
-            """
-            control must be implemented, have evidence
-            attached and based on the level
-            """
-            return True
-        elif framework.name == "iso27001":
-            """
-            control must be implemented and have evidence
-            attached
-            """
-            return True
-        elif framework.name == "hipaa":
-            """
-            control must be implemented and have evidence
-            attached
-            """
-            return True
-        elif framework.name == "nist_800_53_v4":
-            """
-            control must be implemented and have evidence
-            attached
-            """
-            return True
-        elif framework.name == "nist_csf_v1.1":
-            """
-            control must be implemented and have evidence
-            attached
-            """
-            return True
-        elif framework.name == "asvs_v4.0.1":
-            """
-            control must be implemented and have evidence
-            attached
-            """
-            return True
-        elif framework.name == "ssf":
-            """
-            control must be implemented and have evidence
-            attached
-            """
-            return True
-        elif framework.name == "cisv8":
-            """
-            control must be implemented and have evidence
-            attached
-            """
-            return True
-        elif framework.name == "pci_3.1":
-            """
-            control must be implemented and have evidence
-            attached
-            """
-            return True
-        elif framework.name == "custom":
-            """
-            control must be implemented and have evidence
-            attached
-            """
-            return True
-        return False
+        if not self.has_evidence():
+            return False
+        return True
 
     def has_evidence(self, id=None):
         if not id:
@@ -371,51 +397,104 @@ class SubControlMixin(object):
             return True
         return False
 
-    def get_evidence(self):
-        return self.evidence.all()
-
     def remove_evidence(self):
-        EvidenceAssociation = get_class_by_tablename("EvidenceAssociation")
-        EvidenceAssociation.query.filter(EvidenceAssociation.control_id == self.id).delete()
+        EvidenceAssociation = current_app.models["EvidenceAssociation"]
+        EvidenceAssociation.query.filter(
+            EvidenceAssociation.control_id == self.id
+        ).delete()
         db.session.commit()
         return True
 
     def set_evidence(self, evidence_id_list):
-        Evidence = get_class_by_tablename("Evidence")
+        Evidence = current_app.models["ProjectEvidence"]
         self.remove_evidence()
         if not isinstance(evidence_id_list, list):
             evidence_id_list = [evidence_id_list]
+
         for id in evidence_id_list:
             if evidence := Evidence.query.get(id):
                 self.evidence.append(evidence)
         db.session.commit()
         return True
 
-class LogMixin(object):
-    __table_args__ = {'extend_existing': True}
-
-    def add_log(self,message,log_type="info",meta={},namespace=None):
-        logTable = current_app.models["logs"]
-        if not namespace:
-            namespace = self.__table__.name
-        return logTable().add_log(namespace=namespace,message=message,
-            log_type=log_type.lower(),meta=meta)
-
-    def get_logs(self,log_type=None,
-        limit=100,as_query=False,span=None,as_count=False,
-        paginate=False,page=1,meta={},namespace=None):
-        logTable = current_app.models["logs"]
-        if not namespace:
-            namespace = self.__table__.name
-        return logTable().get_logs(log_type=log_type,namespace=namespace,
-            limit=limit,as_query=as_query,span=span,as_count=as_count,
-            paginate=paginate,page=page,meta=meta)
 
 class DateMixin(object):
-    __table_args__ = {'extend_existing': True}
+    __table_args__ = {"extend_existing": True}
 
     def humanize_date(self, date):
         return arrow.get(date).humanize()
 
-    def simple(self, date):
-        return arrow.get(date).format("M/D/YYYY")
+    def simple_date(self, date):
+        return arrow.get(date).format("MM/DD/YYYY")
+
+
+class QueryMixin(object):
+    __table_args__ = {"extend_existing": True}
+
+    @classmethod
+    def get_or_404(cls, id):
+        return cls.query.filter(cls.id == str(id)).first_or_404()
+
+    @classmethod
+    def find_by(cls, field, value, tenant_id=None, not_found=False):
+        """
+        Usage:
+            User.find_by("email", "test@example.com")
+        """
+        _query = cls.query.filter(func.lower(getattr(cls, field)) == func.lower(value))
+        if tenant_id:
+            _query.filter(getattr(cls, "tenant_id") == tenant_id)
+
+        if not_found:
+            return _query.first_or_404()
+
+        return _query.first()
+
+
+class AuthorizerMixin(object):
+    __table_args__ = {"extend_existing": True}
+
+    """
+    Define authorizer on fields in the SQLAlchemy models:
+        # info={"authorizer": {"update": Authorizer.can_user_manage_platform}}
+    
+    Run Authorizer
+        # tenant = Tenant.query.first()
+        # user = User.query.first()
+        # response = tenant.get_authorizer_decision(user=user, field="id", action="update")
+        # print(response)        
+    """
+
+    def get_authorize_fields(self, field=None):
+        data = {}
+        for col in self.__table__.c:
+            if not (authorize_data := col.info.get("authorizer")):
+                continue
+            data[col.key] = authorize_data
+        if field:
+            return data.get(field)
+        return data
+
+    def get_authorizer_decision(self, user, field, action):
+        response = self.get_authorize_fields(field=field)
+
+        # The field in the SQL model does not have an 'authorizer' annotation
+        if not response:
+            return {
+                "ok": False,
+                "message": f"Authorizer undefined for:{field}",
+                "code": 401,
+            }
+
+        base_authorizer_action = response.get(action)
+
+        # The field does not have the specific action defined
+        if not base_authorizer_action:
+            return {
+                "ok": False,
+                "message": f"Authorizer action:{action} undefined for:{field}",
+                "code": 401,
+            }
+
+        base_authorizer = Authorizer(user)
+        return partial(base_authorizer_action, base_authorizer)()

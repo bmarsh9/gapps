@@ -1,0 +1,22 @@
+.mce-content-body {
+    color: #394e6a;
+}
+
+blockquote {
+  padding-top:5px;
+  padding-bottom:5px;
+  padding-left: 1rem;  /* Indentation */
+  border-left: 4px solid #ccc; /* Left border for emphasis */
+  margin: 1rem 0; /* Margin for spacing */
+  color: #555; /* Text color */
+  background-color: #f9f9f9; /* Light background */
+}
+
+.annotate {
+    background-color: #ffec00c4;
+    border-radius: 5px;
+    padding:2px;
+    padding-left:4px;
+    padding-right:4px;
+    display: inline;
+}

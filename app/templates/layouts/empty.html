@@ -6,25 +6,30 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <link rel="icon" href="">
     <title>{%block title%}{{config["APP_NAME"]|capitalize}}{%endblock%}</title>
-    {% block include_jquery %}
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js" crossorigin="anonymous"></script>
-    {% import "helpers/src_macros.html" as macro %}
-    {{ macro.filehelper(toasts=True) }}
-    {% endblock %}
+
     {% block before_head %}
     {% endblock %}
-    <!-- CSS files -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@2.24.0/dist/full.css" rel="stylesheet" type="text/css"/>
+    <!-- Stylesheets -->
+    {% if config.PLAYGROUND_CSS %}
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.23/dist/full.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    {% else %}
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" type="text/css" />
+    {% endif %}
     <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.30.0/dist/tabler-icons.min.css">
+    <script defer src="https://unpkg.com/alpinejs@3.13.10/dist/cdn.min.js" defer></script>
+
     {% block head %}
     {% endblock %}
 </head>
 {%block body%}
 {%endblock%}
+
 {%block extrajs%}
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   <script>
       function toast(message,level="info") {
         var bg = "#367ff5"
@@ -51,14 +56,15 @@
       }
   </script>
   <script>
-  $( document ).ready(function() {
+  document.addEventListener('alpine:initialized', () => {
+    console.log("alpine initialized")
     {% for level,message in get_flashed_messages(with_categories=True)[:5] %}
       {% if level == "message" %}
         {% set level = "success" %}
       {% endif %}
       toast("{{message}}","{{level}}")
     {% endfor %}
-  });
+  })
   </script>
 {%endblock%}
 </html>
