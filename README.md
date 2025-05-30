@@ -1,45 +1,23 @@
 # Gapps
 
-:cloud: Try the [SaaS app](https://gapps.darkbanner.com/) (will be removed soon)  
+Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks.
 
-:snowflake: View the [Gapps site](https://web-gapps.pages.dev/)
-
+:snowflake: View the [Gapps site](https://web-gapps.pages.dev/)  
+🏠 Interested in contacting me? Please join our [discord](https://discord.gg/9unhWAqadg)
 
 ### Table of Contents
-1. [About](#about)
-2. [Getting Started](#getting-started)
-3. [Supported Frameworks](#supported-frameworks)
-4. [Roadmap](#roadmap)
-5. [Things to know](#things-to-know)
-6. [FAQ](#faq)
-
-- SaaS App: https://gapps.darkbanner.com  
-- Interested in some form of partnership or new license? Contact me on [discord](https://discord.gg/9unhWAqadg)
-- Stay up to date on changes: [contact](https://web-gapps.pages.dev/#contact)
-- Discord: https://discord.gg/9unhWAqadg
+1. [Getting Started](#getting-started)
+2. [FAQ](#faq)
 
 ### New Features :snowflake:
 - SOC2, NIST CSF, NIST-800-53, CMMC, HIPAA, ASVS, ISO27001, CSC CIS18, PCI DSS and SSF have been added! That makes 10 total frameworks
-- Total revamp of the UI
-- Multi-tenancy is now supported!
-- Collaboration with auditors  
-- Vendor Questionnaires
-- Add evidence directly to Gapps
+- Multi-tenancy, OIDC (SSO)
+- Collaboration with auditors
+- Risk Register
+- S3/GCS for file storage
 
 ### Next big features :snowflake:  
-- Control automation?
-- Endpoint agents for compliance?
-- More frameworks?
-- [Take a look at the current roadmap](https://github.com/users/bmarsh9/projects/1) or [submit a issue](https://github.com/bmarsh9/gapps/issues)
-
-### About
-Gapps is an Security compliance platform that makes it easy to track your progress against various security frameworks. *Gapps is currently in Alpha mode - while it works great, there may be some breaking changes as it evolves. Please do not use this in production.... yet!*.  
-- Supports 10 security compliance frameworks (more coming)  
-- 1500+ controls and 25+ policies out of the box for the frameworks (majority of policies are sourced from [strongdm/comply](https://github.com/strongdm/comply))
-- Track the status of each control
-- Add custom controls/policies
-- WYSIWYG content editor  
-- Vendor questionnaires
+- Integrations!
 
 #### Captures from the platform
 
@@ -58,65 +36,7 @@ Track Progress of Controls          |
 
 ### Getting Started
 
-##### Setting up the server with Docker in 2 minutes
-
-The following instructions are to get you started very quickly. The image will be pulled from Docker Hub
-
-```
-$ git clone https://github.com/bmarsh9/gapps.git; cd gapps
-$ docker-compose up -d
-```
-
-The server should be running on `http://<your-ip>:5000`  
-The default email/password is `admin@example.com:admin`
-
-Next, create a Tenant and a Project with you desired framework (e.g. SOC2). Based on the selected criteria, controls and policies will be automatically added to your project. Start exploring your project!
-
-##### Email  
-
-You can setup email (for sending user invites) as well by setting the following environment variables (docker-compose file or elsewhere)  
-
-```
-MAIL_SERVER : default ‘localhost’
-MAIL_PORT : default 25
-MAIL_USERNAME : default None
-MAIL_PASSWORD : default None
-MAIL_USE_TLS : default False
-MAIL_USE_SSL : default False
-MAIL_DEBUG : default app.debug
-MAIL_DEFAULT_SENDER : default None
-MAIL_MAX_EMAILS : default None
-MAIL_SUPPRESS_SEND : default app.testing
-MAIL_ASCII_ATTACHMENTS : default False
-```
-
-##### Hostname
-Set your ENV instance hostname so that invites and emails will have the correct URL. The forward slash at the end of the URL is required!
-
-```
-HOST_NAME=https://your-host.com/
-```
-
-### Supported frameworks
-+ SOC2
-+ CMMC
-+ ASVS
-+ ISO27001
-+ HIPAA
-+ NIST CSF
-+ NIST 800-53
-+ CSC CIS 18
-+ PCI DSS
-+ SSF (custom framework "Startup Security Framework")
-
-### Roadmap
-
-[Take a look at the project](https://github.com/users/bmarsh9/projects/1)
-
-
-### Things to know
-- The mitigation details of the controls are not documented. So it won't tell you how to mitigate a specific control. This requires a ton of work to complete but there is a ticket
-- Difficulty to Implement (dtc) is a field attached to the controls and every single control is labeled as "Easy" (that doesn't actually mean it is easy). This also requires a ton of work to update.
+Follow the documentation [documentation](https://web-gapps.pages.dev/docs)
 
 
 ### FAQ
