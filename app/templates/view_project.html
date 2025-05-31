@@ -205,7 +205,7 @@
 						<div class="flex justify-between w-full pl-4 border-l">
 							<div class="flex flex-col pr-4">
 								<span class="subtitle text-xs !mb-0" x-text="'SubControl Title - '+selectedSubControl.ref_code"></span>
-								<span class="text-xl" x-text="selectedSubControl.name"></span>
+								<span class="text-lg" x-text="selectedSubControl.name"></span>
 							</div>
 							<div class="flex flex-row gap-x-2">
 								<div class="dropdown">
@@ -245,7 +245,7 @@
 							<div class="col-span-3 my-auto border-r border-base-100">
 								<div class="grid grid-cols-6 gap-x-4">
 									<div class="col-span-6 flex flex-col mb-1">
-										<span class="subtitle text-xs">Subcontrol Status</span>
+										<span class="subtitle text-xs"><i class="ti ti-sun mr-1 my-auto"></i>Subcontrol Status</span>
 										<div class="inline-flex">
 											<span x-text="selectedSubControl.completion_status"></span>
 										</div>
@@ -297,7 +297,7 @@
 						</div>
 
 						<div role="tablist" class="tabs gap-x-2">
-						  <button @click="closeSubControlInDrawer" role="tab" class="text-sm tab subtitle hover:opacity-50"><i class="ti ti-arrow-left text-xg mr-2 my-auto"></i>Back to Control</button>
+						  <button @click="closeSubControlInDrawer" role="tab" class="text-sm tab subtitle hover:opacity-50"><i class="ti ti-arrow-left text-xg mr-2 my-auto"></i>Other subcontrols</button>
 						  <button @click="changeSubControlTabInDrawer('details')" :class="{'btn-active': activeSubSideTab==='details'}" role="tab" class="tab btn btn-sm btn-ghost bg-base-100">Details</button>
 						  <button x-show="!selectedSubControl.has_evidence" @click="changeSubControlTabInDrawer('evidence')" :class="{'btn-active': activeSubSideTab==='evidence'}" role="tab" class="tab btn btn-sm btn-ghost bg-base-100">
 							<i class="ti ti-x text-error my-auto text-lg mr-1"></i>Evidence
