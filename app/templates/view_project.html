@@ -63,7 +63,7 @@
 						<div class="flex justify-between w-full pl-8 border-l">
 							<div class="flex flex-col">
 								<span class="subtitle text-xs !mb-0" x-text="'Control Title - '+selectedControl.ref_code"></span>
-								<span class="text-xl" x-text="selectedControl.name"></span>
+								<span class="text-lg" x-text="selectedControl.name"></span>
 							</div>
 							<div class="flex flex-row gap-x-2">						
 								<div class="dropdown dropdown-end">
@@ -436,9 +436,9 @@
 							  <tr>
 								<td><button @click="openSubControlInDrawer(subcontrol)" class="btn btn-sm btn-ghost"><i class="ti ti-maximize text-lg"></i></button></td>
 								<td>
-									<div x-show="subcontrol.is_complete && subcontrol.is_applicable" class="pill text-ss bg-success opacity-75">Complete</div>
-									<div x-show="!subcontrol.is_applicable" class="pill text-ss bg-error opacity-75">Not Applicable</div>
-									<div x-show="subcontrol.is_applicable && !subcontrol.is_complete" class="pill text-ss bg-warning opacity-75">In Progress</div>
+									<div x-show="subcontrol.is_complete && subcontrol.is_applicable" class="text-xs text-success">Complete</div>
+									<div x-show="!subcontrol.is_applicable" class="text-xs text-error">Not Applicable</div>
+									<div x-show="subcontrol.is_applicable && !subcontrol.is_complete" class="text-xs text-warning">In Progress</div>
 
 								</td>
 
