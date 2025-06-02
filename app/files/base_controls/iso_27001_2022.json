@@ -80,9 +80,7 @@
                 "name": "Planning of Changes",
                 "description": "When the organization determines the need for changes to the information security management system, the changes shall be carried out in a planned manner.",
                 "guidance": "The organization should implement changes to the Information Security Management System (ISMS) in a structured and controlled manner. This includes assessing potential impacts, planning necessary adjustments, allocating resources, and ensuring proper documentation. Changes should be reviewed and monitored to maintain system integrity and effectiveness."
-            },
-
-
+            }
         ]
     },
     {

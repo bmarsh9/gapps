@@ -1226,6 +1226,8 @@
 					<span class="hidden sm:block">
 						<button @click="showAuditHelp=true" x-show="isAuditor" class="btn btn-xs mx-2">Auditor<i class="ti ti-spy text-error text-lg"></i></button>
 					</span>
+
+
 					<span x-show="selectedTab==='controls'" class="hidden sm:block">
 						<div class="tooltip tooltip-left" data-tip="Toggle Analytics">
 							<button @click="toggleDashboard" :class="{'btn-warning': showDashboard}" class="btn btn-xs" x-text="showDashboard ? 'Hide Analytics' : 'Show Analytics'"></button>
@@ -1742,6 +1744,13 @@
 						</div>
 
 					</div>
+
+					<!-- Show when there are no controls -->
+
+					<div x-show="controls.length === 0">
+						In progress
+					</div>
+
 					<!-- Show when there are filtered controls to show -->
 					<div x-show="!filteringControls && !emptyControlFilter" :class="{'col-span-11': hideFilterTab, 'col-span-9': !hideFilterTab}" class="overflow-y-auto bg-base-200 border rounded-tr-md border-base-300 mb-16">
 
@@ -4639,6 +4648,9 @@ function project(){
 		},
 		copySubControlLink(subcontrolId) {
 			this.setURLParam("subcontrol-id", subcontrolId)
+			this.copyLink()
+		},
+		copyRiskLink(riskId) {
 			this.copyLink()
 		},
 		copyLink: function(url=null) {
