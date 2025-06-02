@@ -36,9 +36,9 @@
 								<span class="text-xl" x-text="selectedReport.title"></span>
 							</div>
 							<div class="flex flex-row gap-x-2">
+
 								<button @click="copyRiskLink(selectedReport.id)" class="btn btn-sm btn-ghost border border-base-300"><i class="ti ti-share text-xl"></i></button>
 								<button @click="closeReportDrawer" class="btn btn-sm btn-ghost border border-base-300"><i class="ti ti-x text-xl"></i></button>
-
 							</div>
 						</div>
 					</div>
@@ -396,7 +396,7 @@
                   <p x-show="!hasFilter" class="py-4">
                     You have not logged any risks. Let's get started.
                   </p>
-                  <button x-show="!hasFilter" @click="disableFilter" class="btn btn-sm btn-success">Create Risk</button>
+                  <button x-show="!hasFilter" @click="showCreateRisk=true" class="btn btn-sm btn-success">Create Risk</button>
                   <p x-show="hasFilter" class="py-4">
                     The filter you applied does not match any reports.
                   </p>
@@ -931,6 +931,32 @@ function risks(){
         	this.comments = report.comments;
 			document.getElementById('right-drawer').checked = true;
         },
+		copyRiskLink(riskId) {
+			this.copyLink()
+		},
+		copyLink: function(url=null) {
+			// Create a temporary textarea element
+			let textarea = document.createElement('textarea');
+			if (url === null) {
+				// Set the value of the textarea to the text you want to copy
+				url = new URL(window.location.href);
+			}
+
+			textarea.value = url.toString();
+
+			// Append the textarea to the document
+			document.body.appendChild(textarea);
+
+			// Select the text in the textarea
+			textarea.select();
+
+			// Execute the copy command
+			document.execCommand('copy');
+
+			// Remove the textarea from the document
+			document.body.removeChild(textarea);
+			toast("Link copied to your clipboard")
+		},
         closeReportDrawer: function() {
 			this.previousSelectedReport = this.selectedReport
 			this.selectedReport = {}

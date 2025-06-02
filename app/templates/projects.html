@@ -155,14 +155,15 @@
 
         <div>
             <div class="modal" x-bind:class="{ 'modal-open': showCreateModal }">
-                <div class="modal-box w-11/12 max-w-2xl">
+                <div class="modal-box w-11/12 max-w-4xl">
                     <form method="dialog">
                         <button @click="showCreateModal = false"
                                 class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
                         </button>
                     </form>
-                    <h3 class="font-bold text-xl px-8">Create Project</h3>
-                    <div class="card card-body">
+                    <h3 x-show="step==='one'" class="font-bold text-2xl px-8">Create Project</h3>
+                    <h3 x-show="step==='two'" class="font-bold text-2xl px-8"><button @click="step='one'" class="btn btn-ghost btn-sm mr-2"><i class="ti ti-arrow-left text-xl"></i></button>Select Framework</h3>
+                    <div x-show="step==='one'" class="card card-body">
                         <div class="grid grid-cols-6 gap-6">
                             <div class="col-span-3">
                                 <label class="block text-sm font-medium mb-2">Name</label>
@@ -175,63 +176,57 @@
                                        class="input input-sm input-bordered w-full"/>
                             </div>
                             <div class="col-span-3">
-                                <label class="block text-sm font-medium mb-2">Select Framework</label>
-                                <select x-model="formData.framework"
-                                        class="select select-sm select-bordered w-full">
-                                    <option value="" selected>Select Framework</option>
-                                    <template x-for="framework in frameworks" :key="framework.id">
-                                        <option class="uppercase" :value="framework.name"
-                                                x-text="framework.name"></option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div class="col-span-3">
                                 <label class="block text-sm font-medium mb-2">Tenant</label>
                                 <input :value="$store.currentUser.selectedTenant.name"
                                        class="input input-sm input-bordered w-full"
                                        disabled/>
                             </div>
-                            <div class="col-span-6 mt-4" x-show="formData.framework === 'SOC2'">
-                                <label class="block text-sm font-medium">Included Criteria Categories</label>
-                                <p class="text-xs font-medium mb-3">Security (Common criteria) is required for all SOC 2
-                                    projects. Have a question about selection?<a href="{{config.DOC_LINK}}"
-                                                                                 class="text-primary"> Click here</a>
-                                </p>
-                                <div class="flex flex-col">
-                                    <div class="form-control w-52"><label class="cursor-pointer label"><span
-                                            class="label-text">Security</span><input
-                                            x-model="formData.criteria.security"
-                                            type="checkbox"
-                                            class="toggle toggle-primary"
-                                            checked="" disabled></label></div>
-                                    <div class="form-control w-52"><label class="cursor-pointer label"><span
-                                            class="label-text">Availability</span><input
-                                            x-model="formData.criteria.availability" type="checkbox"
-                                            class="toggle toggle-primary"></label>
+                        </div>
+                    </div>
+                    <div x-show="step==='two'" class="card card-body">
+                        <div class="grid grid-cols-9 gap-4">
+                            <template x-for="framework in frameworks" :key="'custom-'+framework.id">
+                                <template x-if="framework.name.toLowerCase() === 'custom'">
+                                    <div class="col-span-full">
+                                        <div @click="selectedFramework=framework"
+                                             :class="{'border border-primary': selectedFramework===framework}"
+                                             class="card hover:opacity-75 bg-base-300">
+                                            <div class="card-body hover:cursor-pointer">
+                                                <div class="flex flex-row">
+                                                    <i x-show="selectedFramework===framework" class="ti text-success ti-check mr-2 my-auto"></i>
+                                                    <div class="card-title">Start from scratch</div>
+                                                </div>
+                                                <p>Create a project with an empty set of controls and policies. You can import a set of controls if you wish.</p>
+                                                <button x-show="selectedFramework===framework" @click="createProject" class="btn btn-sm btn-success">Get Started</button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="form-control w-52"><label class="cursor-pointer label"><span
-                                            class="label-text">Confidentiality</span><input
-                                            x-model="formData.criteria.confidentiality" type="checkbox"
-                                            class="toggle toggle-primary"></label>
+                                </template>
+                            </template>
+<!--                            haaa-->
+                            <template x-for="framework in frameworks" :key="framework.id">
+                                <template x-if="framework.name.toLowerCase() !== 'custom'">
+                                    <div class="col-span-3">
+                                        <div @click="selectedFramework=framework" :class="{'border border-primary': selectedFramework===framework}" class="card hover:opacity-75 bg-base-300">
+                                            <div class="card-body hover:cursor-pointer">
+                                                <div class="flex flex-row">
+                                                    <i x-show="selectedFramework===framework" class="ti text-success ti-check mr-2 my-auto"></i>
+                                                    <div class="card-title" x-text="framework.name"></div>
+                                                </div>
+                                                <p x-text="framework.description"></p>
+                                                <button x-show="selectedFramework===framework" @click="createProject" class="btn btn-sm btn-success">Get Started</button>
+
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="form-control w-52"><label class="cursor-pointer label"><span
-                                            class="label-text">Integrity</span><input
-                                            x-model="formData.criteria.integrity"
-                                            type="checkbox"
-                                            class="toggle toggle-primary"></label>
-                                    </div>
-                                    <div class="form-control w-52"><label class="cursor-pointer label"><span
-                                            class="label-text">Privacy</span><input x-model="formData.criteria.privacy"
-                                                                                    type="checkbox"
-                                                                                    class="toggle toggle-primary"></label>
-                                    </div>
-                                </div>
-                            </div>
+                                </template>
+                            </template>
+
                         </div>
                     </div>
                     <div class="modal-action">
                         <button class="btn" @click="showCreateModal = false">Close</button>
-                        <button :disabled="!formData.name" class="btn btn-primary" @click="createProject">Create</button>
+                        <button x-show="step==='one'" :disabled="!formData.name" class="btn btn-primary" @click="step='two'">Next</button>
                     </div>
                 </div>
             </div>
@@ -329,6 +324,8 @@ function table(){
         loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
         loading: true,
         cardView: true,
+        step:"one",
+        selectedFramework:{},
         showDeleteModal: false,
         showModal: false,
         buttonDisabled: false,
@@ -353,6 +350,7 @@ function table(){
         showCreateModal: false,
         openCreateModal() {
           this.showCreateModal = true;
+          this.step = "one";
         },
         openDeleteModal(item) {
           this.selectedItem = item;
@@ -377,6 +375,11 @@ function table(){
             toast("Name is required", "error")
             return
           }
+          if (!this.selectedFramework.name) {
+            toast("Framework is required", "error")
+            return
+          }
+          this.formData.framework = this.selectedFramework.name;
           if (this.formData.framework === "SOC2") {
             this.formData.criteria.security = true;
           } else {
