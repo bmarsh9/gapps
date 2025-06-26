@@ -1758,10 +1758,6 @@ class Framework(db.Model):
             "feature_evidence": True,
             "tenant_id": tenant.id,
         }
-        path = f"app/files/about_frameworks/{name}.html"
-        if os.path.exists(path):
-            with open(path) as f:
-                data["guidance"] = f.read()
         f = Framework(**data)
         db.session.add(f)
         db.session.commit()

@@ -118,6 +118,10 @@ class Config:
     LLM_NAME = os.environ.get("LLM_NAME")
     LLM_TOKEN = os.environ.get("LLM_TOKEN")
 
+    # Integrations
+    INTEGRATIONS_BASE_URL = os.environ.get("INTEGRATIONS_BASE_URL", "http://localhost:8080")
+    INTEGRATIONS_TOKEN = os.environ.get("INTEGRATIONS_TOKEN", "changeme")
+
     # Expose certain env vars in front end (DO NOT PLACE SENSITIVE VARS)
     # Use csv (e.g. storage_method,gcs_bucket)
     DEBUG_ENV_VARS = (
