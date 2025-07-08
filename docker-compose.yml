@@ -7,9 +7,9 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - postgres
-#    networks:
-#      - db_nw
-#      - web_nw
+    networks:
+      - db_nw
+      - web_nw
     ports:
       - "8000:5000"
     restart: unless-stopped
@@ -22,7 +22,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
       - POSTGRES_DB=${POSTGRES_DB:-db1}
       - GUNICORN_WORKERS=2
-      - INTEGRATIONS_BASE_URL=http://192.168.1.151:8080
     #env_file:
     #  - .env
 
@@ -38,14 +37,14 @@ services:
     #   - postgres:/data/postgres
     ports:
       - "5432:5432"
-#    networks:
-#      - db_nw
+    networks:
+      - db_nw
     restart: unless-stopped
 
-#networks:
-#  db_nw:
-#    driver: bridge
-#  web_nw:
-#    driver: bridge
+networks:
+  db_nw:
+    driver: bridge
+  web_nw:
+    driver: bridge
 volumes:
   dbdata:
