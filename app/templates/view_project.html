@@ -207,7 +207,7 @@
 
 						<div class="flex justify-between w-full pl-4 border-l">
 							<div class="flex flex-col pr-4">
-								<span class="subtitle text-xs !mb-0" x-text="'SubControl Title - '+selectedSubControl.ref_code"></span>
+								<span class="subtitle text-xs !mb-0" x-text="'SubControl Title - '+selectedSubControl.ref_code.toUpperCase()"></span>
 								<span class="text-lg" x-text="selectedSubControl.name"></span>
 							</div>
 							<div class="flex flex-row gap-x-2">
@@ -221,7 +221,7 @@
 								  </ul>
 								</div>
 								<div class="dropdown dropdown-bottom dropdown-end">
-								  <div tabindex="0" role="button" class="btn btn-sm opacity-80">Switch Subcontrol</div>
+								  <div tabindex="0" role="button" class="btn btn-sm opacity-80">Subcontrols</div>
 								  <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-96 p-2 shadow">
 									<template x-for="subcontrol in selectedControl.subcontrols">
 										<li @click="openSubControlInDrawer(subcontrol)">
@@ -653,23 +653,8 @@
 								</div>
 								<div class="grid grid-cols-6 gap-4">
 									<div class="col-span-6">
-										<h4 class="subtitle text-sm">Subcontrol Description</h4>
-										<div class="flex flex-row">
-											<div x-data="{ expanded: false }"
-												 :class="expanded ? 'h-40' : 'h-16'"
-												 class="overflow-y-auto">
-
-												<span class="text-xs" x-text="expanded ? (selectedSubControl.guidance || selectedSubControl.description) : (selectedSubControl.guidance || selectedSubControl.description).slice(0, 200) + '...'"></span>
-
-												<button
-													x-show="(selectedSubControl.guidance || selectedSubControl.description).length > 100"
-													@click="expanded = !expanded"
-													class="text-warning underline ml-2 text-xs">
-													<span x-text="expanded ? 'See less' : 'See more'"></span>
-												</button>
-											</div>
-
-										</div>
+										<h4 class="subtitle text-sm">Subcontrol Guidance</h4>
+										<p x-text="selectedSubControl.guidance"></p>
 									</div>
 									<div class="col-span-4">
 										<h4 class="subtitle text-sm">Status</h4>
@@ -1766,29 +1751,29 @@
 								  </th>
 								<th :class="{'rounded-tl-md': expandedRow!==null}" class="bg-base-200 border-base-300 p-6 text-xs border-b border-base-100">
 									<div class="flex justify-between">
-										<span class="my-auto">View</span>
+										<span class="my-auto text-base-content">View</span>
 									</div>
 								</th>
 								<th class="bg-base-200 p-6 text-xs border-b border-base-300">
 									<div class="flex justify-between">
-										<span class="my-auto" x-text="'Control Title ('+filteredControls.length+')'"></span>
+										<span class="my-auto text-base-content" x-text="'Control Title ('+filteredControls.length+')'"></span>
 									</div>
 								</th>
 								<th class="bg-base-200 p-6 text-xs border-b border-base-100 w-2/12 text-center border-base-300">
 									<div class="flex justify-between">
-										<span class="my-auto">Status</span>
+										<span class="my-auto text-base-content">Status</span>
 									</div>
 								</th>
 								<th class="bg-base-200 p-6 text-xs border-b border-base-100 w-1 text-center border-base-300">
 									<div class="flex justify-between">
-										<span class="my-auto" x-text="'Subcontrols ('+filteredSubControls.length+')'"></span>
+										<span class="my-auto text-base-content" x-text="'Subcontrols ('+filteredSubControls.length+')'"></span>
 									</div>
 								</th>
 								<th x-show="projectData.auditors.length>0" class="bg-base-200 border-base-300 rounded-tr-md p-6 text-xs border-b border-base-100 w-1 text-center">
-									<span class="my-auto">Review Status</span>
+									<span class="my-auto text-base-content">Review Status</span>
 								</th>
 								<th x-show="projectData.auditors.length===0" class="bg-base-200 border-base-300 rounded-tr-md p-6 text-xs border-b border-base-100 w-1 text-center">
-									<span class="my-auto">Owner(s)</span>
+									<span class="my-auto text-base-content">Owner(s)</span>
 								</th>
 
 							  </tr>
