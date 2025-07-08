@@ -1,1020 +1,1020 @@
 [
-    {
-        "name": "General Security Requirements",
-        "description": "Ensure confidentiality, integrity, and availability of ePHI.",
-        "guidance": "This control mandates you establish a comprehensive security program. Implement administrative, physical, and technical safeguards to protect electronic protected health information (ePHI). Regularly assess risks, train staff, and document policies. Ensure business associates comply with HIPAA rules. Prioritize confidentiality, integrity, and availability of ePHI.",
-        "ref_code": "164.306(a)",
-        "subcategory": "General Security Requirements",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Security Management Process",
+  {
+    "name": "General Security Requirements",
+    "description": "Ensure confidentiality, integrity, and availability of ePHI.",
+    "guidance": "This control mandates you establish a comprehensive security program. Implement administrative, physical, and technical safeguards to protect electronic protected health information (ePHI). Regularly assess risks, train staff, and document policies. Ensure business associates comply with HIPAA rules. Prioritize confidentiality, integrity, and availability of ePHI.",
+    "ref_code": "164.306_a",
+    "subcategory": "General Security Requirements",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Security Management Process",
+    "description": "Implement policies and procedures to prevent, detect, contain, and correct security violations.",
+    "guidance": "Conduct risk analysis and management, apply sanctions, and review system activity.",
+    "ref_code": "164.308_a_1",
+    "subcategory": "Security Management Process",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_1.a",
+        "name": "Conduct risk assessments, manage identified risks, apply sanctions, and review system activity.",
         "description": "Implement policies and procedures to prevent, detect, contain, and correct security violations.",
-        "guidance": "Conduct risk analysis and management, apply sanctions, and review system activity.",
-        "ref_code": "164.308(a)(1)",
-        "subcategory": "Security Management Process",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(1)",
-                "name": "Conduct risk assessments, manage identified risks, apply sanctions, and review system activity.",
-                "description": "Implement policies and procedures to prevent, detect, contain, and correct security violations.",
-                "guidance": "This control focuses on proactively safeguarding patient data. First, identify potential vulnerabilities through regular risk assessments. Then, develop and implement strategies to manage these risks.  Establish clear sanctions for security breaches, and finally, continuously monitor system activity to detect and address any new threats or policy violations."
-            },
-            {
-                "ref_code": "164.308(a)(1)",
-                "name": "Establish a security governance framework and monitoring processes.",
-                "description": "Implement policies and procedures to prevent, detect, contain, and correct security violations.",
-                "guidance": "Develop a comprehensive security governance framework outlining policies and procedures for managing information security.  Implement robust monitoring systems to track compliance and detect vulnerabilities.  Regularly review and update the framework based on audit findings and risk assessments. Establish reporting mechanisms for security incidents and progress.  Ensure the framework is understood and followed by all workforce members."
-            }
-        ]
-    },
-    {
-        "name": "Risk Analysis",
-        "description": "Assess potential risks and vulnerabilities to ePHI confidentiality, integrity, and availability.",
-        "guidance": "Perform a formal risk analysis to identify threats and vulnerabilities.",
-        "ref_code": "164.308(a)(1)(ii)(A)",
-        "subcategory": "Risk Analysis",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(1)(ii)(A)",
-                "name": "Perform a security risk assessment using frameworks such as NIST 800-30.",
-                "description": "Conduct an accurate and thorough assessment of risks to ePHI.",
-                "guidance": "Conduct a thorough security risk assessment using a recognized framework like NIST 800-30. This process identifies vulnerabilities and threats to protected health information (PHI). Analyze the likelihood and impact of potential breaches, documenting all findings. Implement appropriate safeguards to mitigate identified risks and protect patient data. Regularly review and update the assessment."
-            }
-        ]
-    },
-    {
-        "name": "Risk Management",
-        "description": "Implement security measures to reduce risks to a reasonable level.",
-        "guidance": "Use risk mitigation strategies like access controls and regular system audits.",
-        "ref_code": "164.308(a)(1)(ii)(B)",
-        "subcategory": "Risk Management",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(1)(ii)(B)",
-                "name": "Develop a risk management plan and implement security controls.",
-                "description": "Implement security measures to reduce risks to a reasonable and appropriate level.",
-                "guidance": "Begin by identifying and assessing all potential risks to protected health information.  Develop a comprehensive plan that outlines specific security controls to mitigate those identified risks.  Implement these controls, which may include technical, administrative, and physical safeguards. Regularly monitor the effectiveness of your controls and update the plan as needed. This ensures ongoing protection of patient data and compliance with HIPAA regulations."
-            }
-        ]
-    },
-    {
-        "name": "Sanction Policy",
-        "description": "Apply appropriate sanctions for workforce members who fail to comply with security policies.",
-        "guidance": "Establish and enforce a formal sanction policy for workforce members who violate HIPAA security policies. This policy should detail consequences, ranging from warnings to termination, proportionate to the severity of the violation. Clearly communicate the policy to all workforce members and ensure consistent application. Regular training and reminders will reinforce the importance of adherence. Document all sanctions administered and any corrective actions taken.",
-        "ref_code": "164.308(a)(1)(ii)(C)",
-        "subcategory": "Sanction Policy",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Information System Activity Review",
-        "description": "Regularly review audit logs, access reports, and security incident tracking.",
-        "guidance": "Regularly review system logs and audit trails. Scrutinize user activity, including access logs, to identify potential security breaches or policy violations. This includes examining successful and unsuccessful access attempts. Document findings and take corrective actions promptly. Schedule reviews frequently, based on the sensitivity of the data and potential risk.",
-        "ref_code": "164.308(a)(1)(ii)(D)",
-        "subcategory": "Information System Activity Review",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Assigned Security Responsibility",
-        "description": "Identify a security official responsible for the development and implementation of policies and procedures.",
-        "guidance": "Appoint a Chief Security Officer or Compliance Manager.",
-        "ref_code": "164.308(a)(2)",
-        "subcategory": "Assigned Security Responsibility",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(2)",
-                "name": "Appoint a Chief Security Officer or equivalent role.",
-                "description": "Designate a security official responsible for policy implementation.",
-                "guidance": "Appoint a dedicated individual, such as a Chief Security Officer (CSO), to oversee your organization's HIPAA security program. This person is responsible for developing, implementing, and maintaining security policies and procedures.  They should be knowledgeable about HIPAA requirements and cybersecurity best practices.  The CSO ensures safeguards are in place to protect electronic protected health information (ePHI). This crucial role mitigates risks and ensures regulatory compliance."
-            }
-        ]
-    },
-    {
-        "name": "Workforce Security",
-        "description": "Ensure employees have appropriate access to ePHI.",
-        "guidance": "Implement access control procedures and clearance processes.",
-        "ref_code": "164.308(a)(3)",
-        "subcategory": "Workforce Security",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(3)",
-                "name": "Implement least privilege access controls.",
-                "description": "Ensure workforce members have appropriate access to ePHI and unauthorized individuals do not.",
-                "guidance": "Grant users only the minimum necessary access rights (e.g., read, write, delete) to perform their job functions. Regularly review and adjust access permissions to prevent unauthorized data access. Implement role-based access controls for efficient management.  Segregate duties where appropriate to further reduce risk.  This protects sensitive patient information from unauthorized disclosure or modification."
-            }
-        ]
-    },
-    {
-        "name": "Authorization and/or Supervision",
-        "description": "Authorize and/or supervise workforce members who access ePHI.",
-        "guidance": "To comply with the HIPAA security control of Authorization and/or Supervision, grant access rights based on job roles and responsibilities. Regularly review and update user permissions to maintain the principle of least privilege. Supervise workforce members to ensure they follow established security policies and procedures. Document all access authorizations and supervisory actions. Provide regular training on security protocols.",
-        "ref_code": "164.308(a)(3)(ii)(A)",
-        "subcategory": "Authorization and/or Supervision",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Workforce Clearance Procedure",
-        "description": "Ensure workforce members granted ePHI access are appropriate.",
-        "guidance": "Establish a clear process for verifying the identity, qualifications, and background of all workforce members before granting access to protected health information (PHI). This should include background checks and verification of credentials. Document the clearance process and maintain records of each workforce member's clearance. Regularly re-evaluate workforce members' clearance to ensure continued suitability and compliance. Training on HIPAA and security policies is also crucial.",
-        "ref_code": "164.308(a)(3)(ii)(B)",
-        "subcategory": "Workforce Clearance Procedure",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Termination Procedures",
-        "description": "Remove access privileges when employment or authorization ends.",
-        "guidance": "When an employee's access to protected health information (PHI) ends, promptly revoke all system and physical access. Remove or disable all login credentials and access badges. Ensure data is securely archived or deleted as appropriate. Document the termination process and confirm access removal to maintain HIPAA compliance.",
-        "ref_code": "164.308(a)(3)(ii)(C)",
-        "subcategory": "Termination Procedures",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Information Access Management",
-        "description": "Limit ePHI access to only those required for job functions.",
-        "guidance": "Use role-based access control (RBAC).",
-        "ref_code": "164.308(a)(4)",
-        "subcategory": "Information Access Management",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(4)",
-                "name": "Use role-based access controls (RBAC).",
-                "description": "Implement policies for authorizing ePHI access consistent with the Privacy Rule.",
-                "guidance": "Implement RBAC to restrict access to protected health information (PHI) based on job roles. Define roles and assign permissions accordingly, granting only the necessary access for each role. Regularly review and update role assignments to ensure continued adherence to the principle of least privilege. This minimizes the risk of unauthorized PHI disclosure and maintains compliance."
-            }
-        ]
-    },
-    {
-        "name": "Isolating Health Care Clearinghouse Functions",
-        "description": "Protect ePHI of health care clearinghouses within larger organizations.",
-        "guidance": "To secure Protected Health Information (PHI), segregate health care clearinghouse (HCH) functions onto a separate network. This isolation minimizes the attack surface, preventing breaches that could expose sensitive data. Restrict network access and implement strong authentication controls to protect HCH systems. Regular security audits and vulnerability scans are crucial to maintain isolation effectiveness. Ensure compliance by documenting and reviewing all implemented safeguards.",
-        "ref_code": "164.308(a)(4)(ii)(A)",
-        "subcategory": "Isolating Health Care Clearinghouse Functions",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Access Authorization",
-        "description": "Define policies and procedures for granting ePHI access.",
-        "guidance": "Require documented approvals for access grants.",
-        "ref_code": "164.308(a)(4)(ii)(B)",
-        "subcategory": "Access Authorization",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(4)(ii)(C)",
-                "name": "Use IAM tools to enforce access control policies.",
-                "description": "Establish, document, review, and modify user access rights.",
-                "guidance": "Implement robust Identity and Access Management (IAM) tools to safeguard Protected Health Information (PHI).  These tools are critical for defining and enforcing granular access control policies.  Regularly review and update access permissions based on the principle of least privilege.  Automate access control processes whenever possible to ensure consistency and efficiency.  This minimizes unauthorized access and helps maintain HIPAA compliance."
-            }
-        ]
-    },
-    {
-        "name": "Security Awareness and Training",
-        "description": "Train employees on security risks and best practices.",
-        "guidance": "Conduct phishing simulations and cybersecurity training.",
-        "ref_code": "164.308(a)(5)",
-        "subcategory": "Security Awareness and Training",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(5)",
-                "name": "Conduct periodic security training and awareness campaigns.",
-                "description": "Implement a training program for all workforce members on security.",
-                "guidance": "Regularly educate your workforce on HIPAA security. This includes training on policies, procedures, and threats. Conduct ongoing awareness campaigns to reinforce key concepts. Document all training activities. Consistent education helps prevent breaches and protects patient information."
-            }
-        ]
-    },
-    {
-        "name": "Security Reminders",
-        "description": "Implement periodic security updates.",
-        "guidance": "Implement regular security awareness training for all workforce members. Provide consistent reminders about security policies, procedures, and best practices. These reminders should be tailored to relevant threats and vulnerabilities. Use a variety of methods, like email, posters, and intranet alerts.  Document all training and reminder activities.",
-        "ref_code": "164.308(a)(5)(ii)(A)",
-        "subcategory": "Security Reminders",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Protection from Malicious Software",
-        "description": "Implement measures to detect and report malicious software.",
-        "guidance": "Implement robust anti-malware software, regularly updated and actively scanning systems. Train employees to recognize and avoid phishing attacks and suspicious links.  Enforce strong access controls and prevent unauthorized software installations. Back up data frequently to enable recovery from infections. Regularly audit and assess your defenses against malicious software.",
-        "ref_code": "164.308(a)(5)(ii)(B)",
-        "subcategory": "Protection from Malicious Software",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Log-in Monitoring",
-        "description": "Monitor log-in attempts and discrepancies.",
-        "guidance": "Implement log-in monitoring to track user access attempts and activities. Review logs regularly for suspicious patterns like failed log-ins, unusual access times, or attempts to access sensitive data. Utilize automated alerts to notify security personnel of potential breaches. This helps detect and prevent unauthorized access to protected health information.",
-        "ref_code": "164.308(a)(5)(ii)(C)",
-        "subcategory": "Log-in Monitoring",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Password Management",
-        "description": "Establish policies for creating, changing, and safeguarding passwords.",
-        "guidance": "Implement strong password policies, requiring complex, regularly changed passwords.  Enforce password protection during storage and transmission.  Use multi-factor authentication where feasible.  Regularly audit and review password practices for compliance and vulnerability. Consider password managers to enhance security and usability.",
-        "ref_code": "164.308(a)(5)(ii)(D)",
-        "subcategory": "Password Management",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Security Incident Procedures",
-        "description": "Establish procedures for responding to security incidents.",
-        "guidance": "Develop an incident response plan and reporting process.",
-        "ref_code": "164.308(a)(6)",
-        "subcategory": "Security Incident Procedures",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(6)",
-                "name": "Develop an incident response plan and reporting mechanisms.",
-                "description": "Implement policies for addressing security incidents.",
-                "guidance": "Develop a detailed plan outlining steps to identify, contain, and recover from security incidents. Establish clear procedures for reporting all breaches and security events. Include contact information for responsible parties and regulatory bodies. Regularly test the plan's effectiveness through simulations. This ensures prompt and appropriate responses to protect patient data."
-            }
-        ]
-    },
-    {
-        "name": "Response and Reporting",
-        "description": "Identify, respond to, and mitigate security incidents.",
-        "guidance": "When a security incident occurs, promptly contain the breach and assess its impact.  Report the incident to the appropriate internal parties and, if required, to the Department of Health and Human Services (HHS). Thoroughly document all aspects of the incident, from detection to resolution, and analyze the event to prevent future occurrences. Finally, provide notification to affected individuals if their protected health information (PHI) was compromised, as legally required.",
-        "ref_code": "164.308(a)(6)(ii)",
-        "subcategory": "Response and Reporting",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Contingency Plan",
-        "description": "Establish and implement policies for responding to emergencies.",
-        "guidance": "Develop data backup, disaster recovery, and emergency operations plans.",
-        "ref_code": "164.308(a)(7)",
-        "subcategory": "Contingency Plan",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(7)",
-                "name": "Develop disaster recovery and business continuity plans.",
-                "description": "Implement policies to maintain ePHI availability during emergencies.",
-                "guidance": "Develop thorough plans to ensure protected health information (PHI) remains accessible and operations can continue during and after disruptive events.  These plans should outline data backup, restoration, and recovery procedures, detailing roles and responsibilities.  Regularly test and update the plans to ensure effectiveness.  Address both natural disasters and system failures. Maintain accessibility and confidentiality of PHI at all times."
-            },
-            {
-                "ref_code": "164.308(a)(7)",
-                "name": "Test disaster recovery and business continuity plans.",
-                "description": "Establish and implement contingency plans for emergencies.",
-                "guidance": "Regularly test your disaster recovery and business continuity plans to ensure their effectiveness.  Simulate disruptions to identify weaknesses and validate recovery procedures.  Document testing results and address any identified gaps promptly.  Update plans based on test outcomes and changing organizational needs. Testing minimizes downtime and protects patient data during emergencies."
-            }
-        ]
-    },
-    {
-        "name": "Data Backup Plan",
-        "description": "Create and maintain retrievable copies of ePHI.",
-        "guidance": "Use offsite and cloud-based backup solutions.",
-        "ref_code": "164.308(a)(7)(ii)(A)",
-        "subcategory": "Data Backup Plan",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(7)(ii)(A)",
-                "name": "Use encrypted backups and offsite storage solutions.",
-                "description": "Maintain retrievable copies of ePHI for data recovery.",
-                "guidance": "Encrypt all backup data to protect patient information from unauthorized access.  Store backups offsite, separate from your primary systems, in a secure location.  Regularly test data restoration to ensure backups are working correctly.  This safeguards against data breaches from theft, disasters, and ransomware attacks.  Choose reputable vendors with robust security measures."
-            }
-        ]
-    },
-    {
-        "name": "Disaster Recovery Plan",
-        "description": "Implement procedures to restore data after a loss.",
-        "guidance": "Develop and test disaster recovery processes.",
-        "ref_code": "164.308(a)(7)(ii)(B)",
-        "subcategory": "Disaster Recovery Plan",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(7)(ii)(B)",
-                "name": "Develop a structured disaster recovery process with testing.",
-                "description": "Implement procedures to restore ePHI after a loss.",
-                "guidance": "Develop a comprehensive disaster recovery plan to ensure business operations can resume quickly after a disruption. The plan must outline procedures for data backup, system recovery, and communication protocols. Regularly test the plan's effectiveness through simulated disaster scenarios. This ensures your organization can adequately respond to real-world events and protect sensitive health information. Document all testing results and update the plan as needed."
-            }
-        ]
-    },
-    {
-        "name": "Emergency Mode Operation Plan",
-        "description": "Maintain critical security operations during emergencies.",
-        "guidance": "Implement backup power and failover systems.",
-        "ref_code": "164.308(a)(7)(ii)(C)",
-        "subcategory": "Emergency Mode Operation Plan",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(7)(ii)(C)",
-                "name": "Use failover systems and alternate communication methods.",
-                "description": "Ensure operations continue in case of an emergency.",
-                "guidance": "Implement backup systems and communication channels to ensure continued access to protected health information (PHI). Regularly test these failover systems and methods to verify functionality. Maintain documented procedures outlining how to switch to and utilize backups. This ensures business continuity and protects PHI availability during disruptions."
-            }
-        ]
-    },
-    {
-        "name": "Testing and Revision Procedures",
-        "description": "Periodically test and revise contingency plans.",
-        "guidance": "Conduct regular disaster recovery tests.",
-        "ref_code": "164.308(a)(7)(ii)(D)",
-        "subcategory": "Testing and Revision Procedures",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(7)(ii)(D)",
-                "name": "Conduct tabletop exercises and live simulations.",
-                "description": "Regularly test and revise contingency plans.",
-                "guidance": "Regularly simulate security incidents through tabletop exercises and live simulations to test your organization's incident response plan. These exercises help identify weaknesses, improve communication, and refine procedures.  Simulations ensure staff understand their roles and can effectively react to actual threats.  Analyze the results of each exercise to update plans and improve security posture. This proactive approach strengthens defenses against data breaches and protects patient information."
-            }
-        ]
-    },
-    {
-        "name": "Application and Data Criticality Analysis",
-        "description": "Assess the importance of applications and data to prioritize recovery.",
-        "guidance": "Rank systems by criticality and establish recovery priorities.",
-        "ref_code": "164.308(a)(7)(ii)(E)",
-        "subcategory": "Application and Data Criticality Analysis",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.308(a)(7)(ii)(E)",
-                "name": "Rank systems and establish a tiered recovery plan.",
-                "description": "Assess the importance of applications and data for recovery prioritization.",
-                "guidance": "Prioritize systems by their criticality to operations. Create distinct recovery tiers based on this ranking.  Document recovery procedures for each tier, specifying recovery time objectives.  Test these plans regularly to ensure effectiveness. This ensures business continuity by focusing recovery efforts where they're most needed."
-            }
-        ]
-    },
-    {
-        "name": "Evaluation",
-        "description": "Conduct periodic evaluations to ensure security policies remain effective.",
-        "guidance": "Regularly assess your organization's security controls to ensure they're effective and up-to-date. This evaluation should include risk assessments, audits, and security testing. Document the findings and any needed improvements. Implement the necessary changes promptly and re-evaluate to confirm effectiveness. Continuous monitoring and improvement are key.",
-        "ref_code": "164.308(a)(8)",
-        "subcategory": "Evaluation",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Business Associate Contracts and Other Arrangements",
-        "description": "Ensure business associates comply with security requirements.",
-        "guidance": "Ensure all Business Associates (BAs) sign a Business Associate Agreement (BAA) before accessing or handling Protected Health Information (PHI). The BAA must outline how the BA will protect PHI, including specific security safeguards. Regularly review and update BAAs to reflect changes in regulations and services. Verify BA compliance with the BAA through audits and ongoing monitoring. Maintain thorough records of all BAAs and related activities.",
-        "ref_code": "164.308(b)(1)",
-        "subcategory": "Business Associate Contracts and Other Arrangements",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Written Contract or Other Arrangement",
-        "description": "Obtain documented assurances from business associates.",
-        "guidance": "Ensure a Business Associate Agreement (BAA) is in place before sharing protected health information (PHI) with any third party. The BAA must outline permitted uses, required safeguards, and breach notification responsibilities. Review and update BAAs regularly to reflect changes in services or regulations. Maintain documented proof of these agreements. Failure to comply can result in significant penalties.",
-        "ref_code": "164.308(b)(4)",
-        "subcategory": "Written Contract or Other Arrangement",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Facility Access Controls",
-        "description": "Implement physical security measures to limit access to facilities.",
-        "guidance": "Use biometric access controls and security monitoring.",
-        "ref_code": "164.310(a)(1)",
-        "subcategory": "Facility Access Controls",
-        "category": "Physical",
-        "subcontrols": [
-            {
-                "ref_code": "164.310(a)(1)",
-                "name": "Use security badges, keycard access, and surveillance.",
-                "description": "Implement physical controls to limit access to facilities housing ePHI.",
-                "guidance": "Implement physical access controls like badges and keycards to restrict entry to protected areas. Combine this with video surveillance to monitor and record activity. These measures help identify and deter unauthorized access, enhancing the security of sensitive health information. Review and update access permissions regularly."
-            }
-        ]
-    },
-    {
-        "name": "Contingency Operations",
-        "description": "Ensure facility access in support of disaster recovery and emergency mode operations.",
-        "guidance": "Ensure business continuity by planning for data and system recovery after disruptions. Develop and test backup procedures, disaster recovery plans, and data restoration strategies. Establish offsite storage for critical data and maintain documented procedures. Regularly review and update contingency plans to address evolving threats and vulnerabilities.",
-        "ref_code": "164.310(a)(2)(i)",
-        "subcategory": "Contingency Operations",
-        "category": "Physical",
-        "subcontrols": []
-    },
-    {
-        "name": "Facility Security Plan",
-        "description": "Implement safeguards to protect facilities and equipment from unauthorized access, tampering, and theft.",
-        "guidance": "Develop and maintain a written Facility Security Plan outlining physical safeguards for protected health information (PHI). The plan should address access controls, workstation security, and environmental factors. Regularly review and update the plan to reflect changes in the facility or security threats. Implement the plan and train personnel on its protocols to ensure PHI confidentiality, integrity, and availability. Ensure proper disposal of PHI-containing media.",
-        "ref_code": "164.310(a)(2)(ii)",
-        "subcategory": "Facility Security Plan",
-        "category": "Physical",
-        "subcontrols": []
-    },
-    {
-        "name": "Access Control and Validation Procedures",
-        "description": "Establish procedures to control and validate facility access based on roles.",
-        "guidance": "Implement strong access controls, like unique user IDs and strong passwords, to restrict data access to authorized individuals only.  Regularly validate these controls to ensure they are effective, reviewing and revoking access as needed.  Establish clear procedures for granting, modifying, and terminating user access.  Utilize multi-factor authentication for enhanced security. Document these procedures and regularly audit access logs for compliance.",
-        "ref_code": "164.310(a)(2)(iii)",
-        "subcategory": "Access Control and Validation Procedures",
-        "category": "Physical",
-        "subcontrols": []
-    },
-    {
-        "name": "Maintenance Records",
-        "description": "Document repairs and modifications to physical security components.",
-        "guidance": "Maintain thorough records of all maintenance activities performed on hardware and software systems. Document the date, time, and nature of the maintenance, including any updates, patches, or repairs. These records demonstrate compliance and assist with identifying and resolving potential security vulnerabilities. Securely store these records, allowing authorized personnel access only.",
-        "ref_code": "164.310(a)(2)(iv)",
-        "subcategory": "Maintenance Records",
-        "category": "Physical",
-        "subcontrols": []
-    },
-    {
-        "name": "Workstation Use",
-        "description": "Define appropriate use of workstations handling ePHI.",
-        "guidance": "Implement screen lock policies and designated workstation areas.",
-        "ref_code": "164.310(b)",
-        "subcategory": "Workstation Use",
-        "category": "Physical",
-        "subcontrols": [
-            {
-                "ref_code": "164.310(b)",
-                "name": "Implement policies restricting personal use and ensuring workstations are locked when unattended.",
-                "description": "Define appropriate workstation use policies.",
-                "guidance": "To protect patient data, establish clear policies limiting personal use of all workstations.  Enforce strong passwords and automatic screen locking.  Ensure all users understand the importance of securing their devices. Regularly review and update these policies to address emerging threats.  Implement monitoring to ensure compliance."
-            }
-        ]
-    },
-    {
-        "name": "Workstation Security",
-        "description": "Implement safeguards to restrict unauthorized access.",
-        "guidance": "Use locked workstations and enforce least privilege access.",
-        "ref_code": "164.310(c)",
-        "subcategory": "Workstation Security",
-        "category": "Physical",
-        "subcontrols": [
-            {
-                "ref_code": "164.310(c)",
-                "name": "Use privacy screens, locked workstation areas, and access restrictions.",
-                "description": "Implement safeguards to restrict physical access to workstations handling ePHI.",
-                "guidance": "Protect electronic Protected Health Information (ePHI) by limiting access to authorized personnel only. Implement privacy screens to prevent unauthorized viewing of sensitive data. Secure workstations with locks and restrict physical access to these areas. Enforce strong password policies and two-factor authentication. Regularly audit access logs to maintain data security."
-            }
-        ]
-    },
-    {
-        "name": "Device and Media Controls",
-        "description": "Implement policies for secure disposal and reuse of media.",
-        "guidance": "Use encrypted storage and secure destruction methods.",
-        "ref_code": "164.310(d)(1)",
-        "subcategory": "Device and Media Controls",
-        "category": "Physical",
-        "subcontrols": [
-            {
-                "ref_code": "164.310(d)(1)",
-                "name": "Use asset tracking and secure disposal policies.",
-                "description": "Implement procedures for receiving, removing, and tracking devices containing ePHI.",
-                "guidance": "Implement robust asset tracking to monitor all devices and media containing protected health information (PHI). Develop and enforce secure disposal policies that include data sanitization before discarding or repurposing assets. These policies should adhere to established guidelines and document the disposal process. Ensure all employees are trained on these procedures to maintain PHI confidentiality. Properly managing assets is crucial for HIPAA compliance and patient data protection."
-            }
-        ]
-    },
-    {
-        "name": "Disposal",
-        "description": "Implement policies to properly dispose of ePHI and related hardware/media.",
-        "guidance": "Properly dispose of protected health information (PHI) to prevent unauthorized access. This includes shredding paper documents, wiping or destroying electronic media. Ensure methods render PHI irretrievable. Maintain documentation of disposal procedures. Finally, follow organizational policies and relevant regulations.",
-        "ref_code": "164.310(d)(2)(i)",
-        "subcategory": "Disposal",
-        "category": "Physical",
-        "subcontrols": []
-    },
-    {
-        "name": "Media Re-Use",
-        "description": "Ensure ePHI is removed before reusing media.",
-        "guidance": "Ensure media containing PHI is sanitized before reuse or disposal. This includes overwriting, degaussing, or physical destruction. Document your media sanitization procedures and maintain an inventory of media. Train staff on proper media handling and disposal to protect sensitive patient information. Failing to properly handle media can lead to serious HIPAA violations.",
-        "ref_code": "164.310(d)(2)(ii)",
-        "subcategory": "Media Re-Use",
-        "category": "Physical",
-        "subcontrols": []
-    },
-    {
-        "name": "Accountability",
-        "description": "Maintain a record of device movement and personnel responsible.",
-        "guidance": "Establish clear roles and responsibilities for protecting protected health information (PHI). Implement audit trails to track access and changes to PHI. Regularly review and update security policies and procedures. Train employees on HIPAA security requirements and enforce sanctions for violations. Document all security-related activities for accountability and compliance.",
-        "ref_code": "164.310(d)(2)(iii)",
-        "subcategory": "Accountability",
-        "category": "Physical",
-        "subcontrols": []
-    },
-    {
-        "name": "Data Backup and Storage",
-        "description": "Create exact copies of ePHI before relocating or transferring devices.",
-        "guidance": "Regularly back up all electronic protected health information (ePHI) to a secure location. Implement secure storage practices, including encryption and access controls, to protect backups. Test your backup and recovery processes periodically to ensure data integrity and accessibility. Keep backup copies separate from the original ePHI. Destruction of backups is required when ePHI is no longer needed.",
-        "ref_code": "164.310(d)(2)(iv)",
-        "subcategory": "Data Backup and Storage",
-        "category": "Physical",
-        "subcontrols": []
-    },
-    {
-        "name": "Access Control",
-        "description": "Implement technical measures to allow only authorized users access to ePHI.",
-        "guidance": "Use unique user IDs, multi-factor authentication (MFA), and access logging.",
-        "ref_code": "164.312(a)(1)",
-        "subcategory": "Access Control",
-        "category": "Technical",
-        "subcontrols": [
-            {
-                "ref_code": "164.312(a)(1)",
-                "name": "Use role-based access controls and least privilege principles.",
-                "description": "Implement technical policies to restrict access to ePHI.",
-                "guidance": "Implement role-based access to limit system access based on job duties. Grant users the minimum necessary permissions (least privilege) required to perform their tasks. Regularly review and adjust access rights to ensure continued appropriateness. This protects sensitive information by restricting potential exposure."
-            }
-        ]
-    },
-    {
-        "name": "Unique User Identification",
-        "description": "Assign a unique name or number for identifying users.",
-        "guidance": "Implement a system that assigns a unique identifier to each authorized user. These identifiers are essential for tracking user activity and ensuring accountability.  Strong authentication methods, like passwords or multi-factor authentication, should be used.  Regularly review and update user access rights to prevent unauthorized access. This helps protect the confidentiality, integrity, and availability of protected health information (PHI).",
-        "ref_code": "164.312(a)(2)(i)",
-        "subcategory": "Unique User Identification",
-        "category": "Technical",
-        "subcontrols": []
-    },
-    {
-        "name": "Emergency Access Procedure",
-        "description": "Establish procedures for accessing ePHI in emergencies.",
-        "guidance": "Establish a clear procedure for authorized personnel to access patient information during emergencies, even if normal security measures are temporarily unavailable. This procedure should specify who can access what information, the process for documenting access, and steps for restoring normal security as soon as possible. Train staff on the emergency access procedure and regularly test its effectiveness to ensure data protection and patient care are maintained. This includes defining specific emergency scenarios and corresponding access protocols.",
-        "ref_code": "164.312(a)(2)(ii)",
-        "subcategory": "Emergency Access Procedure",
-        "category": "Technical",
-        "subcontrols": []
-    },
-    {
-        "name": "Automatic Logoff",
-        "description": "Terminate user sessions after inactivity.",
-        "guidance": "Implement automatic logoff to protect patient data. Configure systems to automatically end user sessions after a period of inactivity. This reduces the risk of unauthorized access if a user leaves a device unattended. Ensure the logoff timer is reasonable and aligned with your organization's policy. Regularly review and update the logoff settings as needed.",
-        "ref_code": "164.312(a)(2)(iii)",
-        "subcategory": "Automatic Logoff",
-        "category": "Technical",
-        "subcontrols": []
-    },
-    {
-        "name": "Encryption and Decryption",
-        "description": "Implement encryption and decryption mechanisms.",
-        "guidance": "Implement encryption and decryption to protect sensitive health information (PHI) both in transit and at rest. Utilize strong, industry-standard encryption algorithms. Manage encryption keys securely, ensuring their confidentiality and integrity. Document your encryption policies, procedures, and key management practices. Regularly review and update your encryption methods to address evolving threats.",
-        "ref_code": "164.312(a)(2)(iv)",
-        "subcategory": "Encryption and Decryption",
-        "category": "Technical",
-        "subcontrols": []
-    },
-    {
-        "name": "Audit Controls",
+        "guidance": "This control focuses on proactively safeguarding patient data. First, identify potential vulnerabilities through regular risk assessments. Then, develop and implement strategies to manage these risks.  Establish clear sanctions for security breaches, and finally, continuously monitor system activity to detect and address any new threats or policy violations."
+      },
+      {
+        "ref_code": "164.308_a_1.b",
+        "name": "Establish a security governance framework and monitoring processes.",
+        "description": "Implement policies and procedures to prevent, detect, contain, and correct security violations.",
+        "guidance": "Develop a comprehensive security governance framework outlining policies and procedures for managing information security.  Implement robust monitoring systems to track compliance and detect vulnerabilities.  Regularly review and update the framework based on audit findings and risk assessments. Establish reporting mechanisms for security incidents and progress.  Ensure the framework is understood and followed by all workforce members."
+      }
+    ]
+  },
+  {
+    "name": "Risk Analysis",
+    "description": "Assess potential risks and vulnerabilities to ePHI confidentiality, integrity, and availability.",
+    "guidance": "Perform a formal risk analysis to identify threats and vulnerabilities.",
+    "ref_code": "164.308_a_1_ii_A",
+    "subcategory": "Risk Analysis",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_1_ii_A.a",
+        "name": "Perform a security risk assessment using frameworks such as NIST 800-30.",
+        "description": "Conduct an accurate and thorough assessment of risks to ePHI.",
+        "guidance": "Conduct a thorough security risk assessment using a recognized framework like NIST 800-30. This process identifies vulnerabilities and threats to protected health information (PHI). Analyze the likelihood and impact of potential breaches, documenting all findings. Implement appropriate safeguards to mitigate identified risks and protect patient data. Regularly review and update the assessment."
+      }
+    ]
+  },
+  {
+    "name": "Risk Management",
+    "description": "Implement security measures to reduce risks to a reasonable level.",
+    "guidance": "Use risk mitigation strategies like access controls and regular system audits.",
+    "ref_code": "164.308_a_1_ii_B",
+    "subcategory": "Risk Management",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_1_ii_B.a",
+        "name": "Develop a risk management plan and implement security controls.",
+        "description": "Implement security measures to reduce risks to a reasonable and appropriate level.",
+        "guidance": "Begin by identifying and assessing all potential risks to protected health information.  Develop a comprehensive plan that outlines specific security controls to mitigate those identified risks.  Implement these controls, which may include technical, administrative, and physical safeguards. Regularly monitor the effectiveness of your controls and update the plan as needed. This ensures ongoing protection of patient data and compliance with HIPAA regulations."
+      }
+    ]
+  },
+  {
+    "name": "Sanction Policy",
+    "description": "Apply appropriate sanctions for workforce members who fail to comply with security policies.",
+    "guidance": "Establish and enforce a formal sanction policy for workforce members who violate HIPAA security policies. This policy should detail consequences, ranging from warnings to termination, proportionate to the severity of the violation. Clearly communicate the policy to all workforce members and ensure consistent application. Regular training and reminders will reinforce the importance of adherence. Document all sanctions administered and any corrective actions taken.",
+    "ref_code": "164.308_a_1_ii_C",
+    "subcategory": "Sanction Policy",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Information System Activity Review",
+    "description": "Regularly review audit logs, access reports, and security incident tracking.",
+    "guidance": "Regularly review system logs and audit trails. Scrutinize user activity, including access logs, to identify potential security breaches or policy violations. This includes examining successful and unsuccessful access attempts. Document findings and take corrective actions promptly. Schedule reviews frequently, based on the sensitivity of the data and potential risk.",
+    "ref_code": "164.308_a_1_ii_D",
+    "subcategory": "Information System Activity Review",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Assigned Security Responsibility",
+    "description": "Identify a security official responsible for the development and implementation of policies and procedures.",
+    "guidance": "Appoint a Chief Security Officer or Compliance Manager.",
+    "ref_code": "164.308_a_2",
+    "subcategory": "Assigned Security Responsibility",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_2.a",
+        "name": "Appoint a Chief Security Officer or equivalent role.",
+        "description": "Designate a security official responsible for policy implementation.",
+        "guidance": "Appoint a dedicated individual, such as a Chief Security Officer (CSO), to oversee your organization's HIPAA security program. This person is responsible for developing, implementing, and maintaining security policies and procedures.  They should be knowledgeable about HIPAA requirements and cybersecurity best practices.  The CSO ensures safeguards are in place to protect electronic protected health information (ePHI). This crucial role mitigates risks and ensures regulatory compliance."
+      }
+    ]
+  },
+  {
+    "name": "Workforce Security",
+    "description": "Ensure employees have appropriate access to ePHI.",
+    "guidance": "Implement access control procedures and clearance processes.",
+    "ref_code": "164.308_a_3",
+    "subcategory": "Workforce Security",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_3.a",
+        "name": "Implement least privilege access controls.",
+        "description": "Ensure workforce members have appropriate access to ePHI and unauthorized individuals do not.",
+        "guidance": "Grant users only the minimum necessary access rights (e.g., read, write, delete) to perform their job functions. Regularly review and adjust access permissions to prevent unauthorized data access. Implement role-based access controls for efficient management.  Segregate duties where appropriate to further reduce risk.  This protects sensitive patient information from unauthorized disclosure or modification."
+      }
+    ]
+  },
+  {
+    "name": "Authorization and/or Supervision",
+    "description": "Authorize and/or supervise workforce members who access ePHI.",
+    "guidance": "To comply with the HIPAA security control of Authorization and/or Supervision, grant access rights based on job roles and responsibilities. Regularly review and update user permissions to maintain the principle of least privilege. Supervise workforce members to ensure they follow established security policies and procedures. Document all access authorizations and supervisory actions. Provide regular training on security protocols.",
+    "ref_code": "164.308_a_3_ii_A",
+    "subcategory": "Authorization and/or Supervision",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Workforce Clearance Procedure",
+    "description": "Ensure workforce members granted ePHI access are appropriate.",
+    "guidance": "Establish a clear process for verifying the identity, qualifications, and background of all workforce members before granting access to protected health information (PHI). This should include background checks and verification of credentials. Document the clearance process and maintain records of each workforce member's clearance. Regularly re-evaluate workforce members' clearance to ensure continued suitability and compliance. Training on HIPAA and security policies is also crucial.",
+    "ref_code": "164.308_a_3_ii_B",
+    "subcategory": "Workforce Clearance Procedure",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Termination Procedures",
+    "description": "Remove access privileges when employment or authorization ends.",
+    "guidance": "When an employee's access to protected health information (PHI) ends, promptly revoke all system and physical access. Remove or disable all login credentials and access badges. Ensure data is securely archived or deleted as appropriate. Document the termination process and confirm access removal to maintain HIPAA compliance.",
+    "ref_code": "164.308_a_3_ii_C",
+    "subcategory": "Termination Procedures",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Information Access Management",
+    "description": "Limit ePHI access to only those required for job functions.",
+    "guidance": "Use role-based access control (RBAC).",
+    "ref_code": "164.308_a_4",
+    "subcategory": "Information Access Management",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_4.a",
+        "name": "Use role-based access controls (RBAC).",
+        "description": "Implement policies for authorizing ePHI access consistent with the Privacy Rule.",
+        "guidance": "Implement RBAC to restrict access to protected health information (PHI) based on job roles. Define roles and assign permissions accordingly, granting only the necessary access for each role. Regularly review and update role assignments to ensure continued adherence to the principle of least privilege. This minimizes the risk of unauthorized PHI disclosure and maintains compliance."
+      }
+    ]
+  },
+  {
+    "name": "Isolating Health Care Clearinghouse Functions",
+    "description": "Protect ePHI of health care clearinghouses within larger organizations.",
+    "guidance": "To secure Protected Health Information (PHI), segregate health care clearinghouse (HCH) functions onto a separate network. This isolation minimizes the attack surface, preventing breaches that could expose sensitive data. Restrict network access and implement strong authentication controls to protect HCH systems. Regular security audits and vulnerability scans are crucial to maintain isolation effectiveness. Ensure compliance by documenting and reviewing all implemented safeguards.",
+    "ref_code": "164.308_a_4_ii_A",
+    "subcategory": "Isolating Health Care Clearinghouse Functions",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Access Authorization",
+    "description": "Define policies and procedures for granting ePHI access.",
+    "guidance": "Require documented approvals for access grants.",
+    "ref_code": "164.308_a_4_ii_B",
+    "subcategory": "Access Authorization",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_4_ii_B.a",
+        "name": "Use IAM tools to enforce access control policies.",
+        "description": "Establish, document, review, and modify user access rights.",
+        "guidance": "Implement robust Identity and Access Management (IAM) tools to safeguard Protected Health Information (PHI).  These tools are critical for defining and enforcing granular access control policies.  Regularly review and update access permissions based on the principle of least privilege.  Automate access control processes whenever possible to ensure consistency and efficiency.  This minimizes unauthorized access and helps maintain HIPAA compliance."
+      }
+    ]
+  },
+  {
+    "name": "Security Awareness and Training",
+    "description": "Train employees on security risks and best practices.",
+    "guidance": "Conduct phishing simulations and cybersecurity training.",
+    "ref_code": "164.308_a_5",
+    "subcategory": "Security Awareness and Training",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_5.a",
+        "name": "Conduct periodic security training and awareness campaigns.",
+        "description": "Implement a training program for all workforce members on security.",
+        "guidance": "Regularly educate your workforce on HIPAA security. This includes training on policies, procedures, and threats. Conduct ongoing awareness campaigns to reinforce key concepts. Document all training activities. Consistent education helps prevent breaches and protects patient information."
+      }
+    ]
+  },
+  {
+    "name": "Security Reminders",
+    "description": "Implement periodic security updates.",
+    "guidance": "Implement regular security awareness training for all workforce members. Provide consistent reminders about security policies, procedures, and best practices. These reminders should be tailored to relevant threats and vulnerabilities. Use a variety of methods, like email, posters, and intranet alerts.  Document all training and reminder activities.",
+    "ref_code": "164.308_a_5_ii_A",
+    "subcategory": "Security Reminders",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Protection from Malicious Software",
+    "description": "Implement measures to detect and report malicious software.",
+    "guidance": "Implement robust anti-malware software, regularly updated and actively scanning systems. Train employees to recognize and avoid phishing attacks and suspicious links.  Enforce strong access controls and prevent unauthorized software installations. Back up data frequently to enable recovery from infections. Regularly audit and assess your defenses against malicious software.",
+    "ref_code": "164.308_a_5_ii_B",
+    "subcategory": "Protection from Malicious Software",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Log-in Monitoring",
+    "description": "Monitor log-in attempts and discrepancies.",
+    "guidance": "Implement log-in monitoring to track user access attempts and activities. Review logs regularly for suspicious patterns like failed log-ins, unusual access times, or attempts to access sensitive data. Utilize automated alerts to notify security personnel of potential breaches. This helps detect and prevent unauthorized access to protected health information.",
+    "ref_code": "164.308_a_5_ii_C",
+    "subcategory": "Log-in Monitoring",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Password Management",
+    "description": "Establish policies for creating, changing, and safeguarding passwords.",
+    "guidance": "Implement strong password policies, requiring complex, regularly changed passwords.  Enforce password protection during storage and transmission.  Use multi-factor authentication where feasible.  Regularly audit and review password practices for compliance and vulnerability. Consider password managers to enhance security and usability.",
+    "ref_code": "164.308_a_5_ii_D",
+    "subcategory": "Password Management",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Security Incident Procedures",
+    "description": "Establish procedures for responding to security incidents.",
+    "guidance": "Develop an incident response plan and reporting process.",
+    "ref_code": "164.308_a_6",
+    "subcategory": "Security Incident Procedures",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_6.a",
+        "name": "Develop an incident response plan and reporting mechanisms.",
+        "description": "Implement policies for addressing security incidents.",
+        "guidance": "Develop a detailed plan outlining steps to identify, contain, and recover from security incidents. Establish clear procedures for reporting all breaches and security events. Include contact information for responsible parties and regulatory bodies. Regularly test the plan's effectiveness through simulations. This ensures prompt and appropriate responses to protect patient data."
+      }
+    ]
+  },
+  {
+    "name": "Response and Reporting",
+    "description": "Identify, respond to, and mitigate security incidents.",
+    "guidance": "When a security incident occurs, promptly contain the breach and assess its impact.  Report the incident to the appropriate internal parties and, if required, to the Department of Health and Human Services (HHS). Thoroughly document all aspects of the incident, from detection to resolution, and analyze the event to prevent future occurrences. Finally, provide notification to affected individuals if their protected health information (PHI) was compromised, as legally required.",
+    "ref_code": "164.308_a_6_ii",
+    "subcategory": "Response and Reporting",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Contingency Plan",
+    "description": "Establish and implement policies for responding to emergencies.",
+    "guidance": "Develop data backup, disaster recovery, and emergency operations plans.",
+    "ref_code": "164.308_a_7",
+    "subcategory": "Contingency Plan",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_7.a",
+        "name": "Develop disaster recovery and business continuity plans.",
+        "description": "Implement policies to maintain ePHI availability during emergencies.",
+        "guidance": "Develop thorough plans to ensure protected health information (PHI) remains accessible and operations can continue during and after disruptive events.  These plans should outline data backup, restoration, and recovery procedures, detailing roles and responsibilities.  Regularly test and update the plans to ensure effectiveness.  Address both natural disasters and system failures. Maintain accessibility and confidentiality of PHI at all times."
+      },
+      {
+        "ref_code": "164.308_a_7.b",
+        "name": "Test disaster recovery and business continuity plans.",
+        "description": "Establish and implement contingency plans for emergencies.",
+        "guidance": "Regularly test your disaster recovery and business continuity plans to ensure their effectiveness.  Simulate disruptions to identify weaknesses and validate recovery procedures.  Document testing results and address any identified gaps promptly.  Update plans based on test outcomes and changing organizational needs. Testing minimizes downtime and protects patient data during emergencies."
+      }
+    ]
+  },
+  {
+    "name": "Data Backup Plan",
+    "description": "Create and maintain retrievable copies of ePHI.",
+    "guidance": "Use offsite and cloud-based backup solutions.",
+    "ref_code": "164.308_a_7_ii_A",
+    "subcategory": "Data Backup Plan",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_7_ii_A.a",
+        "name": "Use encrypted backups and offsite storage solutions.",
+        "description": "Maintain retrievable copies of ePHI for data recovery.",
+        "guidance": "Encrypt all backup data to protect patient information from unauthorized access.  Store backups offsite, separate from your primary systems, in a secure location.  Regularly test data restoration to ensure backups are working correctly.  This safeguards against data breaches from theft, disasters, and ransomware attacks.  Choose reputable vendors with robust security measures."
+      }
+    ]
+  },
+  {
+    "name": "Disaster Recovery Plan",
+    "description": "Implement procedures to restore data after a loss.",
+    "guidance": "Develop and test disaster recovery processes.",
+    "ref_code": "164.308_a_7_ii_B",
+    "subcategory": "Disaster Recovery Plan",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_7_ii_B.a",
+        "name": "Develop a structured disaster recovery process with testing.",
+        "description": "Implement procedures to restore ePHI after a loss.",
+        "guidance": "Develop a comprehensive disaster recovery plan to ensure business operations can resume quickly after a disruption. The plan must outline procedures for data backup, system recovery, and communication protocols. Regularly test the plan's effectiveness through simulated disaster scenarios. This ensures your organization can adequately respond to real-world events and protect sensitive health information. Document all testing results and update the plan as needed."
+      }
+    ]
+  },
+  {
+    "name": "Emergency Mode Operation Plan",
+    "description": "Maintain critical security operations during emergencies.",
+    "guidance": "Implement backup power and failover systems.",
+    "ref_code": "164.308_a_7_ii_C",
+    "subcategory": "Emergency Mode Operation Plan",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_7_ii_C.a",
+        "name": "Use failover systems and alternate communication methods.",
+        "description": "Ensure operations continue in case of an emergency.",
+        "guidance": "Implement backup systems and communication channels to ensure continued access to protected health information (PHI). Regularly test these failover systems and methods to verify functionality. Maintain documented procedures outlining how to switch to and utilize backups. This ensures business continuity and protects PHI availability during disruptions."
+      }
+    ]
+  },
+  {
+    "name": "Testing and Revision Procedures",
+    "description": "Periodically test and revise contingency plans.",
+    "guidance": "Conduct regular disaster recovery tests.",
+    "ref_code": "164.308_a_7_ii_D",
+    "subcategory": "Testing and Revision Procedures",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_7_ii_D.a",
+        "name": "Conduct tabletop exercises and live simulations.",
+        "description": "Regularly test and revise contingency plans.",
+        "guidance": "Regularly simulate security incidents through tabletop exercises and live simulations to test your organization's incident response plan. These exercises help identify weaknesses, improve communication, and refine procedures.  Simulations ensure staff understand their roles and can effectively react to actual threats.  Analyze the results of each exercise to update plans and improve security posture. This proactive approach strengthens defenses against data breaches and protects patient information."
+      }
+    ]
+  },
+  {
+    "name": "Application and Data Criticality Analysis",
+    "description": "Assess the importance of applications and data to prioritize recovery.",
+    "guidance": "Rank systems by criticality and establish recovery priorities.",
+    "ref_code": "164.308_a_7_ii_E",
+    "subcategory": "Application and Data Criticality Analysis",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.308_a_7_ii_E.a",
+        "name": "Rank systems and establish a tiered recovery plan.",
+        "description": "Assess the importance of applications and data for recovery prioritization.",
+        "guidance": "Prioritize systems by their criticality to operations. Create distinct recovery tiers based on this ranking.  Document recovery procedures for each tier, specifying recovery time objectives.  Test these plans regularly to ensure effectiveness. This ensures business continuity by focusing recovery efforts where they're most needed."
+      }
+    ]
+  },
+  {
+    "name": "Evaluation",
+    "description": "Conduct periodic evaluations to ensure security policies remain effective.",
+    "guidance": "Regularly assess your organization's security controls to ensure they're effective and up-to-date. This evaluation should include risk assessments, audits, and security testing. Document the findings and any needed improvements. Implement the necessary changes promptly and re-evaluate to confirm effectiveness. Continuous monitoring and improvement are key.",
+    "ref_code": "164.308_a_8",
+    "subcategory": "Evaluation",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Business Associate Contracts and Other Arrangements",
+    "description": "Ensure business associates comply with security requirements.",
+    "guidance": "Ensure all Business Associates (BAs) sign a Business Associate Agreement (BAA) before accessing or handling Protected Health Information (PHI). The BAA must outline how the BA will protect PHI, including specific security safeguards. Regularly review and update BAAs to reflect changes in regulations and services. Verify BA compliance with the BAA through audits and ongoing monitoring. Maintain thorough records of all BAAs and related activities.",
+    "ref_code": "164.308_b_1",
+    "subcategory": "Business Associate Contracts and Other Arrangements",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Written Contract or Other Arrangement",
+    "description": "Obtain documented assurances from business associates.",
+    "guidance": "Ensure a Business Associate Agreement (BAA) is in place before sharing protected health information (PHI) with any third party. The BAA must outline permitted uses, required safeguards, and breach notification responsibilities. Review and update BAAs regularly to reflect changes in services or regulations. Maintain documented proof of these agreements. Failure to comply can result in significant penalties.",
+    "ref_code": "164.308_b_4",
+    "subcategory": "Written Contract or Other Arrangement",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Facility Access Controls",
+    "description": "Implement physical security measures to limit access to facilities.",
+    "guidance": "Use biometric access controls and security monitoring.",
+    "ref_code": "164.310_a_1",
+    "subcategory": "Facility Access Controls",
+    "category": "Physical",
+    "subcontrols": [
+      {
+        "ref_code": "164.310_a_1.a",
+        "name": "Use security badges, keycard access, and surveillance.",
+        "description": "Implement physical controls to limit access to facilities housing ePHI.",
+        "guidance": "Implement physical access controls like badges and keycards to restrict entry to protected areas. Combine this with video surveillance to monitor and record activity. These measures help identify and deter unauthorized access, enhancing the security of sensitive health information. Review and update access permissions regularly."
+      }
+    ]
+  },
+  {
+    "name": "Contingency Operations",
+    "description": "Ensure facility access in support of disaster recovery and emergency mode operations.",
+    "guidance": "Ensure business continuity by planning for data and system recovery after disruptions. Develop and test backup procedures, disaster recovery plans, and data restoration strategies. Establish offsite storage for critical data and maintain documented procedures. Regularly review and update contingency plans to address evolving threats and vulnerabilities.",
+    "ref_code": "164.310_a_2_i",
+    "subcategory": "Contingency Operations",
+    "category": "Physical",
+    "subcontrols": []
+  },
+  {
+    "name": "Facility Security Plan",
+    "description": "Implement safeguards to protect facilities and equipment from unauthorized access, tampering, and theft.",
+    "guidance": "Develop and maintain a written Facility Security Plan outlining physical safeguards for protected health information (PHI). The plan should address access controls, workstation security, and environmental factors. Regularly review and update the plan to reflect changes in the facility or security threats. Implement the plan and train personnel on its protocols to ensure PHI confidentiality, integrity, and availability. Ensure proper disposal of PHI-containing media.",
+    "ref_code": "164.310_a_2_ii",
+    "subcategory": "Facility Security Plan",
+    "category": "Physical",
+    "subcontrols": []
+  },
+  {
+    "name": "Access Control and Validation Procedures",
+    "description": "Establish procedures to control and validate facility access based on roles.",
+    "guidance": "Implement strong access controls, like unique user IDs and strong passwords, to restrict data access to authorized individuals only.  Regularly validate these controls to ensure they are effective, reviewing and revoking access as needed.  Establish clear procedures for granting, modifying, and terminating user access.  Utilize multi-factor authentication for enhanced security. Document these procedures and regularly audit access logs for compliance.",
+    "ref_code": "164.310_a_2_iii",
+    "subcategory": "Access Control and Validation Procedures",
+    "category": "Physical",
+    "subcontrols": []
+  },
+  {
+    "name": "Maintenance Records",
+    "description": "Document repairs and modifications to physical security components.",
+    "guidance": "Maintain thorough records of all maintenance activities performed on hardware and software systems. Document the date, time, and nature of the maintenance, including any updates, patches, or repairs. These records demonstrate compliance and assist with identifying and resolving potential security vulnerabilities. Securely store these records, allowing authorized personnel access only.",
+    "ref_code": "164.310_a_2_iv",
+    "subcategory": "Maintenance Records",
+    "category": "Physical",
+    "subcontrols": []
+  },
+  {
+    "name": "Workstation Use",
+    "description": "Define appropriate use of workstations handling ePHI.",
+    "guidance": "Implement screen lock policies and designated workstation areas.",
+    "ref_code": "164.310_b",
+    "subcategory": "Workstation Use",
+    "category": "Physical",
+    "subcontrols": [
+      {
+        "ref_code": "164.310_b.a",
+        "name": "Implement policies restricting personal use and ensuring workstations are locked when unattended.",
+        "description": "Define appropriate workstation use policies.",
+        "guidance": "To protect patient data, establish clear policies limiting personal use of all workstations.  Enforce strong passwords and automatic screen locking.  Ensure all users understand the importance of securing their devices. Regularly review and update these policies to address emerging threats.  Implement monitoring to ensure compliance."
+      }
+    ]
+  },
+  {
+    "name": "Workstation Security",
+    "description": "Implement safeguards to restrict unauthorized access.",
+    "guidance": "Use locked workstations and enforce least privilege access.",
+    "ref_code": "164.310_c",
+    "subcategory": "Workstation Security",
+    "category": "Physical",
+    "subcontrols": [
+      {
+        "ref_code": "164.310_c.a",
+        "name": "Use privacy screens, locked workstation areas, and access restrictions.",
+        "description": "Implement safeguards to restrict physical access to workstations handling ePHI.",
+        "guidance": "Protect electronic Protected Health Information (ePHI) by limiting access to authorized personnel only. Implement privacy screens to prevent unauthorized viewing of sensitive data. Secure workstations with locks and restrict physical access to these areas. Enforce strong password policies and two-factor authentication. Regularly audit access logs to maintain data security."
+      }
+    ]
+  },
+  {
+    "name": "Device and Media Controls",
+    "description": "Implement policies for secure disposal and reuse of media.",
+    "guidance": "Use encrypted storage and secure destruction methods.",
+    "ref_code": "164.310_d_1",
+    "subcategory": "Device and Media Controls",
+    "category": "Physical",
+    "subcontrols": [
+      {
+        "ref_code": "164.310_d_1.a",
+        "name": "Use asset tracking and secure disposal policies.",
+        "description": "Implement procedures for receiving, removing, and tracking devices containing ePHI.",
+        "guidance": "Implement robust asset tracking to monitor all devices and media containing protected health information (PHI). Develop and enforce secure disposal policies that include data sanitization before discarding or repurposing assets. These policies should adhere to established guidelines and document the disposal process. Ensure all employees are trained on these procedures to maintain PHI confidentiality. Properly managing assets is crucial for HIPAA compliance and patient data protection."
+      }
+    ]
+  },
+  {
+    "name": "Disposal",
+    "description": "Implement policies to properly dispose of ePHI and related hardware/media.",
+    "guidance": "Properly dispose of protected health information (PHI) to prevent unauthorized access. This includes shredding paper documents, wiping or destroying electronic media. Ensure methods render PHI irretrievable. Maintain documentation of disposal procedures. Finally, follow organizational policies and relevant regulations.",
+    "ref_code": "164.310_d_2_i",
+    "subcategory": "Disposal",
+    "category": "Physical",
+    "subcontrols": []
+  },
+  {
+    "name": "Media Re-Use",
+    "description": "Ensure ePHI is removed before reusing media.",
+    "guidance": "Ensure media containing PHI is sanitized before reuse or disposal. This includes overwriting, degaussing, or physical destruction. Document your media sanitization procedures and maintain an inventory of media. Train staff on proper media handling and disposal to protect sensitive patient information. Failing to properly handle media can lead to serious HIPAA violations.",
+    "ref_code": "164.310_d_2_ii",
+    "subcategory": "Media Re-Use",
+    "category": "Physical",
+    "subcontrols": []
+  },
+  {
+    "name": "Accountability",
+    "description": "Maintain a record of device movement and personnel responsible.",
+    "guidance": "Establish clear roles and responsibilities for protecting protected health information (PHI). Implement audit trails to track access and changes to PHI. Regularly review and update security policies and procedures. Train employees on HIPAA security requirements and enforce sanctions for violations. Document all security-related activities for accountability and compliance.",
+    "ref_code": "164.310_d_2_iii",
+    "subcategory": "Accountability",
+    "category": "Physical",
+    "subcontrols": []
+  },
+  {
+    "name": "Data Backup and Storage",
+    "description": "Create exact copies of ePHI before relocating or transferring devices.",
+    "guidance": "Regularly back up all electronic protected health information (ePHI) to a secure location. Implement secure storage practices, including encryption and access controls, to protect backups. Test your backup and recovery processes periodically to ensure data integrity and accessibility. Keep backup copies separate from the original ePHI. Destruction of backups is required when ePHI is no longer needed.",
+    "ref_code": "164.310_d_2_iv",
+    "subcategory": "Data Backup and Storage",
+    "category": "Physical",
+    "subcontrols": []
+  },
+  {
+    "name": "Access Control",
+    "description": "Implement technical measures to allow only authorized users access to ePHI.",
+    "guidance": "Use unique user IDs, multi-factor authentication (MFA), and access logging.",
+    "ref_code": "164.312_a_1",
+    "subcategory": "Access Control",
+    "category": "Technical",
+    "subcontrols": [
+      {
+        "ref_code": "164.312_a_1.a",
+        "name": "Use role-based access controls and least privilege principles.",
+        "description": "Implement technical policies to restrict access to ePHI.",
+        "guidance": "Implement role-based access to limit system access based on job duties. Grant users the minimum necessary permissions (least privilege) required to perform their tasks. Regularly review and adjust access rights to ensure continued appropriateness. This protects sensitive information by restricting potential exposure."
+      }
+    ]
+  },
+  {
+    "name": "Unique User Identification",
+    "description": "Assign a unique name or number for identifying users.",
+    "guidance": "Implement a system that assigns a unique identifier to each authorized user. These identifiers are essential for tracking user activity and ensuring accountability.  Strong authentication methods, like passwords or multi-factor authentication, should be used.  Regularly review and update user access rights to prevent unauthorized access. This helps protect the confidentiality, integrity, and availability of protected health information (PHI).",
+    "ref_code": "164.312_a_2_i",
+    "subcategory": "Unique User Identification",
+    "category": "Technical",
+    "subcontrols": []
+  },
+  {
+    "name": "Emergency Access Procedure",
+    "description": "Establish procedures for accessing ePHI in emergencies.",
+    "guidance": "Establish a clear procedure for authorized personnel to access patient information during emergencies, even if normal security measures are temporarily unavailable. This procedure should specify who can access what information, the process for documenting access, and steps for restoring normal security as soon as possible. Train staff on the emergency access procedure and regularly test its effectiveness to ensure data protection and patient care are maintained. This includes defining specific emergency scenarios and corresponding access protocols.",
+    "ref_code": "164.312_a_2_ii",
+    "subcategory": "Emergency Access Procedure",
+    "category": "Technical",
+    "subcontrols": []
+  },
+  {
+    "name": "Automatic Logoff",
+    "description": "Terminate user sessions after inactivity.",
+    "guidance": "Implement automatic logoff to protect patient data. Configure systems to automatically end user sessions after a period of inactivity. This reduces the risk of unauthorized access if a user leaves a device unattended. Ensure the logoff timer is reasonable and aligned with your organization's policy. Regularly review and update the logoff settings as needed.",
+    "ref_code": "164.312_a_2_iii",
+    "subcategory": "Automatic Logoff",
+    "category": "Technical",
+    "subcontrols": []
+  },
+  {
+    "name": "Encryption and Decryption",
+    "description": "Implement encryption and decryption mechanisms.",
+    "guidance": "Implement encryption and decryption to protect sensitive health information (PHI) both in transit and at rest. Utilize strong, industry-standard encryption algorithms. Manage encryption keys securely, ensuring their confidentiality and integrity. Document your encryption policies, procedures, and key management practices. Regularly review and update your encryption methods to address evolving threats.",
+    "ref_code": "164.312_a_2_iv",
+    "subcategory": "Encryption and Decryption",
+    "category": "Technical",
+    "subcontrols": []
+  },
+  {
+    "name": "Audit Controls",
+    "description": "Implement mechanisms to record and examine system activity.",
+    "guidance": "Use SIEM solutions and regular log reviews.",
+    "ref_code": "164.312_b",
+    "subcategory": "Audit Controls",
+    "category": "Technical",
+    "subcontrols": [
+      {
+        "ref_code": "164.312_b.a",
+        "name": "Use SIEM tools for logging and reviewing system events.",
         "description": "Implement mechanisms to record and examine system activity.",
-        "guidance": "Use SIEM solutions and regular log reviews.",
-        "ref_code": "164.312(b)",
-        "subcategory": "Audit Controls",
-        "category": "Technical",
-        "subcontrols": [
-            {
-                "ref_code": "164.312(b)",
-                "name": "Use SIEM tools for logging and reviewing system events.",
-                "description": "Implement mechanisms to record and examine system activity.",
-                "guidance": "Implement Security Information and Event Management (SIEM) tools to centrally collect and analyze system logs.  This allows for real-time monitoring and detection of security incidents and anomalies. Regularly review these logs to identify potential HIPAA violations, data breaches, or suspicious activities.  Automated alerts can quickly flag unusual events requiring investigation, bolstering data protection. Consistent SIEM usage strengthens your HIPAA compliance posture by ensuring accountability and visibility."
-            }
-        ]
-    },
-    {
-        "name": "Integrity",
-        "description": "Ensure ePHI is not altered or destroyed improperly.",
-        "guidance": "Use checksums, hashing, and database integrity constraints.",
-        "ref_code": "164.312(c)(1)",
-        "subcategory": "Integrity",
-        "category": "Technical",
-        "subcontrols": [
-            {
-                "ref_code": "164.312(c)(1)",
-                "name": "Use hashing algorithms and integrity checks.",
-                "description": "Protect ePHI from unauthorized alteration or destruction.",
-                "guidance": "Implement hashing algorithms to generate unique 'fingerprints' for protected health information (PHI). These fingerprints verify data hasn't been altered during storage or transmission. Regularly perform integrity checks by re-hashing data and comparing it to the original fingerprint. Discrepancies signal potential breaches or corruption. This safeguards the confidentiality and integrity of sensitive patient information."
-            }
-        ]
-    },
-    {
-        "name": "Mechanism to Authenticate ePHI",
-        "description": "Ensure ePHI is not improperly modified.",
-        "guidance": "Implement strong authentication methods like multi-factor authentication (MFA) for all systems accessing electronic protected health information (ePHI). Regularly review and update authentication protocols. Enforce strong password policies. Audit authentication attempts to detect and respond to unauthorized access. This safeguards patient data by verifying user identities.",
-        "ref_code": "164.312(c)(2)",
-        "subcategory": "Mechanism to Authenticate ePHI",
-        "category": "Technical",
-        "subcontrols": []
-    },
-    {
-        "name": "Person or Entity Authentication",
-        "description": "Verify the identity of users accessing ePHI.",
-        "guidance": "Use MFA and biometric authentication.",
-        "ref_code": "164.312(d)",
-        "subcategory": "Person or Entity Authentication",
-        "category": "Technical",
-        "subcontrols": [
-            {
-                "ref_code": "164.312(d)",
-                "name": "Implement multi-factor authentication (MFA).",
-                "description": "Verify that a person seeking access is the one claimed.",
-                "guidance": "Require at least two forms of authentication for system access. This includes something you know (password), something you have (token), or something you are (biometric). MFA greatly strengthens security by requiring verification from multiple factors. Implement MFA across all systems handling protected health information (PHI) to protect patient data from unauthorized access. Ensure MFA is user-friendly and regularly tested to ensure effectiveness."
-            }
-        ]
-    },
-    {
-        "name": "Transmission Security",
-        "description": "Implement measures to guard against unauthorized access during transmission.",
-        "guidance": "Use TLS encryption for data in transit.",
-        "ref_code": "164.312(e)(1)",
-        "subcategory": "Transmission Security",
-        "category": "Technical",
-        "subcontrols": [
-            {
-                "ref_code": "164.312(e)(1)",
-                "name": "Use encrypted VPNs and secure email gateways.",
-                "description": "Protect ePHI in transit over networks.",
-                "guidance": "Implement encrypted VPNs to secure remote access to your network. Utilize secure email gateways to protect sensitive information in transit. Encryption safeguards data confidentiality and integrity during transmission. This control minimizes the risk of unauthorized access and data breaches. Regularly update these systems for optimal security."
-            }
-        ]
-    },
-    {
-        "name": "Integrity Controls",
-        "description": "Ensure ePHI is not altered in transmission.",
-        "guidance": "Integrity controls ensure that electronic Protected Health Information (ePHI) is not altered or destroyed in an unauthorized manner. Implement mechanisms like checksums, version control, and audit trails to detect and prevent data manipulation. Regularly test these controls and promptly address any identified vulnerabilities. This safeguards the accuracy and reliability of patient data.",
-        "ref_code": "164.312(e)(2)(i)",
-        "subcategory": "Integrity Controls",
-        "category": "Technical",
-        "subcontrols": []
-    },
-    {
-        "name": "Encryption",
-        "description": "Encrypt ePHI during transmission when appropriate.",
-        "guidance": "Encryption protects sensitive information by scrambling it into an unreadable format. Implement encryption for data at rest (stored) and in transit (transmitted). Choose strong encryption algorithms and manage encryption keys securely. Ensure encryption is properly implemented and tested to meet HIPAA compliance. This safeguards patient data from unauthorized access and breaches.",
-        "ref_code": "164.312(e)(2)(ii)",
-        "subcategory": "Encryption",
-        "category": "Technical",
-        "subcontrols": []
-    },
-    {
-        "name": "Business Associate Contracts",
-        "description": "Ensure business associates implement security controls to protect ePHI.",
-        "guidance": "Ensure all agreements with business associates (BAs) include detailed HIPAA-compliant contracts. These contracts must outline permitted uses of protected health information (PHI), security safeguards, and breach notification responsibilities. Regularly review and update BA agreements to reflect changes in regulations or business practices. Verify BAs are adhering to the contract terms through audits and ongoing monitoring. Failing to secure compliant agreements can lead to significant penalties.",
-        "ref_code": "164.314(a)(1)",
-        "subcategory": "Business Associate Contracts",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Business Associate Contracts Requirements",
-        "description": "Ensure business associates protect ePHI confidentiality, integrity, and availability.",
-        "guidance": "Ensure all Business Associates (BAs) sign legally sound contracts guaranteeing HIPAA compliance. These contracts must outline permitted uses and disclosures of protected health information (PHI). Include provisions for breach notification, security safeguards, and return or destruction of PHI. Regularly review and update these contracts to reflect changes in regulations or business practices. This protects patient data and mitigates your organization's liability.",
-        "ref_code": "164.314(a)(2)(i)",
-        "subcategory": "Business Associate Contracts Requirements",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Other Arrangements",
-        "description": "Use alternative agreements for government entities in place of BAAs.",
-        "guidance": "The 'Other Arrangements' HIPAA security control requires covered entities to document and implement procedures for handling ePHI shared with third parties, like business associates. This includes establishing written agreements outlining security responsibilities. These agreements should detail data protection standards and procedures for data breaches. Ensure these arrangements align with all other HIPAA security rule requirements.",
-        "ref_code": "164.314(a)(2)(ii)",
-        "subcategory": "Other Arrangements",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Requirements for Group Health Plans",
-        "description": "Ensure plan sponsors protect ePHI through appropriate safeguards.",
-        "guidance": "Group health plans must adhere to HIPAA's privacy and security rules. They must protect the confidentiality, integrity, and availability of protected health information (PHI). This includes implementing administrative, physical, and technical safeguards. Plans need to ensure business associates also comply with HIPAA. Proper documentation and training are crucial for compliance.",
-        "ref_code": "164.314(b)(1)",
-        "subcategory": "Requirements for Group Health Plans",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Safeguards Implementation",
-        "description": "Require group health plans to implement administrative, physical, and technical safeguards.",
-        "guidance": "This HIPAA control mandates implementing security measures to protect electronic protected health information (ePHI).  Develop and document a comprehensive security plan addressing administrative, physical, and technical safeguards. Regularly review and update these safeguards based on risk assessments and changes in the environment. Train workforce members on proper security protocols and their responsibilities. Implement the chosen security controls and document those implementations.",
-        "ref_code": "164.314(b)(2)(i)",
-        "subcategory": "Safeguards Implementation",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Separation of Access",
-        "description": "Ensure separation between plan sponsor access and unauthorized access to ePHI.",
-        "guidance": "Separate user access based on their job roles and responsibilities. Implement least privilege, granting only the necessary permissions. Regularly review access controls to ensure appropriateness. Log and monitor access attempts to detect unauthorized activity. This separation protects sensitive information from misuse.",
-        "ref_code": "164.314(b)(2)(ii)",
-        "subcategory": "Separation of Access",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Third-Party Security Compliance",
-        "description": "Ensure subcontractors and agents implement reasonable security measures.",
-        "guidance": "Verify your third-party vendors' adherence to HIPAA security standards through due diligence. Review their policies, procedures, and audit reports to ensure compliance. Include HIPAA compliance requirements in vendor contracts and conduct periodic assessments. Address identified vulnerabilities promptly and maintain documented evidence of your efforts. Ensure business associates sign Business Associate Agreements (BAAs).",
-        "ref_code": "164.314(b)(2)(iii)",
-        "subcategory": "Third-Party Security Compliance",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Security Incident Reporting",
-        "description": "Require reporting of security incidents to group health plans.",
-        "guidance": "Report all suspected security incidents promptly. Follow established reporting procedures, including who to notify and what information to provide.  Document all incidents, regardless of severity, and maintain records of investigations.  This allows for proper analysis and prevention of future incidents. By reporting, you contribute to a safer environment for protected health information.",
-        "ref_code": "164.314(b)(2)(iv)",
-        "subcategory": "Security Incident Reporting",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Policies and Procedures",
-        "description": "Implement policies and procedures to ensure HIPAA Security Rule compliance.",
-        "guidance": "Develop comprehensive written policies and procedures that address all HIPAA Security Rule requirements. These documents must outline your organization's approach to protecting electronic protected health information (ePHI). Ensure policies are reviewed and updated regularly to reflect changes in regulations and technology. Employees must be trained on these policies and acknowledge understanding. Implement a system for documenting policy adherence and violations.",
-        "ref_code": "164.316(a)",
-        "subcategory": "Policies and Procedures",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Documentation",
-        "description": "Maintain written policies, procedures, and compliance documentation.",
-        "guidance": "Store documentation securely in electronic or paper form.",
-        "ref_code": "164.316(b)(1)",
-        "subcategory": "Documentation",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.316(b)(1)",
-                "name": "Store security policies and risk assessments in a secure document repository.",
-                "description": "Maintain written documentation of security policies and assessments.",
-                "guidance": "To comply with HIPAA, securely store all security policies and risk assessments. Utilize a document repository that restricts access to authorized personnel only. Ensure the repository has strong access controls and encryption to protect sensitive information. Regularly review and update these documents within the secure location. This protects against unauthorized access and safeguards your compliance efforts."
-            }
-        ]
-    },
-    {
-        "name": "Time Limit",
+        "guidance": "Implement Security Information and Event Management (SIEM) tools to centrally collect and analyze system logs.  This allows for real-time monitoring and detection of security incidents and anomalies. Regularly review these logs to identify potential HIPAA violations, data breaches, or suspicious activities.  Automated alerts can quickly flag unusual events requiring investigation, bolstering data protection. Consistent SIEM usage strengthens your HIPAA compliance posture by ensuring accountability and visibility."
+      }
+    ]
+  },
+  {
+    "name": "Integrity",
+    "description": "Ensure ePHI is not altered or destroyed improperly.",
+    "guidance": "Use checksums, hashing, and database integrity constraints.",
+    "ref_code": "164.312_c_1",
+    "subcategory": "Integrity",
+    "category": "Technical",
+    "subcontrols": [
+      {
+        "ref_code": "164.312_c_1.a",
+        "name": "Use hashing algorithms and integrity checks.",
+        "description": "Protect ePHI from unauthorized alteration or destruction.",
+        "guidance": "Implement hashing algorithms to generate unique 'fingerprints' for protected health information (PHI). These fingerprints verify data hasn't been altered during storage or transmission. Regularly perform integrity checks by re-hashing data and comparing it to the original fingerprint. Discrepancies signal potential breaches or corruption. This safeguards the confidentiality and integrity of sensitive patient information."
+      }
+    ]
+  },
+  {
+    "name": "Mechanism to Authenticate ePHI",
+    "description": "Ensure ePHI is not improperly modified.",
+    "guidance": "Implement strong authentication methods like multi-factor authentication (MFA) for all systems accessing electronic protected health information (ePHI). Regularly review and update authentication protocols. Enforce strong password policies. Audit authentication attempts to detect and respond to unauthorized access. This safeguards patient data by verifying user identities.",
+    "ref_code": "164.312_c_2",
+    "subcategory": "Mechanism to Authenticate ePHI",
+    "category": "Technical",
+    "subcontrols": []
+  },
+  {
+    "name": "Person or Entity Authentication",
+    "description": "Verify the identity of users accessing ePHI.",
+    "guidance": "Use MFA and biometric authentication.",
+    "ref_code": "164.312_d",
+    "subcategory": "Person or Entity Authentication",
+    "category": "Technical",
+    "subcontrols": [
+      {
+        "ref_code": "164.312_d.a",
+        "name": "Implement multi-factor authentication (MFA).",
+        "description": "Verify that a person seeking access is the one claimed.",
+        "guidance": "Require at least two forms of authentication for system access. This includes something you know (password), something you have (token), or something you are (biometric). MFA greatly strengthens security by requiring verification from multiple factors. Implement MFA across all systems handling protected health information (PHI) to protect patient data from unauthorized access. Ensure MFA is user-friendly and regularly tested to ensure effectiveness."
+      }
+    ]
+  },
+  {
+    "name": "Transmission Security",
+    "description": "Implement measures to guard against unauthorized access during transmission.",
+    "guidance": "Use TLS encryption for data in transit.",
+    "ref_code": "164.312_e_1",
+    "subcategory": "Transmission Security",
+    "category": "Technical",
+    "subcontrols": [
+      {
+        "ref_code": "164.312_e_1.a",
+        "name": "Use encrypted VPNs and secure email gateways.",
+        "description": "Protect ePHI in transit over networks.",
+        "guidance": "Implement encrypted VPNs to secure remote access to your network. Utilize secure email gateways to protect sensitive information in transit. Encryption safeguards data confidentiality and integrity during transmission. This control minimizes the risk of unauthorized access and data breaches. Regularly update these systems for optimal security."
+      }
+    ]
+  },
+  {
+    "name": "Integrity Controls",
+    "description": "Ensure ePHI is not altered in transmission.",
+    "guidance": "Integrity controls ensure that electronic Protected Health Information (ePHI) is not altered or destroyed in an unauthorized manner. Implement mechanisms like checksums, version control, and audit trails to detect and prevent data manipulation. Regularly test these controls and promptly address any identified vulnerabilities. This safeguards the accuracy and reliability of patient data.",
+    "ref_code": "164.312_e_2_i",
+    "subcategory": "Integrity Controls",
+    "category": "Technical",
+    "subcontrols": []
+  },
+  {
+    "name": "Encryption",
+    "description": "Encrypt ePHI during transmission when appropriate.",
+    "guidance": "Encryption protects sensitive information by scrambling it into an unreadable format. Implement encryption for data at rest (stored) and in transit (transmitted). Choose strong encryption algorithms and manage encryption keys securely. Ensure encryption is properly implemented and tested to meet HIPAA compliance. This safeguards patient data from unauthorized access and breaches.",
+    "ref_code": "164.312_e_2_ii",
+    "subcategory": "Encryption",
+    "category": "Technical",
+    "subcontrols": []
+  },
+  {
+    "name": "Business Associate Contracts",
+    "description": "Ensure business associates implement security controls to protect ePHI.",
+    "guidance": "Ensure all agreements with business associates (BAs) include detailed HIPAA-compliant contracts. These contracts must outline permitted uses of protected health information (PHI), security safeguards, and breach notification responsibilities. Regularly review and update BA agreements to reflect changes in regulations or business practices. Verify BAs are adhering to the contract terms through audits and ongoing monitoring. Failing to secure compliant agreements can lead to significant penalties.",
+    "ref_code": "164.314_a_1",
+    "subcategory": "Business Associate Contracts",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Business Associate Contracts Requirements",
+    "description": "Ensure business associates protect ePHI confidentiality, integrity, and availability.",
+    "guidance": "Ensure all Business Associates (BAs) sign legally sound contracts guaranteeing HIPAA compliance. These contracts must outline permitted uses and disclosures of protected health information (PHI). Include provisions for breach notification, security safeguards, and return or destruction of PHI. Regularly review and update these contracts to reflect changes in regulations or business practices. This protects patient data and mitigates your organization's liability.",
+    "ref_code": "164.314_a_2_i",
+    "subcategory": "Business Associate Contracts Requirements",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Other Arrangements",
+    "description": "Use alternative agreements for government entities in place of BAAs.",
+    "guidance": "The 'Other Arrangements' HIPAA security control requires covered entities to document and implement procedures for handling ePHI shared with third parties, like business associates. This includes establishing written agreements outlining security responsibilities. These agreements should detail data protection standards and procedures for data breaches. Ensure these arrangements align with all other HIPAA security rule requirements.",
+    "ref_code": "164.314_a_2_ii",
+    "subcategory": "Other Arrangements",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Requirements for Group Health Plans",
+    "description": "Ensure plan sponsors protect ePHI through appropriate safeguards.",
+    "guidance": "Group health plans must adhere to HIPAA's privacy and security rules. They must protect the confidentiality, integrity, and availability of protected health information (PHI). This includes implementing administrative, physical, and technical safeguards. Plans need to ensure business associates also comply with HIPAA. Proper documentation and training are crucial for compliance.",
+    "ref_code": "164.314_b_1",
+    "subcategory": "Requirements for Group Health Plans",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Safeguards Implementation",
+    "description": "Require group health plans to implement administrative, physical, and technical safeguards.",
+    "guidance": "This HIPAA control mandates implementing security measures to protect electronic protected health information (ePHI).  Develop and document a comprehensive security plan addressing administrative, physical, and technical safeguards. Regularly review and update these safeguards based on risk assessments and changes in the environment. Train workforce members on proper security protocols and their responsibilities. Implement the chosen security controls and document those implementations.",
+    "ref_code": "164.314_b_2_i",
+    "subcategory": "Safeguards Implementation",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Separation of Access",
+    "description": "Ensure separation between plan sponsor access and unauthorized access to ePHI.",
+    "guidance": "Separate user access based on their job roles and responsibilities. Implement least privilege, granting only the necessary permissions. Regularly review access controls to ensure appropriateness. Log and monitor access attempts to detect unauthorized activity. This separation protects sensitive information from misuse.",
+    "ref_code": "164.314_b_2_ii",
+    "subcategory": "Separation of Access",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Third-Party Security Compliance",
+    "description": "Ensure subcontractors and agents implement reasonable security measures.",
+    "guidance": "Verify your third-party vendors' adherence to HIPAA security standards through due diligence. Review their policies, procedures, and audit reports to ensure compliance. Include HIPAA compliance requirements in vendor contracts and conduct periodic assessments. Address identified vulnerabilities promptly and maintain documented evidence of your efforts. Ensure business associates sign Business Associate Agreements (BAAs).",
+    "ref_code": "164.314_b_2_iii",
+    "subcategory": "Third-Party Security Compliance",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Security Incident Reporting",
+    "description": "Require reporting of security incidents to group health plans.",
+    "guidance": "Report all suspected security incidents promptly. Follow established reporting procedures, including who to notify and what information to provide.  Document all incidents, regardless of severity, and maintain records of investigations.  This allows for proper analysis and prevention of future incidents. By reporting, you contribute to a safer environment for protected health information.",
+    "ref_code": "164.314_b_2_iv",
+    "subcategory": "Security Incident Reporting",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Policies and Procedures",
+    "description": "Implement policies and procedures to ensure HIPAA Security Rule compliance.",
+    "guidance": "Develop comprehensive written policies and procedures that address all HIPAA Security Rule requirements. These documents must outline your organization's approach to protecting electronic protected health information (ePHI). Ensure policies are reviewed and updated regularly to reflect changes in regulations and technology. Employees must be trained on these policies and acknowledge understanding. Implement a system for documenting policy adherence and violations.",
+    "ref_code": "164.316_a",
+    "subcategory": "Policies and Procedures",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Documentation",
+    "description": "Maintain written policies, procedures, and compliance documentation.",
+    "guidance": "Store documentation securely in electronic or paper form.",
+    "ref_code": "164.316_b_1",
+    "subcategory": "Documentation",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.316_b_1.a",
+        "name": "Store security policies and risk assessments in a secure document repository.",
+        "description": "Maintain written documentation of security policies and assessments.",
+        "guidance": "To comply with HIPAA, securely store all security policies and risk assessments. Utilize a document repository that restricts access to authorized personnel only. Ensure the repository has strong access controls and encryption to protect sensitive information. Regularly review and update these documents within the secure location. This protects against unauthorized access and safeguards your compliance efforts."
+      }
+    ]
+  },
+  {
+    "name": "Time Limit",
+    "description": "Retain security documentation for at least six years.",
+    "guidance": "Establish a document retention policy for compliance records.",
+    "ref_code": "164.316_b_2_i",
+    "subcategory": "Time Limit",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.316_b_2_i.a",
+        "name": "Implement a document retention policy aligned with HIPAA requirements.",
         "description": "Retain security documentation for at least six years.",
-        "guidance": "Establish a document retention policy for compliance records.",
-        "ref_code": "164.316(b)(2)(i)",
-        "subcategory": "Time Limit",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.316(b)(2)(i)",
-                "name": "Implement a document retention policy aligned with HIPAA requirements.",
-                "description": "Retain security documentation for at least six years.",
-                "guidance": "Establish and consistently follow a written document retention policy. This policy should specify the types of records, retention periods (at least six years after creation or last use), and storage methods for Protected Health Information (PHI). Ensure the policy complies with HIPAA and any applicable state laws. Regularly review and update the policy to maintain compliance. Proper record disposal is crucial after the retention period."
-            }
-        ]
-    },
-    {
-        "name": "Availability",
-        "description": "Make security documentation available to responsible personnel.",
-        "guidance": "Ensure policy access through internal document repositories.",
-        "ref_code": "164.316(b)(2)(ii)",
-        "subcategory": "Availability",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.316(b)(2)(ii)",
-                "name": "Ensure policies and procedures are stored in a secure but accessible location.",
-                "description": "Make security documentation accessible to responsible personnel.",
-                "guidance": "Maintain readily available HIPAA policies and procedures within a secure environment. This location should restrict unauthorized access, ideally through password protection or physical safeguards. Regularly review and update policies, ensuring accessibility for all covered entities. Proper storage is vital for demonstrating compliance during audits and investigations."
-            }
-        ]
-    },
-    {
-        "name": "Updates",
-        "description": "Periodically review and update security documentation as needed.",
-        "guidance": "Perform annual security policy reviews and update based on changes.",
-        "ref_code": "164.316(b)(2)(iii)",
-        "subcategory": "Updates",
-        "category": "Administrative",
-        "subcontrols": [
-            {
-                "ref_code": "164.316(b)(2)(iii)",
-                "name": "Conduct annual security policy reviews and updates.",
-                "description": "Review and update security documentation periodically.",
-                "guidance": "Regularly review and update your organization's security policies. These reviews should happen at least annually to ensure relevance. Adapt policies based on changes in regulations, technology, and identified vulnerabilities. Document all review processes and any resulting policy revisions. Maintain a current and effective security posture by staying proactive."
-            }
-        ]
-    },
-    {
-        "name": "Notification to Individuals",
-        "description": "Notify individuals affected by a breach of unsecured PHI.",
-        "guidance": "Notify individuals promptly following a breach of their protected health information (PHI). This notification must occur without unreasonable delay and no later than 60 days after discovery. The notification should include details about the breach, the types of information compromised, and steps individuals can take to protect themselves. Follow the specific state and federal requirements for content and delivery. Maintain documentation of the breach and notifications.",
-        "ref_code": "164.404(a)(1)",
-        "subcategory": "Notification to Individuals",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Breach Discovery",
-        "description": "A breach is considered discovered when it is known or should have been known with reasonable diligence.",
-        "guidance": "To comply with breach discovery, establish clear procedures for detecting security incidents. Train personnel to recognize and report potential breaches promptly. Regularly monitor systems and data for anomalies. Investigate all suspected breaches thoroughly to determine scope and impact. Finally, document all findings and actions taken.",
-        "ref_code": "164.404(a)(2)",
-        "subcategory": "Breach Discovery",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Timeliness of Notification",
-        "description": "Provide notification without unreasonable delay and no later than 60 days after discovery.",
-        "guidance": "Prompt notification of security incidents is crucial.  Report breaches and other incidents quickly to affected parties and relevant authorities.  Establish clear timelines and processes for notification to meet regulatory requirements.  Proactive communication minimizes potential harm and maintains trust. Failure to notify promptly can lead to severe penalties.",
-        "ref_code": "164.404(b)",
-        "subcategory": "Timeliness of Notification",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Content of Notification",
-        "description": "Include specific details such as the nature of the breach and steps for affected individuals.",
-        "guidance": "When a breach occurs, clearly and concisely explain what happened, the date it occurred, and the types of protected health information (PHI) involved.  Detail steps taken to mitigate harm, including any investigations. Provide contact information for questions and offer resources for individuals potentially affected.  Comply with state and federal notification laws regarding timelines and content.",
-        "ref_code": "164.404(c)(1)",
-        "subcategory": "Content of Notification",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Plain Language Requirement",
-        "description": "Ensure breach notifications are written in clear and simple language.",
-        "guidance": "Ensure all security policies and procedures related to protected health information (PHI) are written in clear, concise, and understandable language. Avoid technical jargon and complex sentence structures.  This promotes understanding and compliance among all workforce members.  Regularly review and update these documents for clarity and accuracy.  Consider diverse literacy levels when drafting materials.",
-        "ref_code": "164.404(c)(2)",
-        "subcategory": "Plain Language Requirement",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Written Notice",
-        "description": "Provide notification via first-class mail or email if consented by the individual.",
-        "guidance": "For the HIPAA security control of 'Written Notice,' ensure all workforce members understand your organization's security policies and procedures. Provide comprehensive, easily accessible documentation detailing these policies. Regularly update the notice to reflect any changes, and confirm employee acknowledgement. This ensures everyone is informed about protecting patient health information (PHI).",
-        "ref_code": "164.404(d)(1)",
-        "subcategory": "Written Notice",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Substitute Notice",
-        "description": "If contact details are unavailable, use substitute notice such as media postings.",
-        "guidance": "When authorized, a covered entity may provide substitute notice to individuals regarding privacy practices. This typically applies when direct communication isn't feasible. Substitute notice must be prominent and conspicuous, published in a clear and accessible manner, and contain specific information. Examples include posting on a website or in a local publication.  Remember to document the reason for using substitute notice.",
-        "ref_code": "164.404(d)(2)",
-        "subcategory": "Substitute Notice",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Urgent Notification",
-        "description": "In urgent situations, notify individuals via telephone or other rapid methods.",
-        "guidance": "Implement a clear and rapid communication plan for security incidents. This ensures timely dissemination of breach information to authorized personnel. Establish designated contacts and escalation procedures. Test the notification system regularly and document the results. Ensure secure communication channels are used.",
-        "ref_code": "164.404(d)(3)",
-        "subcategory": "Urgent Notification",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Notification to the Media",
-        "description": "Notify media if a breach affects more than 500 individuals in a jurisdiction.",
-        "guidance": "This HIPAA security control outlines procedures for notifying the media regarding breaches of protected health information (PHI).  Develop a plan including designated spokespersons, pre-approved messaging, and escalation paths.  Ensure the plan considers potential public relations impacts and complies with all relevant federal and state laws.  Train staff on the notification process and their roles. Document all media interactions and the rationale for the notification decision.",
-        "ref_code": "164.406(a)",
-        "subcategory": "Notification to the Media",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Timeliness of Media Notification",
-        "description": "Notify the media without unreasonable delay and no later than 60 days.",
-        "guidance": "Prompt media notification within 72 hours of discovering a breach. This allows prompt investigation and mitigation.  Implement clear procedures for reporting and escalating incidents. Ensure staff are trained on notification protocols.  Document all steps taken related to the notification process.",
-        "ref_code": "164.406(b)",
-        "subcategory": "Timeliness of Media Notification",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Media Notification Content",
-        "description": "Ensure media notifications meet the same content requirements as individual notices.",
-        "guidance": "For media containing PHI, clearly label its content, purpose, and access restrictions.  Notify authorized recipients of media transfer details, like encryption and handling instructions.  Document all notifications and media handling for audit trails.  This ensures proper handling and prevents unauthorized disclosure of protected health information. This simple process minimizes data breaches and protects patient privacy.",
-        "ref_code": "164.406(c)",
-        "subcategory": "Media Notification Content",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Notification to the Secretary",
-        "description": "Notify the Secretary of HHS following the discovery of a breach.",
-        "guidance": "Notify the Secretary of Health and Human Services (HHS) of a breach of unsecured protected health information (PHI) without unreasonable delay, but no later than 60 days after discovery. This applies if the breach affects 500 or more individuals. For breaches impacting fewer than 500 individuals, notification must be provided annually. Consult HHS guidelines for specific reporting procedures and content requirements.",
-        "ref_code": "164.408(a)",
-        "subcategory": "Notification to the Secretary",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Breaches Involving 500 or More Individuals",
-        "description": "Notify the Secretary without delay if a breach affects 500 or more individuals.",
-        "guidance": "When a breach affects 500+ individuals, notify HHS and prominent media outlets within 60 days.  Immediately investigate the breach, assess risks, and document all findings. Offer affected individuals timely notification and resources for protection. Report all actions taken to mitigate the damage.  Maintain thorough records of the entire process.",
-        "ref_code": "164.408(b)",
-        "subcategory": "Breaches Involving 500 or More Individuals",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Breaches Involving Less Than 500 Individuals",
-        "description": "Maintain a log of breaches affecting fewer than 500 individuals and report annually.",
-        "guidance": "For breaches affecting under 500 individuals, investigate the incident thoroughly, documenting all findings.  Notify affected individuals promptly according to your established procedures, including the required elements. Report the breach internally to your privacy officer or designated team.  Implement necessary corrective actions to prevent future occurrences.  Keep comprehensive records of the breach and your response.",
-        "ref_code": "164.408(c)",
-        "subcategory": "Breaches Involving Less Than 500 Individuals",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Notification by a Business Associate",
-        "description": "A business associate must notify the covered entity of any breach of unsecured PHI.",
-        "guidance": "A Business Associate must promptly notify the covered entity of any security incidents involving protected health information (PHI). This includes breaches that compromise the confidentiality, integrity, or availability of PHI. Notification must be made within the timeframe specified in the Business Associate Agreement (BAA). The notice should include details about the breach, including affected individuals and potential risks. Consistent communication and documentation are critical.",
-        "ref_code": "164.410(a)",
-        "subcategory": "Notification by a Business Associate",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Business Associate Breach Discovery",
-        "description": "A breach is considered discovered when it is known or should have been known with reasonable diligence.",
-        "guidance": "To discover breaches, Business Associates (BAs) must establish procedures for identifying and reporting security incidents. This includes monitoring systems for unusual activity, regularly reviewing audit logs, and training staff to recognize potential breaches. When a breach is suspected or confirmed, the BA must promptly investigate to determine the scope and impact.  Finally, the BA must comply with the HIPAA Breach Notification Rule, notifying covered entities and individuals as required.",
-        "ref_code": "164.410(a)(2)",
-        "subcategory": "Business Associate Breach Discovery",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Timeliness of Notification by Business Associate",
-        "description": "Notify the covered entity without unreasonable delay and no later than 60 days after discovery.",
-        "guidance": "Business Associates (BAs) must promptly notify covered entities of any security incidents. Notifications should be made without unreasonable delay and no later than the timeframe specified in the Business Associate Agreement (BAA). This ensures covered entities can swiftly address potential breaches and fulfill their own notification obligations. Proper documentation of incident details and notification efforts is critical. Adherence to the BAA is key.",
-        "ref_code": "164.410(b)",
-        "subcategory": "Timeliness of Notification by Business Associate",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Content of Notification by Business Associate",
-        "description": "Include details of affected individuals and breach specifics.",
-        "guidance": "A business associate's breach notification must include key details: the nature of the breach, the PHI involved, steps taken to mitigate harm, and contact information. This ensures covered entities can assess the impact and fulfill their own notification responsibilities. The notification's timing and methods should align with the business associate agreement (BAA) and legal requirements. It's crucial for timely and accurate information. Proper documentation should be maintained.",
-        "ref_code": "164.410(c)",
-        "subcategory": "Content of Notification by Business Associate",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Law Enforcement Delay",
-        "description": "Allow a delay in breach notification if it would impede a criminal investigation or cause harm to national security.",
-        "guidance": "If law enforcement requests PHI, healthcare entities can delay disclosure if the request is oral and the delay is necessary to prevent harm. Document the request, the delay, and the reason. Consult legal counsel if the request is written or if there are concerns about compliance. Always prioritize patient safety and legal requirements.",
-        "ref_code": "164.412()",
-        "subcategory": "Law Enforcement Delay",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Written Request Requirement",
-        "description": "If law enforcement provides a written request, delay notification for the time specified in the request.",
-        "guidance": "For the 'Written Request Requirement,' ensure any access or modification to protected health information (PHI) is explicitly requested in writing.  Document the request, including the reason and scope of access desired. Verify the requester's identity and authorization before fulfilling the request.  Maintain a record of all written requests and their outcomes for audit purposes. This helps ensure proper authorization and accountability.",
-        "ref_code": "164.412(a)",
-        "subcategory": "Written Request Requirement",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Oral Request Handling",
-        "description": "If law enforcement provides an oral request, document it and delay notification for up to 30 days.",
-        "guidance": "When receiving oral requests for protected health information (PHI), verify the caller's identity using established protocols.  Only disclose the minimum necessary information needed to fulfill the request.  Document the request, verification process, and information provided.  Avoid sharing PHI over unsecured phone lines or leaving messages containing PHI.  Always adhere to your organization's specific policies and procedures.",
-        "ref_code": "164.412(b)",
-        "subcategory": "Oral Request Handling",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Administrative Requirements",
-        "description": "Covered entities must comply with specified administrative requirements under 164.530.",
-        "guidance": "Focus on creating, implementing, and maintaining written policies and procedures to protect electronic protected health information (ePHI).  Designate a security official responsible for oversight.  Train your workforce regularly on these security practices. Conduct periodic risk assessments to identify vulnerabilities.  Document everything!",
-        "ref_code": "164.414(a)",
-        "subcategory": "Administrative Requirements",
-        "category": "Administrative",
-        "subcontrols": []
-    },
-    {
-        "name": "Burden of Proof",
-        "description": "Covered entities and business associates must demonstrate compliance with breach notification requirements or prove that an incident was not a breach.",
-        "guidance": "The 'Burden of Proof' control within HIPAA mandates that covered entities must demonstrate their compliance with the Security Rule. This means having documentation and evidence to support the implementation and effectiveness of security measures. When questioned, the entity needs to show what safeguards are in place and how they are working to protect PHI. Failure to prove compliance can lead to significant penalties. Regularly review and maintain records to meet this requirement.",
-        "ref_code": "164.414(b)",
-        "subcategory": "Burden of Proof",
-        "category": "Administrative",
-        "subcontrols": []
-    }
+        "guidance": "Establish and consistently follow a written document retention policy. This policy should specify the types of records, retention periods (at least six years after creation or last use), and storage methods for Protected Health Information (PHI). Ensure the policy complies with HIPAA and any applicable state laws. Regularly review and update the policy to maintain compliance. Proper record disposal is crucial after the retention period."
+      }
+    ]
+  },
+  {
+    "name": "Availability",
+    "description": "Make security documentation available to responsible personnel.",
+    "guidance": "Ensure policy access through internal document repositories.",
+    "ref_code": "164.316_b_2_ii",
+    "subcategory": "Availability",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.316_b_2_ii.a",
+        "name": "Ensure policies and procedures are stored in a secure but accessible location.",
+        "description": "Make security documentation accessible to responsible personnel.",
+        "guidance": "Maintain readily available HIPAA policies and procedures within a secure environment. This location should restrict unauthorized access, ideally through password protection or physical safeguards. Regularly review and update policies, ensuring accessibility for all covered entities. Proper storage is vital for demonstrating compliance during audits and investigations."
+      }
+    ]
+  },
+  {
+    "name": "Updates",
+    "description": "Periodically review and update security documentation as needed.",
+    "guidance": "Perform annual security policy reviews and update based on changes.",
+    "ref_code": "164.316_b_2_iii",
+    "subcategory": "Updates",
+    "category": "Administrative",
+    "subcontrols": [
+      {
+        "ref_code": "164.316_b_2_iii.a",
+        "name": "Conduct annual security policy reviews and updates.",
+        "description": "Review and update security documentation periodically.",
+        "guidance": "Regularly review and update your organization's security policies. These reviews should happen at least annually to ensure relevance. Adapt policies based on changes in regulations, technology, and identified vulnerabilities. Document all review processes and any resulting policy revisions. Maintain a current and effective security posture by staying proactive."
+      }
+    ]
+  },
+  {
+    "name": "Notification to Individuals",
+    "description": "Notify individuals affected by a breach of unsecured PHI.",
+    "guidance": "Notify individuals promptly following a breach of their protected health information (PHI). This notification must occur without unreasonable delay and no later than 60 days after discovery. The notification should include details about the breach, the types of information compromised, and steps individuals can take to protect themselves. Follow the specific state and federal requirements for content and delivery. Maintain documentation of the breach and notifications.",
+    "ref_code": "164.404_a_1",
+    "subcategory": "Notification to Individuals",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Breach Discovery",
+    "description": "A breach is considered discovered when it is known or should have been known with reasonable diligence.",
+    "guidance": "To comply with breach discovery, establish clear procedures for detecting security incidents. Train personnel to recognize and report potential breaches promptly. Regularly monitor systems and data for anomalies. Investigate all suspected breaches thoroughly to determine scope and impact. Finally, document all findings and actions taken.",
+    "ref_code": "164.404_a_2",
+    "subcategory": "Breach Discovery",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Timeliness of Notification",
+    "description": "Provide notification without unreasonable delay and no later than 60 days after discovery.",
+    "guidance": "Prompt notification of security incidents is crucial.  Report breaches and other incidents quickly to affected parties and relevant authorities.  Establish clear timelines and processes for notification to meet regulatory requirements.  Proactive communication minimizes potential harm and maintains trust. Failure to notify promptly can lead to severe penalties.",
+    "ref_code": "164.404_b",
+    "subcategory": "Timeliness of Notification",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Content of Notification",
+    "description": "Include specific details such as the nature of the breach and steps for affected individuals.",
+    "guidance": "When a breach occurs, clearly and concisely explain what happened, the date it occurred, and the types of protected health information (PHI) involved.  Detail steps taken to mitigate harm, including any investigations. Provide contact information for questions and offer resources for individuals potentially affected.  Comply with state and federal notification laws regarding timelines and content.",
+    "ref_code": "164.404_c_1",
+    "subcategory": "Content of Notification",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Plain Language Requirement",
+    "description": "Ensure breach notifications are written in clear and simple language.",
+    "guidance": "Ensure all security policies and procedures related to protected health information (PHI) are written in clear, concise, and understandable language. Avoid technical jargon and complex sentence structures.  This promotes understanding and compliance among all workforce members.  Regularly review and update these documents for clarity and accuracy.  Consider diverse literacy levels when drafting materials.",
+    "ref_code": "164.404_c_2",
+    "subcategory": "Plain Language Requirement",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Written Notice",
+    "description": "Provide notification via first-class mail or email if consented by the individual.",
+    "guidance": "For the HIPAA security control of 'Written Notice,' ensure all workforce members understand your organization's security policies and procedures. Provide comprehensive, easily accessible documentation detailing these policies. Regularly update the notice to reflect any changes, and confirm employee acknowledgement. This ensures everyone is informed about protecting patient health information (PHI).",
+    "ref_code": "164.404_d_1",
+    "subcategory": "Written Notice",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Substitute Notice",
+    "description": "If contact details are unavailable, use substitute notice such as media postings.",
+    "guidance": "When authorized, a covered entity may provide substitute notice to individuals regarding privacy practices. This typically applies when direct communication isn't feasible. Substitute notice must be prominent and conspicuous, published in a clear and accessible manner, and contain specific information. Examples include posting on a website or in a local publication.  Remember to document the reason for using substitute notice.",
+    "ref_code": "164.404_d_2",
+    "subcategory": "Substitute Notice",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Urgent Notification",
+    "description": "In urgent situations, notify individuals via telephone or other rapid methods.",
+    "guidance": "Implement a clear and rapid communication plan for security incidents. This ensures timely dissemination of breach information to authorized personnel. Establish designated contacts and escalation procedures. Test the notification system regularly and document the results. Ensure secure communication channels are used.",
+    "ref_code": "164.404_d_3",
+    "subcategory": "Urgent Notification",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Notification to the Media",
+    "description": "Notify media if a breach affects more than 500 individuals in a jurisdiction.",
+    "guidance": "This HIPAA security control outlines procedures for notifying the media regarding breaches of protected health information (PHI).  Develop a plan including designated spokespersons, pre-approved messaging, and escalation paths.  Ensure the plan considers potential public relations impacts and complies with all relevant federal and state laws.  Train staff on the notification process and their roles. Document all media interactions and the rationale for the notification decision.",
+    "ref_code": "164.406_a",
+    "subcategory": "Notification to the Media",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Timeliness of Media Notification",
+    "description": "Notify the media without unreasonable delay and no later than 60 days.",
+    "guidance": "Prompt media notification within 72 hours of discovering a breach. This allows prompt investigation and mitigation.  Implement clear procedures for reporting and escalating incidents. Ensure staff are trained on notification protocols.  Document all steps taken related to the notification process.",
+    "ref_code": "164.406_b",
+    "subcategory": "Timeliness of Media Notification",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Media Notification Content",
+    "description": "Ensure media notifications meet the same content requirements as individual notices.",
+    "guidance": "For media containing PHI, clearly label its content, purpose, and access restrictions.  Notify authorized recipients of media transfer details, like encryption and handling instructions.  Document all notifications and media handling for audit trails.  This ensures proper handling and prevents unauthorized disclosure of protected health information. This simple process minimizes data breaches and protects patient privacy.",
+    "ref_code": "164.406_c",
+    "subcategory": "Media Notification Content",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Notification to the Secretary",
+    "description": "Notify the Secretary of HHS following the discovery of a breach.",
+    "guidance": "Notify the Secretary of Health and Human Services (HHS) of a breach of unsecured protected health information (PHI) without unreasonable delay, but no later than 60 days after discovery. This applies if the breach affects 500 or more individuals. For breaches impacting fewer than 500 individuals, notification must be provided annually. Consult HHS guidelines for specific reporting procedures and content requirements.",
+    "ref_code": "164.408_a",
+    "subcategory": "Notification to the Secretary",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Breaches Involving 500 or More Individuals",
+    "description": "Notify the Secretary without delay if a breach affects 500 or more individuals.",
+    "guidance": "When a breach affects 500+ individuals, notify HHS and prominent media outlets within 60 days.  Immediately investigate the breach, assess risks, and document all findings. Offer affected individuals timely notification and resources for protection. Report all actions taken to mitigate the damage.  Maintain thorough records of the entire process.",
+    "ref_code": "164.408_b",
+    "subcategory": "Breaches Involving 500 or More Individuals",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Breaches Involving Less Than 500 Individuals",
+    "description": "Maintain a log of breaches affecting fewer than 500 individuals and report annually.",
+    "guidance": "For breaches affecting under 500 individuals, investigate the incident thoroughly, documenting all findings.  Notify affected individuals promptly according to your established procedures, including the required elements. Report the breach internally to your privacy officer or designated team.  Implement necessary corrective actions to prevent future occurrences.  Keep comprehensive records of the breach and your response.",
+    "ref_code": "164.408_c",
+    "subcategory": "Breaches Involving Less Than 500 Individuals",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Notification by a Business Associate",
+    "description": "A business associate must notify the covered entity of any breach of unsecured PHI.",
+    "guidance": "A Business Associate must promptly notify the covered entity of any security incidents involving protected health information (PHI). This includes breaches that compromise the confidentiality, integrity, or availability of PHI. Notification must be made within the timeframe specified in the Business Associate Agreement (BAA). The notice should include details about the breach, including affected individuals and potential risks. Consistent communication and documentation are critical.",
+    "ref_code": "164.410_a",
+    "subcategory": "Notification by a Business Associate",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Business Associate Breach Discovery",
+    "description": "A breach is considered discovered when it is known or should have been known with reasonable diligence.",
+    "guidance": "To discover breaches, Business Associates (BAs) must establish procedures for identifying and reporting security incidents. This includes monitoring systems for unusual activity, regularly reviewing audit logs, and training staff to recognize potential breaches. When a breach is suspected or confirmed, the BA must promptly investigate to determine the scope and impact.  Finally, the BA must comply with the HIPAA Breach Notification Rule, notifying covered entities and individuals as required.",
+    "ref_code": "164.410_a_2",
+    "subcategory": "Business Associate Breach Discovery",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Timeliness of Notification by Business Associate",
+    "description": "Notify the covered entity without unreasonable delay and no later than 60 days after discovery.",
+    "guidance": "Business Associates (BAs) must promptly notify covered entities of any security incidents. Notifications should be made without unreasonable delay and no later than the timeframe specified in the Business Associate Agreement (BAA). This ensures covered entities can swiftly address potential breaches and fulfill their own notification obligations. Proper documentation of incident details and notification efforts is critical. Adherence to the BAA is key.",
+    "ref_code": "164.410_b",
+    "subcategory": "Timeliness of Notification by Business Associate",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Content of Notification by Business Associate",
+    "description": "Include details of affected individuals and breach specifics.",
+    "guidance": "A business associate's breach notification must include key details: the nature of the breach, the PHI involved, steps taken to mitigate harm, and contact information. This ensures covered entities can assess the impact and fulfill their own notification responsibilities. The notification's timing and methods should align with the business associate agreement (BAA) and legal requirements. It's crucial for timely and accurate information. Proper documentation should be maintained.",
+    "ref_code": "164.410_c",
+    "subcategory": "Content of Notification by Business Associate",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Law Enforcement Delay",
+    "description": "Allow a delay in breach notification if it would impede a criminal investigation or cause harm to national security.",
+    "guidance": "If law enforcement requests PHI, healthcare entities can delay disclosure if the request is oral and the delay is necessary to prevent harm. Document the request, the delay, and the reason. Consult legal counsel if the request is written or if there are concerns about compliance. Always prioritize patient safety and legal requirements.",
+    "ref_code": "164.412_",
+    "subcategory": "Law Enforcement Delay",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Written Request Requirement",
+    "description": "If law enforcement provides a written request, delay notification for the time specified in the request.",
+    "guidance": "For the 'Written Request Requirement,' ensure any access or modification to protected health information (PHI) is explicitly requested in writing.  Document the request, including the reason and scope of access desired. Verify the requester's identity and authorization before fulfilling the request.  Maintain a record of all written requests and their outcomes for audit purposes. This helps ensure proper authorization and accountability.",
+    "ref_code": "164.412_a",
+    "subcategory": "Written Request Requirement",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Oral Request Handling",
+    "description": "If law enforcement provides an oral request, document it and delay notification for up to 30 days.",
+    "guidance": "When receiving oral requests for protected health information (PHI), verify the caller's identity using established protocols.  Only disclose the minimum necessary information needed to fulfill the request.  Document the request, verification process, and information provided.  Avoid sharing PHI over unsecured phone lines or leaving messages containing PHI.  Always adhere to your organization's specific policies and procedures.",
+    "ref_code": "164.412_b",
+    "subcategory": "Oral Request Handling",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Administrative Requirements",
+    "description": "Covered entities must comply with specified administrative requirements under 164.530.",
+    "guidance": "Focus on creating, implementing, and maintaining written policies and procedures to protect electronic protected health information (ePHI).  Designate a security official responsible for oversight.  Train your workforce regularly on these security practices. Conduct periodic risk assessments to identify vulnerabilities.  Document everything!",
+    "ref_code": "164.414_a",
+    "subcategory": "Administrative Requirements",
+    "category": "Administrative",
+    "subcontrols": []
+  },
+  {
+    "name": "Burden of Proof",
+    "description": "Covered entities and business associates must demonstrate compliance with breach notification requirements or prove that an incident was not a breach.",
+    "guidance": "The 'Burden of Proof' control within HIPAA mandates that covered entities must demonstrate their compliance with the Security Rule. This means having documentation and evidence to support the implementation and effectiveness of security measures. When questioned, the entity needs to show what safeguards are in place and how they are working to protect PHI. Failure to prove compliance can lead to significant penalties. Regularly review and maintain records to meet this requirement.",
+    "ref_code": "164.414_b",
+    "subcategory": "Burden of Proof",
+    "category": "Administrative",
+    "subcontrols": []
+  }
 ]

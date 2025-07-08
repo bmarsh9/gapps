@@ -309,6 +309,7 @@ class SubControlMixin(object):
         data["description"] = self.subcontrol.description
         data["mitigation"] = self.subcontrol.mitigation
         data["ref_code"] = self.subcontrol.ref_code
+        data["guidance"] = self.subcontrol.guidance
         data["evidence"] = self.evidence.count()
 
         data["owner"] = (

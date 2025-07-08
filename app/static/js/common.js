@@ -100,6 +100,7 @@ function toast(message, level="info", duration=5000, bottom=false) {
       stopOnFocus: true,
       style: {
         background: bg,
+        borderRadius: "0.5rem"
       }
     }
     if (bottom) {

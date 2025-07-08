@@ -3,7 +3,7 @@
 {% block before_head %}
 {{ super() }}
 {% import "helpers/src_macros.html" as macro %}
-{{ macro.filehelper(grid=True, editor=True, driver=True, tags=True, confetti=True, files=True, apex=True, markdown=True) }}
+{{ macro.filehelper(grid=True, editor=True, driver=True, tags=True, confetti=True, files=True, apex=True, markdown=True, report=True) }}
 <style xmlns="http://www.w3.org/1999/html">
 	.breadcrumbs>ul>li+:before {
 	  margin-top: 5px;
@@ -69,6 +69,9 @@
 								<div class="dropdown dropdown-end">
 								  <div tabindex="0" role="button" class="btn btn-sm opacity-80">Actions</div>
 								  <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow gap-y-1">
+									<li>
+										<button @click="showControlDeletion" class="btn btn-xs text-error">Delete</button>
+									</li>
 									<li>
 										<button x-show="selectedControl.is_applicable" @click="setAsNotApplicable(selectedControl)" class="btn btn-xs text-error">Mark as Not Applicable</button>
 										<button x-show="!selectedControl.is_applicable" @click="setAsApplicable(selectedControl)" class="btn btn-xs text-success">Mark as Applicable</button>
@@ -204,7 +207,7 @@
 
 						<div class="flex justify-between w-full pl-4 border-l">
 							<div class="flex flex-col pr-4">
-								<span class="subtitle text-xs !mb-0" x-text="'SubControl Title - '+selectedSubControl.ref_code"></span>
+								<span class="subtitle text-xs !mb-0" x-text="'SubControl Title - '+selectedSubControl.ref_code.toUpperCase()"></span>
 								<span class="text-lg" x-text="selectedSubControl.name"></span>
 							</div>
 							<div class="flex flex-row gap-x-2">
@@ -218,7 +221,7 @@
 								  </ul>
 								</div>
 								<div class="dropdown dropdown-bottom dropdown-end">
-								  <div tabindex="0" role="button" class="btn btn-sm opacity-80">Switch Subcontrol</div>
+								  <div tabindex="0" role="button" class="btn btn-sm opacity-80">Subcontrols</div>
 								  <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-[1] w-96 p-2 shadow">
 									<template x-for="subcontrol in selectedControl.subcontrols">
 										<li @click="openSubControlInDrawer(subcontrol)">
@@ -650,23 +653,8 @@
 								</div>
 								<div class="grid grid-cols-6 gap-4">
 									<div class="col-span-6">
-										<h4 class="subtitle text-sm">Subcontrol Description</h4>
-										<div class="flex flex-row">
-											<div x-data="{ expanded: false }"
-												 :class="expanded ? 'h-40' : 'h-16'"
-												 class="overflow-y-auto">
-
-												<span class="text-xs" x-text="expanded ? (selectedSubControl.guidance || selectedSubControl.description) : (selectedSubControl.guidance || selectedSubControl.description).slice(0, 200) + '...'"></span>
-
-												<button
-													x-show="(selectedSubControl.guidance || selectedSubControl.description).length > 100"
-													@click="expanded = !expanded"
-													class="text-warning underline ml-2 text-xs">
-													<span x-text="expanded ? 'See less' : 'See more'"></span>
-												</button>
-											</div>
-
-										</div>
+										<h4 class="subtitle text-sm">Subcontrol Guidance</h4>
+										<p x-text="selectedSubControl.guidance"></p>
 									</div>
 									<div class="col-span-4">
 										<h4 class="subtitle text-sm">Status</h4>
@@ -1226,8 +1214,6 @@
 					<span class="hidden sm:block">
 						<button @click="showAuditHelp=true" x-show="isAuditor" class="btn btn-xs mx-2">Auditor<i class="ti ti-spy text-error text-lg"></i></button>
 					</span>
-
-
 					<span x-show="selectedTab==='controls'" class="hidden sm:block">
 						<div class="tooltip tooltip-left" data-tip="Toggle Analytics">
 							<button @click="toggleDashboard" :class="{'btn-warning': showDashboard}" class="btn btn-xs" x-text="showDashboard ? 'Hide Analytics' : 'Show Analytics'"></button>
@@ -1765,29 +1751,29 @@
 								  </th>
 								<th :class="{'rounded-tl-md': expandedRow!==null}" class="bg-base-200 border-base-300 p-6 text-xs border-b border-base-100">
 									<div class="flex justify-between">
-										<span class="my-auto">View</span>
+										<span class="my-auto text-base-content">View</span>
 									</div>
 								</th>
 								<th class="bg-base-200 p-6 text-xs border-b border-base-300">
 									<div class="flex justify-between">
-										<span class="my-auto" x-text="'Control Title ('+filteredControls.length+')'"></span>
+										<span class="my-auto text-base-content" x-text="'Control Title ('+filteredControls.length+')'"></span>
 									</div>
 								</th>
 								<th class="bg-base-200 p-6 text-xs border-b border-base-100 w-2/12 text-center border-base-300">
 									<div class="flex justify-between">
-										<span class="my-auto">Status</span>
+										<span class="my-auto text-base-content">Status</span>
 									</div>
 								</th>
 								<th class="bg-base-200 p-6 text-xs border-b border-base-100 w-1 text-center border-base-300">
 									<div class="flex justify-between">
-										<span class="my-auto" x-text="'Subcontrols ('+filteredSubControls.length+')'"></span>
+										<span class="my-auto text-base-content" x-text="'Subcontrols ('+filteredSubControls.length+')'"></span>
 									</div>
 								</th>
 								<th x-show="projectData.auditors.length>0" class="bg-base-200 border-base-300 rounded-tr-md p-6 text-xs border-b border-base-100 w-1 text-center">
-									<span class="my-auto">Review Status</span>
+									<span class="my-auto text-base-content">Review Status</span>
 								</th>
 								<th x-show="projectData.auditors.length===0" class="bg-base-200 border-base-300 rounded-tr-md p-6 text-xs border-b border-base-100 w-1 text-center">
-									<span class="my-auto">Owner(s)</span>
+									<span class="my-auto text-base-content">Owner(s)</span>
 								</th>
 
 							  </tr>
@@ -1933,7 +1919,8 @@
 							  <p class="py-6">
 								You have not added any policies to you project. Let's add some, make edits and publish them.
 							  </p>
-							  <button @click="showAddPolicy=true" class="btn btn-sm btn-primary">Add Policy</button>
+							  <a :href="'/projects/'+projectId+'/policy-center?create=true'" class="btn btn-sm capitalize btn-primary text-xs"
+											 >Add Policy</a>
 							</div>
 						  </div>
 						</div>
@@ -2267,19 +2254,39 @@
 			<div class="col-span-6 text-center" x-show="selectedTab === 'report' && !tabLoading">
 				<div class="grid grid-cols-10 gap-x-2">
 					<div class="col-span-2">
-						<ul class="menu bg-base-200 rounded-box">
+						<ul class="menu bg-base-200 rounded-box p-4 py-6">
 						  <li>
 							<h2 class="menu-title">Available Reports</h2>
 							<ul>
-							  <li><a>Coming Soon</a></li>
+							  <li><a :class="{'text-primary': report==='executive'}" @click="report='executive'">Executive</a></li>
+							  <li><a :class="{'text-primary': report==='technical'}" @click="report='technical'">Technical (Recommended)</a></li>
 							</ul>
 						  </li>
 						</ul>
 					</div>
 					<div class="col-span-8">
-						<div class="card-body bg-base-200 rounded-lg">
-							Coming Soon
-						</div>
+						<div class="hero rounded bg-base-200 py-20">
+							<div x-show="!report" class="max-w-md">
+							  <h1 class="text-2xl font-bold">Select a Report</h1>
+							  <p class="py-6">
+								On the left side panel, please select a report to get started.
+							  </p>
+							</div>
+							<div x-show="report==='executive'" class="max-w-md">
+							  <h1 class="text-2xl font-bold">Executive Report</h1>
+							  <p class="py-6">
+								The executive report provides a breakdown of the current status of the compliance project.
+							  </p>
+							  <button @click="generateExecReport" class="btn btn-primary">Download</button>
+							</div>
+							<div x-show="report==='technical'" class="max-w-md">
+							  <h1 class="text-2xl font-bold">Technical Report</h1>
+							  <p class="py-6">
+								The technical report includes everything from the Executive report (summaries, etc), along with a list of all controls in the project and the progress.
+							  </p>
+							  <button @click="generateTechReport" class="btn btn-primary">Download</button>
+							</div>
+					    </div>
 					</div>
 				</div>
 			</div>
@@ -3685,6 +3692,30 @@
 			</div>
 		</div>
 	</div>
+	<div x-show="showControlDeletionModal" class="modal modal-open">
+<!--		haaaa-->
+		<div class="modal-box">
+			<h3 class="font-bold text-lg mb-4">Delete Control</h3>
+			<div role="alert" class="alert">
+				<svg
+				  xmlns="http://www.w3.org/2000/svg"
+				  fill="none"
+				  viewBox="0 0 24 24"
+				  class="stroke-warning h-6 w-6 shrink-0">
+				  <path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+				</svg>
+				<span x-text="'Are you sure you want to delete '+tempDeletedControl.id+'?'"></span>
+			</div>
+			<div class="modal-action">
+				<button @click="showCreateCustomControlModal = false" class="btn">Cancel</button>
+				<button :class="{'btn-disabled': customControlName.length === 0}" @click="createCustomControl" class="btn btn-error">Delete</button>
+			</div>
+		</div>
+	</div>
 
 </div>
 
@@ -3692,6 +3723,24 @@
 
 {%block extrajs%}
 <script>
+
+function loadImage(url) {
+  return new Promise((resolve) => {
+	const img = new Image();
+	img.crossOrigin = "Anonymous"; // Important for CORS
+	img.onload = () => resolve(img);
+	img.src = url;
+  });
+}
+function imageToBase64(img) {
+  const canvas = document.createElement("canvas");
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(img, 0, 0);
+  return canvas.toDataURL("image/png");
+}
+
 function project(){
 	return {
 		init() {
@@ -3827,7 +3876,7 @@ function project(){
 		riskMessages: [],
 		messagesForControl: [],
 		tenantPolicies: [],
-		tabs: ["summary", "controls", "policies", "evidence", "comments", "risk register", "settings", "user management", "control tags"],
+		tabs: ["summary", "controls", "policies", "evidence", "comments", "risk register", "settings", "user management", "control tags", "report"],
 		loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
 		tabLoading: true,
 		tableLoading: true,
@@ -3849,6 +3898,11 @@ function project(){
 		//uppy: null,
 		loadingEvidence: false,
 
+		reportConfig: {
+			"summary": true,
+			"control_summary": true,
+			"controls": true,
+		},
 		riskFilterStatus: null,
 		riskFilterPriority: null,
 		riskFilterRisk: null,
@@ -3919,9 +3973,11 @@ function project(){
 		projectTags: [],
 		selectedTags: [],
 		tempControlTags: [],
+		report:'',
 		showDashboard: false,
 		loadingReports: true,
 		hasFilter: false,
+		showControlDeletionModal: false,
 		riskRowsSelected: [],
 		filter: {
           status: null,
@@ -3970,6 +4026,232 @@ function project(){
 		  {"field": "priority", "headerName": "Priority", "filter": "agTextColumnFilter", "cellRenderer": priorityToVertBar},
 		],
 		// add new functions here
+		showControlDeletion() {
+<!--		haaaa-->
+			this.showControlDeletionModal = true
+		},
+		renderReportSection: function(doc, title, paragraph, data, cursorY) {
+		  const pageWidth = doc.internal.pageSize.getWidth();
+
+		  // Title
+		  doc.setFont("helvetica", "bold");
+		  doc.setFontSize(14);
+		  doc.setTextColor(...[54, 69, 79]);
+		  doc.text(title, 20, cursorY);
+		  cursorY += 6;
+
+		  // Paragraph
+		  doc.setFont("helvetica", "normal");
+		  doc.setFontSize(9);
+		  const lines = doc.splitTextToSize(paragraph, 170);
+		  doc.text(lines, 20, cursorY);
+		  cursorY += lines.length * 4.5; // smaller gap below paragraph
+
+		  // Skip if there's no data
+		  if (!data || data.length === 0) return cursorY;
+
+		  // Extract headers and rows
+		  const headers = [Object.keys(data[0])];
+		  const body = data.map(row => Object.values(row));
+
+		  // Table
+		  doc.autoTable({
+			head: headers,
+			body: body,
+			startY: cursorY,
+			theme: 'grid',
+			headStyles: {
+			  fillColor: [245, 245, 245],
+			  textColor: [54, 69, 79],
+			  fontStyle: 'bold',
+			  halign: 'center',
+			  lineWidth: 0
+			},
+			styles: {
+			  fontSize: 9,
+			  lineColor: [245, 245, 245],
+			  textColor: [54, 69, 79],
+			  cellPadding: 3,
+			  halign: 'center'
+			}
+		  });
+
+		  return doc.lastAutoTable.finalY + 10;
+		},
+		generateExecReport() {
+			this.reportConfig = {
+				"summary": true,
+				"control_summary": true,
+				"audit_summary": true,
+				"controls": false,
+			}
+			this.generateReport()
+		},
+		generateTechReport() {
+			this.reportConfig = {
+				"summary": true,
+				"control_summary": true,
+				"audit_summary": true,
+				"controls": true,
+			}
+			this.generateReport()
+		},
+		async generateReport() {
+		  const { jsPDF } = window.jspdf;
+		  const doc = new jsPDF();
+
+		  const baseColor = [54, 69, 79];
+		  const pageWidth = doc.internal.pageSize.getWidth();
+
+		  doc.setFont("helvetica", "normal");
+		  doc.setFontSize(9);
+		  doc.setTextColor(...baseColor);
+
+		  const title = "Compliance Report";
+
+		  // Load and render image
+		  const imageUrl = '/static/img/icon.png';
+		  const img = await loadImage(imageUrl);
+		  const base64Image = await imageToBase64(img);
+
+		  const imgX = 20, imgY = 12, imgSize = 10;
+		  const textX = imgX + imgSize + 5;
+		  const textY = 20;
+
+		  doc.addImage(base64Image, 'PNG', imgX, imgY, imgSize, imgSize);
+		  doc.setFont("helvetica", "bold");
+		  doc.setFontSize(20);
+		  doc.text(title, textX, textY);
+
+		  // Divider
+		  doc.setDrawColor(200);
+		  doc.line(20, 25, pageWidth - 20, 25);
+
+		  let cursorY = 35;
+
+		  if (this.reportConfig.summary) {
+			const summaryData = {
+			  title: this.projectData.name.replace(/\b\w/g, c => c.toUpperCase()),
+			  framework: this.projectData.framework.toUpperCase(),
+			  status: this.projectData.status.toUpperCase(),
+			  completion: `${this.projectData.completion_progress}%`,
+			  startDate: this.projectData.date_added
+			};
+			cursorY = this.renderSummarySection(doc, summaryData, cursorY, baseColor);
+
+		  }
+		  if (this.reportConfig.control_summary) {
+
+			const data = Object.entries(
+			  this.controls.reduce((acc, control) => {
+				const status = control.status.toLowerCase();
+				acc[status] = (acc[status] || 0) + 1;
+				return acc;
+			  }, {})
+			).map(([status, count]) => ({
+			  status: status.toUpperCase(),
+			  count
+			}));
+		    cursorY = this.renderReportSection(
+				doc,
+				`Control Overview`,
+				`This section outlines all of the controls (${controls.length}) within the compliance project and the current status.`,
+				data,
+				cursorY
+		    );
+		  }
+		  if (this.reportConfig.audit_summary && this.projectData.auditor_enabled) {
+			const data = Object.entries(
+			  this.controls.reduce((acc, control) => {
+				const status = control.review_status.toLowerCase(); // normalize
+				acc[status] = (acc[status] || 0) + 1;
+				return acc;
+			  }, {})
+			).map(([status, count]) => ({
+			  status: status.toUpperCase(),
+			  count
+			}));
+
+		    cursorY = this.renderReportSection(
+				doc,
+				`Auditor Review`,
+				`This section outlines the auditor review status of the current controls in the project.`,
+				data,
+				cursorY
+		    );
+		  }
+		  if (this.reportConfig.controls) {
+			  const allowedKeys = {
+				  name: "Name",
+				  description: "Description",
+				  status: "Status",
+				  progress_completed: "Completion"
+			  };
+			  const filteredControls = this.controls.map(control => {
+				  const result = {};
+
+				  // Create lowercase key map for case-insensitive matching
+				  const lowerKeyMap = Object.fromEntries(
+					Object.entries(control).map(([k, v]) => [k.toLowerCase(), v])
+				  );
+
+				  Object.entries(allowedKeys).forEach(([matchKey, label]) => {
+					  let value = lowerKeyMap[matchKey.toLowerCase()] ?? null;
+
+					  if (label === "Status" && typeof value === "string") {
+						value = value
+						  .toLowerCase()
+						  .replace(/\b\w/g, c => c.toUpperCase());
+					  }
+
+					  if (label === "Completion" && value != null) {
+						value = `${value}%`;
+					  }
+
+					  result[label] = value;
+	  			  });
+
+				  return result;
+  			  });
+
+			  const data = filteredControls;
+
+			  cursorY = this.renderReportSection(
+				doc,
+				`Control Status (${controls.length})`,
+				`This section outlines all of the controls (${controls.length}) within the compliance project and the current status.`,
+				data,
+				cursorY
+			  );
+		  }
+
+		  doc.save("report.pdf");
+		},
+
+		renderSummarySection(doc, data, cursorY) {
+		  doc.setFont("helvetica", "bold");
+		  doc.setFontSize(14);
+		  doc.setTextColor(...[54, 69, 79]);
+		  doc.text("Project Summary", 20, cursorY);
+		  cursorY += 8;
+
+		  doc.setFont("helvetica", "normal");
+		  doc.setFontSize(9);
+
+		  const summaryLines = [
+			`Project Title: ${data.title}`,
+			`Framework: ${data.framework}`,
+			`Status: ${data.status}`,
+			`Completion: ${data.completion}`,
+			`Start Date: ${data.startDate}`
+		  ];
+
+		  summaryLines.forEach((line, i) => {
+			doc.text(line, 20, cursorY + i * 6); // 6px line height
+		  });
+
+		  return cursorY + summaryLines.length * 6 + 6; // return next available Y
+		},
 		setFiltersForControl: function(controlFilter=null) {
 			console.log("Updating control filter")
 			const validKeys = new Set(["status", "review_status", "implemented_status", "owner", "name", "evidence_status", "tags"]);

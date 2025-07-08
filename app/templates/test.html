@@ -1,57 +1,166 @@
 {% extends "layouts/empty.html" %}
 
 {%block head%}
-    <style>
-        .tiptap.ProseMirror {
-            height: 200px;
-        }
-    </style>
-    <script type="module">
-        // Import the function from the external file
-        import { initializeEditor } from '/static/js/editor.js'; // Adjust the path if needed
 
-        // Initialize the editor
-        initializeEditor();
-    </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+
+
 {%endblock%}
 
 {%block body%}
-
-    <div class="flex h-screen">
-        <div class="w-64 bg-base-100 p-6 flex flex-col border-r border-base-300">
-            <h1 class="text-2xl font-bold mb-8">Docs</h1>
-            <nav class="space-y-4">
-                <a href="#" class="text-lg">Introduction</a>
-                <a href="#" class="text-lg">Getting Started</a>
-                <a href="#" class="text-lg">API Reference</a>
-                <a href="#" class="text-lg">Guides</a>
-                <a href="#" class="text-lg">FAQ</a>
-            </nav>
-        </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
-            <!-- Topbar -->
-            <header class="bg-base-100 shadow px-4 py-2 flex items-center justify-between border-b border-base-300">
-                <h1 class="text-xl font-semibold">Policy Center</h1>
-                <div class="flex items-center space-x-4">
-                    <input type="search" placeholder="Search..." class="p-2 rounded border border-base-300">
-                    <button class="px-4 py-2 rounded">Log In</button>
-                </div>
-            </header>
-
-            <!-- Content Area -->
-            <main class="flex-1 p-6 bg-white overflow-y-auto element">
-            </main>
-        </div>
-    </div>
-    <div class="absolute bg-base-300 bottom-24 left-1/2 transform -translate-x-1/2 py-2 px-8 rounded-lg shadow-lg flex space-x-4">
-        <button class="btn btn-sm">Bold</button>
-        <button class="btn btn-sm">Underline</button>
-    </div>
-
+<div x-data="pdfReport()">
+  <button class="btn btn-primary" @click="generatePdf">Generate PDF</button>
+</div>
 {%endblock%}
 
 {%block extrajs%}
+  <script>
+    function loadImage(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous"; // Important for CORS
+        img.onload = () => resolve(img);
+        img.src = url;
+      });
+    }
+    function imageToBase64(img) {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      return canvas.toDataURL("image/png");
+    }
 
+    function renderSection(doc, title, paragraph, data, cursorY) {
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      // Title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(...[54, 69, 79]);
+      doc.text(title, 20, cursorY);
+      cursorY += 6;
+
+      // Paragraph
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      const lines = doc.splitTextToSize(paragraph, 170);
+      doc.text(lines, 20, cursorY);
+      cursorY += lines.length * 4.5; // smaller gap below paragraph
+
+      // Skip if there's no data
+      if (!data || data.length === 0) return cursorY;
+
+      // Extract headers and rows
+      const headers = [Object.keys(data[0])];
+      const body = data.map(row => Object.values(row));
+
+      // Table
+      doc.autoTable({
+        head: headers,
+        body: body,
+        startY: cursorY,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [245, 245, 245],
+          textColor: [54, 69, 79],
+          fontStyle: 'bold',
+          halign: 'center',
+          lineWidth: 0
+        },
+        styles: {
+          fontSize: 9,
+          lineColor: [245, 245, 245],
+          textColor: [54, 69, 79],
+          cellPadding: 3,
+          halign: 'center'
+        }
+      });
+
+      return doc.lastAutoTable.finalY + 10;
+    }
+
+
+function pdfReport() {
+  return {
+    config: {
+      security_risks: true,
+      infra_risks: true
+    },
+
+    async generatePdf() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const baseColor = [54, 69, 79];
+      const pageWidth = doc.internal.pageSize.getWidth();
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(...baseColor);
+
+      const title = "Risk Report";
+
+      // Load and render image
+      const imageUrl = '/static/img/icon.png';
+      const img = await loadImage(imageUrl);
+      const base64Image = await imageToBase64(img);
+
+      const imgX = 20, imgY = 12, imgSize = 10;
+      const textX = imgX + imgSize + 5;
+      const textY = 20;
+
+      doc.addImage(base64Image, 'PNG', imgX, imgY, imgSize, imgSize);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(20);
+      doc.text(title, textX, textY);
+
+      // Divider
+      doc.setDrawColor(200);
+      doc.line(20, 25, pageWidth - 20, 25);
+
+      let cursorY = 35;
+
+      if (this.config.security_risks) {
+          const data = [
+            { "Title": "Lack of MFA", "Status": "In progress", "Description": "Third party services lack MFA...", "Owner": "bmarshall" },
+            { "Title": "Lack of network controls", "Status": "complete", "Description": "Third party services lack MFA", "Owner": "bmarshall" }
+          ];
+
+          cursorY = renderSection(
+            doc,
+            "Account Security Risks",
+            "This section outlines security risks related to identity, authentication, and access management. Each item includes the current status and owner for follow-up.",
+            data,
+            cursorY
+          );
+      }
+
+      if (this.config.infra_risks) {
+          const data = [
+            { "Category": "Identity", "Risk": "No MFA on Okta Admins", "Severity": "High" },
+            { "Category": "Network", "Risk": "Wide open VPC ingress", "Severity": "Medium" },
+            { "Category": "Application", "Risk": "Outdated dependencies", "Severity": "Low" }
+          ];
+
+          cursorY = renderSection(
+            doc,
+            "Infrastructure Risks",
+            "This section highlights risks related to networking, system configuration, and deployment pipelines. Severity is based on potential impact.",
+            data,
+            cursorY
+          );
+      }
+
+      doc.save("report.pdf");
+    }
+  };
+}
+
+
+  </script>
 {%endblock%}

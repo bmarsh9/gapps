@@ -1,4 +1,4 @@
-{% macro filehelper(grid=False,apex=False,datepicker=False,spinner=False,select=False,sortable=False,driver=True,editor=False,confetti=False,mentions=False,sanitize=False,files=False,tags=False,markdown=False) -%}
+{% macro filehelper(grid=False,apex=False,datepicker=False,spinner=False,select=False,sortable=False,driver=True,editor=False,confetti=False,mentions=False,sanitize=False,files=False,tags=False,markdown=False,report=False) -%}
   {% if sanitize %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.3/purify.min.js" integrity="sha512-TBmnYz6kBCpcGbD55K7f4LZ+ykn3owqujFnUiTSHEto6hMA7aV4W7VDPvlqDjQImvZMKxoR0dNY5inyhxfZbmA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   {%endif%}
@@ -57,4 +57,9 @@
   {% if markdown %}
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
   {% endif %}
+  {% if report %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  {% endif %}
+
 {%- endmacro %}
