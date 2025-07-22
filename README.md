@@ -193,3 +193,9 @@ And here is how you use the token to authenticate (curl as an example)
 TOKEN="TOKEN HERE"
 curl <gapps-host>/api/v1/tenants -H "token: $TOKEN"
 ```
+
+## Security Compliance Tools
+
+| Name | GitHub | Category | Description |
+|------|--------|----------|-------------|
+| Gapps | https://github.com/bmarsh9/gapps | Security Compliance Tracking | Gapps is an open-source security compliance platform that helps organizations track and manage progress against major frameworks—including SOC2, CMMC, ASVS, ISO27001, HIPAA, NIST CSF, NIST 800-53, CIS 18, PCI DSS, and SSF—offering dashboards, risk registers, audits, SSO, and multi-tenant support. |
