@@ -843,6 +843,74 @@
       };
     </script>
     <script>
+      // === Auto Sign-Out / Idle Timer ===
+      (function() {
+        let timeoutMinutes = {{config.SESSION_TIMEOUT_MINUTES or 10}};
+        let warningSeconds = {{config.SESSION_WARNING_SECONDS or 60}};
+        let idleTimer = null;
+        let warningTimer = null;
+        let warningShown = false;
+
+        function resetIdleTimer() {
+          clearTimeout(idleTimer);
+          clearTimeout(warningTimer);
+
+          if (warningShown) {
+            const el = document.getElementById('session-timeout-warning');
+            if (el) el.remove();
+            warningShown = false;
+          }
+
+          // Show warning before timeout
+          const warningDelay = (timeoutMinutes * 60 - warningSeconds) * 1000;
+          if (warningDelay > 0) {
+            warningTimer = setTimeout(showWarning, warningDelay);
+          }
+
+          // Sign out when timeout expires
+          idleTimer = setTimeout(signOut, timeoutMinutes * 60 * 1000);
+        }
+
+        function showWarning() {
+          warningShown = true;
+          const div = document.createElement('div');
+          div.id = 'session-timeout-warning';
+          div.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-[9999] alert alert-warning shadow-lg max-w-md';
+          div.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <div>
+              <span class="font-semibold">Session expiring soon</span>
+              <p class="text-sm">Move your mouse or press a key to stay signed in.</p>
+            </div>
+          `;
+          document.body.appendChild(div);
+        }
+
+        function signOut() {
+          window.location.href = '/auth/logout?timeout=1';
+        }
+
+        // Fetch latest timeout from settings (admin may have changed it)
+        fetch('/api/v1/session-timeout')
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            if (data) {
+              timeoutMinutes = data.timeout_minutes || 10;
+              warningSeconds = data.warning_seconds || 60;
+            }
+            resetIdleTimer();
+          })
+          .catch(() => resetIdleTimer());
+
+        // Reset on user activity
+        ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart', 'click'].forEach(evt => {
+          document.addEventListener(evt, resetIdleTimer, {passive: true});
+        });
+      })();
+    </script>
+    <script>
       let mybutton = document.getElementById('btn-back-to-top');
 
       function scrollFunction() {

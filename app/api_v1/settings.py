@@ -81,6 +81,14 @@ SETTINGS_SCHEMA = {
             {"key": "ENABLE_SELF_REGISTRATION", "label": "Enable Self Registration", "type": "boolean", "sensitive": False},
         ],
     },
+    "security": {
+        "label": "Security",
+        "keys": [
+            {"key": "SESSION_TIMEOUT_MINUTES", "label": "Session Timeout (minutes)", "type": "number", "sensitive": False},
+            {"key": "SESSION_WARNING_SECONDS", "label": "Timeout Warning (seconds before)", "type": "number", "sensitive": False},
+            {"key": "FORCE_PASSWORD_CHANGE_DAYS", "label": "Force Password Change (days, 0=off)", "type": "number", "sensitive": False},
+        ],
+    },
 }
 
 
@@ -294,3 +302,20 @@ def get_settings_schema():
     """Get the settings schema for the frontend."""
     Authorizer(current_user).can_user_manage_platform()
     return jsonify(SETTINGS_SCHEMA)
+
+
+@api.route("/session-timeout", methods=["GET"])
+@login_required
+def get_session_timeout():
+    """Get session timeout config for the frontend idle timer."""
+    timeout = _get_config_value("SESSION_TIMEOUT_MINUTES")
+    warning = _get_config_value("SESSION_WARNING_SECONDS")
+    try:
+        timeout = int(timeout) if timeout else current_app.config.get("SESSION_TIMEOUT_MINUTES", 10)
+    except (ValueError, TypeError):
+        timeout = 10
+    try:
+        warning = int(warning) if warning else current_app.config.get("SESSION_WARNING_SECONDS", 60)
+    except (ValueError, TypeError):
+        warning = 60
+    return jsonify({"timeout_minutes": timeout, "warning_seconds": warning})

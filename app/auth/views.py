@@ -31,7 +31,10 @@ def post_login():
 @auth.route("/logout")
 def logout():
     logout_user()
-    flash("You are logged out", "success")
+    if request.args.get("timeout"):
+        flash("Your session expired due to inactivity. Please log in again.", "warning")
+    else:
+        flash("You are logged out", "success")
     return redirect(url_for("auth.get_login"))
 
 

@@ -4776,7 +4776,7 @@ class ConfigStore(db.Model):
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    key = db.Column(db.String())
+    key = db.Column(db.String(255), unique=True)
     value = db.Column(db.String())
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)

@@ -1,3 +1,4 @@
+from datetime import timedelta
 from sqlalchemy.engine.url import make_url
 from urllib.parse import urlparse
 import os
@@ -52,6 +53,17 @@ class Config:
 
     SECRET_KEY = os.environ.get("SECRET_KEY", "change_secret_key")
     ENCRYPTION_KEY = os.environ.get("ENCRYPTION_KEY", "")
+
+    # Session / auto sign-out (default 10 minutes)
+    SESSION_TIMEOUT_MINUTES = int(os.environ.get("SESSION_TIMEOUT_MINUTES", 10))
+    SESSION_WARNING_SECONDS = int(os.environ.get("SESSION_WARNING_SECONDS", 60))
+    FORCE_PASSWORD_CHANGE_DAYS = int(os.environ.get("FORCE_PASSWORD_CHANGE_DAYS", 0))
+    PERMANENT_SESSION_LIFETIME = timedelta(
+        minutes=int(os.environ.get("SESSION_TIMEOUT_MINUTES", 10))
+    )
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = False

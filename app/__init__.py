@@ -1,9 +1,10 @@
-from flask import Flask, request, render_template, jsonify
+from datetime import datetime, timedelta
+from flask import Flask, request, render_template, jsonify, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from config import config
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from authlib.integrations.flask_client import OAuth
 from sqlalchemy import exc
 import logging
@@ -29,11 +30,46 @@ def create_app(config_name="default"):
     configure_logging(app)
     set_config_options(app)
 
-    """
     @app.before_request
-    def before_request():
-        pass
-    """
+    def enforce_session_timeout():
+        """Make sessions permanent and enforce server-side idle timeout."""
+        session.permanent = True
+
+        # Skip for static files, login, and public API endpoints
+        if request.endpoint and (
+            request.endpoint.startswith("static")
+            or request.endpoint in ("auth.get_login", "auth.post_login", "api.get_session_timeout")
+        ):
+            return
+
+        if current_user.is_authenticated:
+            now = datetime.utcnow()
+            last_active = session.get("_last_active")
+            if last_active:
+                try:
+                    last_active_dt = datetime.fromisoformat(last_active)
+                except (ValueError, TypeError):
+                    last_active_dt = now
+
+                # Check configured timeout from ConfigStore or default
+                timeout_minutes = app.config.get("SESSION_TIMEOUT_MINUTES", 10)
+                try:
+                    from app.models import ConfigStore
+                    stored = ConfigStore.find("setting_SESSION_TIMEOUT_MINUTES")
+                    if stored and stored.value:
+                        timeout_minutes = int(stored.value)
+                except Exception:
+                    pass
+
+                if (now - last_active_dt) > timedelta(minutes=timeout_minutes):
+                    from flask_login import logout_user
+                    session.clear()
+                    logout_user()
+                    from flask import flash
+                    flash("Your session has expired due to inactivity. Please log in again.", "warning")
+                    return redirect(url_for("auth.get_login"))
+
+            session["_last_active"] = now.isoformat()
 
     return app
 

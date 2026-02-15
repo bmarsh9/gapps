@@ -1,5 +1,6 @@
 from functools import wraps
-from flask import request, jsonify, redirect, url_for, flash
+from datetime import datetime
+from flask import request, jsonify, redirect, url_for, flash, session
 from app.models import *
 from flask_login import current_user, login_user, logout_user
 
@@ -9,6 +10,8 @@ def custom_login(user):
         user.login_count = (user.login_count or 0) + 1
         db.session.commit()
         login_user(user)
+        session.permanent = True
+        session["_last_active"] = datetime.utcnow().isoformat()
 
 
 def validate_token_in_header(enc_token):
