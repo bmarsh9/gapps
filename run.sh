@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # Entrypoint script for the Flask app
+# Works in both Docker and bare-metal (Cloudways) environments.
+#
 # Performs checks before starting the service:
+#  - Loads .env file if present (Cloudways / bare-metal)
+#  - Activates virtualenv if present (Cloudways / bare-metal)
 #  - Ensures database connection is available
 #  - Verifies or initializes database models
 #  - Runs database migrations if required
@@ -10,10 +14,26 @@
 
 set -e  # Exit script immediately on failure
 
+APP_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Load .env file if it exists (Cloudways / bare-metal - Docker uses env_file directive)
+if [ -f "$APP_DIR/.env" ] && [ ! -f "/.dockerenv" ]; then
+    set -a
+    source "$APP_DIR/.env"
+    set +a
+    echo "[INFO] Loaded environment from .env"
+fi
+
+# Activate virtualenv if it exists (Cloudways / bare-metal)
+if [ -d "$APP_DIR/venv" ] && [ ! -f "/.dockerenv" ]; then
+    source "$APP_DIR/venv/bin/activate"
+    echo "[INFO] Activated virtualenv"
+fi
+
 PORT=${PORT:-5000}
-GUNICORN_WORKERS=${GUNICORN_WORKERS:-1}
-GUNICORN_THREADS=${GUNICORN_THREADS:-0}
-GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-60}
+GUNICORN_WORKERS=${GUNICORN_WORKERS:-2}
+GUNICORN_THREADS=${GUNICORN_THREADS:-4}
+GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-120}
 GUNICORN_KEEP_ALIVE=${GUNICORN_KEEP_ALIVE:-60}
 
 start_server() {
