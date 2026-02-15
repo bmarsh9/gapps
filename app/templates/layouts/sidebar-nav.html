@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html class="scroll-smooth" data-theme="dark">
+<html class="scroll-smooth" data-theme="masri-dark">
   {%set seo = {}%}
   {%set plugins = {}%}
   {%set layout = layout or config.LAYOUT%}
   {%set themes = [
+    "masri-dark",
+    "masri-light",
     "dark",
     "light"
     ]
@@ -68,6 +70,7 @@
       }
     </style>
     {%endif%}
+    <link href="{{ url_for('static', filename='css/masri-branding.css') }}" rel="stylesheet" type="text/css" />
     {%block head%}{%endblock%}
   </head>
   {% set user_roles = current_user.roles_for_tenant_by_id(session.get("tenant-id"))%}
@@ -492,10 +495,10 @@
         {%if layout["footer"]%}
         <!-- Main footer -->
         <footer class="flex items-center justify-between flex-shrink-0 p-4 border-t border-base-200 max-h-14">
-          <div class="capitalize">{{config.APP_NAME}} © {{cr_year}}</div>
+          <div class="capitalize">{{config.APP_NAME}} &copy; {{config.CR_YEAR}}</div>
           <div class="text-sm">
-            Made by
-            <a class="text-primary underline capitalize" href="#" rel="noopener noreferrer" target="_blank">{{config.APP_NAME}}</a>
+            Powered by
+            <a class="text-primary underline" href="https://masridigital.com" rel="noopener noreferrer" target="_blank">Masri Digital</a>
           </div>
         </footer>
         {%endif%}

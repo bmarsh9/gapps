@@ -1,43 +1,113 @@
 {% extends "layouts/sidebar-nav.html" %}
 
-{%block page_header_title%}Settings{%endblock%}
+{%block page_header_title%}Platform Settings{%endblock%}
 {%block page_header_title_border%}{%endblock%}
 
 {%block content%}
-<div class="mt-10 sm:mt-0">
-  <div class="md:grid md:grid-cols-3 md:gap-6">
-    <div class="mt-5 col-span-3">
-      <form action="{{url_for("main.settings")}}" method="POST">
-        <div class="border border-base-200 sm:rounded-md">
-          <div class="px-4 py-5 sm:p-6">
-            <div class="grid grid-cols-6 gap-6">
-              <div class="col-span-6 sm:col-span-3">
-                <label for="name" class="block text-sm font-medium ">Name</label>
-                <input type="text" value="not implemented" name="name" id="name" autocomplete="given-name" class="mt-1 input-md border border-base-300 block w-full shadow-sm sm:text-sm rounded-md">
-                <p class="mt-2 text-sm ">The display name of your tenant</p>
-              </div>
+<div x-data="settingsPage()" x-init="loadSettings()">
 
-              <div class="col-span-6 sm:col-span-4">
-                <label for="email" class="block text-sm font-medium ">Contact email address</label>
-                <input type="text" value="not implemented" name="email" id="email" autocomplete="email" class="mt-1 input-md border border-base-300 block w-full shadow-sm sm:text-sm rounded-md">
-                <p class="mt-2 text-sm ">The email for notifications</p>
-              </div>
+  <!-- Tab Navigation -->
+  <div class="tabs tabs-bordered mb-6">
+    <template x-for="(cat, key) in categories" :key="key">
+      <a class="tab tab-lg" :class="{'tab-active': activeTab === key}" @click="activeTab = key" x-text="cat.label"></a>
+    </template>
+  </div>
 
-              <div class="col-span-6 sm:col-span-3">
-                <label for="country" class="block text-sm font-medium ">License</label>
-                <select id="country" name="country" autocomplete="country-name" class="mt-1 input-md border border-base-300 block w-full py-2 px-3 rounded-md shadow-sm focus:outline-none sm:text-sm" disabled>
-                  <option>Basic</option>
-                  <option>Pro</option>
-                </select>
-                <p class="mt-2 text-sm ">The license type (NOT IMPLEMENTED)</p>
+  <!-- Settings Content -->
+  <template x-for="(cat, catKey) in categories" :key="catKey">
+    <div x-show="activeTab === catKey" class="space-y-6">
+      <div class="card bg-base-200 shadow-sm">
+        <div class="card-body">
+          <h2 class="card-title text-lg" x-text="cat.label"></h2>
+          <div class="divider mt-0 mb-2"></div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <template x-for="setting in cat.settings" :key="setting.key">
+              <div>
+                <label class="label">
+                  <span class="label-text font-medium" x-text="setting.label"></span>
+                  <span x-show="setting.sensitive" class="badge badge-warning badge-xs">encrypted</span>
+                </label>
+
+                <!-- Boolean toggle -->
+                <template x-if="setting.type === 'boolean'">
+                  <input type="checkbox" class="toggle toggle-primary"
+                    :checked="setting.value === true || setting.value === 'true'"
+                    @change="updateSetting(catKey, setting.key, $event.target.checked)">
+                </template>
+
+                <!-- Select dropdown -->
+                <template x-if="setting.type === 'select'">
+                  <select class="select select-bordered select-sm w-full"
+                    @change="updateSetting(catKey, setting.key, $event.target.value)">
+                    <option value="">-- Select --</option>
+                    <template x-for="opt in setting.options" :key="opt">
+                      <option :value="opt" :selected="setting.value === opt" x-text="opt"></option>
+                    </template>
+                  </select>
+                </template>
+
+                <!-- Password field -->
+                <template x-if="setting.type === 'password'">
+                  <div class="flex gap-2">
+                    <input :type="showPasswords[setting.key] ? 'text' : 'password'"
+                      class="input input-bordered input-sm w-full"
+                      :placeholder="setting.is_set ? '(encrypted - leave blank to keep)' : 'Enter value'"
+                      @input="updateSetting(catKey, setting.key, $event.target.value)">
+                    <button class="btn btn-sm btn-ghost" @click="showPasswords[setting.key] = !showPasswords[setting.key]">
+                      <i class="ti" :class="showPasswords[setting.key] ? 'ti-eye-off' : 'ti-eye'"></i>
+                    </button>
+                  </div>
+                </template>
+
+                <!-- Number field -->
+                <template x-if="setting.type === 'number'">
+                  <input type="number" class="input input-bordered input-sm w-full"
+                    :value="setting.value"
+                    @input="updateSetting(catKey, setting.key, $event.target.value)">
+                </template>
+
+                <!-- Text/Email field -->
+                <template x-if="setting.type === 'text' || setting.type === 'email'">
+                  <input :type="setting.type" class="input input-bordered input-sm w-full"
+                    :value="setting.value || ''"
+                    @input="updateSetting(catKey, setting.key, $event.target.value)">
+                </template>
               </div>
-            </div>
+            </template>
           </div>
-          <div class="px-4 py-3 text-right sm:px-6">
-            <button type="submit" class="btn btn-primary" disabled>Save</button>
+
+          <!-- Save & Test buttons -->
+          <div class="card-actions justify-end mt-4">
+            <template x-if="catKey === 'smtp'">
+              <button class="btn btn-sm btn-outline" @click="testSmtp()" :disabled="testing">
+                <i class="ti ti-mail-check"></i> Test SMTP
+              </button>
+            </template>
+            <template x-if="catKey === 'llm'">
+              <button class="btn btn-sm btn-outline" @click="testLlm()" :disabled="testing">
+                <i class="ti ti-robot"></i> Test LLM
+              </button>
+            </template>
+            <template x-if="catKey === 'storage'">
+              <button class="btn btn-sm btn-outline" @click="testStorage()" :disabled="testing">
+                <i class="ti ti-database"></i> Test Storage
+              </button>
+            </template>
+            <button class="btn btn-sm btn-primary" @click="saveCategory(catKey)" :disabled="saving">
+              <i class="ti ti-device-floppy"></i>
+              <span x-text="saving ? 'Saving...' : 'Save'"></span>
+            </button>
           </div>
         </div>
-      </form>
+      </div>
+    </div>
+  </template>
+
+  <!-- Status Messages -->
+  <div x-show="statusMessage" class="mt-4">
+    <div class="alert" :class="statusSuccess ? 'alert-success' : 'alert-error'">
+      <span x-text="statusMessage"></span>
     </div>
   </div>
 </div>
@@ -45,7 +115,118 @@
 
 {%block extrajs%}
 <script>
-  function loadSettings() {
+function settingsPage() {
+  return {
+    activeTab: 'general',
+    categories: {},
+    pendingChanges: {},
+    showPasswords: {},
+    saving: false,
+    testing: false,
+    statusMessage: '',
+    statusSuccess: false,
+
+    loadSettings() {
+      request("GET", "/api/v1/admin/settings",
+        data => {
+          this.categories = data;
+          // Initialize show passwords tracking
+          for (const cat of Object.values(data)) {
+            for (const setting of cat.settings) {
+              if (setting.type === 'password') {
+                this.showPasswords[setting.key] = false;
+              }
+            }
+          }
+        },
+        error => { toast(error.message || "Failed to load settings", "error"); }
+      );
+    },
+
+    updateSetting(category, key, value) {
+      if (!this.pendingChanges[category]) {
+        this.pendingChanges[category] = {};
+      }
+      this.pendingChanges[category][key] = value;
+    },
+
+    saveCategory(category) {
+      const changes = this.pendingChanges[category];
+      if (!changes || Object.keys(changes).length === 0) {
+        toast("No changes to save", "warning");
+        return;
+      }
+
+      this.saving = true;
+      request("PUT", "/api/v1/admin/settings",
+        data => {
+          this.saving = false;
+          this.pendingChanges[category] = {};
+          toast("Settings saved successfully", "success");
+          this.loadSettings();
+        },
+        error => {
+          this.saving = false;
+          toast(error.message || "Failed to save settings", "error");
+        },
+        { category: category, settings: changes }
+      );
+    },
+
+    testSmtp() {
+      this.testing = true;
+      request("POST", "/api/v1/admin/settings/test-smtp",
+        data => {
+          this.testing = false;
+          if (data.success) {
+            toast("SMTP test email sent successfully", "success");
+          } else {
+            toast("SMTP test failed: " + data.message, "error");
+          }
+        },
+        error => {
+          this.testing = false;
+          toast("SMTP test failed: " + (error.message || "Unknown error"), "error");
+        }
+      );
+    },
+
+    testLlm() {
+      this.testing = true;
+      request("POST", "/api/v1/admin/settings/test-llm",
+        data => {
+          this.testing = false;
+          if (data.success) {
+            toast("LLM connected: " + data.message, "success");
+          } else {
+            toast("LLM test failed: " + data.message, "error");
+          }
+        },
+        error => {
+          this.testing = false;
+          toast("LLM test failed: " + (error.message || "Unknown error"), "error");
+        }
+      );
+    },
+
+    testStorage() {
+      this.testing = true;
+      request("POST", "/api/v1/admin/settings/test-storage",
+        data => {
+          this.testing = false;
+          if (data.success) {
+            toast(data.message, "success");
+          } else {
+            toast("Storage test failed: " + data.message, "error");
+          }
+        },
+        error => {
+          this.testing = false;
+          toast("Storage test failed: " + (error.message || "Unknown error"), "error");
+        }
+      );
+    }
   }
+}
 </script>
 {%endblock%}

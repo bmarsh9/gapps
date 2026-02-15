@@ -8,6 +8,14 @@ import glob
 from datetime import timedelta
 from app.utils.exceptions import FileDoesNotExist
 
+# Azure imports - optional
+try:
+    from azure.storage.blob import BlobServiceClient, generate_blob_sas, BlobSasPermissions
+    from azure.core.exceptions import ResourceNotFoundError as AzureResourceNotFoundError
+    HAS_AZURE = True
+except ImportError:
+    HAS_AZURE = False
+
 
 class FileStorageHandler:
     def __init__(
@@ -15,6 +23,7 @@ class FileStorageHandler:
         provider,
         s3_bucket_name=None,
         gcs_bucket_name=None,
+        azure_container_name=None,
         aws_access_key=None,
         aws_secret_key=None,
         region=None,
@@ -26,10 +35,11 @@ class FileStorageHandler:
         self.aws_secret_key = aws_secret_key
         self.region = region
         self.gcs_bucket_name = gcs_bucket_name
+        self.azure_container_name = azure_container_name
 
-        if self.provider not in ["local", "s3", "gcs"]:
+        if self.provider not in ["local", "s3", "gcs", "azure"]:
             raise ValueError(
-                "Invalid provider specified. Must be 'local', 's3', or 'gcs'."
+                "Invalid provider specified. Must be 'local', 's3', 'gcs', or 'azure'."
             )
         if not skip_auth:
             self._refresh()
@@ -47,6 +57,8 @@ class FileStorageHandler:
             )
         elif self.provider == "gcs":
             self._initialize_gcs(self.gcs_bucket_name)
+        elif self.provider == "azure":
+            self._initialize_azure(self.azure_container_name)
         else:
             raise ValueError("Unsupported provider")
 
@@ -88,6 +100,39 @@ class FileStorageHandler:
             raise ValueError("gcs_bucket_name is required for GCS storage")
         self.gcs_client = storage.Client()
 
+    def _initialize_azure(self, azure_container_name):
+        if not HAS_AZURE:
+            raise ValueError(
+                "Azure SDK not installed. Install with: pip install azure-storage-blob"
+            )
+        self.azure_container_name = azure_container_name or current_app.config.get(
+            "AZURE_STORAGE_CONTAINER"
+        )
+        if not self.azure_container_name:
+            raise ValueError("azure_container_name is required for Azure storage")
+
+        connection_string = current_app.config.get("AZURE_STORAGE_CONNECTION_STRING")
+        account_name = current_app.config.get("AZURE_STORAGE_ACCOUNT_NAME")
+        account_key = current_app.config.get("AZURE_STORAGE_ACCOUNT_KEY")
+
+        if connection_string:
+            self.azure_client = BlobServiceClient.from_connection_string(
+                connection_string
+            )
+        elif account_name and account_key:
+            self.azure_client = BlobServiceClient(
+                account_url=f"https://{account_name}.blob.core.windows.net",
+                credential=account_key,
+            )
+        else:
+            raise ValueError(
+                "Azure Storage requires either AZURE_STORAGE_CONNECTION_STRING "
+                "or both AZURE_STORAGE_ACCOUNT_NAME and AZURE_STORAGE_ACCOUNT_KEY"
+            )
+        self.azure_container_client = self.azure_client.get_container_client(
+            self.azure_container_name
+        )
+
     def _check_provider(self, required_provider):
         if self.provider != required_provider:
             raise ValueError(
@@ -120,6 +165,10 @@ class FileStorageHandler:
             return self.upload_to_gcs(
                 file=file, file_name=file_name, folder=folder, abs_path=abs_path
             )
+        elif self.provider == "azure":
+            return self.upload_to_azure(
+                file=file, file_name=file_name, folder=folder, abs_path=abs_path
+            )
 
     def list_files(self, path):
         if self.provider == "local":
@@ -128,6 +177,8 @@ class FileStorageHandler:
             return self.list_s3_files(path=path)
         elif self.provider == "gcs":
             return self.list_gcs_files(path=path)
+        elif self.provider == "azure":
+            return self.list_azure_files(path=path)
 
     def get_file(self, path, as_blob=False):
         if self.provider == "local":
@@ -136,6 +187,8 @@ class FileStorageHandler:
             return self.get_s3_file(path=path, as_blob=as_blob)
         elif self.provider == "gcs":
             return self.get_gcs_file(path=path, as_blob=as_blob)
+        elif self.provider == "azure":
+            return self.get_azure_file(path=path, as_blob=as_blob)
 
     def delete_file(self, path):
         if self.provider == "local":
@@ -144,6 +197,8 @@ class FileStorageHandler:
             return self.delete_s3_file(path=path)
         elif self.provider == "gcs":
             return self.delete_gcs_file(path=path)
+        elif self.provider == "azure":
+            return self.delete_azure_file(path=path)
 
     def get_size(self, folder):
         if self.provider == "local":
@@ -152,6 +207,8 @@ class FileStorageHandler:
             return self.get_s3_size(folder=folder)
         elif self.provider == "gcs":
             return self.get_gcs_size(folder=folder)
+        elif self.provider == "azure":
+            return self.get_azure_size(folder=folder)
 
     def does_file_exist(self, abs_path):
         if self.provider == "local":
@@ -160,6 +217,8 @@ class FileStorageHandler:
             return self.does_s3_file_exist(abs_path)
         elif self.provider == "gcs":
             return self.does_gcs_file_exist(abs_path)
+        elif self.provider == "azure":
+            return self.does_azure_file_exist(abs_path)
 
     def does_local_file_exist(self, abs_path):
         if os.path.isfile(abs_path):
@@ -420,3 +479,106 @@ class FileStorageHandler:
         elif as_presign:
             return blob.generate_signed_url(expiration=timedelta(minutes=60))
         return blob
+
+    # Azure Blob Storage Methods
+    def upload_to_azure(self, file, file_name=None, folder=None, abs_path=None):
+        """Upload a file to Azure Blob Storage."""
+        self._check_provider("azure")
+
+        if abs_path:
+            folder, file_name = os.path.split(abs_path)
+
+        if not file_name:
+            raise ValueError("file_name is required when abs_path is not specified")
+
+        blob_path = (
+            os.path.join(folder, file_name).replace(os.sep, "/")
+            if folder
+            else file_name
+        )
+        # Remove leading slash
+        blob_path = blob_path.lstrip("/")
+
+        blob_client = self.azure_container_client.get_blob_client(blob_path)
+
+        try:
+            if isinstance(file, str):
+                if not os.path.isfile(file):
+                    raise ValueError(f"File not found: {file}")
+                with open(file, "rb") as f:
+                    blob_client.upload_blob(f, overwrite=True)
+            else:
+                blob_client.upload_blob(file, overwrite=True)
+
+            current_app.logger.debug(
+                f"File: {file_name} uploaded to Azure container: "
+                f"{self.azure_container_name} at path: {blob_path}"
+            )
+            return blob_path
+        except Exception as e:
+            current_app.logger.error(f"Azure upload error: {e}")
+            return False
+
+    def list_azure_files(self, path=""):
+        """List files in Azure Blob Storage container."""
+        self._check_provider("azure")
+
+        files = []
+        blobs = self.azure_container_client.list_blobs(name_starts_with=path)
+        for blob in blobs:
+            name = os.path.basename(blob.name)
+            files.append(
+                {
+                    "name": name,
+                    "path": blob.name,
+                    "provider": "azure",
+                    "options": {
+                        "type": "local",
+                        "file": {"name": name, "size": blob.size},
+                    },
+                }
+            )
+        return files
+
+    def get_azure_file(self, path, as_blob=False, save_to=None):
+        """Get a file from Azure Blob Storage."""
+        self._check_provider("azure")
+
+        if not self.does_file_exist(path):
+            raise FileDoesNotExist(f"File:{path} does not exist in Azure")
+
+        blob_client = self.azure_container_client.get_blob_client(path)
+
+        if as_blob:
+            return blob_client.download_blob().readall()
+        elif save_to:
+            with open(save_to, "wb") as f:
+                blob_client.download_blob().readinto(f)
+            return save_to
+
+        return blob_client.get_blob_properties()
+
+    def delete_azure_file(self, path):
+        """Delete a file from Azure Blob Storage."""
+        self._check_provider("azure")
+        blob_client = self.azure_container_client.get_blob_client(path)
+        blob_client.delete_blob()
+        return True
+
+    def does_azure_file_exist(self, abs_path):
+        """Check if a file exists in Azure Blob Storage."""
+        try:
+            blob_client = self.azure_container_client.get_blob_client(abs_path)
+            blob_client.get_blob_properties()
+            return True
+        except Exception:
+            return False
+
+    def get_azure_size(self, folder):
+        """Get total size of files in a folder in Azure Blob Storage."""
+        self._check_provider("azure")
+        size = 0
+        blobs = self.azure_container_client.list_blobs(name_starts_with=folder)
+        for blob in blobs:
+            size += blob.size
+        return size

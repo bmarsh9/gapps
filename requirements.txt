@@ -31,3 +31,7 @@ google-cloud-storage==2.14.0
 boto3
 authlib
 google-cloud-logging
+# Azure Blob Storage
+azure-storage-blob>=12.19.0
+# Encryption
+cryptography>=41.0.0

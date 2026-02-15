@@ -1,0 +1,462 @@
+[
+  {
+    "name": "Purpose and Scope",
+    "description": "Defines the purpose, scope, and applicability of the information security program under the FTC Safeguards Rule (16 CFR Part 314). This control establishes which financial institutions must comply and what customer information must be protected.",
+    "ref_code": "ftc.1",
+    "system_level": false,
+    "category": "governance",
+    "subcategory": "scope and applicability",
+    "guidance": "The Safeguards Rule applies to financial institutions subject to the FTC's jurisdiction that are not subject to the enforcement authority of another regulator under Section 505 of the Gramm-Leach-Bliley Act. Determine whether your organization is a 'financial institution' under the Rule and identify all customer information that must be protected.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.1"
+    },
+    "subcontrols": [
+      {
+        "name": "Determine Financial Institution Status",
+        "description": "Determine whether your organization qualifies as a 'financial institution' under the Gramm-Leach-Bliley Act and FTC Safeguards Rule.",
+        "ref_code": "ftc.1.a",
+        "guidance": "Review the definition of 'financial institution' under GLBA Section 509(3)(A). Financial institutions include mortgage lenders, payday lenders, finance companies, account servicers, check cashers, wire transferors, collection agencies, credit counselors, tax preparation firms, non-federally insured credit unions, and investment advisors not required to register with the SEC.",
+        "meta": {"industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"]}
+      },
+      {
+        "name": "Identify Customer Information Scope",
+        "description": "Identify all customer information handled by the organization that falls under the Safeguards Rule protection requirements.",
+        "ref_code": "ftc.1.b",
+        "guidance": "Customer information means any record containing nonpublic personal information about a customer of a financial institution, whether in paper, electronic, or other form, that is handled or maintained by or on behalf of the institution or its affiliates. This includes names, addresses, SSNs, income, credit history, account numbers, and tax return information."
+      },
+      {
+        "name": "Define Information Security Program Scope",
+        "description": "Establish the organizational scope of the information security program, including all systems, processes, and people that handle customer information.",
+        "ref_code": "ftc.1.c",
+        "guidance": "The information security program must cover all customer information in your possession, regardless of whether such information pertains to individuals with whom you have a customer relationship or pertains to customers of other financial institutions with whom you have shared information."
+      }
+    ]
+  },
+  {
+    "name": "Qualified Individual",
+    "description": "Designate a Qualified Individual responsible for overseeing, implementing, and enforcing the information security program. This individual must have the knowledge, skills, and authority to direct and manage the program.",
+    "ref_code": "ftc.2",
+    "system_level": false,
+    "category": "governance",
+    "subcategory": "program management",
+    "guidance": "Under Section 314.4(a), you must designate a single Qualified Individual responsible for overseeing and implementing your information security program and enforcing your information security program. The Qualified Individual may be an employee, affiliate, or service provider. If using a service provider, your organization retains responsibility for compliance.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(a)"
+    },
+    "subcontrols": [
+      {
+        "name": "Designate Qualified Individual",
+        "description": "Formally designate a Qualified Individual with appropriate authority, knowledge, and resources to manage the information security program.",
+        "ref_code": "ftc.2.a",
+        "guidance": "Document the designation in writing. The Qualified Individual should have cybersecurity expertise or access to qualified resources. For smaller firms (e.g., solo CPAs or small mortgage offices), this may be an outsourced CISO or managed security provider, but the firm retains ultimate responsibility."
+      },
+      {
+        "name": "Qualified Individual Authority and Reporting",
+        "description": "Ensure the Qualified Individual has sufficient authority and a direct reporting line to senior leadership or the board.",
+        "ref_code": "ftc.2.b",
+        "guidance": "The Qualified Individual must have the authority to make decisions about cybersecurity and be empowered to allocate resources. They must report at least annually to the board of directors or governing body (or a senior officer if no board exists) on the overall status of the information security program."
+      },
+      {
+        "name": "Qualified Individual Competency",
+        "description": "Verify the Qualified Individual possesses adequate qualifications including relevant certifications, training, and experience.",
+        "ref_code": "ftc.2.c",
+        "guidance": "Relevant qualifications may include CISSP, CISM, CISA, CompTIA Security+, or equivalent experience. For outsourced Qualified Individuals, verify their credentials, insurance, and contractual obligations. Document the rationale for selecting the Qualified Individual."
+      }
+    ]
+  },
+  {
+    "name": "Risk Assessment",
+    "description": "Conduct a written risk assessment that identifies reasonably foreseeable internal and external risks to the security, confidentiality, and integrity of customer information. The risk assessment must include criteria for evaluating and categorizing identified risks and threats.",
+    "ref_code": "ftc.3",
+    "system_level": false,
+    "category": "risk management",
+    "subcategory": "risk assessment",
+    "guidance": "Under Section 314.4(b), you must base your information security program on a risk assessment that identifies reasonably foreseeable internal and external risks to the security, confidentiality, and integrity of customer information that could result in the unauthorized disclosure, misuse, alteration, destruction, or other compromise of such information.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(b)"
+    },
+    "subcontrols": [
+      {
+        "name": "Identify Internal Risks",
+        "description": "Identify reasonably foreseeable internal risks to customer information including employee threats, insider risks, and process failures.",
+        "ref_code": "ftc.3.a",
+        "guidance": "Internal risks include: unauthorized access by employees, inadequate training leading to accidental disclosure, poor password practices, lack of separation of duties, unpatched internal systems, unsecured physical records, and social engineering susceptibility. For CPAs, consider risks around tax season when temporary staff may be hired. For mortgage lenders, consider risks from loan officers accessing sensitive borrower data."
+      },
+      {
+        "name": "Identify External Risks",
+        "description": "Identify reasonably foreseeable external risks including cyber threats, third-party risks, and physical threats.",
+        "ref_code": "ftc.3.b",
+        "guidance": "External risks include: phishing attacks, ransomware, business email compromise, supply chain attacks, service provider breaches, physical break-ins, and natural disasters. Tax preparers face heightened phishing risk during tax season. Auto dealers face risks through DMS (Dealer Management System) vendors and F&I platforms."
+      },
+      {
+        "name": "Document Risk Assessment Criteria",
+        "description": "Establish and document criteria for evaluating and categorizing identified security risks and threats.",
+        "ref_code": "ftc.3.c",
+        "guidance": "Document a risk assessment methodology that includes: risk identification process, likelihood and impact ratings, risk scoring criteria, risk tolerance levels, and risk treatment options (accept, mitigate, transfer, avoid). Use a consistent framework such as NIST SP 800-30 or ISO 27005."
+      },
+      {
+        "name": "Assess Sufficiency of Safeguards",
+        "description": "Evaluate whether existing safeguards adequately address each identified risk and assess control effectiveness.",
+        "ref_code": "ftc.3.d",
+        "guidance": "For each identified risk, document: the current safeguards in place, an assessment of whether those safeguards are sufficient, any gaps or deficiencies, and planned remediation activities with timelines. This assessment should cover all areas: information systems, customer information processing, storage, transmission, and disposal."
+      },
+      {
+        "name": "Periodic Risk Assessment Updates",
+        "description": "Perform risk assessments periodically and whenever there is a material change in business operations or security environment.",
+        "ref_code": "ftc.3.e",
+        "guidance": "Risk assessments must be updated at least annually, and additionally when: new systems are deployed, business operations significantly change, new threats emerge, a security incident occurs, or service providers change. Document the review schedule and trigger events."
+      }
+    ]
+  },
+  {
+    "name": "Access Controls",
+    "description": "Implement and maintain technical and physical access controls to limit access to customer information to authorized individuals with a legitimate business need.",
+    "ref_code": "ftc.4",
+    "system_level": true,
+    "category": "technical safeguards",
+    "subcategory": "access control",
+    "guidance": "Under Section 314.4(c)(1), implement access controls that limit access to customer information systems to those who need it to perform their job duties. Access controls must cover both physical and electronic access to customer information.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(c)(1)"
+    },
+    "subcontrols": [
+      {
+        "name": "Implement Least Privilege Access",
+        "description": "Restrict access to customer information to only those employees and service providers who need it to perform their job functions.",
+        "ref_code": "ftc.4.a",
+        "guidance": "Implement role-based access control (RBAC). For mortgage lenders, loan processors should only access loan files they are actively working. For CPAs, staff should only access client records for engagements they are assigned to. For auto dealers, F&I personnel should have access restricted to their customer transactions."
+      },
+      {
+        "name": "Multi-Factor Authentication (MFA)",
+        "description": "Implement multi-factor authentication for any individual accessing customer information systems.",
+        "ref_code": "ftc.4.b",
+        "guidance": "MFA is required for: all systems that access customer information, remote access to your network, administrative access to systems, cloud applications containing customer data, and email systems. Acceptable MFA methods include authenticator apps, hardware tokens, and biometrics. SMS-based MFA is acceptable but less preferred. For tax preparers, the IRS requires MFA per Publication 4557."
+      },
+      {
+        "name": "User Account Management",
+        "description": "Maintain procedures for creating, modifying, and terminating user accounts with appropriate authorization and review.",
+        "ref_code": "ftc.4.c",
+        "guidance": "Establish formal onboarding and offboarding procedures. New accounts require management approval. Access reviews should be conducted at least semi-annually. Terminate access immediately upon employee departure. For seasonal workers (common in tax preparation and auto dealers), establish temporary access with automatic expiration dates."
+      },
+      {
+        "name": "Physical Access Controls",
+        "description": "Implement physical safeguards to protect areas where customer information is stored or processed.",
+        "ref_code": "ftc.4.d",
+        "guidance": "Physical controls should include: locked offices and file cabinets, restricted server room access, visitor logs and escort policies, clean desk policies, secure disposal bins for paper records, and security cameras in sensitive areas. For CPAs and tax preparers, ensure client tax documents are physically secured. For auto dealers, secure the F&I office and any areas where buyer's orders and credit applications are processed."
+      }
+    ]
+  },
+  {
+    "name": "Data Inventory and Classification",
+    "description": "Maintain a comprehensive inventory of all systems, devices, platforms, and applications that store, process, or transmit customer information, and classify data based on sensitivity.",
+    "ref_code": "ftc.5",
+    "system_level": false,
+    "category": "technical safeguards",
+    "subcategory": "asset management",
+    "guidance": "Under Section 314.4(c)(2), you must identify and manage the data, personnel, devices, systems, and facilities that enable you to achieve business purposes in accordance with their relative importance to business objectives and your risk strategy.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(c)(2)"
+    },
+    "subcontrols": [
+      {
+        "name": "Information Asset Inventory",
+        "description": "Create and maintain a complete inventory of all information assets that store, process, or transmit customer information.",
+        "ref_code": "ftc.5.a",
+        "guidance": "Document all systems including: servers, workstations, laptops, mobile devices, cloud services (SaaS, IaaS), databases, file shares, email systems, backup media, and paper records. For mortgage lenders, include Loan Origination Systems (LOS), document management systems, and e-closing platforms. For CPAs, include tax preparation software, accounting platforms, and client portals. For auto dealers, include DMS platforms, credit application systems, and F&I tools."
+      },
+      {
+        "name": "Data Classification",
+        "description": "Classify customer information based on sensitivity level and implement appropriate protections for each classification level.",
+        "ref_code": "ftc.5.b",
+        "guidance": "Establish classification levels such as: Public, Internal, Confidential, and Restricted. Customer NPI (Nonpublic Personal Information) should be classified as Confidential or Restricted. Examples: SSNs, bank account numbers, credit reports, and tax returns are Restricted. Names and business contact info may be Internal. Apply handling and protection requirements for each level."
+      },
+      {
+        "name": "Data Flow Mapping",
+        "description": "Document how customer information flows through the organization, including collection, processing, storage, sharing, and disposal.",
+        "ref_code": "ftc.5.c",
+        "guidance": "Map data flows for all customer information from collection to disposal. Include: where data enters the organization, how it moves between systems, who has access at each stage, where it is stored, how it is shared with third parties, and how it is disposed of. For mortgage lenders, map the loan lifecycle from application through closing and servicing. For debt collectors, map the chain of custody for debtor information."
+      }
+    ]
+  },
+  {
+    "name": "Encryption and Data Protection",
+    "description": "Protect customer information through encryption and other technical safeguards during both transmission and storage.",
+    "ref_code": "ftc.6",
+    "system_level": true,
+    "category": "technical safeguards",
+    "subcategory": "data protection",
+    "guidance": "Under Section 314.4(c)(3), encrypt all customer information held or transmitted by you both in transit over external networks and at rest. If encryption of customer information at rest is infeasible, you may instead secure the information using effective alternative compensating controls reviewed and approved by your Qualified Individual.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(c)(3)"
+    },
+    "subcontrols": [
+      {
+        "name": "Encryption in Transit",
+        "description": "Encrypt all customer information when transmitted over external networks using industry-standard encryption protocols.",
+        "ref_code": "ftc.6.a",
+        "guidance": "Use TLS 1.2 or higher for all web traffic. Implement encrypted email (TLS) for sending customer information. Use encrypted file transfer (SFTP/SCP) instead of FTP. Ensure VPN connections use strong encryption (AES-256). For tax preparers transmitting returns to the IRS, use IRS-approved transmission methods. For mortgage lenders, ensure encrypted communication with investors and agencies."
+      },
+      {
+        "name": "Encryption at Rest",
+        "description": "Encrypt all customer information stored on systems and media, including databases, file systems, and backup media.",
+        "ref_code": "ftc.6.b",
+        "guidance": "Implement full-disk encryption (BitLocker, FileVault) on all endpoints. Encrypt databases containing customer information. Encrypt backup media and cloud storage. Use AES-256 or equivalent encryption standards. If encryption at rest is infeasible for certain systems, document the justification and implement compensating controls approved by the Qualified Individual."
+      },
+      {
+        "name": "Secure Data Disposal",
+        "description": "Implement procedures for the secure disposal of customer information when it is no longer needed for business or legal purposes.",
+        "ref_code": "ftc.6.c",
+        "guidance": "Implement media sanitization procedures following NIST SP 800-88 guidelines. Shred paper documents containing customer information (cross-cut, minimum P-4). Securely wipe or physically destroy electronic media. Maintain disposal logs. For CPAs, follow record retention requirements before disposal. For mortgage lenders, comply with retention requirements under RESPA, TRID, and investor guidelines before disposing of loan files."
+      },
+      {
+        "name": "Secure Development Practices",
+        "description": "Implement secure software development practices for applications that store, process, or transmit customer information.",
+        "ref_code": "ftc.6.d",
+        "guidance": "If developing custom applications: follow secure coding standards (OWASP), conduct code reviews, perform security testing (SAST/DAST), maintain separate development and production environments, and implement change management procedures. For most small financial institutions, this applies to custom scripts, macros, and integrations rather than full application development."
+      }
+    ]
+  },
+  {
+    "name": "Monitoring and Testing",
+    "description": "Implement continuous monitoring of information systems and regularly test the effectiveness of safeguards through vulnerability assessments and penetration testing.",
+    "ref_code": "ftc.7",
+    "system_level": true,
+    "category": "technical safeguards",
+    "subcategory": "monitoring and testing",
+    "guidance": "Under Section 314.4(d), you must implement procedures and controls designed to monitor and test the effectiveness of your safeguards. You must either continuously monitor or perform annual penetration testing and semi-annual vulnerability assessments.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(d)"
+    },
+    "subcontrols": [
+      {
+        "name": "Continuous Monitoring",
+        "description": "Implement continuous monitoring of information systems to detect actual and attempted attacks, unauthorized access, and anomalous activities.",
+        "ref_code": "ftc.7.a",
+        "guidance": "Implement security monitoring through: endpoint detection and response (EDR), intrusion detection/prevention systems, security information and event management (SIEM) or log aggregation, network monitoring, and email security monitoring. For smaller firms, managed detection and response (MDR) services provide cost-effective continuous monitoring."
+      },
+      {
+        "name": "Penetration Testing",
+        "description": "Conduct annual penetration testing of information systems that store, process, or transmit customer information.",
+        "ref_code": "ftc.7.b",
+        "guidance": "Annual penetration testing must cover: external network perimeter, internal network, web applications that handle customer data, wireless networks, and social engineering. Tests should be conducted by qualified independent third parties. Document findings, remediation plans, and verify remediation. For organizations using continuous monitoring instead, ensure the monitoring program meets the requirements of Section 314.4(d)(2)."
+      },
+      {
+        "name": "Vulnerability Assessment",
+        "description": "Conduct vulnerability assessments at least every six months and whenever there are material changes to operations or systems.",
+        "ref_code": "ftc.7.c",
+        "guidance": "Semi-annual vulnerability assessments must include: network scanning (internal and external), application scanning, configuration review, and patch status verification. Assessments should also be performed after significant system changes. Document and track remediation of identified vulnerabilities with defined timelines based on risk severity."
+      },
+      {
+        "name": "System Event Logging",
+        "description": "Maintain comprehensive audit logs of system events, user activities, and security incidents.",
+        "ref_code": "ftc.7.d",
+        "guidance": "Log all authentication events (successful and failed), administrative actions, data access events, system changes, and security events. Retain logs for at least one year, with 90 days immediately available. Protect log integrity against tampering. Review logs regularly for anomalies. For cloud systems, enable and monitor cloud audit trails (AWS CloudTrail, Azure Activity Log, etc.)."
+      }
+    ]
+  },
+  {
+    "name": "Security Awareness Training",
+    "description": "Implement a comprehensive security awareness training program for all personnel who handle customer information.",
+    "ref_code": "ftc.8",
+    "system_level": false,
+    "category": "administrative safeguards",
+    "subcategory": "training",
+    "guidance": "Under Section 314.4(e), you must provide your personnel with security awareness training that is updated as necessary to reflect risks identified by the risk assessment. Training must be provided upon hire and periodically thereafter.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(e)"
+    },
+    "subcontrols": [
+      {
+        "name": "New Hire Security Training",
+        "description": "Provide security awareness training to all new employees before they are granted access to customer information systems.",
+        "ref_code": "ftc.8.a",
+        "guidance": "Training should cover: organization security policies, acceptable use policies, password requirements and MFA, phishing awareness, social engineering, physical security, incident reporting procedures, and data handling requirements. For auto dealers, include specific training on protecting buyer financial data. For CPAs, include IRS Publication 4557 requirements."
+      },
+      {
+        "name": "Ongoing Security Training",
+        "description": "Provide periodic security awareness training to all personnel, updated to reflect current threats and risks.",
+        "ref_code": "ftc.8.b",
+        "guidance": "Conduct security awareness training at least annually. Supplement with targeted training when: new threats emerge, policies change, incidents occur, or the risk assessment identifies new risks. Include phishing simulations at least quarterly. Track completion and document training records for all personnel."
+      },
+      {
+        "name": "Specialized Security Training",
+        "description": "Provide role-specific security training for personnel with elevated access or specialized responsibilities.",
+        "ref_code": "ftc.8.c",
+        "guidance": "IT staff, system administrators, and the Qualified Individual should receive advanced training on: secure system administration, incident response, vulnerability management, and current threat landscape. For CPAs, include training on protecting tax return data and IRS security requirements. For mortgage lenders, include training on protecting borrower financial data and compliance with Regulation P."
+      }
+    ]
+  },
+  {
+    "name": "Service Provider Oversight",
+    "description": "Implement controls to select, assess, and monitor service providers who access, process, or store customer information.",
+    "ref_code": "ftc.9",
+    "system_level": false,
+    "category": "vendor management",
+    "subcategory": "third-party risk",
+    "guidance": "Under Section 314.4(f), you must oversee service providers by: selecting and retaining providers that are capable of maintaining appropriate safeguards, requiring providers by contract to implement and maintain such safeguards, and periodically assessing your providers based on the risk they present and the continued adequacy of their safeguards.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(f)"
+    },
+    "subcontrols": [
+      {
+        "name": "Service Provider Due Diligence",
+        "description": "Conduct due diligence before selecting service providers who will access, process, or store customer information.",
+        "ref_code": "ftc.9.a",
+        "guidance": "Before engaging a service provider, assess: their security posture (SOC 2 report, ISO 27001 certification), incident history, financial stability, regulatory compliance, insurance coverage, and references. For mortgage lenders, assess LOS vendors, title companies, and appraisal management companies. For CPAs, assess tax software vendors, cloud hosting providers, and client portal providers."
+      },
+      {
+        "name": "Contractual Security Requirements",
+        "description": "Include specific security requirements in contracts with service providers who access customer information.",
+        "ref_code": "ftc.9.b",
+        "guidance": "Contracts must require providers to: implement and maintain appropriate safeguards, report security incidents promptly, allow auditing of security controls, maintain cyber insurance, comply with applicable regulations, and specify data handling and disposal requirements. Include right-to-audit clauses and breach notification timelines."
+      },
+      {
+        "name": "Ongoing Service Provider Monitoring",
+        "description": "Periodically assess service providers based on the risk they present and the continued adequacy of their safeguards.",
+        "ref_code": "ftc.9.c",
+        "guidance": "Establish a vendor risk management program that includes: annual review of critical vendor security assessments (SOC 2, penetration test results), monitoring vendor incident disclosures, reassessing vendor risk ratings, and reviewing contract compliance. Frequency of assessment should be based on the sensitivity of data shared and the criticality of the service."
+      }
+    ]
+  },
+  {
+    "name": "Information Security Program Evaluation",
+    "description": "Regularly evaluate and adjust the information security program in light of changes in technology, sensitivity of customer information, threats, and business operations.",
+    "ref_code": "ftc.10",
+    "system_level": false,
+    "category": "governance",
+    "subcategory": "program management",
+    "guidance": "Under Section 314.4(g), you must evaluate and adjust your information security program in light of: the results of testing and monitoring, any material changes to your operations or business arrangements, the results of risk assessments, and any other circumstances that you know or have reason to know may have a material impact on your information security program.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(g)"
+    },
+    "subcontrols": [
+      {
+        "name": "Annual Program Review",
+        "description": "Conduct an annual comprehensive review of the information security program to assess its effectiveness and identify areas for improvement.",
+        "ref_code": "ftc.10.a",
+        "guidance": "The annual review should evaluate: risk assessment findings, testing and monitoring results, incident reports and trends, policy compliance, training effectiveness, vendor management, and regulatory changes. Document findings and develop a remediation plan with timelines and accountability."
+      },
+      {
+        "name": "Change-Triggered Program Updates",
+        "description": "Update the information security program whenever material changes occur in business operations, technology, or the threat landscape.",
+        "ref_code": "ftc.10.b",
+        "guidance": "Triggers for program updates include: mergers and acquisitions, new products or services, new technology deployments, office relocations, regulatory changes, significant security incidents (internal or industry-wide), changes in customer information handling, and changes in service provider arrangements."
+      },
+      {
+        "name": "Board or Governing Body Reporting",
+        "description": "The Qualified Individual must report in writing at least annually to the board of directors or governing body on the status of the information security program.",
+        "ref_code": "ftc.10.c",
+        "guidance": "The written report must address: the overall status of the information security program, compliance with the Safeguards Rule, material matters related to the information security program (risk assessment results, security incidents, violations, management responses), and recommendations for changes. For organizations without a formal board, report to the senior officer or owner."
+      }
+    ]
+  },
+  {
+    "name": "Incident Response Plan",
+    "description": "Develop, implement, and maintain a written incident response plan designed to promptly respond to, and recover from, any security event materially affecting the confidentiality, integrity, or availability of customer information.",
+    "ref_code": "ftc.11",
+    "system_level": false,
+    "category": "incident management",
+    "subcategory": "incident response",
+    "guidance": "Under Section 314.4(h), you must establish a written incident response plan designed to promptly respond to, and recover from, any security event materially affecting the confidentiality, integrity, or availability of customer information in your control.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(h)"
+    },
+    "subcontrols": [
+      {
+        "name": "Incident Response Plan Development",
+        "description": "Develop a comprehensive written incident response plan that addresses the goals, roles, responsibilities, and procedures for responding to security events.",
+        "ref_code": "ftc.11.a",
+        "guidance": "The plan must include: goals of the incident response plan, internal processes for responding to security events, clear definition of roles and responsibilities, communication procedures (internal and external), requirements for remediation of identified weaknesses, documentation and reporting procedures, and procedures for updating the plan after incidents."
+      },
+      {
+        "name": "Incident Detection and Analysis",
+        "description": "Establish procedures for detecting, analyzing, and classifying security incidents based on severity and impact.",
+        "ref_code": "ftc.11.b",
+        "guidance": "Define incident categories and severity levels. Establish procedures for: initial detection (monitoring, user reporting, vendor notification), triage and classification, evidence preservation, impact assessment, and escalation criteria. Document decision-making processes for incident severity determination."
+      },
+      {
+        "name": "Incident Containment and Recovery",
+        "description": "Establish procedures for containing security incidents, eradicating threats, and recovering affected systems.",
+        "ref_code": "ftc.11.c",
+        "guidance": "Define containment strategies for common incident types (ransomware, data breach, account compromise, insider threat). Establish recovery procedures including: system restoration from backups, credential rotation, communication with affected customers, law enforcement notification (when appropriate), and regulatory notification requirements."
+      },
+      {
+        "name": "FTC Breach Notification",
+        "description": "Comply with the FTC Health Breach Notification Rule and state breach notification requirements when customer information is compromised.",
+        "ref_code": "ftc.11.d",
+        "guidance": "Understand notification requirements under: FTC breach notification requirements, applicable state breach notification laws (all 50 states have them), and industry-specific requirements. For mortgage lenders, also consider CFPB notification requirements. For CPAs, consider IRS notification requirements (Form 14039). Notification timelines vary by jurisdiction but generally require notification within 30-60 days."
+      },
+      {
+        "name": "Post-Incident Review",
+        "description": "Conduct post-incident reviews to identify root causes, lessons learned, and opportunities to improve the information security program.",
+        "ref_code": "ftc.11.e",
+        "guidance": "After each significant incident, conduct a formal post-incident review within 30 days. Document: timeline of events, root cause analysis, effectiveness of response procedures, areas for improvement, and specific action items with owners and deadlines. Update the incident response plan, risk assessment, and security controls based on lessons learned."
+      }
+    ]
+  },
+  {
+    "name": "Change Management",
+    "description": "Implement change management procedures to ensure that modifications to information systems are properly authorized, tested, and documented.",
+    "ref_code": "ftc.12",
+    "system_level": true,
+    "category": "technical safeguards",
+    "subcategory": "change management",
+    "guidance": "Under Section 314.4(c)(8), maintain procedures for the secure development, modification, and use of information systems. Changes to systems that store, process, or transmit customer information must be managed through a formal change management process to prevent introducing new vulnerabilities.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.4(c)(8)"
+    },
+    "subcontrols": [
+      {
+        "name": "Change Request and Authorization",
+        "description": "Establish a formal process for requesting, reviewing, and authorizing changes to information systems.",
+        "ref_code": "ftc.12.a",
+        "guidance": "All changes to systems handling customer information must be: formally requested, risk-assessed for security impact, reviewed and approved by appropriate management, tested before deployment, documented, and have a rollback plan. For smaller firms, this may be a simplified process but must still include authorization and documentation."
+      },
+      {
+        "name": "Patch Management",
+        "description": "Implement timely application of security patches and updates to all systems that store, process, or transmit customer information.",
+        "ref_code": "ftc.12.b",
+        "guidance": "Establish a patch management program that includes: inventory of all systems requiring patching, monitoring for new patches and security updates, risk-based prioritization of patches (critical patches within 30 days, high within 60 days), testing before deployment where feasible, documentation of patching activities, and exception management for systems that cannot be promptly patched."
+      }
+    ]
+  },
+  {
+    "name": "Small Business Exemption Evaluation",
+    "description": "Evaluate whether the organization qualifies for the small business exemption under the Safeguards Rule, which provides limited relief from certain requirements for qualifying institutions.",
+    "ref_code": "ftc.13",
+    "system_level": false,
+    "category": "governance",
+    "subcategory": "exemptions",
+    "guidance": "Under Section 314.6, financial institutions that maintain customer information concerning fewer than 5,000 consumers are exempt from certain requirements including: the written risk assessment requirement, the requirement to designate a Qualified Individual, the incident response plan requirement, and the annual board reporting requirement. However, they must still develop, implement, and maintain a comprehensive information security program.",
+    "meta": {
+      "industries": ["mortgage_lenders", "cpas", "tax_preparers", "auto_dealers", "payday_lenders", "insurance", "financial_advisors", "real_estate", "debt_collectors"],
+      "regulation": "16 CFR Part 314.6"
+    },
+    "subcontrols": [
+      {
+        "name": "Consumer Count Assessment",
+        "description": "Determine the number of consumers whose customer information you maintain to evaluate small business exemption eligibility.",
+        "ref_code": "ftc.13.a",
+        "guidance": "Count all consumers whose customer information you maintain, including: current customers, former customers whose records you retain, and consumers whose information you received from other financial institutions. If the total is fewer than 5,000, you may qualify for limited exemptions. Note: even with exemptions, you must still have a comprehensive information security program. Document your consumer count methodology and maintain evidence of the count."
+      },
+      {
+        "name": "Exemption Scope Documentation",
+        "description": "If qualifying for the small business exemption, document which specific requirements are exempted and which still apply.",
+        "ref_code": "ftc.13.b",
+        "guidance": "Even with the small business exemption, you must still: develop, implement, and maintain a comprehensive information security program containing administrative, technical, and physical safeguards appropriate to your size and complexity. Document clearly which requirements you are exempt from, your consumer count supporting the exemption, and the safeguards you have implemented regardless of exemption status."
+      }
+    ]
+  }
+]

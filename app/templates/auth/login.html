@@ -1,14 +1,25 @@
 {% extends "layouts/basic.html" %}
 
+{%block head%}
+<link href="{{ url_for('static', filename='css/masri-branding.css') }}" rel="stylesheet" type="text/css" />
+{%endblock%}
+
 {%block body%}
 <div x-data="login()" class="min-h-screen">
   <div class="grid md:grid-cols-2 lg:grid-cols-3 items-center lg:gap-10 gap-4">
-    <div class="max-md:order-1 h-screen min-h-full min-w-full bg-primary"></div>
+    <div class="max-md:order-1 h-screen min-h-full min-w-full masri-login-panel flex flex-col items-center justify-center p-8">
+      <div class="text-center">
+        <img src="{{ url_for('static', filename='img/icon.png') }}" alt="Logo" class="w-20 h-20 mx-auto mb-6 object-contain">
+        <h1 class="text-3xl font-bold text-white mb-2">{{config.APP_NAME}}</h1>
+        <p class="text-blue-200 text-sm">{{config.APP_SUBTITLE or 'Governance, Risk & Compliance'}}</p>
+      </div>
+    </div>
     <form class="lg:col-span-2 max-w-lg w-full p-4 mx-auto" action="{{url_for("auth.get_login", next=request.args.get("next"))}}" method="POST">
       <div class="mb-5">
-        <h3 class=" text-4xl font-extrabold mt-10">Login</h3>
+        <h3 class="text-4xl font-extrabold mt-10">Login</h3>
+        <p class="text-sm my-2 opacity-70">Sign in to your compliance platform</p>
         {%if config.IS_SELF_REGISTRATION_ENABLED %}
-        <p class="text-sm my-2">Interested? <a href="/register" class="text-primary font-semibold hover:underline ml-1 whitespace-nowrap">Sign up here</a></p>
+        <p class="text-sm my-2">Need an account? <a href="/register" class="text-primary font-semibold hover:underline ml-1 whitespace-nowrap">Sign up here</a></p>
         {%endif%}
       </div>
       <div class="mb-4">
@@ -46,6 +57,9 @@
       <p x-show="!readyToGoSSO" class="mt-2 text-xs text-error">Complete the fields above.</p>
       {%endif%}
       <div x-show="adminEmail.length>2" class="mt-4 text-xs" x-text="'Having issues? Reach out to '+adminEmail"></div>
+      <div class="mt-6 text-center text-xs opacity-50">
+        Powered by <a href="https://masridigital.com" target="_blank" class="text-primary hover:underline">Masri Digital</a>
+      </div>
     </form>
   </div>
 </div>

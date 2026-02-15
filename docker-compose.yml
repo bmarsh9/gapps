@@ -1,7 +1,7 @@
 services:
   app:
-    container_name: app
-    image: app
+    container_name: masri-compliance
+    image: masri-compliance
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,32 +11,84 @@ services:
       - db_nw
       - web_nw
     ports:
-      - "8000:5000"
+      - "${APP_PORT:-8000}:5000"
     restart: unless-stopped
+    volumes:
+      - app_evidence:/app/app/files/evidence
+      - app_reports:/app/app/files/reports
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
       - RESET_DB=${RESET_DB:-no}
-      - VERSION=${VERSION:-1.0.0}
+      - VERSION=${VERSION:-2.0.0}
       - POSTGRES_USER=${POSTGRES_USER:-db1}
       - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
       - POSTGRES_DB=${POSTGRES_DB:-db1}
-      - GUNICORN_WORKERS=2
-    #env_file:
-    #  - .env
+      - GUNICORN_WORKERS=${GUNICORN_WORKERS:-2}
+      - GUNICORN_THREADS=${GUNICORN_THREADS:-4}
+      - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-120}
+      # Application
+      - APP_NAME=${APP_NAME:-Masri Digital Compliance}
+      - APP_SUBTITLE=${APP_SUBTITLE:-GRC Platform}
+      - HOST_NAME=${HOST_NAME:-localhost}
+      - SECRET_KEY=${SECRET_KEY:-change_secret_key}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-}
+      # Email / SMTP
+      - MAIL_SERVER=${MAIL_SERVER:-}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USE_TLS=${MAIL_USE_TLS:-true}
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
+      - MAIL_DEFAULT_SENDER=${MAIL_DEFAULT_SENDER:-}
+      # SSO
+      - ENABLE_GOOGLE_AUTH=${ENABLE_GOOGLE_AUTH:-false}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - ENABLE_MICROSOFT_AUTH=${ENABLE_MICROSOFT_AUTH:-false}
+      - MICROSOFT_CLIENT_ID=${MICROSOFT_CLIENT_ID:-}
+      - MICROSOFT_CLIENT_SECRET=${MICROSOFT_CLIENT_SECRET:-}
+      # Storage
+      - STORAGE_METHOD=${STORAGE_METHOD:-local}
+      - AWS_BUCKET=${AWS_BUCKET:-}
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-}
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY:-}
+      - AWS_REGION=${AWS_REGION:-}
+      - GCS_BUCKET=${GCS_BUCKET:-}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING:-}
+      - AZURE_STORAGE_ACCOUNT_NAME=${AZURE_STORAGE_ACCOUNT_NAME:-}
+      - AZURE_STORAGE_ACCOUNT_KEY=${AZURE_STORAGE_ACCOUNT_KEY:-}
+      - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER:-}
+      # LLM / AI
+      - LLM_ENABLED=${LLM_ENABLED:-false}
+      - LLM_PROVIDER=${LLM_PROVIDER:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-sonnet-4-20250514}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-2048}
+      # MCP Server
+      - MCP_SERVER_URL=${MCP_SERVER_URL:-}
+      - MCP_SERVER_TOKEN=${MCP_SERVER_TOKEN:-}
+      # Auth defaults
+      - DEFAULT_EMAIL=${DEFAULT_EMAIL:-admin@example.com}
+      - DEFAULT_PASSWORD=${DEFAULT_PASSWORD:-admin1234567}
+      - HELP_EMAIL=${HELP_EMAIL:-}
+      - ENABLE_SELF_REGISTRATION=${ENABLE_SELF_REGISTRATION:-false}
+    env_file:
+      - .env
 
   postgres:
-    container_name: postgres
-    image: postgres
+    container_name: masri-postgres
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-db1}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-db1}
       POSTGRES_DB: ${POSTGRES_DB:-db1}
       PGDATA: /data/postgres
-    #volumes:
-    #   - postgres:/data/postgres
+    volumes:
+      - dbdata:/data/postgres
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     networks:
       - db_nw
     restart: unless-stopped
@@ -48,3 +100,5 @@ networks:
     driver: bridge
 volumes:
   dbdata:
+  app_evidence:
+  app_reports:

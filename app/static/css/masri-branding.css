@@ -1,0 +1,118 @@
+/*
+ * Masri Digital - Brand Theme Override
+ * Professional cybersecurity & compliance branding
+ * Colors: Navy (#0a1628), Teal (#00b4d8), White (#ffffff)
+ */
+
+/* DaisyUI theme customization */
+[data-theme="masri-dark"] {
+  --p: 197 100% 42%;          /* Primary: Teal #00b4d8 */
+  --pf: 197 100% 35%;         /* Primary focus */
+  --pc: 0 0% 100%;            /* Primary content: white */
+  --s: 210 80% 25%;           /* Secondary: Navy #0d2847 */
+  --sf: 210 80% 20%;          /* Secondary focus */
+  --sc: 0 0% 100%;            /* Secondary content */
+  --a: 162 63% 41%;           /* Accent: Green #27ae60 */
+  --af: 162 63% 35%;          /* Accent focus */
+  --ac: 0 0% 100%;            /* Accent content */
+  --n: 215 40% 16%;           /* Neutral: Dark navy #172033 */
+  --nf: 215 40% 12%;          /* Neutral focus */
+  --nc: 210 20% 85%;          /* Neutral content */
+  --b1: 220 30% 10%;          /* Base 100: #131a27 */
+  --b2: 220 30% 8%;           /* Base 200: #0f1520 */
+  --b3: 220 30% 6%;           /* Base 300: #0a1018 */
+  --bc: 210 20% 90%;          /* Base content */
+  --in: 198 93% 60%;          /* Info */
+  --su: 158 64% 52%;          /* Success */
+  --wa: 43 96% 56%;           /* Warning */
+  --er: 0 91% 71%;            /* Error */
+  --rounded-box: 0.5rem;
+  --rounded-btn: 0.375rem;
+  --rounded-badge: 1.9rem;
+  --animation-btn: 0.25s;
+  --animation-input: .2s;
+  --btn-text-case: none;
+  --btn-focus-scale: 0.97;
+  --border-btn: 1px;
+  --tab-border: 1px;
+  --tab-radius: 0.375rem;
+}
+
+[data-theme="masri-light"] {
+  --p: 197 100% 42%;          /* Primary: Teal */
+  --pf: 197 100% 35%;
+  --pc: 0 0% 100%;
+  --s: 210 80% 25%;           /* Secondary: Navy */
+  --sf: 210 80% 20%;
+  --sc: 0 0% 100%;
+  --a: 162 63% 41%;           /* Accent: Green */
+  --af: 162 63% 35%;
+  --ac: 0 0% 100%;
+  --n: 215 25% 27%;           /* Neutral */
+  --nf: 215 25% 20%;
+  --nc: 0 0% 100%;
+  --b1: 0 0% 100%;            /* Base: White */
+  --b2: 210 20% 97%;          /* Base 200: Light gray */
+  --b3: 210 20% 94%;          /* Base 300 */
+  --bc: 215 28% 17%;          /* Base content: Dark */
+  --in: 198 93% 60%;
+  --su: 158 64% 52%;
+  --wa: 43 96% 56%;
+  --er: 0 91% 71%;
+  --rounded-box: 0.5rem;
+  --rounded-btn: 0.375rem;
+  --rounded-badge: 1.9rem;
+  --animation-btn: 0.25s;
+  --animation-input: .2s;
+  --btn-text-case: none;
+  --btn-focus-scale: 0.97;
+  --border-btn: 1px;
+  --tab-border: 1px;
+  --tab-radius: 0.375rem;
+}
+
+/* Masri Digital brand header styling */
+.masri-header {
+  background: linear-gradient(135deg, #0a1628 0%, #0d2847 100%);
+}
+
+/* Login page branding */
+.masri-login-panel {
+  background: linear-gradient(180deg, #0a1628 0%, #0d2847 50%, #00b4d8 100%);
+}
+
+/* Scrollbar styling for dark theme */
+[data-theme="masri-dark"] ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+[data-theme="masri-dark"] ::-webkit-scrollbar-track {
+  background: #0f1520;
+}
+
+[data-theme="masri-dark"] ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+[data-theme="masri-dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Brand logo text styling */
+.masri-brand-text {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  background: linear-gradient(135deg, #00b4d8, #0d2847);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="masri-dark"] .masri-brand-text {
+  background: linear-gradient(135deg, #00b4d8, #90e0ef);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

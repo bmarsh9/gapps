@@ -34,10 +34,10 @@ def parse_url_with_defaults(url, default_scheme="http", default_port=5000):
 
 
 class Config:
-    APP_NAME = os.environ.get("APP_NAME", "Gapps")
-    APP_SUBTITLE = os.environ.get("APP_SUBTITLE", "")
-    CR_YEAR = os.environ.get("CR_YEAR", "2025")
-    VERSION = os.environ.get("VERSION", "1.0.0")
+    APP_NAME = os.environ.get("APP_NAME", "Masri Digital Compliance")
+    APP_SUBTITLE = os.environ.get("APP_SUBTITLE", "GRC Platform")
+    CR_YEAR = os.environ.get("CR_YEAR", "2026")
+    VERSION = os.environ.get("VERSION", "2.0.0")
 
     scheme, host_name, port, full_url = parse_url_with_defaults(
         os.environ.get("HOST_NAME", "localhost")
@@ -51,6 +51,7 @@ class Config:
     ENABLE_GCP_LOGGING = os.environ.get("ENABLE_GCP_LOGGING", "false").lower() == "true"
 
     SECRET_KEY = os.environ.get("SECRET_KEY", "change_secret_key")
+    ENCRYPTION_KEY = os.environ.get("ENCRYPTION_KEY", "")
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = False
@@ -67,7 +68,7 @@ class Config:
     ENABLE_SELF_REGISTRATION = (
         os.environ.get("ENABLE_SELF_REGISTRATION", "false").lower() == "true"
     )
-    DOC_LINK = os.environ.get("DOC_LINK", "https://github.com/bmarsh9/gapps")
+    DOC_LINK = os.environ.get("DOC_LINK", "https://masridigital.com")
     DEFAULT_EMAIL = os.environ.get("DEFAULT_EMAIL", "admin@example.com")
     DEFAULT_PASSWORD = os.environ.get("DEFAULT_PASSWORD", "admin1234567")
     HELP_EMAIL = os.environ.get("HELP_EMAIL", DEFAULT_EMAIL)
@@ -99,7 +100,7 @@ class Config:
         "UPLOAD_EXTENSIONS", [".csv", ".jpg", ".png", ".pdf"]
     )
 
-    STORAGE_PROVIDERS = ["local", "s3", "gcs"]
+    STORAGE_PROVIDERS = ["local", "s3", "gcs", "azure"]
 
     # GCS storage backend
     STORAGE_METHOD = os.environ.get("STORAGE_METHOD", "local")
@@ -113,10 +114,30 @@ class Config:
     AWS_SECRET_KEY = os.environ.get("AWS_SECRET_KEY")
     AWS_REGION = os.environ.get("AWS_REGION")
 
-    # AI
+    # Azure Blob Storage backend
+    AZURE_STORAGE_CONNECTION_STRING = os.environ.get("AZURE_STORAGE_CONNECTION_STRING")
+    AZURE_STORAGE_ACCOUNT_NAME = os.environ.get("AZURE_STORAGE_ACCOUNT_NAME")
+    AZURE_STORAGE_ACCOUNT_KEY = os.environ.get("AZURE_STORAGE_ACCOUNT_KEY")
+    AZURE_STORAGE_CONTAINER = os.environ.get("AZURE_STORAGE_CONTAINER")
+
+    # AI / LLM Configuration
     LLM_ENABLED = os.environ.get("LLM_ENABLED", "false").lower() == "true"
     LLM_NAME = os.environ.get("LLM_NAME")
     LLM_TOKEN = os.environ.get("LLM_TOKEN")
+    LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "")  # "claude" or "openai"
+    LLM_MAX_TOKENS = int(os.environ.get("LLM_MAX_TOKENS", 2048))
+
+    # Anthropic Claude
+    ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
+    ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
+
+    # OpenAI
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
+    OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o")
+
+    # MCP Server
+    MCP_SERVER_URL = os.environ.get("MCP_SERVER_URL")
+    MCP_SERVER_TOKEN = os.environ.get("MCP_SERVER_TOKEN")
 
     # Integrations
     INTEGRATIONS_BASE_URL = os.environ.get("INTEGRATIONS_BASE_URL", "http://localhost:8080")

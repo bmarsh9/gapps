@@ -381,10 +381,51 @@ def add_user_to_tenant(id):
 def post_ai_conversation(id):
     result = Authorizer(current_user).can_user_chat_in_tenant(id)
     data = request.get_json()
-    # print(data.get("messages"))
-    return jsonify(
-        {"source": "server", "message": "We are still in beta! Coming soon!"}
-    )
+
+    if not current_app.config.get("LLM_ENABLED"):
+        return jsonify(
+            {"source": "server", "message": "AI features are not enabled. Configure an LLM provider in Settings."}
+        )
+
+    try:
+        from app.utils.llm_provider import get_llm_provider, COMPLIANCE_SYSTEM_PROMPT
+
+        provider = get_llm_provider(current_app.config)
+        if not provider.is_configured():
+            return jsonify(
+                {"source": "server", "message": "LLM provider is not configured. Add your API key in Settings."}
+            )
+
+        # Convert chat messages to provider format
+        messages = []
+        for msg in data.get("messages", []):
+            role = "assistant" if msg.get("source") == "server" else "user"
+            messages.append({"role": role, "content": msg.get("message", "")})
+
+        response = provider.chat(messages, system_prompt=COMPLIANCE_SYSTEM_PROMPT)
+
+        if "error" in response:
+            return jsonify(
+                {"source": "server", "message": f"AI Error: {response['error']}"}
+            )
+
+        # Track token usage
+        tenant = result["extra"]["tenant"]
+        usage = response.get("usage", {})
+        tokens_used = usage.get("input_tokens", 0) + usage.get("output_tokens", 0)
+        if not tokens_used:
+            tokens_used = usage.get("total_tokens", 0)
+        tenant.ai_token_usage = (tenant.ai_token_usage or 0) + tokens_used
+        db.session.commit()
+
+        return jsonify(
+            {"source": "server", "message": response.get("message", "No response")}
+        )
+    except Exception as e:
+        current_app.logger.error(f"AI chat error: {e}")
+        return jsonify(
+            {"source": "server", "message": "An error occurred processing your request."}
+        )
 
 
 @api.route("/tenants/<string:tid>/tags", methods=["GET"])
