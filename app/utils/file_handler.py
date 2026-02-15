@@ -15,6 +15,7 @@ try:
     HAS_AZURE = True
 except ImportError:
     HAS_AZURE = False
+    AzureResourceNotFoundError = Exception  # fallback so references don't break
 
 
 class FileStorageHandler:
@@ -571,6 +572,8 @@ class FileStorageHandler:
             blob_client = self.azure_container_client.get_blob_client(abs_path)
             blob_client.get_blob_properties()
             return True
+        except AzureResourceNotFoundError:
+            return False
         except Exception:
             return False
 

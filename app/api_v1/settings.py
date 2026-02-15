@@ -283,7 +283,7 @@ def test_llm_settings():
 @api.route("/admin/settings/test-storage", methods=["POST"])
 @login_required
 def test_storage_settings():
-    """Test storage provider connection."""
+    """Test storage provider connection by listing files."""
     Authorizer(current_user).can_user_manage_platform()
 
     try:
@@ -291,7 +291,19 @@ def test_storage_settings():
 
         provider = current_app.config.get("STORAGE_METHOD", "local")
         handler = FileStorageHandler(provider=provider)
-        return jsonify({"message": f"Storage provider '{provider}' connected", "success": True})
+
+        # Actually test connectivity by listing files
+        if provider == "local":
+            import os
+            evidence = current_app.config.get("EVIDENCE_FOLDER", "")
+            if evidence and os.path.isdir(evidence):
+                return jsonify({"message": f"Local storage OK ({evidence})", "success": True})
+            return jsonify({"message": f"Local evidence folder not found: {evidence}", "success": False})
+        elif provider in ("s3", "gcs", "azure"):
+            handler.list_files("")
+            return jsonify({"message": f"Storage provider '{provider}' connected successfully", "success": True})
+        else:
+            return jsonify({"message": f"Unknown provider: {provider}", "success": False})
     except Exception as e:
         return jsonify({"message": str(e), "success": False}), 500
 
