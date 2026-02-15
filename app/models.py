@@ -37,17 +37,17 @@ from app.utils.exceptions import FileDoesNotExist
 class Finding(db.Model):
     __tablename__ = "findings"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    title = db.Column(db.String())
+    title = db.Column(db.String(255))
     description = db.Column(db.String())
     mitigation = db.Column(db.String())
     status = db.Column(db.String(), default="open")
     risk = db.Column(db.Integer(), default=0)
-    project_id = db.Column(db.String, db.ForeignKey("projects.id"))
+    project_id = db.Column(db.String(36), db.ForeignKey("projects.id"))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -70,17 +70,17 @@ class VendorFile(db.Model, QueryMixin):
     __tablename__ = "vendor_files"
     __table_args__ = (db.UniqueConstraint("name", "vendor_id"),)
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String())
+    name = db.Column(db.String(255))
     description = db.Column(db.String())
     provider = db.Column(db.String(), nullable=False)
     collected_on = db.Column(db.DateTime, default=datetime.utcnow)
-    vendor_id = db.Column(db.String, db.ForeignKey("vendors.id"), nullable=False)
-    owner_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
+    vendor_id = db.Column(db.String(36), db.ForeignKey("vendors.id"), nullable=False)
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -130,16 +130,16 @@ class VendorFile(db.Model, QueryMixin):
 class AppHistory(db.Model, QueryMixin):
     __tablename__ = "app_history"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String())
     icon = db.Column(db.String())
-    user_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
-    app_id = db.Column(db.String, db.ForeignKey("vendor_apps.id"), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    app_id = db.Column(db.String(36), db.ForeignKey("vendor_apps.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -151,16 +151,16 @@ class AppHistory(db.Model, QueryMixin):
 class VendorHistory(db.Model, QueryMixin):
     __tablename__ = "vendor_history"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String())
     icon = db.Column(db.String())
-    user_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
-    vendor_id = db.Column(db.String, db.ForeignKey("vendors.id"), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    vendor_id = db.Column(db.String(36), db.ForeignKey("vendors.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -173,7 +173,7 @@ class Form(db.Model, QueryMixin):
     __tablename__ = "forms"
     __table_args__ = (db.UniqueConstraint("name", "tenant_id"),)
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -187,7 +187,7 @@ class Form(db.Model, QueryMixin):
         cascade="all, delete-orphan",
     )
     assessment_id = db.Column(db.String)
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=False)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -248,7 +248,7 @@ class VendorApp(db.Model, QueryMixin):
     __tablename__ = "vendor_apps"
     __table_args__ = (db.UniqueConstraint("name", "vendor_id"),)
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -272,10 +272,10 @@ class VendorApp(db.Model, QueryMixin):
 
     is_on_premise = db.Column(db.Boolean(), default=False)
     is_saas = db.Column(db.Boolean(), default=False)
-    owner_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
-    data_class_id = db.Column(db.String, db.ForeignKey("data_class.id"), nullable=True)
-    vendor_id = db.Column(db.String, db.ForeignKey("vendors.id"), nullable=False)
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=False)
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    data_class_id = db.Column(db.String(36), db.ForeignKey("data_class.id"), nullable=True)
+    vendor_id = db.Column(db.String(36), db.ForeignKey("vendors.id"), nullable=False)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=False)
     history = db.relationship(
         "AppHistory", backref="app", lazy="dynamic", cascade="all, delete-orphan"
     )
@@ -384,7 +384,7 @@ class Vendor(db.Model, QueryMixin):
     __tablename__ = "vendors"
     __table_args__ = (db.UniqueConstraint("name", "tenant_id"),)
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -415,8 +415,8 @@ class Vendor(db.Model, QueryMixin):
     assessments = db.relationship(
         "Assessment", backref="vendor", lazy="dynamic", cascade="all, delete-orphan"
     )
-    data_class_id = db.Column(db.String, db.ForeignKey("data_class.id"), nullable=True)
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=False)
+    data_class_id = db.Column(db.String(36), db.ForeignKey("data_class.id"), nullable=True)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -649,7 +649,7 @@ class DataClass(db.Model, QueryMixin):
     __tablename__ = "data_class"
     __table_args__ = (db.UniqueConstraint("name", "tenant_id"),)
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -659,7 +659,7 @@ class DataClass(db.Model, QueryMixin):
     color = db.Column(db.String)
     vendors = db.relationship("Vendor", backref="data_class", lazy="dynamic")
     apps = db.relationship("VendorApp", backref="data_class", lazy="dynamic")
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=False)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -667,7 +667,7 @@ class DataClass(db.Model, QueryMixin):
 class Tenant(db.Model, QueryMixin, AuthorizerMixin):
     __tablename__ = "tenants"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -722,7 +722,7 @@ class Tenant(db.Model, QueryMixin, AuthorizerMixin):
     risks = db.relationship(
         "RiskRegister", backref="tenant", lazy="dynamic", cascade="all, delete-orphan"
     )
-    owner_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
     labels = db.relationship(
         "PolicyLabel", backref="tenant", lazy="dynamic", cascade="all, delete-orphan"
     )
@@ -1396,21 +1396,21 @@ class ProjectEvidence(db.Model, QueryMixin):
     __tablename__ = "project_evidence"
     __table_args__ = (db.UniqueConstraint("name", "project_id"),)
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(), default="Empty description")
     content = db.Column(db.String())
     group = db.Column(db.String(), default="default")
     collected_on = db.Column(db.DateTime, default=datetime.utcnow)
-    file_name = db.Column(db.String())
+    file_name = db.Column(db.String(255))
     file_provider = db.Column(db.String(), default="local")
-    owner_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=True)
-    project_id = db.Column(db.String, db.ForeignKey("projects.id"))
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"))
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=True)
+    project_id = db.Column(db.String(36), db.ForeignKey("projects.id"))
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -1655,7 +1655,7 @@ class ProjectEvidence(db.Model, QueryMixin):
 class EvidenceAssociation(db.Model):
     __tablename__ = "evidence_association"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -1711,12 +1711,12 @@ class EvidenceAssociation(db.Model):
 class PolicyAssociation(db.Model):
     __tablename__ = "policy_associations"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    policy_id = db.Column(db.String(), db.ForeignKey("policies.id", ondelete="CASCADE"))
+    policy_id = db.Column(db.String(36), db.ForeignKey("policies.id", ondelete="CASCADE"))
     control_id = db.Column(
         db.String(), db.ForeignKey("controls.id", ondelete="CASCADE")
     )
@@ -1727,12 +1727,12 @@ class PolicyAssociation(db.Model):
 class Framework(db.Model):
     __tablename__ = "frameworks"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(), nullable=False)
     reference_link = db.Column(db.String())
     guidance = db.Column(db.String)
@@ -1741,7 +1741,7 @@ class Framework(db.Model):
 
     controls = db.relationship("Control", backref="framework", lazy="dynamic")
     projects = db.relationship("Project", backref="framework", lazy="dynamic")
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=True)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -1805,17 +1805,17 @@ class Framework(db.Model):
 class Policy(db.Model):
     __tablename__ = "policies"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     ref_code = db.Column(db.String())
     description = db.Column(db.String())
     content = db.Column(db.String())
     template = db.Column(db.String())
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=True)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -1872,12 +1872,12 @@ class Policy(db.Model):
 class Control(db.Model):
     __tablename__ = "controls"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String())
     ref_code = db.Column(db.String())
     abs_ref_code = db.Column(db.String())
@@ -1905,11 +1905,11 @@ class Control(db.Model):
     subcontrols = db.relationship(
         "SubControl", backref="control", lazy="dynamic", cascade="all, delete"
     )
-    framework_id = db.Column(db.String, db.ForeignKey("frameworks.id"), nullable=False)
+    framework_id = db.Column(db.String(36), db.ForeignKey("frameworks.id"), nullable=False)
     project_controls = db.relationship(
         "ProjectControl", backref="control", lazy="dynamic", cascade="all, delete"
     )
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=True)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -2040,12 +2040,12 @@ class Control(db.Model):
 class SubControl(db.Model):
     __tablename__ = "subcontrols"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String())
     ref_code = db.Column(db.String())
     mitigation = db.Column(db.String())
@@ -2056,7 +2056,7 @@ class SubControl(db.Model):
     # CSC
     implementation_group = db.Column(db.Integer)
 
-    control_id = db.Column(db.String, db.ForeignKey("controls.id"), nullable=False)
+    control_id = db.Column(db.String(36), db.ForeignKey("controls.id"), nullable=False)
     project_subcontrols = db.relationship(
         "ProjectSubControl", backref="subcontrol", lazy="dynamic", cascade="all, delete"
     )
@@ -2074,12 +2074,12 @@ class SubControl(db.Model):
 class ProjectMember(db.Model):
     __tablename__ = "project_members"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    user_id = db.Column(db.String(), db.ForeignKey("users.id", ondelete="CASCADE"))
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id", ondelete="CASCADE"))
     project_id = db.Column(
         db.String(), db.ForeignKey("projects.id", ondelete="CASCADE")
     )
@@ -2096,25 +2096,25 @@ class ProjectMember(db.Model):
 class CompletionHistory(db.Model):
     __tablename__ = "completion_history"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
     value = db.Column(db.Integer, nullable=False)
-    project_id = db.Column(db.String, db.ForeignKey("projects.id"), nullable=False)
+    project_id = db.Column(db.String(36), db.ForeignKey("projects.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
 
 
 class Project(db.Model, DateMixin):
     __tablename__ = "projects"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String())
     last_completion_update = db.Column(db.DateTime)
     controls = db.relationship(
@@ -2179,9 +2179,9 @@ class Project(db.Model, DateMixin):
     risks = db.relationship(
         "RiskRegister", backref="project", lazy="dynamic", cascade="all, delete-orphan"
     )
-    owner_id = db.Column(db.String(), db.ForeignKey("users.id"), nullable=False)
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=False)
-    framework_id = db.Column(db.String, db.ForeignKey("frameworks.id"))
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=False)
+    framework_id = db.Column(db.String(36), db.ForeignKey("frameworks.id"))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -2578,7 +2578,7 @@ class Project(db.Model, DateMixin):
 class ProjectPolicyAssociation(db.Model):
     __tablename__ = "project_policy_associations"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -2597,7 +2597,7 @@ class ProjectPolicy(db.Model):
     __tablename__ = "project_policies"
     __table_args__ = (db.UniqueConstraint("name", "project_id"),)
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -2613,9 +2613,9 @@ class ProjectPolicy(db.Model):
         backref=db.backref("project_policies", lazy="dynamic"),
     )
     versions = db.relationship("PolicyVersion", backref="policy", lazy="dynamic")
-    project_id = db.Column(db.String, db.ForeignKey("projects.id"), nullable=False)
-    owner_id = db.Column(db.String(), db.ForeignKey("users.id"))
-    reviewer_id = db.Column(db.String(), db.ForeignKey("users.id"))
+    project_id = db.Column(db.String(36), db.ForeignKey("projects.id"), nullable=False)
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"))
+    reviewer_id = db.Column(db.String(36), db.ForeignKey("users.id"))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -2817,7 +2817,7 @@ class ProjectPolicy(db.Model):
 class PolicyVersion(db.Model):
     __tablename__ = "policy_versions"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -2826,8 +2826,7 @@ class PolicyVersion(db.Model):
     version = db.Column(db.Integer())
     status = db.Column(db.String(), default="draft")
     published = db.Column(db.Boolean(), default=False)
-    policy_id = db.Column(
-        db.String, db.ForeignKey("project_policies.id"), nullable=False
+    policy_id = db.Column(db.String(36), db.ForeignKey("project_policies.id"), nullable=False
     )
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -2857,7 +2856,7 @@ class PolicyVersion(db.Model):
 class ProjectControl(db.Model, ControlMixin):
     __tablename__ = "project_controls"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -2889,8 +2888,8 @@ class ProjectControl(db.Model, ControlMixin):
         lazy="dynamic",
         cascade="all, delete-orphan",
     )
-    project_id = db.Column(db.String, db.ForeignKey("projects.id"), nullable=False)
-    control_id = db.Column(db.String, db.ForeignKey("controls.id"), nullable=False)
+    project_id = db.Column(db.String(36), db.ForeignKey("projects.id"), nullable=False)
+    control_id = db.Column(db.String(36), db.ForeignKey("controls.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -2997,21 +2996,20 @@ class ProjectControl(db.Model, ControlMixin):
 class AuditorFeedback(db.Model):
     __tablename__ = "auditor_feedback"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    title = db.Column(db.String())
+    title = db.Column(db.String(255))
     description = db.Column(db.String())
     response = db.Column(db.String())
     is_complete = db.Column(db.Boolean(), default=False)
-    owner_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
-    control_id = db.Column(
-        db.String, db.ForeignKey("project_controls.id"), nullable=False
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    control_id = db.Column(db.String(36), db.ForeignKey("project_controls.id"), nullable=False
     )
-    relates_to = db.Column(db.String, db.ForeignKey("project_subcontrols.id"))
-    risk_relation = db.Column(db.String, db.ForeignKey("risk_register.id"))
+    relates_to = db.Column(db.String(36), db.ForeignKey("project_subcontrols.id"))
+    risk_relation = db.Column(db.String(36), db.ForeignKey("risk_register.id"))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -3042,15 +3040,14 @@ class AuditorFeedback(db.Model):
 class SubControlComment(db.Model):
     __tablename__ = "subcontrol_comments"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
     message = db.Column(db.String())
-    owner_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
-    subcontrol_id = db.Column(
-        db.String, db.ForeignKey("project_subcontrols.id"), nullable=False
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    subcontrol_id = db.Column(db.String(36), db.ForeignKey("project_subcontrols.id"), nullable=False
     )
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -3064,15 +3061,14 @@ class SubControlComment(db.Model):
 class ControlComment(db.Model):
     __tablename__ = "control_comments"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
     message = db.Column(db.String())
-    owner_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
-    control_id = db.Column(
-        db.String, db.ForeignKey("project_controls.id"), nullable=False
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    control_id = db.Column(db.String(36), db.ForeignKey("project_controls.id"), nullable=False
     )
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -3086,14 +3082,14 @@ class ControlComment(db.Model):
 class ProjectComment(db.Model):
     __tablename__ = "project_comments"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
     message = db.Column(db.String())
-    owner_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
-    project_id = db.Column(db.String, db.ForeignKey("projects.id"), nullable=False)
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    project_id = db.Column(db.String(36), db.ForeignKey("projects.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -3106,15 +3102,15 @@ class ProjectComment(db.Model):
 class RiskComment(db.Model):
     __tablename__ = "risk_comments"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
     message = db.Column(db.String())
-    owner_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
-    risk_id = db.Column(db.String, db.ForeignKey("risk_register.id"), nullable=False)
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=False)
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    risk_id = db.Column(db.String(36), db.ForeignKey("risk_register.id"), nullable=False)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -3128,19 +3124,19 @@ class RiskRegister(db.Model):
     __tablename__ = "risk_register"
     __table_args__ = (db.UniqueConstraint("title", "tenant_id"),)
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    title = db.Column(db.String, nullable=False)
-    description = db.Column(db.String, default="No description")
-    remediation = db.Column(db.String)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(), default="No description")
+    remediation = db.Column(db.String())
     enabled = db.Column(db.Boolean(), default=True)
-    risk = db.Column(db.String, default="unknown", nullable=False)
-    status = db.Column(db.String, default="new", nullable=False)
-    priority = db.Column(db.String, default="unknown", nullable=False)
-    assignee = db.Column(db.String, db.ForeignKey("users.id"))
+    risk = db.Column(db.String(), default="unknown", nullable=False)
+    status = db.Column(db.String(), default="new", nullable=False)
+    priority = db.Column(db.String(), default="unknown", nullable=False)
+    assignee = db.Column(db.String(36), db.ForeignKey("users.id"))
     tags = db.relationship(
         "Tag",
         secondary="risk_tags",
@@ -3153,9 +3149,9 @@ class RiskRegister(db.Model):
         lazy="dynamic",
         cascade="all, delete-orphan",
     )
-    vendor_id = db.Column(db.String, db.ForeignKey("vendors.id"), nullable=True)
-    project_id = db.Column(db.String, db.ForeignKey("projects.id"), nullable=True)
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=False)
+    vendor_id = db.Column(db.String(36), db.ForeignKey("vendors.id"), nullable=True)
+    project_id = db.Column(db.String(36), db.ForeignKey("projects.id"), nullable=True)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -3245,7 +3241,7 @@ class RiskRegister(db.Model):
 class ProjectSubControl(db.Model, SubControlMixin):
     __tablename__ = "project_subcontrols"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -3281,15 +3277,13 @@ class ProjectSubControl(db.Model, SubControlMixin):
         lazy="dynamic",
         cascade="all, delete-orphan",
     )
-    operator_id = db.Column(db.String(), db.ForeignKey("users.id"))
-    owner_id = db.Column(db.String(), db.ForeignKey("users.id"))
-    subcontrol_id = db.Column(
-        db.String, db.ForeignKey("subcontrols.id"), nullable=False
+    operator_id = db.Column(db.String(36), db.ForeignKey("users.id"))
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"))
+    subcontrol_id = db.Column(db.String(36), db.ForeignKey("subcontrols.id"), nullable=False
     )
-    project_control_id = db.Column(
-        db.String, db.ForeignKey("project_controls.id"), nullable=False
+    project_control_id = db.Column(db.String(36), db.ForeignKey("project_controls.id"), nullable=False
     )
-    project_id = db.Column(db.String, db.ForeignKey("projects.id"), nullable=False)
+    project_id = db.Column(db.String(36), db.ForeignKey("projects.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -3351,7 +3345,7 @@ class ProjectSubControl(db.Model, SubControlMixin):
 class RiskTags(db.Model):
     __tablename__ = "risk_tags"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -3359,7 +3353,7 @@ class RiskTags(db.Model):
     risk_id = db.Column(
         db.String(), db.ForeignKey("risk_register.id", ondelete="CASCADE")
     )
-    tag_id = db.Column(db.String(), db.ForeignKey("tags.id", ondelete="CASCADE"))
+    tag_id = db.Column(db.String(36), db.ForeignKey("tags.id", ondelete="CASCADE"))
 
     def as_dict(self):
         tag = Tag.query.get(self.tag_id)
@@ -3369,7 +3363,7 @@ class RiskTags(db.Model):
 class ProjectTags(db.Model):
     __tablename__ = "project_tags"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -3377,7 +3371,7 @@ class ProjectTags(db.Model):
     project_id = db.Column(
         db.String(), db.ForeignKey("projects.id", ondelete="CASCADE")
     )
-    tag_id = db.Column(db.String(), db.ForeignKey("tags.id", ondelete="CASCADE"))
+    tag_id = db.Column(db.String(36), db.ForeignKey("tags.id", ondelete="CASCADE"))
 
     def as_dict(self):
         tag = Tag.query.get(self.tag_id)
@@ -3387,7 +3381,7 @@ class ProjectTags(db.Model):
 class ControlTags(db.Model):
     __tablename__ = "control_tags"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -3395,13 +3389,13 @@ class ControlTags(db.Model):
     control_id = db.Column(
         db.String(), db.ForeignKey("project_controls.id", ondelete="CASCADE")
     )
-    tag_id = db.Column(db.String(), db.ForeignKey("tags.id", ondelete="CASCADE"))
+    tag_id = db.Column(db.String(36), db.ForeignKey("tags.id", ondelete="CASCADE"))
 
 
 class PolicyTags(db.Model):
     __tablename__ = "policy_tags"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -3409,13 +3403,13 @@ class PolicyTags(db.Model):
     policy_id = db.Column(
         db.String(), db.ForeignKey("project_policies.id", ondelete="CASCADE")
     )
-    tag_id = db.Column(db.String(), db.ForeignKey("tags.id", ondelete="CASCADE"))
+    tag_id = db.Column(db.String(36), db.ForeignKey("tags.id", ondelete="CASCADE"))
 
 
 class Role(db.Model):
     __tablename__ = "roles"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -3454,14 +3448,14 @@ class TenantMember(db.Model):
     __table_args__ = (db.UniqueConstraint("user_id", "tenant_id"),)
 
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
 
-    user_id = db.Column(db.String, db.ForeignKey("users.id", ondelete="CASCADE"))
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id", ondelete="CASCADE"))
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id", ondelete="CASCADE"))
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id", ondelete="CASCADE"))
 
     # Many-to-Many Relationship: TenantMember <-> Role
     roles = db.relationship(
@@ -3480,29 +3474,28 @@ class TenantMemberRole(db.Model):
     __tablename__ = "tenant_member_roles"
 
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
 
-    tenant_member_id = db.Column(
-        db.String, db.ForeignKey("tenant_members.id", ondelete="CASCADE")
+    tenant_member_id = db.Column(db.String(36), db.ForeignKey("tenant_members.id", ondelete="CASCADE")
     )
-    role_id = db.Column(db.String, db.ForeignKey("roles.id", ondelete="CASCADE"))
+    role_id = db.Column(db.String(36), db.ForeignKey("roles.id", ondelete="CASCADE"))
 
 
 class UserRole(db.Model):
     __tablename__ = "user_roles"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    user_id = db.Column(db.String(), db.ForeignKey("users.id", ondelete="CASCADE"))
-    role_id = db.Column(db.String(), db.ForeignKey("roles.id", ondelete="CASCADE"))
-    tenant_id = db.Column(db.String(), db.ForeignKey("tenants.id", ondelete="CASCADE"))
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id", ondelete="CASCADE"))
+    role_id = db.Column(db.String(36), db.ForeignKey("roles.id", ondelete="CASCADE"))
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id", ondelete="CASCADE"))
 
     @staticmethod
     def get_roles_for_user_in_tenant(user_id, tenant_id):
@@ -3532,7 +3525,7 @@ class UserRole(db.Model):
 class User(db.Model, UserMixin):
     __tablename__ = "users"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -3892,15 +3885,15 @@ class User(db.Model, UserMixin):
 class PolicyLabel(db.Model):
     __tablename__ = "policy_labels"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    key = db.Column(db.String(), unique=True, nullable=False)
+    key = db.Column(db.String(255), unique=True, nullable=False)
     value = db.Column(db.String(), nullable=False)
-    owner_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=False)
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -3919,14 +3912,14 @@ class Tag(db.Model):
     __tablename__ = "tags"
     __table_args__ = (db.UniqueConstraint("name", "tenant_id"),)
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String())
+    name = db.Column(db.String(255))
     color = db.Column(db.String(), default="blue")
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=False)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -3958,15 +3951,14 @@ class Tag(db.Model):
 class AssessmentGuest(db.Model):
     __tablename__ = "assessment_guests"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    assessment_id = db.Column(
-        db.String, db.ForeignKey("assessments.id"), nullable=False
+    assessment_id = db.Column(db.String(36), db.ForeignKey("assessments.id"), nullable=False
     )
-    user_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -3974,15 +3966,15 @@ class AssessmentGuest(db.Model):
 class FormItemMessage(db.Model, QueryMixin):
     __tablename__ = "form_item_messages"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
     text = db.Column(db.String(), nullable=False)
-    owner_id = db.Column(db.String(), db.ForeignKey("users.id"))
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"))
     is_vendor = db.Column(db.Boolean, default=False)
-    item_id = db.Column(db.String, db.ForeignKey("form_items.id"), nullable=False)
+    item_id = db.Column(db.String(36), db.ForeignKey("form_items.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -3995,7 +3987,7 @@ class FormItemMessage(db.Model, QueryMixin):
 class FormItem(db.Model, QueryMixin, DateMixin):
     __tablename__ = "form_items"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -4039,8 +4031,8 @@ class FormItem(db.Model, QueryMixin, DateMixin):
     # Used when status == 'complete'
     complete_notes = db.Column(db.String)
 
-    responder_id = db.Column(db.String(), db.ForeignKey("users.id"))
-    section_id = db.Column(db.String, db.ForeignKey("form_sections.id"), nullable=False)
+    responder_id = db.Column(db.String(36), db.ForeignKey("users.id"))
+    section_id = db.Column(db.String(36), db.ForeignKey("form_sections.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -4228,12 +4220,12 @@ class FormSection(db.Model, QueryMixin):
     __table_args__ = (db.UniqueConstraint("title", "form_id"),)
 
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    title = db.Column(db.String(), nullable=False, default="general")
+    title = db.Column(db.String(255), nullable=False, default="general")
     status = db.Column(db.String(), nullable=False, default="not_started")
     order = db.Column(db.Integer, nullable=False)
     items = db.relationship(
@@ -4242,7 +4234,7 @@ class FormSection(db.Model, QueryMixin):
         lazy="dynamic",
         cascade="all, delete-orphan",
     )
-    form_id = db.Column(db.String, db.ForeignKey("forms.id"), nullable=False)
+    form_id = db.Column(db.String(36), db.ForeignKey("forms.id"), nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -4304,12 +4296,12 @@ class Assessment(db.Model, QueryMixin):
     __tablename__ = "assessments"
     __table_args__ = (db.UniqueConstraint("name", "vendor_id"),)
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
     )
-    name = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String())
     review_status = db.Column(db.String(), default="new")
     status = db.Column(db.String(), default="pending")
@@ -4321,11 +4313,11 @@ class Assessment(db.Model, QueryMixin):
         lazy="dynamic",
         cascade="all, delete-orphan",
     )
-    form_id = db.Column(db.String, db.ForeignKey("forms.id"), nullable=True)
-    reviewer_id = db.Column(db.String, db.ForeignKey("users.id"), nullable=True)
-    vendor_id = db.Column(db.String, db.ForeignKey("vendors.id"), nullable=True)
-    owner_id = db.Column(db.String(), db.ForeignKey("users.id"), nullable=False)
-    tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"), nullable=False)
+    form_id = db.Column(db.String(36), db.ForeignKey("forms.id"), nullable=True)
+    reviewer_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=True)
+    vendor_id = db.Column(db.String(36), db.ForeignKey("vendors.id"), nullable=True)
+    owner_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=False)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=False)
     due_before = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
@@ -4779,7 +4771,7 @@ class Assessment(db.Model, QueryMixin):
 class ConfigStore(db.Model):
     __tablename__ = "config_store"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -4812,7 +4804,7 @@ class ConfigStore(db.Model):
 class Logs(db.Model):
     __tablename__ = "logs"
     id = db.Column(
-        db.String,
+        db.String(36),
         primary_key=True,
         default=lambda: str(shortuuid.ShortUUID().random(length=8)).lower(),
         unique=True,
@@ -4823,8 +4815,8 @@ class Logs(db.Model):
     message = db.Column(db.String(), nullable=False)
     success = db.Column(db.Boolean(), default=True)
     meta = db.Column(db.JSON(), default={})
-    user_id = db.Column(db.String(), db.ForeignKey("users.id"), nullable=True)
-    tenant_id = db.Column(db.String(), db.ForeignKey("tenants.id"), nullable=True)
+    user_id = db.Column(db.String(36), db.ForeignKey("users.id"), nullable=True)
+    tenant_id = db.Column(db.String(36), db.ForeignKey("tenants.id"), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 

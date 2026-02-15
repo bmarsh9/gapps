@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     depends_on:
-      - postgres
+      - mariadb
     networks:
       - db_nw
       - web_nw
@@ -17,13 +17,15 @@ services:
       - app_evidence:/app/app/files/evidence
       - app_reports:/app/app/files/reports
     environment:
-      - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
+      - SQLALCHEMY_DATABASE_URI=mysql+pymysql://${DB_USER:-db1}:${DB_PASSWORD:-db1}@${DB_HOST:-mariadb}:${DB_PORT:-3306}/${DB_NAME:-db1}?charset=utf8mb4
       - RESET_DB=${RESET_DB:-no}
       - VERSION=${VERSION:-2.0.0}
-      - POSTGRES_USER=${POSTGRES_USER:-db1}
-      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
-      - POSTGRES_DB=${POSTGRES_DB:-db1}
+      - DB_ENGINE=${DB_ENGINE:-mysql+pymysql}
+      - DB_USER=${DB_USER:-db1}
+      - DB_HOST=${DB_HOST:-mariadb}
+      - DB_PASSWORD=${DB_PASSWORD:-db1}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_NAME=${DB_NAME:-db1}
       - GUNICORN_WORKERS=${GUNICORN_WORKERS:-2}
       - GUNICORN_THREADS=${GUNICORN_THREADS:-4}
       - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-120}
@@ -77,21 +79,26 @@ services:
     env_file:
       - .env
 
-  postgres:
-    container_name: masri-postgres
-    image: postgres:15-alpine
+  mariadb:
+    container_name: masri-mariadb
+    image: mariadb:10.11
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-db1}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-db1}
-      POSTGRES_DB: ${POSTGRES_DB:-db1}
-      PGDATA: /data/postgres
+      MARIADB_USER: ${DB_USER:-db1}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-db1}
+      MARIADB_DATABASE: ${DB_NAME:-db1}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpassword}
     volumes:
-      - dbdata:/data/postgres
+      - dbdata:/var/lib/mysql
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${DB_PORT:-3306}:3306"
     networks:
       - db_nw
     restart: unless-stopped
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-buffer-pool-size=256M
+      --max-connections=200
 
 networks:
   db_nw:

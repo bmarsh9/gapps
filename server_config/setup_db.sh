@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 
-# Set up db,user and password
-## manage_db.sh db1
-
+# Set up MariaDB/MySQL database, user and password
+## setup_db.sh db1
+#
 # Delete
-## manage_db.sh -d db1
+## setup_db.sh -d db1
 
 while getopts ":d:l:" OPT; do
     case $OPT in
         d)
-            sudo -u postgres dropdb $OPTARG
-            sudo -u postgres dropuser $OPTARG
-            echo "Postgres user and database dropped."
+            mysql -u root -e "DROP DATABASE IF EXISTS $OPTARG;"
+            mysql -u root -e "DROP USER IF EXISTS '$OPTARG'@'%';"
+            echo "MariaDB user and database dropped."
             exit
             ;;
         l)
-            sudo -u postgres psql -t $OPTARG
+            mysql -u root -e "SHOW DATABASES;"
             exit
             ;;
     esac
@@ -26,9 +26,10 @@ if [ -z "$1" ]; then
   exit
 fi
 
-sudo su postgres <<EOF
-psql -c "CREATE USER $1 WITH PASSWORD '$1';"
-psql -c "ALTER USER $1 superuser;"
-createdb -O$1 -Eutf8 $1
-echo "Postgres user and database '$1' created."
+mysql -u root <<EOF
+CREATE DATABASE IF NOT EXISTS \`$1\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS '$1'@'%' IDENTIFIED BY '$1';
+GRANT ALL PRIVILEGES ON \`$1\`.* TO '$1'@'%';
+FLUSH PRIVILEGES;
 EOF
+echo "MariaDB user and database '$1' created."

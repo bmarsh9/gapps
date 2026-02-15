@@ -41,52 +41,48 @@ Follow the documentation [documentation](https://web-gapps.pages.dev/docs)
 
 ### FAQ
 
-##### If you get a database connection error trying to start Gapps, you need to update (or remove) your env variables
+##### If you get a database connection error trying to start the platform, you need to update (or remove) your env variables
 ```
-[INFO] Checking if we can connect to the database server: postgresql://db1:db1@localhost/db1
-[ERROR] could not connect to server: Connection refused
-        Is the server running on host "localhost" (127.0.0.1) and accepting
-        TCP/IP connections on port 5432?
-could not connect to server: Cannot assign requested address
-        Is the server running on host "localhost" (::1) and accepting
-        TCP/IP connections on port 5432?
+[INFO] Checking if we can connect to the database server: mysql+pymysql://db1:db1@localhost:3306/db1?charset=utf8mb4
+[ERROR] Can't connect to MySQL server on 'localhost'
 ```
 
-Can usually be fixed by unsetting two variables if running within docker. If you want to use a external database, see the next FAQ
+Can usually be fixed by unsetting two variables if running within docker. If you want to use an external database, see the next FAQ
 ```
 unset SQLALCHEMY_DATABASE_URI
-unset POSTGRES_HOST
+unset DB_HOST
 ```
 
 ##### Set env variables for the database connection
 
-The value `db1` is the default value for the username, database and password. If you would like to change it, update `db1` with the respective values and `postgres` for the host.
+The value `db1` is the default value for the username, database and password. If you would like to change it, update `db1` with the respective values and `mariadb` for the host.
 ```
-export POSTGRES_HOST=${POSTGRES_HOST:-postgres}
-export POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
-export POSTGRES_USER=${POSTGRES_USER:-db1}
-export POSTGRES_DB=${POSTGRES_DB:-db1}
-export SQLALCHEMY_DATABASE_URI="postgresql://db1:db1@postgres/db1"
+export DB_HOST=${DB_HOST:-mariadb}
+export DB_PASSWORD=${DB_PASSWORD:-db1}
+export DB_USER=${DB_USER:-db1}
+export DB_NAME=${DB_NAME:-db1}
+export DB_PORT=${DB_PORT:-3306}
+export SQLALCHEMY_DATABASE_URI="mysql+pymysql://db1:db1@mariadb:3306/db1?charset=utf8mb4"
 ```
 
 ##### Resetting the database
 When starting Gapps for the first time, it will automatically create the database models. If you want to reset the data (e.g. delete all data), you can set the `RESET_DB` env variable such as `export RESET_DB=yes`.
 
-##### Running Gapps for development
-Sometimes you may want to run Gapps outside of Docker. You can do this by starting the Postgres container and then starting Gapps in the foreground.
+##### Running for development
+Sometimes you may want to run the platform outside of Docker. You can do this by starting the MariaDB container and then starting the app in the foreground.
 
-1. Uncomment ports declaration [here](https://github.com/bmarsh9/gapps/blob/e8dd926fb946e47fa66f918afa543c535ae212be/docker-compose.yml#L59)
-2. Start the postgres container: `docker-compose up -d postgres`
-3. Set the following env variables:
+1. Start the MariaDB container: `docker-compose up -d mariadb`
+2. Set the following env variables:
 ```
-export POSTGRES_HOST=${POSTGRES_HOST:-localhost}
-export POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
-export POSTGRES_USER=${POSTGRES_USER:-db1}
-export POSTGRES_DB=${POSTGRES_DB:-db1}
-export SQLALCHEMY_DATABASE_URI="postgresql://db1:db1@localhost/db1"
+export DB_HOST=${DB_HOST:-localhost}
+export DB_PASSWORD=${DB_PASSWORD:-db1}
+export DB_USER=${DB_USER:-db1}
+export DB_NAME=${DB_NAME:-db1}
+export DB_PORT=${DB_PORT:-3306}
+export SQLALCHEMY_DATABASE_URI="mysql+pymysql://db1:db1@localhost:3306/db1?charset=utf8mb4"
 ```
-4. Run `export FLASK_CONFIG=development;bash run.sh` 
-5. Gapps should be running and connected to the database. You can now make changes to the code.
+3. Run `export FLASK_CONFIG=development;bash run.sh`
+4. The platform should be running and connected to the database. You can now make changes to the code.
 
 ##### Running with Docker Desktop
 1. Download the [docker-compose.yml](https://github.com/bmarsh9/gapps/blob/main/docker-compose.yml) file
