@@ -1,0 +1,1787 @@
+[
+  {
+    "name": "Leadership",
+    "description": "Top management is responsible for the cyber security program and must establish policy, objectives, resources, metrics, and support for leadership roles.",
+    "guidance": "Ensure security governance aligns with business strategy; track program metrics; and clearly empower leaders to implement the program.",
+    "ref_code": "DGSI104-4.1",
+    "system_level": false,
+    "subcategory": "4.1 Leadership",
+    "category": "Organizational Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-4.1-L1-a",
+        "name": "Establish policy & objectives",
+        "description": "Ensure cyber security policy and objectives are established and aligned with the organization's strategic direction.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.1",
+              "A.5.4",
+              "A.5.36"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.1-L1-b",
+        "name": "Provide resources",
+        "description": "Ensure resources needed for the cyber security program are available and aligned with policy and objectives.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.1",
+              "A.5.4",
+              "A.5.36"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.1-L1-c",
+        "name": "Communicate importance",
+        "description": "Communicate the importance of effective cyber security and conforming to the program requirements.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.1",
+              "A.5.4",
+              "A.5.36"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.1-L1-d",
+        "name": "Set metrics & track",
+        "description": "Establish cyber security program metrics and track progress.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.1",
+              "A.5.4",
+              "A.5.36"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.1-L1-e",
+        "name": "Support management roles",
+        "description": "Support other relevant management roles in demonstrating leadership for their areas of responsibility.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.1",
+              "A.5.4",
+              "A.5.36"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Accountability",
+    "description": "Assign a senior leader accountable for cyber security with defined responsibilities.",
+    "guidance": "Designate a single accountable senior leader to coordinate policy, training, incident response, and risk prioritization.",
+    "ref_code": "DGSI104-4.2",
+    "system_level": false,
+    "subcategory": "4.2 Accountability",
+    "category": "Organizational Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-4.2-L1-a",
+        "name": "Program implementation",
+        "description": "Develop and implement a company-wide cyber security program to meet baseline controls.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.2",
+              "A.5.4"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.2-L1-b",
+        "name": "Policies & procedures",
+        "description": "Document and disseminate information security policies and procedures.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.2",
+              "A.5.4"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.2-L1-c",
+        "name": "Training program",
+        "description": "Coordinate a company-wide security training and awareness program.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.2",
+              "A.5.4"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.2-L1-d",
+        "name": "Incident coordination",
+        "description": "Coordinate responses to suspected or actual breaches affecting confidentiality, integrity, or availability.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.2",
+              "A.5.4"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.2-L1-e",
+        "name": "Risk management",
+        "description": "Identify organizational risks and prioritize treatment relative to likelihood and impact.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.2",
+              "A.5.4"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Cyber security training",
+    "description": "Train employees on basic security practices; provide ongoing awareness (Level 2).",
+    "guidance": "Focus training on passwords, phishing, patching, and least privilege; maintain documented, ongoing awareness at Level 2.",
+    "ref_code": "DGSI104-4.3",
+    "system_level": false,
+    "subcategory": "4.3 Training",
+    "category": "Organizational Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-4.3-L1-a",
+        "name": "Password practices",
+        "description": "Train on compliance with password policies and secure authentication practices.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.3"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AT"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.3-L1-b",
+        "name": "Phishing awareness",
+        "description": "Train employees to identify malicious communications and phishing.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.3"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AT"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.3-L1-c",
+        "name": "Updates hygiene",
+        "description": "Train employees to keep devices and software updated.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.3"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AT"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.3-L1-d",
+        "name": "Least privilege",
+        "description": "Train on principle of least privilege and basic access controls.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.3"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AT"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.3-L2-1",
+        "name": "Ongoing awareness",
+        "description": "Provide documentation that regular and ongoing security awareness and training are provided.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.3"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AT"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Cyber security risk assessment",
+    "description": "Conduct cyber security risk assessments; implement and review controls commensurate with risk; maintain asset register and governance artifacts.",
+    "guidance": "Use risk assessments to understand confidentiality, integrity, and availability risks; determine triggers for reassessment; and verify controls annually or upon major change.",
+    "ref_code": "DGSI104-4.4",
+    "system_level": false,
+    "subcategory": "4.4 Risk assessment",
+    "category": "Organizational Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-4.4-L1-1",
+        "name": "Perform assessment",
+        "description": "Conduct a cyber security risk assessment (self-performed or via third party).",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.1"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.RA"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.4-L2-1",
+        "name": "Leadership-led assessment",
+        "description": "Appointed senior leader conducts/coordinates risk assessments and implementation of controls; consult experts as needed.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.1"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.RA"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.4-L2-2",
+        "name": "Asset register",
+        "description": "Develop and maintain an asset register of information systems and IT assets with purpose documented.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.9"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.AM"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.4-L2-3",
+        "name": "Document exceptions",
+        "description": "Document instances where baseline controls are not implemented with accepted inherent/residual risks authorized by a senior official.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.36"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.RM"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.4-L2-4",
+        "name": "Budget & staffing",
+        "description": "Identify cyber security spend (amount and % of total) and staffing (count and % of total).",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.4"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.4-L2-5",
+        "name": "Continuous improvement",
+        "description": "Commit to progressive cyber security improvements and define triggers/thresholds for reassessment.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.35",
+              "A.5.36"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.RM"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.4-L2-6",
+        "name": "Baseline controls",
+        "description": "Implement baseline controls in Sections 5 and applicable Section 6 as foundational minimums regardless of assessment outcome.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.1",
+              "A.5.36"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.GV"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.4-L2-7",
+        "name": "Testing & review",
+        "description": "Review and/or test controls at least annually or upon major change to ensure effectiveness.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.35"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP-10"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-4.4-L2-8",
+        "name": "Workforce with access",
+        "description": "Document total employees, part-time employees, and contractors that may access organizational data.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.2"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.AM"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Incident response plan",
+    "description": "Establish, test, and maintain an incident response plan; include contacts and communication mechanisms; consider cyber insurance.",
+    "guidance": "Adopt a lifecycle such as PICERL; coordinate with third parties where appropriate; maintain hard copy availability.",
+    "ref_code": "DGSI104-5.1",
+    "system_level": false,
+    "subcategory": "5.1 Incident response",
+    "category": "Baseline Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-5.1-L1-1",
+        "name": "Plan for incident types",
+        "description": "Maintain an incident response plan for different incident types and severities; define approach when internal capability is insufficient.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.24"
+            ],
+            "NIST_CSF_v1_1": [
+              "RS.RP-1"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.1-L1-2",
+        "name": "Roles & comms",
+        "description": "Identify responsible roles, external contacts (e.g., breach counsel, regulators), and communication mechanisms; keep a hard copy accessible.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.24",
+              "A.5.25"
+            ],
+            "NIST_CSF_v1_1": [
+              "RS.CO"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.1-L1-3",
+        "name": "Test the plan",
+        "description": "Test the incident response plan; include third-party providers where appropriate.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.24",
+              "A.5.26"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP-10"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.1-L1-4",
+        "name": "Cyber insurance",
+        "description": "Consider purchasing cyber insurance covering incident response and recovery or document rationale for not purchasing.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.29",
+              "A.5.30"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.RM"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.1-L1-5",
+        "name": "Use template",
+        "description": "Optionally use the template provided in Annex A to satisfy plan requirements.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.24"
+            ],
+            "NIST_CSF_v1_1": [
+              "RS.RP"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Automatic patching",
+    "description": "Maintain up-to-date patches; enable automatic updates where possible; assess replacing systems incapable of automatic patching.",
+    "guidance": "Enable automatic updates on OS, applications, firmware, and security software; establish manual processes if automation is unavailable.",
+    "ref_code": "DGSI104-5.2",
+    "system_level": false,
+    "subcategory": "5.2 Patching",
+    "category": "Baseline Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-5.2-L1-1",
+        "name": "Up-to-date patches",
+        "description": "Maintain up-to-date security patches for all software and hardware.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.8"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP-12"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.2-L1-2",
+        "name": "Enable automatic updates",
+        "description": "Enable automatic patching for all software and hardware or document business decisions not to; establish manual update process where needed.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.8"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP-12"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.2-L1-3",
+        "name": "Assess replacements",
+        "description": "Perform a risk assessment to determine whether to replace systems incapable of automatic patching.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.8"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP-12"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Enable security software",
+    "description": "Deploy and enable anti-malware solutions that auto-update and prevent malware execution.",
+    "guidance": "Use anti-virus/anti-malware across all connected devices; enable host firewalls or comparable alternatives.",
+    "ref_code": "DGSI104-5.3",
+    "system_level": false,
+    "subcategory": "5.3 Security software",
+    "category": "Baseline Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-5.3-L1-1",
+        "name": "Anti-malware enabled",
+        "description": "Enable anti-malware solutions that automatically update and prevent malware from executing.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.7"
+            ],
+            "NIST_CSF_v1_1": [
+              "DE.CM-4"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Secure configuration process",
+    "description": "Implement secure configurations: change defaults, disable unnecessary functions, and enable security features.",
+    "guidance": "Review vendor defaults; adopt configuration standards (e.g., CIS Benchmarks) and product best practices.",
+    "ref_code": "DGSI104-5.4",
+    "system_level": false,
+    "subcategory": "5.4 Secure configuration",
+    "category": "Baseline Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-5.4-L1-a",
+        "name": "Change default passwords",
+        "description": "Change all default administrative passwords on devices.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.9"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP-1",
+              "PR.IP-3"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.4-L1-b",
+        "name": "Disable unnecessary features",
+        "description": "Block unused ports, disable unused services, and remove obsolete software.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.9"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP-1",
+              "PR.IP-3"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.4-L1-c",
+        "name": "Enable security features",
+        "description": "Enable all relevant device and platform security features.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.9"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP-1",
+              "PR.IP-3"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Strong user authentication",
+    "description": "Implement MFA, enforce password changes upon compromise, and define password policy; implement password manager (Level 2).",
+    "guidance": "Balance security with usability; MFA significantly increases security; follow national guidance for password selection.",
+    "ref_code": "DGSI104-5.5",
+    "system_level": false,
+    "subcategory": "5.5 Authentication",
+    "category": "Baseline Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-5.5-L1-1",
+        "name": "Implement MFA",
+        "description": "Implement multi-factor authentication or document where it is not feasible.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.15",
+              "A.5.16",
+              "A.5.17",
+              "A.5.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.5-L1-2",
+        "name": "Change on compromise",
+        "description": "Enforce password changes upon suspicion or evidence of compromise.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.15",
+              "A.5.16",
+              "A.5.17",
+              "A.5.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.5-L1-3",
+        "name": "Password policy",
+        "description": "Define policies on length, reuse, password manager usage, and handling of written passwords.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.15",
+              "A.5.16",
+              "A.5.17",
+              "A.5.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.5-L2-1",
+        "name": "Password manager",
+        "description": "Implement a password manager or document the business decision not to.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.15",
+              "A.5.16",
+              "A.5.17",
+              "A.5.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Backup and encrypt data",
+    "description": "Determine critical data/systems and backup frequency; store offsite; protect and test backups; ensure backups are immutable; test recovery.",
+    "guidance": "Design backup strategy per system criticality; use encryption and protect keys; regularly test restores.",
+    "ref_code": "DGSI104-5.6",
+    "system_level": false,
+    "subcategory": "5.6 Backup & encryption",
+    "category": "Baseline Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-5.6-L1-1",
+        "name": "Identify essential information",
+        "description": "Determine essential business information/software and how frequently it changes.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.13",
+              "A.8.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP",
+              "RC.RP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.6-L1-2",
+        "name": "Define backup frequency",
+        "description": "Determine which systems to back up and at what frequency.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.13",
+              "A.8.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP",
+              "RC.RP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.6-L1-3",
+        "name": "Backup essential systems",
+        "description": "Back up systems containing essential information and ensure recovery mechanisms restore effectively.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.13",
+              "A.8.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP",
+              "RC.RP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.6-L1-4",
+        "name": "Offsite storage",
+        "description": "Store backups at a fully offsite location at regular intervals for disaster resilience.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.13",
+              "A.8.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP",
+              "RC.RP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.6-L1-5",
+        "name": "Encrypt backups",
+        "description": "Use encrypted backups with securely stored and recoverable keys; restrict access to keys and unencrypted backups.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.13",
+              "A.8.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP",
+              "RC.RP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.6-L1-6",
+        "name": "Immutability",
+        "description": "Ensure backup files are not modifiable to maintain data integrity.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.13",
+              "A.8.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP",
+              "RC.RP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.6-L1-7",
+        "name": "Test backups",
+        "description": "Regularly test critical backups for security and integrity.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.13",
+              "A.8.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP",
+              "RC.RP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.6-L1-8",
+        "name": "Test restores",
+        "description": "Sample backup data to verify recovery procedures at regular intervals.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.13",
+              "A.8.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.IP",
+              "RC.RP"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Perimeter defenses",
+    "description": "Implement network and email perimeter defenses including firewalls, DNS filtering, VPN, secure Wi‑Fi, segmentation, and email authentication.",
+    "guidance": "Use network and host firewalls, DNS firewalling, encrypted remote access (VPN + MFA), WPA2/WPA3 Enterprise, segmentation, and DMARC/DKIM/SPF + filtering.",
+    "ref_code": "DGSI104-5.7",
+    "system_level": false,
+    "subcategory": "5.7 Perimeter defenses",
+    "category": "Baseline Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-5.7-L2-1",
+        "name": "Network firewall",
+        "description": "Place a firewall between perimeters to control traffic kinds and amounts.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.29",
+              "A.8.30",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.PT"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.7-L2-2",
+        "name": "DNS firewall",
+        "description": "Implement a DNS firewall for outbound DNS requests to the Internet.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.33"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.DS",
+              "DE.CM"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.7-L2-3",
+        "name": "Host firewalls or alternatives",
+        "description": "Activate software firewalls on devices or document alternative measures.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.1"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.PT"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.7-L2-4",
+        "name": "Secure remote access",
+        "description": "Require encrypted connectivity to corporate resources and VPN with MFA for all remote access.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.15",
+              "A.5.16",
+              "A.5.17"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.7-L2-5",
+        "name": "Secure Wi‑Fi",
+        "description": "Use secure Wi‑Fi (minimum WPA2‑AES; preferably WPA2‑Enterprise or WPA3‑Enterprise) and manage passwords per policy.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.PT"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.7-L2-6",
+        "name": "Network segmentation",
+        "description": "Segment networks; isolate public/customer networks from corporate networks.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC-5"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.7-L2-7",
+        "name": "Email authentication",
+        "description": "Implement DMARC, DKIM, and SPF on all organization email services.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.34"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.DS"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.7-L2-8",
+        "name": "Email filtering",
+        "description": "Ensure email filtering is implemented.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.7"
+            ],
+            "NIST_CSF_v1_1": [
+              "DE.CM-4"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.7-L2-9",
+        "name": "Home network isolation",
+        "description": "Encourage/require users to join a separate network (e.g., guest) for work when working from home, or document rationale not to.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Access control and authorization",
+    "description": "Apply least privilege; restrict admin privileges; remove access when no longer required; centralize authentication (Level 2).",
+    "guidance": "Provision minimum necessary access; separate admin and user activities; prefer centralized identity services.",
+    "ref_code": "DGSI104-5.8",
+    "system_level": false,
+    "subcategory": "5.8 Access control",
+    "category": "Baseline Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-5.8-L1-1",
+        "name": "Provision minimum access",
+        "description": "Provision accounts with minimum functionality necessary and restrict administrator privileges to as‑required.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.15",
+              "A.5.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.8-L1-2",
+        "name": "Deprovision promptly",
+        "description": "Remove accounts and functionality when users no longer require them.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.15",
+              "A.5.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.8-L1-3",
+        "name": "Separate admin use",
+        "description": "Permit administrator accounts only for administrative activities (not email/web browsing).",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.15",
+              "A.5.18"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-5.8-L2-1",
+        "name": "Centralized auth",
+        "description": "Implement a centralized authentication system (e.g., directory or identity service).",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.16"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Secure mobility",
+    "description": "Educate mobile users on safe connectivity; define device ownership and enforce separation, EMM, encryption, and safe network usage (Level 2).",
+    "guidance": "Decide on COPE vs BYOD; separate work/personal data; control app sources; prefer EMM to manage/wipe devices.",
+    "ref_code": "DGSI104-6.1",
+    "system_level": false,
+    "subcategory": "6.1 Secure mobility",
+    "category": "Operating Environment Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-6.1-L1-a",
+        "name": "Disable auto-join",
+        "description": "Educate users to disable automatic connections to open networks.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.1-L1-b",
+        "name": "Avoid untrusted Wi‑Fi",
+        "description": "Avoid connecting to untrusted Wi‑Fi networks.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.1-L1-c",
+        "name": "Limit Bluetooth/NFC",
+        "description": "Limit use of Bluetooth and NFC for sensitive exchanges.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.1-L1-d",
+        "name": "Prefer corporate or cellular",
+        "description": "Use corporate Wi‑Fi or cellular data rather than public Wi‑Fi.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.1-L1-e",
+        "name": "Use secure connectivity",
+        "description": "Use secure connectivity (e.g., VPN or virtual desktop) when on public Wi‑Fi.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.1-L2-1",
+        "name": "Ownership model",
+        "description": "Decide and document device ownership model and associated risks (e.g., COPE vs BYOD).",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.1-L2-2",
+        "name": "Separate work & personal",
+        "description": "Require separation of work and personal data on devices with corporate access; document how separation is enforced.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.1-L2-3",
+        "name": "Trusted app sources",
+        "description": "Ensure employees only download apps from organization's trusted sources.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.1-L2-4",
+        "name": "Encrypt mobile data",
+        "description": "Require that all mobile devices store sensitive information in a secure, encrypted state.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.1-L2-5",
+        "name": "Enterprise Mobility Mgmt",
+        "description": "Implement an EMM solution or document risks of not implementing one.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.1-L2-6",
+        "name": "Enforce safe usage",
+        "description": "Enforce safe network usage requirements or document rationale if not enforced.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.6.7",
+              "A.8.1",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.IP"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Secure cloud and outsourced IT services",
+    "description": "Assess risk tolerance and provider handling of sensitive data; assess providers and jurisdictions; secure communications; require MFA for admin accounts.",
+    "guidance": "Perform vendor risk analysis; require recognized certifications/reports or justify exceptions; ensure secure connectivity to cloud services.",
+    "ref_code": "DGSI104-6.2",
+    "system_level": false,
+    "subcategory": "6.2 Cloud & outsourced services",
+    "category": "Operating Environment Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-6.2-L1-1",
+        "name": "Assess tolerance",
+        "description": "Evaluate risk tolerance with how outsourced providers handle and access sensitive information.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.19",
+              "A.5.20",
+              "A.5.21",
+              "A.5.22",
+              "A.5.23"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.SC",
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.2-L2-1",
+        "name": "Vendor risk assessment",
+        "description": "Complete a risk assessment of externally provided services (use Vendor Risk Analysis Questionnaire).",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.19",
+              "A.5.20",
+              "A.5.21",
+              "A.5.22",
+              "A.5.23"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.SC",
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.2-L2-2",
+        "name": "Compliance reports",
+        "description": "Require external providers to share reports demonstrating compliance (e.g., SOC 2, ISO/IEC 27001, PCI-DSS, ISO/IEC 20000, CAN/DGSI 104, or equivalent), or document business case not to.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.19",
+              "A.5.20",
+              "A.5.21",
+              "A.5.22",
+              "A.5.23"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.SC",
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.2-L2-3",
+        "name": "Data flow & jurisdiction",
+        "description": "Assess risks of data transmission and storage (including legal jurisdictions).",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.19",
+              "A.5.20",
+              "A.5.21",
+              "A.5.22",
+              "A.5.23"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.SC",
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.2-L2-4",
+        "name": "Secure communications",
+        "description": "Ensure IT infrastructure and users communicate securely with all cloud services and applications.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.19",
+              "A.5.20",
+              "A.5.21",
+              "A.5.22",
+              "A.5.23"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.SC",
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.2-L2-5",
+        "name": "Admin MFA & separation",
+        "description": "Ensure all administrative cloud accounts use MFA and differ from internal administrator accounts.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.19",
+              "A.5.20",
+              "A.5.21",
+              "A.5.22",
+              "A.5.23"
+            ],
+            "NIST_CSF_v1_1": [
+              "ID.SC",
+              "PR.AC"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Secure websites",
+    "description": "Address OWASP Top 10 risks; remediate high/medium risks; define ASVS level for each website.",
+    "guidance": "Use OWASP Top 10 and ASVS to baseline requirements; include ASVS in contracts for outsourced sites.",
+    "ref_code": "DGSI104-6.3",
+    "system_level": false,
+    "subcategory": "6.3 Websites",
+    "category": "Operating Environment Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-6.3-L1-1",
+        "name": "Awareness of OWASP Top 10",
+        "description": "Demonstrate awareness of the OWASP Top 10 web application risks.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.22",
+              "A.8.23",
+              "A.8.28"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.DS",
+              "DE.CM"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.3-L2-1",
+        "name": "Remediate Top 10 risks",
+        "description": "Remediate high and medium OWASP Top 10 risks for primary marketing websites to acceptable risk levels.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.22",
+              "A.8.23",
+              "A.8.28"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.DS",
+              "DE.CM"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.3-L2-2",
+        "name": "Define ASVS level",
+        "description": "Define the OWASP ASVS level required for each website.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.22",
+              "A.8.23",
+              "A.8.28"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.DS",
+              "DE.CM"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Secure portable media",
+    "description": "Limit to organization-owned secure portable media; enforce asset control, encryption, and proper sanitization/disposal.",
+    "guidance": "Control use of USB/portable media; prefer encrypted, org-provided devices; maintain lifecycle management.",
+    "ref_code": "DGSI104-6.4",
+    "system_level": false,
+    "subcategory": "6.4 Portable media",
+    "category": "Operating Environment Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-6.4-L1-1",
+        "name": "Org-owned only",
+        "description": "Mandate sole use of organization-owned secure portable media.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.7.10",
+              "A.8.10"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.DS"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.4-L2-1",
+        "name": "Asset control",
+        "description": "Maintain strong asset control for portable media devices.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.7.10",
+              "A.8.10"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.DS"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.4-L2-2",
+        "name": "Encrypt devices",
+        "description": "Require encryption on all portable media devices.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.7.10",
+              "A.8.10"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.DS"
+            ]
+          }
+        },
+        "tasks": []
+      },
+      {
+        "ref_code": "DGSI104-6.4-L2-3",
+        "name": "Sanitize/dispose",
+        "description": "Sanitize or destroy portable media prior to disposal.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.7.10",
+              "A.8.10"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.DS"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Point of sale (POS) & financial systems",
+    "description": "Follow PCI DSS for POS/financial systems; segment them from other networks with firewalls.",
+    "guidance": "Isolate POS/financial networks from Internet and corporate networks; adhere to PCI DSS.",
+    "ref_code": "DGSI104-6.5",
+    "system_level": false,
+    "subcategory": "6.5 POS & financial",
+    "category": "Operating Environment Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-6.5-L1-1",
+        "name": "PCI DSS compliance",
+        "description": "Follow the Payment Card Industry Data Security Standard (PCI DSS) for POS and financial systems.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.5.23",
+              "A.8.29",
+              "A.8.31"
+            ],
+            "NIST_CSF_v1_1": [
+              "PR.AC",
+              "PR.DS"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  },
+  {
+    "name": "Computer security log management",
+    "description": "Establish log management policy and procedures (Level 2); include log backups and appropriate retention.",
+    "guidance": "Log authentication, security, file access, device status, firewall/IDS; set retention per legal and business needs.",
+    "ref_code": "DGSI104-6.6",
+    "system_level": false,
+    "subcategory": "6.6 Log management",
+    "category": "Operating Environment Controls",
+    "dti": "moderate",
+    "dtc": "moderate",
+    "meta": {},
+    "subcontrols": [
+      {
+        "ref_code": "DGSI104-6.6-L2-1",
+        "name": "Policy & procedure",
+        "description": "Define a log management policy (including log backup) and procedure to implement it; set retention as appropriate.",
+        "meta": {
+          "mappings": {
+            "ISO27001_2022_AnnexA": [
+              "A.8.15",
+              "A.8.16"
+            ],
+            "NIST_CSF_v1_1": [
+              "DE.CM"
+            ]
+          }
+        },
+        "tasks": []
+      }
+    ]
+  }
+]
