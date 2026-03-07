@@ -15,9 +15,11 @@ def validate_token_in_header(enc_token):
     user = User.verify_auth_token(enc_token)
     if not user:
         return False
-    if not user.is_active:
+    # Ensure the user is active
+    if not getattr(user, "is_active", True):
         return False
-    if not user.confirmed:
+    # The model stores confirmation as `email_confirmed_at` (datetime) — use that
+    if not getattr(user, "email_confirmed_at", None):
         return False
     return user
 

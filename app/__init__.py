@@ -7,6 +7,7 @@ from flask_login import LoginManager
 from authlib.integrations.flask_client import OAuth
 from sqlalchemy import exc
 import logging
+from flask_swagger_ui import get_swaggerui_blueprint
 
 
 db = SQLAlchemy()
@@ -20,6 +21,18 @@ def create_app(config_name="default"):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
+
+    # Register Swagger UI (flask-swagger-ui)
+    SWAGGER_URL = "/api/docs"  # URL for exposing Swagger UI (without trailing slash)
+    API_URL = "/api/v1/swagger.json"  # Our API spec
+    swaggerui_blueprint = get_swaggerui_blueprint(
+        SWAGGER_URL,
+        API_URL,
+        config={
+            "app_name": "Gapps API Docs"
+        },
+    )
+    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     configure_models(app)
     registering_blueprints(app)
