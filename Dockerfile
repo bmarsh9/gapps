@@ -28,4 +28,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /usr/local /usr/local/
 
 COPY . .
+RUN sed -i 's/\r$//' run.sh && chmod +x run.sh
 CMD ["/bin/bash", "run.sh"]
